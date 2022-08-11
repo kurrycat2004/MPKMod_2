@@ -4,6 +4,7 @@ import io.github.kurrycat.mpkmod.compatability.API;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -35,12 +36,16 @@ public class MPKMod_1_8 {
                 Keyboard.KEY_NONE,
                 API.KEYBINDING_CATEGORY
         );
-        gui = new MPKGuiScreen_1_8(API.guiScreen);
+        gui = new MPKGuiScreen_1_8(API.getGuiScreen());
 
         API.init(Minecraft.getSessionInfo().get("X-Minecraft-Version"));
 
+        ClientRegistry.registerKeyBinding(keyBinding);
+
         MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(this);
+
+
     }
 
     @SideOnly(Side.CLIENT)

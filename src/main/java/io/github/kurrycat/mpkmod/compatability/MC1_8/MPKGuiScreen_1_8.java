@@ -23,26 +23,30 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
         repeatEventsEnabled = Keyboard.areRepeatEventsEnabled();
         Keyboard.enableRepeatEvents(true);
         super.initGui();
-
+        eventReceiver.onGuiInit();
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-
+        drawDefaultBackground();
+        eventReceiver.drawScreen(mouseX,mouseY,partialTicks);
     }
 
     @Override
     public void onGuiClosed() {
         Keyboard.enableRepeatEvents(repeatEventsEnabled);
         super.onGuiClosed();
+        eventReceiver.onGuiClosed();
     }
 
     @Override
     public void handleKeyboardInput() throws IOException {
         int keyCode = Keyboard.getEventKey();
         char key = Keyboard.getEventCharacter();
-        boolean repeatKeyEvent = Keyboard.isRepeatEvent();
         boolean pressed = Keyboard.getEventKeyState();
+        boolean repeatKeyEvent = Keyboard.isRepeatEvent();
+
+        eventReceiver.onKeyEvent(keyCode, key, pressed, repeatKeyEvent);
 
         super.handleKeyboardInput();
     }
@@ -51,11 +55,13 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
     @Override
     protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
         super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+        eventReceiver.onMouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
     }
 
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {
         super.mouseReleased(mouseX, mouseY, state);
+        eventReceiver.onMouseReleased(mouseX,mouseY, state);
     }
 
     @Override

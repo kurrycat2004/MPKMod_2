@@ -8,17 +8,22 @@ import java.time.Instant;
 public class API {
     public static Instant gameStartedInstant;
     public static String mcVersion;
-    public static final String MODID = "assets/mpkmod";
+    public static final String MODID = "mpkmod";
     public static final String NAME = "MPK Mod";
     public static final String VERSION = "2.0";
     public static final String KEYBINDING_CATEGORY = NAME;
 
-    public static MPKGuiScreen guiScreen;
+    private static MPKGuiScreen guiScreen;
+
+    public static MPKGuiScreen getGuiScreen() {
+        if(guiScreen == null)
+            guiScreen = new MainGuiScreen();
+        return guiScreen;
+    }
+
     public static void init(String mcVersion) {
         API.mcVersion = mcVersion;
         gameStartedInstant = Instant.now();
-
-        guiScreen = new MainGuiScreen();
 
         System.out.println("Loaded\n\n\n\n\n\n\n\n\n\n\n\n");
 
