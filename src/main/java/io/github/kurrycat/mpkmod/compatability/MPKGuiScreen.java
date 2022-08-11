@@ -8,7 +8,7 @@ public abstract class MPKGuiScreen {
     public void onGuiClosed() {
     }
 
-    public void onKeyEvent(int keyCode, char key, boolean pressed, boolean repeatKeyEvent) {
+    public void onKeyEvent(int keyCode, String key, boolean pressed) {
     }
 
     public void onMouseClickMove(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick) {
