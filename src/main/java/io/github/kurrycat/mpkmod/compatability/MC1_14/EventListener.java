@@ -1,24 +1,22 @@
-package io.github.kurrycat.mpkmod.compatability.MC1_8;
+package io.github.kurrycat.mpkmod.compatability.MC1_14;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 
 public class EventListener {
-    @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent e) {
-        Minecraft mc = Minecraft.getMinecraft();
-        EntityPlayerSP mcPlayer = mc.thePlayer;
+        Minecraft mc = Minecraft.getInstance();
+        ClientPlayerEntity mcPlayer = mc.player;
 
         if (e.type != TickEvent.Type.CLIENT) return;
-        if (e.side != Side.CLIENT) return;
+        if (e.side != LogicalSide.CLIENT) return;
 
         Player player;
         if (mcPlayer == null)
@@ -27,7 +25,7 @@ public class EventListener {
             player = new Player()
                     .setPos(new Vector3D(mcPlayer.posX, mcPlayer.posY, mcPlayer.posZ))
                     .setLastPos(new Vector3D(mcPlayer.lastTickPosX, mcPlayer.lastTickPosY, mcPlayer.lastTickPosZ))
-                    .setMotion(new Vector3D(mcPlayer.motionX, mcPlayer.motionY, mcPlayer.motionZ))
+                    .setMotion(new Vector3D(mcPlayer.getMotion().x, mcPlayer.getMotion().y, mcPlayer.getMotion().z))
                     .setYaw(mcPlayer.rotationYaw)
                     .setPitch(mcPlayer.rotationPitch);
         }

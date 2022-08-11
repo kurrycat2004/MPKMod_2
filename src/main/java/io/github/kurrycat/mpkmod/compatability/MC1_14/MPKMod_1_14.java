@@ -1,0 +1,53 @@
+package io.github.kurrycat.mpkmod.compatability.MC1_14;
+
+import io.github.kurrycat.mpkmod.compatability.API;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+
+@Mod(API.MODID)
+public class MPKMod_1_14 {
+    public KeyBinding keyBinding;
+    private MPKGuiScreen_1_14 gui;
+
+    public MPKGuiScreen_1_14 getGui() {
+        if (gui == null)
+            gui = new MPKGuiScreen_1_14(API.getGuiScreen());
+        return gui;
+    }
+
+    public MPKMod_1_14() {
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
+    }
+
+    public void init(FMLCommonSetupEvent event) {
+        keyBinding = new KeyBinding(
+                API.MODID + ".key.gui.desc",
+                -1,
+                API.KEYBINDING_CATEGORY
+        );
+
+        API.init(Minecraft.getInstance().getVersion());
+
+        ClientRegistry.registerKeyBinding(keyBinding);
+
+        MinecraftForge.EVENT_BUS.register(new EventListener());
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+
+    @SubscribeEvent
+    public void onEvent(InputEvent.KeyInputEvent event) {
+        if (keyBinding.isPressed()) {
+
+            Minecraft.getInstance().displayGuiScreen(getGui());
+        }
+    }
+
+}
