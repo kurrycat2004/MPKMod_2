@@ -1,28 +1,29 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_19;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MPKGuiScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 public class MPKGuiScreen_1_19 extends Screen {
     public MPKGuiScreen eventReceiver;
 
     public MPKGuiScreen_1_19(MPKGuiScreen screen) {
-        super(new TranslationTextComponent(API.MODID + ".gui.title"));
+        super(Component.translatable(API.MODID + ".gui.title"));
         eventReceiver = screen;
     }
 
-    public void init(Minecraft mc, int width, int height) {
-        mc.keyboardListener.enableRepeatEvents(true);
-        super.init(mc, width, height);
+    public void init() {
+        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
         eventReceiver.onGuiInit();
     }
 
-    public void render(int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground();
+    public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground(poseStack);
         if (eventReceiver != null)
             eventReceiver.drawScreen(mouseX, mouseY, partialTicks);
     }
@@ -52,12 +53,12 @@ public class MPKGuiScreen_1_19 extends Screen {
     }
 
     public boolean keyPressed(int key, int scanCode, int modifiers) {
-        eventReceiver.onKeyEvent(key, InputMappings.getInputByCode(key, scanCode).getTranslationKey(), true);
+        eventReceiver.onKeyEvent(key, InputConstants.getKey(key, scanCode).getName(), true);
         return super.keyPressed(key, scanCode, modifiers);
     }
 
     public boolean keyReleased(int key, int scanCode, int modifiers) {
-        eventReceiver.onKeyEvent(key, InputMappings.getInputByCode(key, scanCode).getTranslationKey(), true);
+        eventReceiver.onKeyEvent(key, InputConstants.getKey(key, scanCode).getName(), true);
         return super.keyReleased(key, scanCode, modifiers);
     }
 }

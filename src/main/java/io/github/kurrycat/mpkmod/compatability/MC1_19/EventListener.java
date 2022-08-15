@@ -1,13 +1,12 @@
-package io.github.kurrycat.mpkmod.compatability.MC1_14;
+package io.github.kurrycat.mpkmod.compatability.MC1_19;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 
@@ -15,7 +14,7 @@ public class EventListener {
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent e) {
         Minecraft mc = Minecraft.getInstance();
-        ClientPlayerEntity mcPlayer = mc.player;
+        LocalPlayer mcPlayer = mc.player;
 
         if (e.type != TickEvent.Type.CLIENT) return;
         if (e.side != LogicalSide.CLIENT) return;
@@ -25,11 +24,11 @@ public class EventListener {
             player = null;
         else {
             player = new Player()
-                    .setPos(new Vector3D(mcPlayer.posX, mcPlayer.posY, mcPlayer.posZ))
-                    .setLastPos(new Vector3D(mcPlayer.lastTickPosX, mcPlayer.lastTickPosY, mcPlayer.lastTickPosZ))
-                    .setMotion(new Vector3D(mcPlayer.getMotion().x, mcPlayer.getMotion().y, mcPlayer.getMotion().z))
-                    .setYaw(mcPlayer.rotationYaw)
-                    .setPitch(mcPlayer.rotationPitch);
+                    .setPos(new Vector3D(mcPlayer.getX(), mcPlayer.getY(), mcPlayer.getZ()))
+                    .setLastPos(new Vector3D(mcPlayer.xOld, mcPlayer.yOld, mcPlayer.zOld))
+                    .setMotion(new Vector3D(mcPlayer.getDeltaMovement().x, mcPlayer.getDeltaMovement().y, mcPlayer.getDeltaMovement().z))
+                    .setYaw(mcPlayer.getXRot())
+                    .setPitch(mcPlayer.getYRot());
         }
 
         if (e.phase == TickEvent.Phase.START)
@@ -39,8 +38,7 @@ public class EventListener {
     }
 
     @SubscribeEvent
-    public void onRender(RenderGameOverlayEvent e) {
-        if(e.getType() == RenderGameOverlayEvent.ElementType.TEXT)
-            API.onRenderOverlay();
+    public void onRender(RenderGuiOverlayEvent.Pre e) {
+        API.onRenderOverlay();
     }
 }
