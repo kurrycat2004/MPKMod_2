@@ -39,6 +39,10 @@ public class MPKMod_1_8 {
         gui = new MPKGuiScreen_1_8(API.getGuiScreen());
 
         API.init(Minecraft.getSessionInfo().get("X-Minecraft-Version"));
+        API.registerDrawString(
+                (text, x, y, color, dropShadow) ->
+                        Minecraft.getMinecraft().fontRendererObj.drawString(text, x, y, color.getRGB(), dropShadow)
+        );
 
         ClientRegistry.registerKeyBinding(keyBinding);
 

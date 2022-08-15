@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.compatability.MCClasses;
 
 import io.github.kurrycat.mpkmod.util.Vector3D;
 
+@SuppressWarnings("unused")
 public class Player {
     private Vector3D pos = null;
     private Vector3D lastPos = null;
