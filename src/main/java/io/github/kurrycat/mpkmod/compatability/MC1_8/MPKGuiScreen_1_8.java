@@ -1,6 +1,6 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
-import io.github.kurrycat.mpkmod.compatability.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

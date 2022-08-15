@@ -48,8 +48,6 @@ public class MPKMod_1_8 {
 
         MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(this);
-
-
     }
 
     @SideOnly(Side.CLIENT)

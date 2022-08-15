@@ -1,4 +1,4 @@
-package io.github.kurrycat.mpkmod.compatability;
+package io.github.kurrycat.mpkmod.gui;
 
 @SuppressWarnings("unused")
 public abstract class MPKGuiScreen {
