@@ -5,7 +5,9 @@ import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 
@@ -34,5 +36,11 @@ public class EventListener {
             API.onTickStart(player);
         else if (e.phase == TickEvent.Phase.END)
             API.onTickEnd(player);
+    }
+
+    @SubscribeEvent
+    public void onRender(RenderGameOverlayEvent e) {
+        if(e.getType() == RenderGameOverlayEvent.ElementType.TEXT)
+            API.onRenderOverlay();
     }
 }

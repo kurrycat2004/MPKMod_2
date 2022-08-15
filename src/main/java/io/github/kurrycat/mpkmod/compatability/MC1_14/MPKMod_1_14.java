@@ -16,14 +16,14 @@ public class MPKMod_1_14 {
     public KeyBinding keyBinding;
     private MPKGuiScreen_1_14 gui;
 
+    public MPKMod_1_14() {
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
+    }
+
     public MPKGuiScreen_1_14 getGui() {
         if (gui == null)
             gui = new MPKGuiScreen_1_14(API.getGuiScreen());
         return gui;
-    }
-
-    public MPKMod_1_14() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
     }
 
     public void init(FMLCommonSetupEvent event) {
@@ -34,6 +34,14 @@ public class MPKMod_1_14 {
         );
 
         API.init(Minecraft.getInstance().getVersion());
+        API.registerDrawString(
+                (text, x, y, color, dropShadow) -> {
+                    if (dropShadow)
+                        Minecraft.getInstance().fontRenderer.drawStringWithShadow(text, x, y, color.getRGB());
+                    else
+                        Minecraft.getInstance().fontRenderer.drawString(text, x, y, color.getRGB());
+                }
+        );
 
         ClientRegistry.registerKeyBinding(keyBinding);
 
