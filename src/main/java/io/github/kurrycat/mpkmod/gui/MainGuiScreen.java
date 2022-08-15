@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.gui;
 
 import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.util.Colors;
+import io.github.kurrycat.mpkmod.util.FormatStringBuilder;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 public class MainGuiScreen extends ComponentScreen {
@@ -9,11 +10,34 @@ public class MainGuiScreen extends ComponentScreen {
         super.onGuiInit();
 
         components.add(
-                new InfoLabel("X: {white}{player.pos.x,10}", new Vector2D(5, 20))
+                new InfoLabel(
+                        new FormatStringBuilder()
+                                .addString("X: ")
+                                .setColor(Colors.WHITE)
+                                .addVar("player.pos.x", 10)
+                                .toString(),
+                        new Vector2D(5, 20))
                         .setColor(Colors.GOLD.getColor())
         );
         components.add(
-                new InfoLabel("Pos: [{white}{player.pos.x}{gold}, {lpurple}{player.pos.y}{gold}, {blue}{player.pos.z}{gold}]", new Vector2D(5, 30))
+                new InfoLabel(
+                        new FormatStringBuilder()
+                                .addString("Pos: [")
+                                .setColor(Colors.WHITE)
+                                .addVar("player.pos.x")
+                                .setColor(Colors.GOLD)
+                                .addString(", ")
+                                .setColor(Colors.LIGHT_PURPLE)
+                                .addVar("player.pos.y")
+                                .setColor(Colors.GOLD)
+                                .addString(", ")
+                                .setColor(Colors.BLUE)
+                                .addVar("player.pos.z")
+                                .setColor(Colors.GOLD)
+                                .addString("]")
+                                .toString(),
+                        new Vector2D(5, 30)
+                )
                         .setColor(Colors.GOLD.getColor())
         );
     }
