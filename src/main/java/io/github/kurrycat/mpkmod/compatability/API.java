@@ -30,7 +30,10 @@ public class API {
     }
 
     public static MPKGuiScreen getGuiScreen() {
-        if (guiScreen == null) guiScreen = new MainGuiScreen();
+        if (guiScreen == null) {
+            guiScreen = new MainGuiScreen();
+            guiScreen.onGuiInit();
+        }
         return guiScreen;
     }
 
