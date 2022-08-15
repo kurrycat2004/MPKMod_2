@@ -8,8 +8,10 @@ import io.github.kurrycat.mpkmod.events.EventAPI;
 import io.github.kurrycat.mpkmod.events.OnRenderOverlayEvent;
 import io.github.kurrycat.mpkmod.events.OnTickEndEvent;
 import io.github.kurrycat.mpkmod.events.OnTickStartEvent;
+import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.gui.MainGuiScreen;
+import io.github.kurrycat.mpkmod.gui.components.Component;
 
-import java.awt.*;
 import java.time.Instant;
 
 public class API {
@@ -22,6 +24,10 @@ public class API {
     private static MPKGuiScreen guiScreen;
 
     private static Player lastPlayer = null;
+
+    public static Player getLastPlayer() {
+        return lastPlayer;
+    }
 
     public static MPKGuiScreen getGuiScreen() {
         if (guiScreen == null) guiScreen = new MainGuiScreen();
@@ -36,7 +42,15 @@ public class API {
 
         DiscordRPC.init();
 
-        EventAPI.addListener(EventAPI.EventListener.onRenderOverlay(e -> FontRenderer.drawString("TEST", 50, 50, Color.RED, true)));
+        EventAPI.addListener(
+                EventAPI.EventListener.onRenderOverlay(
+                        e -> {
+                            for (Component c : ((MainGuiScreen) getGuiScreen()).components) {
+                                c.render();
+                            }
+                        }
+                )
+        );
     }
 
     public static void registerDrawString(DrawStringFunction function) {
