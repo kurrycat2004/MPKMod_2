@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.compatability;
 
+@SuppressWarnings("unused")
 public abstract class MPKGuiScreen {
 
     public void onGuiInit() {
