@@ -30,7 +30,6 @@ public class API {
     public static MPKGuiScreen getGuiScreen() {
         if (guiScreen == null) {
             guiScreen = new MainGuiScreen();
-            guiScreen.onGuiInit();
         }
         return guiScreen;
     }
@@ -66,5 +65,9 @@ public class API {
 
     public static void onRenderOverlay() {
         EventAPI.postEvent(new OnRenderOverlayEvent(lastPlayer));
+    }
+
+    public static void loadComplete() {
+        getGuiScreen().onGuiInit();
     }
 }

@@ -26,12 +26,11 @@ public class DiscordRPC {
             params.setFlags(CreateParams.getDefaultFlags());
 
             core = new Core(params);
-
-            // Create the Activity
-            updateActivity("Testing MPKMod 2 Discord RPC");
-
-            startCallbackThread();
         }
+        // Create the Activity
+        updateActivity("Testing MPKMod 2 Discord RPC");
+
+        startCallbackThread();
     }
 
     public static void updateActivity(String details) {
