@@ -3,19 +3,21 @@ package io.github.kurrycat.mpkmod.compatability.MC1_8;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.event.FMLEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
 @Mod(
         modid = API.MODID,
@@ -40,7 +42,6 @@ public class MPKMod_1_8 {
         );
         gui = new MPKGuiScreen_1_8(API.getGuiScreen());
 
-        API.init(Minecraft.getSessionInfo().get("X-Minecraft-Version"));
         FunctionRegistry.registerDrawString(
                 (text, x, y, color, dropShadow) ->
                         Minecraft.getMinecraft().fontRendererObj.drawString(text, x, y, color.getRGB(), dropShadow)
@@ -50,6 +51,22 @@ public class MPKMod_1_8 {
 
         MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(this);
+
+        System.out.println("Registering Keybindings...");
+        for (KeyBinding k : Minecraft.getMinecraft().gameSettings.keyBindings) {
+            new io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding(
+                    () -> GameSettings.getKeyDisplayString(k.getKeyCode()),
+                    k.getKeyDescription(),
+                    k::isKeyDown
+            );
+        }
+
+        API.init(Minecraft.getSessionInfo().get("X-Minecraft-Version"));
+    }
+
+    @EventHandler
+    public void loadComplete(FMLLoadCompleteEvent e) {
+        API.loadComplete();
     }
 
     @SideOnly(Side.CLIENT)
