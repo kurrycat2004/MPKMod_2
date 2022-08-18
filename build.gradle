@@ -51,6 +51,7 @@ dependencies {
     //compile "some.group:artifact:version"
 
     compile 'com.github.JnCrMx:discord-game-sdk4j:v0.5.5'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
 
     // real examples
     //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
