@@ -4,6 +4,7 @@ import de.jcm.discordgamesdk.Core;
 import de.jcm.discordgamesdk.CreateParams;
 import de.jcm.discordgamesdk.activity.Activity;
 import io.github.kurrycat.mpkmod.compatability.API;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 
 import java.io.File;
 
@@ -28,20 +29,38 @@ public class DiscordRPC {
             core = new Core(params);
         }
         // Create the Activity
-        updateActivity("Testing MPKMod 2 Discord RPC");
+        updateWorldAndPlayState();
 
         startCallbackThread();
     }
 
-    public static void updateActivity(String details) {
+    public static void updateActivity(String details, String state) {
         try (Activity activity = new Activity()) {
             activity.setDetails(details);
+            if (state != null)
+                activity.setState(state);
 
             activity.timestamps().setStart(API.gameStartedInstant);
 
             activity.assets().setLargeImage("mpkmod_logo");
             core.activityManager().updateActivity(activity);
         }
+    }
+
+    public static void updateWorldAndPlayState() {
+        String details = "Minecraft " + Minecraft.version;
+        String state = null;
+
+
+        if (Minecraft.worldState == Minecraft.WorldState.MENU) {
+            state = Minecraft.playState == Minecraft.PlayState.AFK ? "AFK in Menu" : "In Menu";
+        } else if (Minecraft.worldState == Minecraft.WorldState.SINGLE_PLAYER) {
+            state = Minecraft.playState == Minecraft.PlayState.AFK ? "AFK in Singleplayer" : "Playing Singleplayer";
+        } else if (Minecraft.worldState == Minecraft.WorldState.MULTI_PLAYER) {
+            state = (Minecraft.playState == Minecraft.PlayState.AFK ? "AFK on " : "Playing on ") + Minecraft.getIP();
+        }
+
+        updateActivity(details, state);
     }
 
     public static void startCallbackThread() {

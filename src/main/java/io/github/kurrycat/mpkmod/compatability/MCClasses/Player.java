@@ -10,7 +10,6 @@ public class Player {
     private Float pitch = null;
     private Vector3D motion = null;
 
-
     public Vector3D getPos() {
         return pos;
     }

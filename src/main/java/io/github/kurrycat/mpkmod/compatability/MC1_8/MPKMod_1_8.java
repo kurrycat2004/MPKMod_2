@@ -3,13 +3,13 @@ package io.github.kurrycat.mpkmod.compatability.MC1_8;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -46,6 +46,13 @@ public class MPKMod_1_8 {
                 (text, x, y, color, dropShadow) ->
                         Minecraft.getMinecraft().fontRendererObj.drawString(text, x, y, color.getRGB(), dropShadow)
         );
+        FunctionRegistry.registerGetIP(
+                () -> {
+                    ServerData d = Minecraft.getMinecraft().getCurrentServerData();
+                    if (d == null) return "Multiplayer";
+                    else return d.serverIP;
+                }
+        );
 
         ClientRegistry.registerKeyBinding(keyBinding);
 
@@ -66,7 +73,7 @@ public class MPKMod_1_8 {
 
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent e) {
-        API.loadComplete();
+        API.Events.onLoadComplete();
     }
 
     @SideOnly(Side.CLIENT)
