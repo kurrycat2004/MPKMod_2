@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_14;
 
 import io.github.kurrycat.mpkmod.compatability.API;
+import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.event.InputEvent;
@@ -34,7 +35,7 @@ public class MPKMod_1_14 {
         );
 
         API.init(Minecraft.getInstance().getVersion());
-        API.registerDrawString(
+        FunctionRegistry.registerDrawString(
                 (text, x, y, color, dropShadow) -> {
                     if (dropShadow)
                         Minecraft.getInstance().fontRenderer.drawStringWithShadow(text, x, y, color.getRGB());
@@ -53,7 +54,6 @@ public class MPKMod_1_14 {
     @SubscribeEvent
     public void onEvent(InputEvent.KeyInputEvent event) {
         if (keyBinding.isPressed()) {
-
             Minecraft.getInstance().displayGuiScreen(getGui());
         }
     }

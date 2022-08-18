@@ -1,7 +1,7 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_14;
 
 import io.github.kurrycat.mpkmod.compatability.API;
-import io.github.kurrycat.mpkmod.compatability.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.InputMappings;
