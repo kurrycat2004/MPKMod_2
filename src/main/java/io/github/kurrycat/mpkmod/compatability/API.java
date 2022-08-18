@@ -1,8 +1,6 @@
 package io.github.kurrycat.mpkmod.compatability;
 
-import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
-import io.github.kurrycat.mpkmod.compatability.functions.DrawStringFunction;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
 import io.github.kurrycat.mpkmod.events.EventAPI;
 import io.github.kurrycat.mpkmod.events.OnRenderOverlayEvent;
@@ -56,10 +54,6 @@ public class API {
         );
     }
 
-    public static void registerDrawString(DrawStringFunction function) {
-        FontRenderer.registerDrawString(function);
-    }
-
     public static void onTickStart(Player player) {
         lastPlayer = player;
         EventAPI.postEvent(new OnTickStartEvent(player));
@@ -73,5 +67,4 @@ public class API {
     public static void onRenderOverlay() {
         EventAPI.postEvent(new OnRenderOverlayEvent(lastPlayer));
     }
-
 }
