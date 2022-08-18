@@ -10,6 +10,17 @@ public class MainGuiScreen extends ComponentScreen {
     public void onGuiInit() {
         super.onGuiInit();
 
+
+
+        components.add(
+                new InfoLabel(
+                        new FormatStringBuilder()
+                                .addString("IP: ")
+                                .setColor(Colors.WHITE)
+                                .addVar("mc.IP")
+                                .toString(),
+                        new Vector2D(5, 5))
+                        .setColor(Colors.GOLD.getColor()));
         components.add(
                 new InfoLabel(
                         new FormatStringBuilder()

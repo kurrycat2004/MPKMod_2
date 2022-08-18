@@ -23,7 +23,9 @@ public abstract class Event {
     public enum EventType {
         TICK_START(OnTickStartEvent.class),
         TICK_END(OnTickEndEvent.class),
-        RENDER_OVERLAY(OnRenderOverlayEvent.class);
+        RENDER_OVERLAY(OnRenderOverlayEvent.class),
+        SERVER_CONNECT(OnServerConnect.class),
+        SERVER_DISCONNECT(OnServerDisconnect.class);
 
         public final Class<? extends Event> eventClass;
         EventType(Class<? extends Event> eventClass) {

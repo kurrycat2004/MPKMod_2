@@ -1,8 +1,11 @@
 package io.github.kurrycat.mpkmod.util;
 
 import io.github.kurrycat.mpkmod.compatability.API;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,7 +52,7 @@ public class StringToInfo {
 
     public static String getColorCodeOrValueFromString(String input) {
         String returnValue = getColorCodeFromString(input);
-        if(returnValue == null) returnValue = getValueFromString(input);
+        if (returnValue == null) returnValue = getValueFromString(input);
         return returnValue;
     }
 
@@ -59,12 +62,13 @@ public class StringToInfo {
     }
 
     public static String getValueFromString(String input) {
-        String[] splitVars = input.toLowerCase().split("\\.");
+        String[] splitVars = input.split("\\.");
         String objectIdentifier = splitVars[0];
         String[] subVars = Arrays.copyOfRange(splitVars, 1, splitVars.length);
 
         Object currObj = null;
         if (objectIdentifier.equals("player")) currObj = API.getLastPlayer();
+        else if (Arrays.asList("minecraft", "mc").contains(objectIdentifier)) currObj = Minecraft.class;
 
         if (currObj == null) return null;
 
@@ -77,13 +81,20 @@ public class StringToInfo {
     }
 
     public static Object getValueOfObject(String name, Object obj) {
+        Class<?> objClass = obj instanceof Class ? (Class<?>) obj : obj.getClass();
+
         try {
-            Class<?> objClass = obj.getClass();
             Field f = objClass.getDeclaredField(name);
             f.setAccessible(true);
             return f.get(obj);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            return null;
+            try {
+                Method m = objClass.getDeclaredMethod("get" + StringUtil.capitalize(name));
+                return m.invoke(obj);
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
+                ex.printStackTrace();
+                return null;
+            }
         }
     }
 }
