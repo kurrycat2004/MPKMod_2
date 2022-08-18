@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.gui;
 
 import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
+import io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel;
 import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.FormatStringBuilder;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -40,6 +41,14 @@ public class MainGuiScreen extends ComponentScreen {
                 )
                         .setColor(Colors.GOLD.getColor())
         );
+
+        components.add(new KeyBindingLabel(new Vector2D(20, 50), "key.forward"));
+        components.add(new KeyBindingLabel(new Vector2D(5, 65), "key.left"));
+        components.add(new KeyBindingLabel(new Vector2D(20, 65), "key.back"));
+        components.add(new KeyBindingLabel(new Vector2D(35, 65), "key.right"));
+        components.add(new KeyBindingLabel(new Vector2D(5, 80), "key.sneak"));
+        components.add(new KeyBindingLabel(new Vector2D(27, 80), "key.sprint"));
+
     }
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {

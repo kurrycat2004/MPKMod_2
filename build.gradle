@@ -97,7 +97,9 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.14.4-28.2.26'
 
     compile 'com.github.JnCrMx:discord-game-sdk4j:v0.5.5'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+
+    //gives error idk why
+    //compile 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
