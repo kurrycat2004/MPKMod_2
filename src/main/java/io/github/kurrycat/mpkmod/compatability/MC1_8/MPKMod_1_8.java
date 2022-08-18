@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
 import io.github.kurrycat.mpkmod.compatability.API;
+import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
@@ -14,6 +15,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 @Mod(
         modid = API.MODID,
@@ -39,7 +41,7 @@ public class MPKMod_1_8 {
         gui = new MPKGuiScreen_1_8(API.getGuiScreen());
 
         API.init(Minecraft.getSessionInfo().get("X-Minecraft-Version"));
-        API.registerDrawString(
+        FunctionRegistry.registerDrawString(
                 (text, x, y, color, dropShadow) ->
                         Minecraft.getMinecraft().fontRendererObj.drawString(text, x, y, color.getRGB(), dropShadow)
         );
