@@ -2,8 +2,11 @@ package io.github.kurrycat.mpkmod.compatability.MC1_14;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
+import net.minecraft.client.KeyboardListener;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.ControlsScreen;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -48,6 +51,8 @@ public class MPKMod_1_14 {
 
         MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(this);
+
+        //Minecraft.getInstance().gameSettings.keyBindings;
     }
 
 
