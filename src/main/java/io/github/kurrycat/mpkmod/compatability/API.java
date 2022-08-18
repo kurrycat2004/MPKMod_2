@@ -1,11 +1,9 @@
 package io.github.kurrycat.mpkmod.compatability;
 
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
-import io.github.kurrycat.mpkmod.events.EventAPI;
-import io.github.kurrycat.mpkmod.events.OnRenderOverlayEvent;
-import io.github.kurrycat.mpkmod.events.OnTickEndEvent;
-import io.github.kurrycat.mpkmod.events.OnTickStartEvent;
+import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
@@ -18,7 +16,6 @@ public class API {
     public static final String VERSION = "2.0";
     public static final String KEYBINDING_CATEGORY = NAME;
     public static Instant gameStartedInstant;
-    public static String mcVersion;
     private static MPKGuiScreen guiScreen;
 
     private static Player lastPlayer = null;
@@ -35,7 +32,8 @@ public class API {
     }
 
     public static void init(String mcVersion) {
-        API.mcVersion = mcVersion;
+        Minecraft.version = mcVersion;
+
         gameStartedInstant = Instant.now();
 
         EventAPI.init();
@@ -53,21 +51,33 @@ public class API {
         );
     }
 
-    public static void onTickStart(Player player) {
-        lastPlayer = player;
-        EventAPI.postEvent(new OnTickStartEvent(player));
-    }
+    public static class Events {
+        public static void onTickStart(Player player) {
+            lastPlayer = player;
+            EventAPI.postEvent(new OnTickStartEvent(player));
+        }
 
-    public static void onTickEnd(Player player) {
-        lastPlayer = player;
-        EventAPI.postEvent(new OnTickEndEvent(player));
-    }
+        public static void onTickEnd(Player player) {
+            lastPlayer = player;
+            EventAPI.postEvent(new OnTickEndEvent(player));
+        }
 
-    public static void onRenderOverlay() {
-        EventAPI.postEvent(new OnRenderOverlayEvent(lastPlayer));
-    }
+        public static void onRenderOverlay() {
+            EventAPI.postEvent(new OnRenderOverlayEvent(lastPlayer));
+        }
 
-    public static void loadComplete() {
-        getGuiScreen().onGuiInit();
+        public static void onLoadComplete() {
+            getGuiScreen().onGuiInit();
+        }
+
+        public static void onServerConnect(boolean isLocal) {
+            Minecraft.updateWorldState(Event.EventType.SERVER_CONNECT, isLocal);
+            DiscordRPC.updateWorldAndPlayState();
+        }
+
+        public static void onServerDisconnect() {
+            Minecraft.updateWorldState(Event.EventType.SERVER_DISCONNECT, false);
+            DiscordRPC.updateWorldAndPlayState();
+        }
     }
 }
