@@ -46,8 +46,8 @@ public class MPKMod_1_8 {
         gui = new MPKGuiScreen_1_8(API.getGuiScreen());
 
         FunctionRegistry.registerDrawString(
-                (text, x, y, color, dropShadow) ->
-                        Minecraft.getMinecraft().fontRendererObj.drawString(text, x, y, color.getRGB(), dropShadow)
+                (text, pos, color, dropShadow) ->
+                        Minecraft.getMinecraft().fontRendererObj.drawString(text, pos.getXF(), pos.getYF(), color.getRGB(), dropShadow)
         );
         FunctionRegistry.registerGetIP(
                 () -> {
@@ -75,6 +75,13 @@ public class MPKMod_1_8 {
                             r.getScaledHeight_double()
                     );
                 }
+        );
+        FunctionRegistry.registerGetStringSize(
+                text ->
+                        new Vector2D(
+                                Minecraft.getMinecraft().fontRendererObj.getStringWidth(text),
+                                Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT
+                        )
         );
 
         ClientRegistry.registerKeyBinding(keyBinding);
