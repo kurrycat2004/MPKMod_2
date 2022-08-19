@@ -6,7 +6,6 @@ import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.controls.ControlsScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -47,7 +46,10 @@ public class MPKMod_1_19 {
     public void init(FMLCommonSetupEvent event) {
         FunctionRegistry.registerDrawString(
                 (text, x, y, color, dropShadow) -> {
-                    Minecraft.getInstance().font.draw(poseStack, text, x, y, color.getRGB());
+                    if (dropShadow)
+                        Minecraft.getInstance().font.drawShadow(poseStack, text, x, y, color.getRGB());
+                    else
+                        Minecraft.getInstance().font.draw(poseStack, text, x, y, color.getRGB());
                 }
         );
         FunctionRegistry.registerGetIP(
