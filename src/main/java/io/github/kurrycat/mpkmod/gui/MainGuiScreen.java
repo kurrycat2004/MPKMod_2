@@ -10,8 +10,6 @@ public class MainGuiScreen extends ComponentScreen {
     public void onGuiInit() {
         super.onGuiInit();
 
-
-
         components.add(
                 new InfoLabel(
                         new FormatStringBuilder()
