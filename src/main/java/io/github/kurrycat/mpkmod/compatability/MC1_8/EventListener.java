@@ -30,8 +30,8 @@ public class EventListener {
                     .setPos(new Vector3D(mcPlayer.posX, mcPlayer.posY, mcPlayer.posZ))
                     .setLastPos(new Vector3D(mcPlayer.lastTickPosX, mcPlayer.lastTickPosY, mcPlayer.lastTickPosZ))
                     .setMotion(new Vector3D(mcPlayer.motionX, mcPlayer.motionY, mcPlayer.motionZ))
-                    .setYaw(mcPlayer.rotationYaw)
-                    .setPitch(mcPlayer.rotationPitch);
+                    .setTrueYaw(mcPlayer.rotationYaw)
+                    .setTruePitch(mcPlayer.rotationPitch);
         }
 
         if (e.phase == TickEvent.Phase.START)

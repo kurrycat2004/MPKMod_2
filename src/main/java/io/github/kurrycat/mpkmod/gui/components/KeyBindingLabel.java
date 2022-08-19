@@ -20,6 +20,8 @@ public class KeyBindingLabel extends Component {
     }
 
     public void render() {
+        Vector2D pos = this.pos.asInRange(new Vector2D(0, 0), Renderer2D.getScaledSize());
+
         String displayName = keyBinding == null ? name : keyBinding.getDisplayName();
         boolean keyDown = keyBinding != null && keyBinding.isKeyDown();
 
@@ -36,11 +38,12 @@ public class KeyBindingLabel extends Component {
         }
     }
 
+    public Vector2D getSize() {
+        return this.size;
+    }
+
     public KeyBindingLabel setSize(Vector2D size) {
         this.size.set(size);
         return this;
-    }
-    public Vector2D getSize() {
-        return this.size;
     }
 }

@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringToInfo {
-    public static final String FORMATTING_REGEX = "\\{(.*?)(,(\\d+))?\\}";
+    public static final String FORMATTING_REGEX = "\\{(.*?)(,(\\d+)(!?))?\\}";
     public static final Pattern FORMATTING_PATTERN = Pattern.compile(FORMATTING_REGEX);
 
     public static String replaceVarsInString(String input) {
@@ -27,6 +27,7 @@ public class StringToInfo {
             String fullMatch = matcher.group(0);
             String varName = matcher.group(1);
             String decimalsString = matcher.group(3);
+            String keepZeros = matcher.group(4);
 
             String value = getColorCodeOrValueFromString(varName);
 
@@ -36,13 +37,15 @@ public class StringToInfo {
                 Double valueAsDouble = MathUtil.parseDouble(value, null);
                 if (valueAsDouble == null)
                     sb.append(value);
-                else
+                else {
                     sb.append(
                             MathUtil.formatDecimals(
                                     valueAsDouble,
-                                    MathUtil.parseInt(decimalsString, 3)
+                                    MathUtil.parseInt(decimalsString, 3),
+                                    !keepZeros.isEmpty()
                             )
                     );
+                }
             }
 
         }
@@ -83,17 +86,24 @@ public class StringToInfo {
     public static Object getValueOfObject(String name, Object obj) {
         Class<?> objClass = obj instanceof Class ? (Class<?>) obj : obj.getClass();
 
+        // first search for public field
         try {
             Field f = objClass.getDeclaredField(name);
-            f.setAccessible(true);
             return f.get(obj);
         } catch (NoSuchFieldException | IllegalAccessException e) {
+            // then for public getter
             try {
                 Method m = objClass.getDeclaredMethod("get" + StringUtil.capitalize(name));
                 return m.invoke(obj);
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
-                ex.printStackTrace();
-                return null;
+                // finally for private field
+                try {
+                    Field f = objClass.getDeclaredField(name);
+                    f.setAccessible(true);
+                    return f.get(obj);
+                } catch (NoSuchFieldException | IllegalAccessException exception) {
+                    return null;
+                }
             }
         }
     }

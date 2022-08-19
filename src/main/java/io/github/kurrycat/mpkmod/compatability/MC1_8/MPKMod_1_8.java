@@ -2,9 +2,10 @@ package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
+import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
@@ -63,6 +64,15 @@ public class MPKMod_1_8 {
                             pos.getXI() + size.getXI(),
                             pos.getYI() + size.getYI(),
                             color.getRGB()
+                    );
+                }
+        );
+        FunctionRegistry.registerGetScaledSize(
+                () -> {
+                    ScaledResolution r = new ScaledResolution(Minecraft.getMinecraft());
+                    return new Vector2D(
+                            r.getScaledWidth_double(),
+                            r.getScaledHeight_double()
                     );
                 }
         );
