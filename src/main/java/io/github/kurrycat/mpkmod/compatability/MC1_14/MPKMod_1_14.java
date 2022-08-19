@@ -2,8 +2,9 @@ package io.github.kurrycat.mpkmod.compatability.MC1_14;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
+import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.ControlsScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.SharedConstants;
@@ -40,11 +41,11 @@ public class MPKMod_1_14 {
         );
 
         FunctionRegistry.registerDrawString(
-                (text, x, y, color, dropShadow) -> {
+                (text, pos, color, dropShadow) -> {
                     if (dropShadow)
-                        Minecraft.getInstance().fontRenderer.drawStringWithShadow(text, x, y, color.getRGB());
+                        Minecraft.getInstance().fontRenderer.drawStringWithShadow(text, pos.getXF(), pos.getYF(), color.getRGB());
                     else
-                        Minecraft.getInstance().fontRenderer.drawString(text, x, y, color.getRGB());
+                        Minecraft.getInstance().fontRenderer.drawString(text, pos.getXF(), pos.getYF(), color.getRGB());
                 }
         );
         FunctionRegistry.registerGetIP(
@@ -53,6 +54,29 @@ public class MPKMod_1_14 {
                     if (d == null) return "Multiplayer";
                     else return d.serverIP;
                 }
+        );
+        FunctionRegistry.registerDrawRect(
+                (pos, size, color) -> {
+                    Screen.fill(
+                            pos.getXI(),
+                            pos.getYI(),
+                            pos.getXI() + size.getXI(),
+                            pos.getYI() + size.getYI(),
+                            color.getRGB()
+                    );
+                }
+        );
+        FunctionRegistry.registerGetScaledSize(
+                () -> new Vector2D(
+                        Minecraft.getInstance().mainWindow.getScaledWidth(),
+                        Minecraft.getInstance().mainWindow.getScaledHeight()
+                )
+        );
+        FunctionRegistry.registerGetStringSize(
+                text -> new Vector2D(
+                        Minecraft.getInstance().fontRenderer.getStringWidth(text),
+                        Minecraft.getInstance().fontRenderer.FONT_HEIGHT
+                )
         );
 
         ClientRegistry.registerKeyBinding(keyBinding);
