@@ -29,8 +29,8 @@ public class EventListener {
                     .setPos(new Vector3D(mcPlayer.getX(), mcPlayer.getY(), mcPlayer.getZ()))
                     .setLastPos(new Vector3D(mcPlayer.xOld, mcPlayer.yOld, mcPlayer.zOld))
                     .setMotion(new Vector3D(mcPlayer.getDeltaMovement().x, mcPlayer.getDeltaMovement().y, mcPlayer.getDeltaMovement().z))
-                    .setYaw(mcPlayer.getXRot())
-                    .setPitch(mcPlayer.getYRot());
+                    .setTrueYaw(mcPlayer.getXRot())
+                    .setTruePitch(mcPlayer.getYRot());
         }
 
         if (e.phase == TickEvent.Phase.START)
@@ -39,10 +39,7 @@ public class EventListener {
             API.Events.onTickEnd(player);
     }
 
-    @SubscribeEvent
-    public void onRender(RenderGuiOverlayEvent.Pre e) {
-        API.Events.onRenderOverlay();
-    }
+
 
     @SubscribeEvent
     public void onServerConnect(ClientPlayerNetworkEvent.LoggingIn e) {

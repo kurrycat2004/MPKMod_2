@@ -1,20 +1,36 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_19;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix4f;
 import io.github.kurrycat.mpkmod.compatability.API;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
+import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.PlayerTabOverlay;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.lwjgl.opengl.GL11;
+
+import java.awt.*;
 
 @Mod(API.MODID)
 public class MPKMod_1_19 {
@@ -25,6 +41,7 @@ public class MPKMod_1_19 {
     public MPKMod_1_19() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerKeyBinding);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerOverlay);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::loadComplete);
     }
 
@@ -43,13 +60,20 @@ public class MPKMod_1_19 {
         e.register(keyBinding);
     }
 
+    public void registerOverlay(RegisterGuiOverlaysEvent e) {
+        e.registerBelow(VanillaGuiOverlay.DEBUG_TEXT.id(), "mpkmod", (gui, poseStack, partialTick, width, height) -> {
+            MPKMod_1_19.this.poseStack = poseStack;
+            API.Events.onRenderOverlay();
+        });
+    }
+
     public void init(FMLCommonSetupEvent event) {
         FunctionRegistry.registerDrawString(
-                (text, x, y, color, dropShadow) -> {
+                (text, pos, color, dropShadow) -> {
                     if (dropShadow)
-                        Minecraft.getInstance().font.drawShadow(poseStack, text, x, y, color.getRGB());
+                        Minecraft.getInstance().font.drawShadow(poseStack, text, pos.getXF(), pos.getYF(), color.getRGB());
                     else
-                        Minecraft.getInstance().font.draw(poseStack, text, x, y, color.getRGB());
+                        Minecraft.getInstance().font.draw(poseStack, text, pos.getXF(), pos.getYF(), color.getRGB());
                 }
         );
         FunctionRegistry.registerGetIP(
@@ -59,13 +83,38 @@ public class MPKMod_1_19 {
                     else return d.ip;
                 }
         );
+        FunctionRegistry.registerDrawRect(
+                (pos, size, color) -> {
+                    Screen.fill(
+                            poseStack,
+                            pos.getXI(),
+                            pos.getYI(),
+                            pos.getXI() + size.getXI(),
+                            pos.getYI() + size.getYI(),
+                            color.getRGB()
+                    );
+                }
+        );
+
+        FunctionRegistry.registerGetScaledSize(
+                () -> new Vector2D(
+                        Minecraft.getInstance().getWindow().getGuiScaledWidth(),
+                        Minecraft.getInstance().getWindow().getGuiScaledHeight()
+                )
+        );
+        FunctionRegistry.registerGetStringSize(
+                text -> new Vector2D(
+                        Minecraft.getInstance().font.width(text),
+                        Minecraft.getInstance().font.lineHeight
+                )
+        );
 
         MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(this);
 
         System.out.println("Registering Keybindings...");
         for (KeyMapping k : Minecraft.getInstance().options.keyMappings) {
-            new io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding(
+            new KeyBinding(
                     () -> k.getKey().getDisplayName().getString(),
                     k.getName(),
                     k::isDown
