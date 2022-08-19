@@ -21,6 +21,17 @@ public class Renderer2D {
     public static void drawRect(Vector2D pos, Vector2D size, Color color) {
         drawRectFunction.apply(pos, size, color);
     }
+    
+    public static void drawHollowRect(Vector2D pos, Vector2D size, double edgeThickness, Color color) {
+        //TOP
+        drawRect(pos.sub(edgeThickness), new Vector2D(size.getX() + edgeThickness * 2, edgeThickness),  color);
+        //BOTTOM
+        drawRect(pos.add(-edgeThickness, size.getY()), new Vector2D(size.getX() + edgeThickness * 2, edgeThickness), color);
+        //LEFT
+        drawRect(pos.sub(edgeThickness, 0), new Vector2D(edgeThickness, size.getY()), color);
+        //RIGHT
+        drawRect(pos.add(size.getX(), 0), new Vector2D(edgeThickness, size.getY()), color);
+    }
 
     public static Vector2D getScaledSize() {
         return getScaledSizeFunction.apply();

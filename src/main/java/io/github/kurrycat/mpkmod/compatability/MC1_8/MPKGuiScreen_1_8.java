@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -29,7 +30,7 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         drawDefaultBackground();
-        eventReceiver.drawScreen(mouseX,mouseY,partialTicks);
+        eventReceiver.drawScreen(new Vector2D(mouseX, mouseY), partialTicks);
     }
 
     @Override
@@ -50,17 +51,22 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
         super.handleKeyboardInput();
     }
 
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        super.mouseClicked(mouseX, mouseY, mouseButton);
+        eventReceiver.onMouseClicked(new Vector2D(mouseX, mouseY), mouseButton);
+    }
 
     @Override
     protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
         super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
-        eventReceiver.onMouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+        eventReceiver.onMouseClickMove(new Vector2D(mouseX, mouseY), clickedMouseButton, timeSinceLastClick);
     }
 
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {
         super.mouseReleased(mouseX, mouseY, state);
-        eventReceiver.onMouseReleased(mouseX,mouseY, state);
+        eventReceiver.onMouseReleased(new Vector2D(mouseX, mouseY), state);
     }
 
     @Override

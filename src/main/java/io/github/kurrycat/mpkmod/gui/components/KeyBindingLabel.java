@@ -12,6 +12,10 @@ public class KeyBindingLabel extends Component {
     private final KeyBinding keyBinding;
     private final Vector2D size;
 
+    public Color keyDownColor = new Color(255, 255, 255, 95);
+    public Color keyUpColor = new Color(31, 31, 31, 47);
+    public Color selectedColor = new Color(255, 170, 0, 100);
+
     public KeyBindingLabel(Vector2D pos, String name) {
         super(pos);
         this.name = name;
@@ -19,21 +23,16 @@ public class KeyBindingLabel extends Component {
         this.size = new Vector2D(15, 15);
     }
 
-    public void render() {
-        Vector2D pos = this.pos.asInRange(new Vector2D(0, 0), Renderer2D.getScaledSize());
-
+    public void render(Vector2D mouse) {
         String displayName = keyBinding == null ? name : keyBinding.getDisplayName();
         boolean keyDown = keyBinding != null && keyBinding.isKeyDown();
+        Color c = selected ? selectedColor : keyDown ? keyDownColor : keyUpColor;
 
-        if (keyDown) {
-            Renderer2D.drawRect(pos, size, new Color(255, 255, 255, 95));
-        } else {
-            Renderer2D.drawRect(pos, size, new Color(31, 31, 31, 47));
-        }
+        Renderer2D.drawRect(getDisplayPos(), size, c);
 
         FontRenderer.drawCenteredString(
                 displayName,
-                pos.add(size.div(2)).add(new Vector2D(0, 1)),
+                getDisplayPos().add(size.div(2)).add(new Vector2D(0, 1)),
                 keyDown ? Color.BLACK : Color.WHITE,
                 false
         );
