@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ControlsScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.util.SharedConstants;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -68,7 +69,7 @@ public class MPKMod_1_14 {
             );
         }
 
-        API.init(Minecraft.getInstance().getVersion());
+        API.init(SharedConstants.getVersion().getName());
     }
 
     public void loadComplete(FMLLoadCompleteEvent e) {
