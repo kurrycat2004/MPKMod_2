@@ -1,11 +1,17 @@
 package io.github.kurrycat.mpkmod.util;
 
 public class Vector2D {
+    public static Vector2D ZERO = new Vector2D(0, 0);
     private double x, y;
 
     public Vector2D(double x, double y) {
         this.x = x;
         this.y = y;
+    }
+
+    public Vector2D(Vector2D vector2D) {
+        this.x = vector2D.getX();
+        this.y = vector2D.getY();
     }
 
     public double getX() {
@@ -83,6 +89,14 @@ public class Vector2D {
         return new Vector2D(this.x - v.x, this.y - v.y);
     }
 
+    public Vector2D sub(double v) {
+        return new Vector2D(this.x - v, this.y - v);
+    }
+
+    public Vector2D sub(double x, double y) {
+        return new Vector2D(this.x - x, this.y - y);
+    }
+
     public Vector2D mult(Vector2D v) {
         return new Vector2D(this.x * v.x, this.y * v.y);
     }
@@ -111,5 +125,41 @@ public class Vector2D {
         while (curr.getX() > to.getX()) curr.subXInPlace(diff.getX());
         while (curr.getY() > to.getY()) curr.subYInPlace(diff.getY());
         return curr;
+    }
+
+    public double lengthSqr() {
+        return this.x * this.x + this.y * this.y;
+    }
+
+    public double length() {
+        return Math.sqrt(lengthSqr());
+    }
+
+    public Vector2D add(double x, double y) {
+        return new Vector2D(this.x + x, this.y + y);
+    }
+
+    public boolean isInRectBetween(Vector2D pos1, Vector2D pos2) {
+        return this.x > pos1.x && this.x < pos2.x
+                && this.y > pos1.y && this.y < pos2.y;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Vector2D
+                && ((Vector2D) obj).equals(this);
+    }
+
+    @Override
+    public int hashCode() {
+        return Double.hashCode(x) + Double.hashCode(y);
+    }
+
+    public boolean equals(Vector2D other) {
+        return other.x == x && other.y == y;
+    }
+
+    public Vector2D constrain(Vector2D v1, Vector2D v2) {
+        return new Vector2D(MathUtil.constrain(this.x, v1.x, v2.x), MathUtil.constrain(this.y, v1.y, v2.y));
     }
 }

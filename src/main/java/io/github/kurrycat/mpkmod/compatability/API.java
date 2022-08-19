@@ -7,6 +7,7 @@ import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
+import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.time.Instant;
 
@@ -44,7 +45,7 @@ public class API {
                 EventAPI.EventListener.onRenderOverlay(
                         e -> {
                             for (Component c : ((MainGuiScreen) getGuiScreen()).components) {
-                                c.render();
+                                c.render(new Vector2D(-1, -1));
                             }
                         }
                 )

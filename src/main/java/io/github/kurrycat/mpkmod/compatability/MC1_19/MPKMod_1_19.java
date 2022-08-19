@@ -1,26 +1,18 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_19;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Matrix4f;
+import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.PlayerTabOverlay;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,9 +20,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.lwjgl.opengl.GL11;
-
-import java.awt.*;
 
 @Mod(API.MODID)
 public class MPKMod_1_19 {

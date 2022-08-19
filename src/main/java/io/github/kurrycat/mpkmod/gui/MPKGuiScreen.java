@@ -1,5 +1,7 @@
 package io.github.kurrycat.mpkmod.gui;
 
+import io.github.kurrycat.mpkmod.util.Vector2D;
+
 @SuppressWarnings("unused")
 public abstract class MPKGuiScreen {
 
@@ -12,12 +14,15 @@ public abstract class MPKGuiScreen {
     public void onKeyEvent(int keyCode, String key, boolean pressed) {
     }
 
-    public void onMouseClickMove(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick) {
+    public void onMouseClicked(Vector2D mouse, int mouseButton) {
     }
 
-    public void onMouseReleased(int mouseX, int mouseY, int mouseButton) {
+    public void onMouseClickMove(Vector2D mouse, int mouseButton, long timeSinceLastClick) {
     }
 
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+    public void onMouseReleased(Vector2D mouse, int mouseButton) {
+    }
+
+    public void drawScreen(Vector2D mouse, float partialTicks) {
     }
 }

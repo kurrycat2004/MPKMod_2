@@ -13,7 +13,12 @@ public class InfoLabel extends Label {
         return StringToInfo.replaceVarsInString(text);
     }
 
-    public void render() {
-        FontRenderer.drawString(getFormattedText(), pos, color, true);
+    public void render(Vector2D mouse) {
+        drawDefaultSelectedBackground();
+        FontRenderer.drawString(getFormattedText(), getDisplayPos(), color, true);
+    }
+
+    public Vector2D getSize() {
+        return FontRenderer.getStringSize(getFormattedText());
     }
 }
