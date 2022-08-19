@@ -3,7 +3,7 @@ package io.github.kurrycat.mpkmod.compatability.MC1_19;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.kurrycat.mpkmod.compatability.API;
-import io.github.kurrycat.mpkmod.compatability.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;

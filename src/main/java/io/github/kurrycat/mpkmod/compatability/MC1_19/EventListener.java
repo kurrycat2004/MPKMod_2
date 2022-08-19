@@ -5,6 +5,8 @@ import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.Connection;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -32,13 +34,24 @@ public class EventListener {
         }
 
         if (e.phase == TickEvent.Phase.START)
-            API.onTickStart(player);
+            API.Events.onTickStart(player);
         else if (e.phase == TickEvent.Phase.END)
-            API.onTickEnd(player);
+            API.Events.onTickEnd(player);
     }
 
     @SubscribeEvent
     public void onRender(RenderGuiOverlayEvent.Pre e) {
-        API.onRenderOverlay();
+        API.Events.onRenderOverlay();
+    }
+
+    @SubscribeEvent
+    public void onServerConnect(ClientPlayerNetworkEvent.LoggingIn e) {
+        Connection nm = e.getConnection();
+        API.Events.onServerConnect(nm.isMemoryConnection());
+    }
+
+    @SubscribeEvent
+    public void onServerDisconnect(ClientPlayerNetworkEvent.LoggingOut e) {
+        API.Events.onServerDisconnect();
     }
 }
