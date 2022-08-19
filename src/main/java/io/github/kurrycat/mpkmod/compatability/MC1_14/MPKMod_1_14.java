@@ -2,17 +2,17 @@ package io.github.kurrycat.mpkmod.compatability.MC1_14;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
-import net.minecraft.client.KeyboardListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ControlsScreen;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(API.MODID)
@@ -22,6 +22,7 @@ public class MPKMod_1_14 {
 
     public MPKMod_1_14() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::loadComplete);
     }
 
     public MPKGuiScreen_1_14 getGui() {
@@ -37,7 +38,6 @@ public class MPKMod_1_14 {
                 API.KEYBINDING_CATEGORY
         );
 
-        API.init(Minecraft.getInstance().getVersion());
         FunctionRegistry.registerDrawString(
                 (text, x, y, color, dropShadow) -> {
                     if (dropShadow)
@@ -46,15 +46,34 @@ public class MPKMod_1_14 {
                         Minecraft.getInstance().fontRenderer.drawString(text, x, y, color.getRGB());
                 }
         );
+        FunctionRegistry.registerGetIP(
+                () -> {
+                    ServerData d = Minecraft.getInstance().getCurrentServerData();
+                    if (d == null) return "Multiplayer";
+                    else return d.serverIP;
+                }
+        );
 
         ClientRegistry.registerKeyBinding(keyBinding);
 
         MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(this);
 
-        //Minecraft.getInstance().gameSettings.keyBindings;
+        System.out.println("Registering Keybindings...");
+        for (KeyBinding k : Minecraft.getInstance().gameSettings.keyBindings) {
+            new io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding(
+                    k::getLocalizedName,
+                    k.getKeyDescription(),
+                    k::isKeyDown
+            );
+        }
+
+        API.init(Minecraft.getInstance().getVersion());
     }
 
+    public void loadComplete(FMLLoadCompleteEvent e) {
+        API.Events.onLoadComplete();
+    }
 
     @SubscribeEvent
     public void onEvent(InputEvent.KeyInputEvent event) {
@@ -62,5 +81,4 @@ public class MPKMod_1_14 {
             Minecraft.getInstance().displayGuiScreen(getGui());
         }
     }
-
 }
