@@ -15,7 +15,7 @@ public class Label extends Component {
     }
 
     public void render() {
-        FontRenderer.drawString(text, pos.getXF(), pos.getYF(), color, true);
+        FontRenderer.drawString(text, pos, color, true);
     }
 
     public Label setText(String text) {

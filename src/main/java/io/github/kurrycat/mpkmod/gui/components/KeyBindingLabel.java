@@ -31,11 +31,12 @@ public class KeyBindingLabel extends Component {
             Renderer2D.drawRect(pos, size, new Color(31, 31, 31, 47));
         }
 
-        if (keyDown) {
-            FontRenderer.drawString(displayName, pos.getXF() + 1, pos.getYF() + 1, Color.WHITE, false);
-        } else {
-            FontRenderer.drawString(displayName, pos.getXF(), pos.getYF(), Color.WHITE, true);
-        }
+        FontRenderer.drawCenteredString(
+                displayName,
+                pos.add(size.div(2)).add(new Vector2D(0, 1)),
+                keyDown ? Color.BLACK : Color.WHITE,
+                false
+        );
     }
 
     public Vector2D getSize() {
