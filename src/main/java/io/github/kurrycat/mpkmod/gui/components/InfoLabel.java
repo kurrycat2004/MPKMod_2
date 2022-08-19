@@ -14,6 +14,6 @@ public class InfoLabel extends Label {
     }
 
     public void render() {
-        FontRenderer.drawString(getFormattedText(), pos.getXF(), pos.getYF(), color, true);
+        FontRenderer.drawString(getFormattedText(), pos, color, true);
     }
 }

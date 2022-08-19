@@ -9,6 +9,10 @@ public class FunctionRegistry {
         FontRenderer.registerDrawString(function);
     }
 
+    public static void registerGetStringSize(GetStringSizeFunction function) {
+        FontRenderer.registerGetStringSize(function);
+    }
+
     public static void registerDrawRect(DrawRectFunction function) {
         Renderer2D.registerDrawRect(function);
     }

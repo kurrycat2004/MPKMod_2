@@ -57,6 +57,10 @@ public class Vector2D {
         return new Vector2D(this.x + v.x, this.y + v.y);
     }
 
+    public Vector2D add(double v) {
+        return add(new Vector2D(v, v));
+    }
+
     public Vector2D addXInPlace(double x) {
         this.x += x;
         return this;
@@ -79,6 +83,22 @@ public class Vector2D {
         return new Vector2D(this.x - v.x, this.y - v.y);
     }
 
+    public Vector2D mult(Vector2D v) {
+        return new Vector2D(this.x * v.x, this.y * v.y);
+    }
+
+    public Vector2D mult(double v) {
+        return new Vector2D(this.x * v, this.y * v);
+    }
+
+    public Vector2D div(double v) {
+        return new Vector2D(this.x / v, this.y / v);
+    }
+
+    public Vector2D div(Vector2D v) {
+        return new Vector2D(this.x / v.x, this.y / v.y);
+    }
+
     public Vector2D copy() {
         return new Vector2D(this.x, this.y);
     }
@@ -86,14 +106,10 @@ public class Vector2D {
     public Vector2D asInRange(Vector2D from, Vector2D to) {
         Vector2D diff = to.sub(from);
         Vector2D curr = this.copy();
-        while (curr.getX() < from.getX())
-            curr.addXInPlace(diff.getX());
-        while (curr.getY() < from.getY())
-            curr.addYInPlace(diff.getY());
-        while (curr.getX() > to.getX())
-            curr.subXInPlace(diff.getX());
-        while (curr.getY() > to.getY())
-            curr.subYInPlace(diff.getY());
+        while (curr.getX() < from.getX()) curr.addXInPlace(diff.getX());
+        while (curr.getY() < from.getY()) curr.addYInPlace(diff.getY());
+        while (curr.getX() > to.getX()) curr.subXInPlace(diff.getX());
+        while (curr.getY() > to.getY()) curr.subYInPlace(diff.getY());
         return curr;
     }
 }
