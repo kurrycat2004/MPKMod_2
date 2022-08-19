@@ -56,7 +56,7 @@ public class MainGuiScreen extends ComponentScreen {
         components.add(new KeyBindingLabel(new Vector2D(-28, 100), "key.sprint"));
     }
 
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        super.drawScreen(mouseX, mouseY, partialTicks);
+    public void drawScreen(Vector2D mouse, float partialTicks) {
+        super.drawScreen(mouse, partialTicks);
     }
 }

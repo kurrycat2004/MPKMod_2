@@ -30,4 +30,13 @@ public class MathUtil {
             return defaultValue;
         }
     }
+
+    public static double constrain(double value, double min, double max) {
+        if (min > max) {
+            double temp = min;
+            min = max;
+            max = temp;
+        }
+        return Math.max(min, Math.min(max, value));
+    }
 }
