@@ -3,6 +3,8 @@ package io.github.kurrycat.mpkmod.compatability.MC1_8;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
@@ -51,6 +53,17 @@ public class MPKMod_1_8 {
                     ServerData d = Minecraft.getMinecraft().getCurrentServerData();
                     if (d == null) return "Multiplayer";
                     else return d.serverIP;
+                }
+        );
+        FunctionRegistry.registerDrawRect(
+                (pos, size, color) -> {
+                    Gui.drawRect(
+                            pos.getXI(),
+                            pos.getYI(),
+                            pos.getXI() + size.getXI(),
+                            pos.getYI() + size.getYI(),
+                            color.getRGB()
+                    );
                 }
         );
 
