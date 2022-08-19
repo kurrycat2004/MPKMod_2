@@ -9,11 +9,16 @@ public class FunctionRegistry {
         FontRenderer.registerDrawString(function);
     }
 
+    public static void registerDrawRect(DrawRectFunction function) {
+        Renderer2D.registerDrawRect(function);
+    }
+
     public static void registerGetIP(GetIPFunction function) {
         Minecraft.registerGetIPFunction(function);
     }
 
-    public static void registerDrawRect(DrawRectFunction function) {
-        Renderer2D.registerDrawRect(function);
+    public static void registerGetScaledSize(GetScaledSizeFunction function) {
+        Renderer2D.registerGetScaledSize(function);
     }
+
 }
