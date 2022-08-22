@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -25,7 +26,7 @@ public class MPKGuiScreen_1_19 extends Screen {
     public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(poseStack);
         if (eventReceiver != null)
-            eventReceiver.drawScreen(mouseX, mouseY, partialTicks);
+            eventReceiver.drawScreen(new Vector2D(mouseX, mouseY), partialTicks);
     }
 
     public void onClose() {
@@ -38,17 +39,17 @@ public class MPKGuiScreen_1_19 extends Screen {
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int state) {
-        eventReceiver.onMouseReleased((int) mouseX, (int) mouseY, state);
+        eventReceiver.onMouseClicked(new Vector2D(mouseX, mouseY), state);
         return super.mouseClicked(mouseX, mouseY, state);
     }
 
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
-        eventReceiver.onMouseReleased((int) mouseX, (int) mouseY, state);
+        eventReceiver.onMouseReleased(new Vector2D(mouseX, mouseY), state);
         return super.mouseReleased(mouseX, mouseY, state);
     }
 
     public boolean mouseDragged(double p_mouseDragged_1_, double p_mouseDragged_3_, int clickedMouseButton, double mouseX, double mouseY) {
-        eventReceiver.onMouseClickMove((int) mouseX, (int) mouseY, clickedMouseButton, 0);
+        eventReceiver.onMouseClickMove(new Vector2D(mouseX, mouseY), clickedMouseButton, 0);
         return super.mouseDragged(p_mouseDragged_1_, p_mouseDragged_3_, clickedMouseButton, mouseX, mouseY);
     }
 
