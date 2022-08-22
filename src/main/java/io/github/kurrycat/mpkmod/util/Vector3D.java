@@ -35,4 +35,16 @@ public class Vector3D {
         this.z = z;
         return this;
     }
+
+    public Vector3D add(Vector3D v) {
+        return new Vector3D(this.x + v.x, this.y + v.y, this.z + v.z);
+    }
+
+    public Vector3D sub(Vector3D v) {
+        return new Vector3D(this.x - v.x, this.y - v.y, this.z - v.z);
+    }
+
+    public Vector3D mult(double v) {
+        return new Vector3D(this.x * v, this.y * v, this.z * v);
+    }
 }
