@@ -32,6 +32,10 @@ public class API {
         return guiScreen;
     }
 
+    /**
+     * Gets called once at the end of the mod loader initialization event
+     * @param mcVersion String containing the current minecraft version (e.g. "1.8.9")
+     */
     public static void init(String mcVersion) {
         Minecraft.version = mcVersion;
 
