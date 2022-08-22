@@ -6,6 +6,8 @@ import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -45,6 +47,12 @@ public class EventListener {
     public void onRender(RenderGameOverlayEvent e) {
         if (e.type == RenderGameOverlayEvent.ElementType.TEXT)
             API.Events.onRenderOverlay();
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
+    public void onRenderWorld(RenderWorldLastEvent e) {
+        API.Events.onRenderWorldOverlay(e.partialTicks);
     }
 
     @SideOnly(Side.CLIENT)

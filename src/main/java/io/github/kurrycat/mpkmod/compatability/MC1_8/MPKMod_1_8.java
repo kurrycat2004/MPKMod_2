@@ -3,10 +3,15 @@ package io.github.kurrycat.mpkmod.compatability.MC1_8;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
 import io.github.kurrycat.mpkmod.util.Vector2D;
+import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
@@ -21,6 +26,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 @Mod(
         modid = API.MODID,
@@ -65,6 +71,64 @@ public class MPKMod_1_8 {
                             pos.getYI() + size.getYI(),
                             color.getRGB()
                     );
+                }
+        );
+        FunctionRegistry.registerDrawBox(
+                (bb, color, player, partialTicks) -> {
+                    int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
+
+                    GlStateManager.pushMatrix();
+                    GlStateManager.clear(256);
+
+                    Tessellator tessellator = Tessellator.getInstance();
+                    WorldRenderer wr = tessellator.getWorldRenderer();
+                    Vector3D trans = player.getLastPos().add(player.getPos().sub(player.getLastPos()).mult(partialTicks));
+                    wr.setTranslation(-trans.getX(), -trans.getY(), -trans.getZ());
+
+                    GlStateManager.enableBlend();
+                    GlStateManager.disableAlpha();
+                    GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+                    GL11.glEnable(GL11.GL_LINE_SMOOTH);
+
+                    wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+
+                    wr.pos(bb.minX(), bb.maxY(), bb.minZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.maxX(), bb.maxY(), bb.minZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.maxX(), bb.minY(), bb.minZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.minX(), bb.minY(), bb.minZ()).color(r, g, b, a).endVertex();
+
+                    wr.pos(bb.minX(), bb.minY(), bb.maxZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.maxX(), bb.minY(), bb.maxZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.maxX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.minX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).endVertex();
+
+                    wr.pos(bb.minX(), bb.minY(), bb.minZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.maxX(), bb.minY(), bb.minZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.maxX(), bb.minY(), bb.maxZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.minX(), bb.minY(), bb.maxZ()).color(r, g, b, a).endVertex();
+
+                    wr.pos(bb.minX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.maxX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.maxX(), bb.maxY(), bb.minZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.minX(), bb.maxY(), bb.minZ()).color(r, g, b, a).endVertex();
+
+                    wr.pos(bb.minX(), bb.minY(), bb.maxZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.minX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.minX(), bb.maxY(), bb.minZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.minX(), bb.minY(), bb.minZ()).color(r, g, b, a).endVertex();
+
+                    wr.pos(bb.maxX(), bb.minY(), bb.minZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.maxX(), bb.maxY(), bb.minZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.maxX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).endVertex();
+                    wr.pos(bb.maxX(), bb.minY(), bb.maxZ()).color(r, g, b, a).endVertex();
+
+                    tessellator.draw();
+                    GlStateManager.disableBlend();
+                    GlStateManager.enableAlpha();
+                    GL11.glDisable(GL11.GL_LINE_SMOOTH);
+                    wr.setTranslation(0, 0, 0);
+
+                    GlStateManager.popMatrix();
                 }
         );
         FunctionRegistry.registerGetScaledSize(

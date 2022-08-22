@@ -2,13 +2,18 @@ package io.github.kurrycat.mpkmod.compatability;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer3D;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
+import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
+import io.github.kurrycat.mpkmod.util.BoundingBox;
 import io.github.kurrycat.mpkmod.util.Vector2D;
+import io.github.kurrycat.mpkmod.util.Vector3D;
 
+import java.awt.*;
 import java.time.Instant;
 
 public class API {
@@ -34,6 +39,7 @@ public class API {
 
     /**
      * Gets called once at the end of the mod loader initialization event
+     *
      * @param mcVersion String containing the current minecraft version (e.g. "1.8.9")
      */
     public static void init(String mcVersion) {
@@ -54,21 +60,44 @@ public class API {
                         }
                 )
         );
+
+        EventAPI.addListener(
+                new EventAPI.EventListener<OnRenderWorldOverlayEvent>(
+                        e -> Renderer3D.drawBox(
+                                new BoundingBox(
+                                        new Vector3D(
+                                                0, 10, 0
+                                        ),
+                                        new Vector3D(
+                                                1, 11, 1
+                                        )
+                                ),
+                                new Color(255, 68, 68, 157),
+                                getLastPlayer(),
+                                e.partialTicks
+                        ),
+                        Event.EventType.RENDER_WORLD_OVERLAY
+                )
+        );
     }
 
     public static class Events {
         public static void onTickStart(Player player) {
             lastPlayer = player;
-            EventAPI.postEvent(new OnTickStartEvent(player));
+            EventAPI.postEvent(new OnTickStartEvent());
         }
 
         public static void onTickEnd(Player player) {
             lastPlayer = player;
-            EventAPI.postEvent(new OnTickEndEvent(player));
+            EventAPI.postEvent(new OnTickEndEvent());
         }
 
         public static void onRenderOverlay() {
-            EventAPI.postEvent(new OnRenderOverlayEvent(lastPlayer));
+            EventAPI.postEvent(new OnRenderOverlayEvent());
+        }
+
+        public static void onRenderWorldOverlay(float partialTicks) {
+            EventAPI.postEvent(new OnRenderWorldOverlayEvent(partialTicks));
         }
 
         public static void onLoadComplete() {
