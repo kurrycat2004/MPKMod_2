@@ -16,6 +16,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 allprojects {
     repositories {
         maven { url 'https://jitpack.io' }
+        mavenCentral()
     }
     tasks.withType(JavaCompile) {
         sourceCompatibility = '1.8'
@@ -45,6 +46,8 @@ minecraft {
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 dependencies {
+    implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
     //compile "some.group:artifact:version:classifier"
@@ -53,7 +56,12 @@ dependencies {
     compile 'com.github.JnCrMx:discord-game-sdk4j:v0.5.5'
 
     //gives error idk why
-    //compile 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.8'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.8'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.8'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 
     // real examples
     //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
@@ -71,6 +79,10 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+}
+
+test {
+    useJUnitPlatform()
 }
 
 processResources

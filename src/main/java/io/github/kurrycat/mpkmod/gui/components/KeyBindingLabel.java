@@ -1,12 +1,18 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.save.deserialize.KeyBindingLabelDeserializer;
+import io.github.kurrycat.mpkmod.save.serialize.KeyBindingLabelSerializer;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
 
+@JsonSerialize(using = KeyBindingLabelSerializer.class)
+@JsonDeserialize(using = KeyBindingLabelDeserializer.class)
 public class KeyBindingLabel extends Component {
     private final String name;
     private final KeyBinding keyBinding;
@@ -45,5 +51,9 @@ public class KeyBindingLabel extends Component {
     public KeyBindingLabel setSize(Vector2D size) {
         this.size.set(size);
         return this;
+    }
+
+    public String getName() {
+        return this.name;
     }
 }
