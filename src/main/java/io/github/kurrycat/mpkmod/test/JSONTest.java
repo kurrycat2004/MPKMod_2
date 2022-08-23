@@ -1,43 +1,46 @@
-package io.github.kurrycat.mpkmod.gui;
+package io.github.kurrycat.mpkmod.test;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel;
-import io.github.kurrycat.mpkmod.save.Serializer;
+import io.github.kurrycat.mpkmod.save.deserialize.ColorDeserializer;
+import io.github.kurrycat.mpkmod.save.serialize.ColorSerializer;
 import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.FormatStringBuilder;
-import io.github.kurrycat.mpkmod.util.JSONConfig;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
+import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MainGuiScreen extends ComponentScreen {
+public class JSONTest {
+    //@org.junit.jupiter.api.Test
+    public void test() throws IOException {
+        ArrayList<io.github.kurrycat.mpkmod.gui.components.Component> components = initComponents();
+        System.out.println(components);
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
 
-    @Override
-    public void onGuiInit() {
-        super.onGuiInit();
-        ArrayList<Component> jsonElements = loadJSONComponents();
-        components = jsonElements != null ? jsonElements : initComponents();
+        module.addSerializer(Color.class, new ColorSerializer());
+        module.addDeserializer(Color.class, new ColorDeserializer());
+
+        mapper.registerModule(module);
+        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
+
+        String s = mapper.writeValueAsString(components);
+        System.out.println(s);
+
+        ArrayList<io.github.kurrycat.mpkmod.gui.components.Component> loaded = new ArrayList<>(Arrays.asList(mapper.readValue(s, io.github.kurrycat.mpkmod.gui.components.Component[].class)));
+
+        System.out.println(loaded.get(0));
     }
 
-    @Override
-    public void onGuiClosed() {
-        super.onGuiClosed();
-        Serializer.serialize(JSONConfig.configFile, components);
-    }
 
-    public void drawScreen(Vector2D mouse, float partialTicks) {
-        super.drawScreen(mouse, partialTicks);
-    }
-
-    private ArrayList<Component> loadJSONComponents() {
-        Component[] deserializedInfo = Serializer.deserialize(JSONConfig.configFile, Component[].class);
-        if (deserializedInfo == null) return null;
-        return new ArrayList<>(Arrays.asList(deserializedInfo));
-    }
-
-    private ArrayList<Component> initComponents() {
+    private ArrayList<io.github.kurrycat.mpkmod.gui.components.Component> initComponents() {
         ArrayList<Component> initComponents = new ArrayList<>();
         initComponents.add(
                 new InfoLabel(

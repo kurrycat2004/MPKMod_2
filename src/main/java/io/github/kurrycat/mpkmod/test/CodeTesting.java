@@ -1,4 +1,4 @@
-package io.github.kurrycat.mpkmod;
+package io.github.kurrycat.mpkmod.test;
 
 import org.junit.jupiter.api.Test;
 
