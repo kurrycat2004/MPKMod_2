@@ -28,11 +28,11 @@ public class Serializer {
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-        /*mapper.setVisibility(mapper.getSerializationConfig().getDefaultVisibilityChecker()
+        mapper.setVisibility(mapper.getSerializationConfig().getDefaultVisibilityChecker()
                 .withFieldVisibility(JsonAutoDetect.Visibility.NONE)
                 .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
                 .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
-                .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));*/
+                .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
     }
 
     public static <T> void serialize(File configFile, T infoLabel) {
