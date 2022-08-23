@@ -1,7 +1,7 @@
 package io.github.kurrycat.mpkmod.compatability.MCClasses;
 
 import io.github.kurrycat.mpkmod.compatability.functions.DrawBoxFunction;
-import io.github.kurrycat.mpkmod.util.BoundingBox;
+import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 
 import java.awt.*;
 
@@ -12,7 +12,7 @@ public class Renderer3D {
         drawBoxFunction = f;
     }
 
-    public static void drawBox(BoundingBox boundingBox, Color color, Player player, float partialTicks) {
+    public static void drawBox(BoundingBox3D boundingBox, Color color, Player player, float partialTicks) {
         drawBoxFunction.apply(boundingBox, color, player, partialTicks);
     }
 }
