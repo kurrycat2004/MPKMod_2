@@ -166,10 +166,6 @@ public class MPKMod_1_8 {
         }
 
         API.init(Minecraft.getSessionInfo().get("X-Minecraft-Version"));
-
-        JSONConfig.setupFile();
-        Serializer.registerSerializer();
-        Deserializer.registerDeserializer();
     }
 
     @EventHandler
