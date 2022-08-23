@@ -13,7 +13,6 @@ public class InfoLabel extends Label {
         super(text, pos);
     }
 
-    @JsonIgnore
     public String getFormattedText() {
         return StringToInfo.replaceVarsInString(text);
     }
@@ -22,7 +21,7 @@ public class InfoLabel extends Label {
         drawDefaultSelectedBackground();
         FontRenderer.drawString(getFormattedText(), getDisplayPos(), color, true);
     }
-    @JsonIgnore
+
     public Vector2D getSize() {
         return FontRenderer.getStringSize(getFormattedText());
     }

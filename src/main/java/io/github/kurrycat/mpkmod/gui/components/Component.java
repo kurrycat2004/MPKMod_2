@@ -8,23 +8,22 @@ import io.github.kurrycat.mpkmod.util.MathUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 public abstract class Component {
+    @JsonProperty
     public Vector2D pos;
-    @JsonIgnore
     public boolean selected = false;
 
     @JsonCreator
-    public Component(@JsonProperty("pos") Vector2D pos) {
+    public Component(@JsonProperty Vector2D pos) {
         this.pos = pos;
     }
 
     public abstract void render(Vector2D mouse);
 
-    @JsonProperty("pos")
+    @JsonProperty
     public Vector2D getPos() {
         return this.pos;
     }
 
-    @JsonIgnore
     public Component setPos(Vector2D pos) {
         this.pos = new Vector2D(
                 MathUtil.constrain(
@@ -41,7 +40,6 @@ public abstract class Component {
         return this;
     }
 
-    @JsonIgnore
     public Vector2D getDisplayPos() {
         return this.pos.asInRange(new Vector2D(0, 0), Renderer2D.getScaledSize());
     }

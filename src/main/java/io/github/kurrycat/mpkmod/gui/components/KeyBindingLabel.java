@@ -11,13 +11,17 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 
 public class KeyBindingLabel extends Component {
+    @JsonProperty("name")
     private final String name;
-    @JsonIgnore
     private final KeyBinding keyBinding;
+    @JsonProperty("size")
     private final Vector2D size;
 
+    @JsonProperty
     public Color keyDownColor = new Color(255, 255, 255, 95);
+    @JsonProperty
     public Color keyUpColor = new Color(31, 31, 31, 47);
+    @JsonProperty
     public Color selectedColor = new Color(255, 170, 0, 100);
 
     @JsonCreator
