@@ -16,11 +16,16 @@ import java.util.Arrays;
 
 public class MainGuiScreen extends ComponentScreen {
 
+    private ArrayList<Component> cachedElements;
+
     @Override
     public void onGuiInit() {
         super.onGuiInit();
-        ArrayList<Component> jsonElements = loadJSONComponents();
-        components = jsonElements != null ? jsonElements : initComponents();
+        if (cachedElements == null) {
+            ArrayList<Component> jsonElements = loadJSONComponents();
+            cachedElements = jsonElements != null ? jsonElements : initComponents();
+        }
+        components = (ArrayList<Component>) cachedElements.clone();
 
         buttons.add(new Button(
                 "Reset",
@@ -33,12 +38,13 @@ public class MainGuiScreen extends ComponentScreen {
                     components = initComponents();
                 }
         ));
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> Serializer.serialize(JSONConfig.configFile, components)));
     }
 
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
-        Serializer.serialize(JSONConfig.configFile, components);
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
