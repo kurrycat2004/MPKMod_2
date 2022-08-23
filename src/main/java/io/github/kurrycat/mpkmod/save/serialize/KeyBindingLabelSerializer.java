@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel;
-import io.github.kurrycat.mpkmod.save.SerializeManager;
+import io.github.kurrycat.mpkmod.save.Serializer;
 
 import java.io.IOException;
 
@@ -15,8 +15,8 @@ public class KeyBindingLabelSerializer extends JsonSerializer<KeyBindingLabel> {
         gen.writeStartObject();
         gen.writeStringField("@type", value.getClass().getSimpleName());
         gen.writeStringField("name", value.getName());
-        gen.writeStringField("pos", SerializeManager.serializeToString(value.getPos()));
-        gen.writeStringField("size", SerializeManager.serializeToString(value.getSize()));
+        gen.writeStringField("pos", Serializer.serializeToString(value.getPos()));
+        gen.writeStringField("size", Serializer.serializeToString(value.getSize()));
         gen.writeEndObject();
     }
 }

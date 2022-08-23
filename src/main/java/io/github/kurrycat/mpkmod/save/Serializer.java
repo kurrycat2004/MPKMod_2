@@ -12,7 +12,7 @@ import net.minecraft.client.settings.KeyBinding;
 import java.awt.*;
 import java.io.File;
 
-public class SerializeManager {
+public class Serializer {
 
     public static ObjectMapper mapper;
     public static SimpleModule module;

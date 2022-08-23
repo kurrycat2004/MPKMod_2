@@ -2,9 +2,8 @@ package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
-import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
-import io.github.kurrycat.mpkmod.save.DeserializeManager;
-import io.github.kurrycat.mpkmod.save.SerializeManager;
+import io.github.kurrycat.mpkmod.save.Deserializer;
+import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.Minecraft;
@@ -105,8 +104,8 @@ public class MPKMod_1_8 {
         API.init(Minecraft.getSessionInfo().get("X-Minecraft-Version"));
 
         JSONConfig.setupFile();
-        SerializeManager.registerSerializer();
-        DeserializeManager.registerDeserializer();
+        Serializer.registerSerializer();
+        Deserializer.registerDeserializer();
     }
 
     @EventHandler

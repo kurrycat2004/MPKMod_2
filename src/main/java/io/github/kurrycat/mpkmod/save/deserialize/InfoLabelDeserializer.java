@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
-import io.github.kurrycat.mpkmod.save.DeserializeManager;
+import io.github.kurrycat.mpkmod.save.Deserializer;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
@@ -20,9 +20,9 @@ public class InfoLabelDeserializer extends JsonDeserializer<InfoLabel> {
         JsonNode posNode = node.get("pos");
         JsonNode colorNode = node.get("color");
 
-        Color color = DeserializeManager.deserialize(colorNode.asText(), Color.class);
+        Color color = Deserializer.deserialize(colorNode.asText(), Color.class);
         String text = node.get("text").asText();
-        Vector2D vector2D = DeserializeManager.deserialize(posNode.asText(), Vector2D.class);
+        Vector2D vector2D = Deserializer.deserialize(posNode.asText(), Vector2D.class);
 
         InfoLabel infoLabel = new InfoLabel(text, vector2D);
         infoLabel.setColor(color);

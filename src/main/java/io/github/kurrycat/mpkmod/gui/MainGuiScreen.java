@@ -3,8 +3,8 @@ package io.github.kurrycat.mpkmod.gui;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel;
-import io.github.kurrycat.mpkmod.save.DeserializeManager;
-import io.github.kurrycat.mpkmod.save.SerializeManager;
+import io.github.kurrycat.mpkmod.save.Deserializer;
+import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.FormatStringBuilder;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
@@ -25,7 +25,7 @@ public class MainGuiScreen extends ComponentScreen {
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
-        SerializeManager.serialize(JSONConfig.configFile, components);
+        Serializer.serialize(JSONConfig.configFile, components);
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
@@ -33,7 +33,7 @@ public class MainGuiScreen extends ComponentScreen {
     }
 
     private ArrayList<Component> loadJSONComponents() {
-        Component[] deserializedInfo = DeserializeManager.deserialize(JSONConfig.configFile, Component[].class);
+        Component[] deserializedInfo = Deserializer.deserialize(JSONConfig.configFile, Component[].class);
         if (deserializedInfo == null) return null;
         return new ArrayList<>(Arrays.asList(deserializedInfo));
     }

@@ -12,7 +12,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-public class DeserializeManager {
+public class Deserializer {
 
     public static ObjectMapper mapper;
     public static SimpleModule module;
