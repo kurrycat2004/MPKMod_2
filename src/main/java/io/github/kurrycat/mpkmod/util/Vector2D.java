@@ -1,10 +1,15 @@
 package io.github.kurrycat.mpkmod.util;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Vector2D {
     public static Vector2D ZERO = new Vector2D(0, 0);
     private double x, y;
 
-    public Vector2D(double x, double y) {
+    @JsonCreator
+    public Vector2D(@JsonProperty("x") double x, @JsonProperty("y") double y) {
         this.x = x;
         this.y = y;
     }
@@ -14,36 +19,44 @@ public class Vector2D {
         this.y = vector2D.getY();
     }
 
+    @JsonProperty("x")
     public double getX() {
         return x;
     }
 
+    @JsonProperty("x")
     public Vector2D setX(double x) {
         this.x = x;
         return this;
     }
 
+    @JsonIgnore
     public float getXF() {
         return (float) x;
     }
 
+    @JsonIgnore
     public int getXI() {
         return (int) x;
     }
 
+    @JsonProperty("y")
     public double getY() {
         return y;
     }
 
+    @JsonProperty("y")
     public Vector2D setY(double y) {
         this.y = y;
         return this;
     }
 
+    @JsonIgnore
     public float getYF() {
         return (float) y;
     }
 
+    @JsonIgnore
     public int getYI() {
         return (int) y;
     }

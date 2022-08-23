@@ -2,21 +2,16 @@ package io.github.kurrycat.mpkmod.compatability;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer3D;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
-import io.github.kurrycat.mpkmod.save.Deserializer;
 import io.github.kurrycat.mpkmod.save.Serializer;
-import io.github.kurrycat.mpkmod.util.BoundingBox;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
 import io.github.kurrycat.mpkmod.util.Vector2D;
-import io.github.kurrycat.mpkmod.util.Vector3D;
 
-import java.awt.*;
 import java.time.Instant;
 
 public class API {
@@ -52,7 +47,6 @@ public class API {
 
         JSONConfig.setupFile();
         Serializer.registerSerializer();
-        Deserializer.registerDeserializer();
 
         EventAPI.init();
 

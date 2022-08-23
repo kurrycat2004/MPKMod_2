@@ -2,9 +2,6 @@ package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
-import io.github.kurrycat.mpkmod.save.Deserializer;
-import io.github.kurrycat.mpkmod.save.Serializer;
-import io.github.kurrycat.mpkmod.util.JSONConfig;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
