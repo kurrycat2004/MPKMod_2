@@ -6,7 +6,7 @@ public class CodeTesting {
 
     @Test
     public void testAdd() {
-        System.out.println("Test");
+        System.out.println("Test2");
     }
 
 }
