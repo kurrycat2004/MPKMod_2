@@ -1,9 +1,19 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.util.MathUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Label.class, name = "Label"),
+        @JsonSubTypes.Type(value = KeyBindingLabel.class, name = "KeyBindingLabel"),
+        @JsonSubTypes.Type(value = InfoLabel.class, name = "InfoLabel") }
+)
 public abstract class Component {
     public Vector2D pos;
     public boolean selected = false;

@@ -3,10 +3,8 @@ package io.github.kurrycat.mpkmod.save;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
-import io.github.kurrycat.mpkmod.save.deserialize.ColorDeserializer;
-import io.github.kurrycat.mpkmod.save.deserialize.InfoLabelDeserializer;
-import io.github.kurrycat.mpkmod.save.deserialize.KeyBindingDeserializer;
-import io.github.kurrycat.mpkmod.save.deserialize.Vector2DDeserializer;
+import io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel;
+import io.github.kurrycat.mpkmod.save.deserialize.*;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.settings.KeyBinding;
 
@@ -27,14 +25,17 @@ public class DeserializeManager {
         module.addDeserializer(Color.class, new ColorDeserializer());
         module.addDeserializer(Vector2D.class, new Vector2DDeserializer());
         module.addDeserializer(KeyBinding.class, new KeyBindingDeserializer());
+        module.addDeserializer(KeyBindingLabel.class, new KeyBindingLabelDeserializer());
 
         mapper.registerModule(module);
     }
 
     public static <T> T deserialize(File configFile, Class<T> c) {
+        if (!configFile.exists()) return null;
         try {
             return mapper.readValue(configFile, c);
         } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -43,6 +44,7 @@ public class DeserializeManager {
         try {
             return mapper.readValue(text, c);
         } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
     }

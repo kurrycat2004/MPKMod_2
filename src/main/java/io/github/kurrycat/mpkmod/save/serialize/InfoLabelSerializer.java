@@ -15,6 +15,7 @@ public class InfoLabelSerializer extends JsonSerializer<InfoLabel> {
     @Override
     public void serialize(InfoLabel value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         gen.writeStartObject();
+        gen.writeStringField("@type", value.getClass().getSimpleName());
         gen.writeStringField("pos", SerializeManager.serializeToString(value.pos));
         gen.writeStringField("color", SerializeManager.serializeToString(value.color));
         gen.writeStringField("text", value.text);
