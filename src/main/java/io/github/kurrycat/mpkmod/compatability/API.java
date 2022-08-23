@@ -9,7 +9,10 @@ import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
+import io.github.kurrycat.mpkmod.save.Deserializer;
+import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.BoundingBox;
+import io.github.kurrycat.mpkmod.util.JSONConfig;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 
@@ -47,6 +50,10 @@ public class API {
 
         gameStartedInstant = Instant.now();
 
+        JSONConfig.setupFile();
+        Serializer.registerSerializer();
+        Deserializer.registerDeserializer();
+
         EventAPI.init();
 
         DiscordRPC.init();
@@ -61,7 +68,7 @@ public class API {
                 )
         );
 
-        EventAPI.addListener(
+        /*EventAPI.addListener(
                 new EventAPI.EventListener<OnRenderWorldOverlayEvent>(
                         e -> Renderer3D.drawBox(
                                 new BoundingBox(
@@ -78,7 +85,7 @@ public class API {
                         ),
                         Event.EventType.RENDER_WORLD_OVERLAY
                 )
-        );
+        );*/
     }
 
     public static class Events {
