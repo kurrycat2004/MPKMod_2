@@ -1,7 +1,9 @@
 package io.github.kurrycat.mpkmod.gui;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
+import io.github.kurrycat.mpkmod.util.BoundingBox2D;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
 
 public abstract class ComponentScreen extends MPKGuiScreen {
     public ArrayList<Component> components = new ArrayList<>();
+    public ArrayList<Button> buttons = new ArrayList<>();
     public Set<Component> selected = new HashSet<>();
     public Set<Component> holding = new HashSet<>();
     private Vector2D lastClickedPos = null;
@@ -22,6 +25,7 @@ public abstract class ComponentScreen extends MPKGuiScreen {
     public void onGuiInit() {
         super.onGuiInit();
         components.clear();
+        buttons.clear();
         selected.clear();
         holding.clear();
     }
@@ -36,11 +40,37 @@ public abstract class ComponentScreen extends MPKGuiScreen {
 
     public void onKeyEvent(int keyCode, String key, boolean pressed) {
         super.onKeyEvent(keyCode, key, pressed);
+
+        if (pressed && !selected.isEmpty()) {
+            System.out.println(key);
+            Vector2D arrowKeyMove = Vector2D.ZERO;
+            switch (key) {
+                case "LEFT":
+                    arrowKeyMove = Vector2D.LEFT;
+                    break;
+                case "RIGHT":
+                    arrowKeyMove = Vector2D.RIGHT;
+                    break;
+                case "UP":
+                    arrowKeyMove = Vector2D.UP;
+                    break;
+                case "DOWN":
+                    arrowKeyMove = Vector2D.DOWN;
+                    break;
+            }
+            BoundingBox2D containingSelected = boundingBoxContainingAll(new ArrayList<>(selected));
+            Vector2D toMove = arrowKeyMove.constrain(Vector2D.ZERO.sub(containingSelected.getMin()), Renderer2D.getScaledSize().sub(containingSelected.getMax()));
+
+            selected.forEach(c -> c.setPos(c.getPos().add(toMove)));
+        }
     }
 
     public void onMouseClicked(Vector2D mouse, int mouseButton) {
         super.onMouseClicked(mouse, mouseButton);
-        if (mouseButton == Mouse.BUTTON_LEFT) {
+
+        buttons.forEach(b -> b.handleMouseInput(Mouse.State.DOWN, mouse, Mouse.Button.fromInt(mouseButton)));
+
+        if (Mouse.Button.LEFT.equals(mouseButton)) {
             lastClickedPos = mouse;
 
             Component clicked = findFirstContainPos(lastClickedPos);
@@ -53,17 +83,26 @@ public abstract class ComponentScreen extends MPKGuiScreen {
                 selected.add(clicked);
                 holding.add(clicked);
             }
+        } else if (Mouse.Button.RIGHT.equals(mouseButton)) {
+            if (lastClickedPos != null && lastClicked == null)
+                lastClickedPos = null;
         }
     }
 
     public void onMouseClickMove(Vector2D mouse, int mouseButton, long timeSinceLastClick) {
         super.onMouseClickMove(mouse, mouseButton, timeSinceLastClick);
+
+        buttons.forEach(b -> b.handleMouseInput(Mouse.State.DRAG, mouse, Mouse.Button.fromInt(mouseButton)));
+
         selected = selected.stream().filter(c -> holding.contains(c)).collect(Collectors.toCollection(HashSet::new));
     }
 
     public void onMouseReleased(Vector2D mouse, int mouseButton) {
         super.onMouseReleased(mouse, mouseButton);
-        if (mouseButton == Mouse.BUTTON_LEFT) {
+
+        buttons.forEach(b -> b.handleMouseInput(Mouse.State.UP, mouse, Mouse.Button.fromInt(mouseButton)));
+
+        if (Mouse.Button.LEFT.equals(mouseButton) && lastClickedPos != null) {
             boolean moved = lastClickedPos.sub(mouse).lengthSqr() > 3 * 3;
             if (!moved && lastClicked != null) {
                 selected.clear();
@@ -115,6 +154,24 @@ public abstract class ComponentScreen extends MPKGuiScreen {
         return containPos.get(0);
     }
 
+    public BoundingBox2D boundingBoxContainingAll(ArrayList<Component> components) {
+        if (components.isEmpty()) return null;
+
+        Vector2D min = null, max = null;
+        for (Component c : components) {
+            Vector2D p = c.getDisplayPos();
+            Vector2D p2 = p.add(c.getSize());
+            if (min == null) min = new Vector2D(p);
+            if (max == null) max = new Vector2D(p.add(c.getSize()));
+
+            if (p.getX() < min.getX()) min.setX(p.getX());
+            if (p2.getX() > max.getX()) max.setX(p2.getX());
+            if (p.getY() < min.getY()) min.setY(p.getY());
+            if (p2.getY() > max.getY()) max.setY(p2.getY());
+        }
+        return new BoundingBox2D(min, max);
+    }
+
     public void drawScreen(Vector2D mouse, float partialTicks) {
         super.drawScreen(mouse, partialTicks);
         for (Component c : components) c.setSelected(selected.contains(c));
@@ -124,22 +181,13 @@ public abstract class ComponentScreen extends MPKGuiScreen {
                 component.render(mouse);
         }
 
-        if (!holding.isEmpty()) {
-            Vector2D min = null, max = null;
-            for (Component c : holding) {
-                Vector2D p = c.getDisplayPos();
-                Vector2D p2 = p.add(c.getSize());
-                if (min == null) min = new Vector2D(p);
-                if (max == null) max = new Vector2D(p.add(c.getSize()));
+        for (Button b : buttons) b.render(mouse);
 
-                if (p.getX() < min.getX()) min.setX(p.getX());
-                if (p2.getX() > max.getX()) max.setX(p2.getX());
-                if (p.getY() < min.getY()) min.setY(p.getY());
-                if (p2.getY() > max.getY()) max.setY(p2.getY());
-            }
+        if (!holding.isEmpty()) {
+            BoundingBox2D containingHolding = boundingBoxContainingAll(new ArrayList<>(holding));
 
             Vector2D toMove = mouse.sub(lastClickedPos);
-            toMove = toMove.constrain(Vector2D.ZERO.sub(min), Renderer2D.getScaledSize().sub(max));
+            toMove = toMove.constrain(Vector2D.ZERO.sub(containingHolding.getMin()), Renderer2D.getScaledSize().sub(containingHolding.getMax()));
             holdingSetPosOffset = toMove;
             for (Component component : holding) {
                 Vector2D p = component.getPos();

@@ -1,5 +1,7 @@
 package io.github.kurrycat.mpkmod.gui;
 
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel;
@@ -19,6 +21,18 @@ public class MainGuiScreen extends ComponentScreen {
         super.onGuiInit();
         ArrayList<Component> jsonElements = loadJSONComponents();
         components = jsonElements != null ? jsonElements : initComponents();
+
+        buttons.add(new Button(
+                "Reset",
+                new Vector2D(
+                        Renderer2D.getScaledSize().getX() / 2D - 50,
+                        Renderer2D.getScaledSize().getY() - 25
+                ),
+                new Vector2D(100, 20),
+                mouseButton -> {
+                    components = initComponents();
+                }
+        ));
     }
 
     @Override
