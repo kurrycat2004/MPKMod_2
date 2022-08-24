@@ -35,7 +35,8 @@ public class MainGuiScreen extends ComponentScreen {
                 ),
                 new Vector2D(100, 20),
                 mouseButton -> {
-                    components = initComponents();
+                    cachedElements = initComponents();
+                    components = (ArrayList<Component>) cachedElements.clone();
                 }
         ));
 
