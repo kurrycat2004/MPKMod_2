@@ -1,7 +1,6 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.util.MathUtil;
@@ -11,6 +10,7 @@ public abstract class Component {
     @JsonProperty
     public Vector2D pos;
     public boolean selected = false;
+    private Vector2D size;
 
     @JsonCreator
     public Component(@JsonProperty Vector2D pos) {
@@ -44,7 +44,16 @@ public abstract class Component {
         return this.pos.asInRange(new Vector2D(0, 0), Renderer2D.getScaledSize());
     }
 
-    public abstract Vector2D getSize();
+    @JsonProperty("size")
+    public Vector2D getSize() {
+        return this.size;
+    }
+
+    @JsonProperty("size")
+    public Component setSize(Vector2D size) {
+        this.size = size;
+        return this;
+    }
 
     public boolean contains(Vector2D testPos) {
         return testPos.isInRectBetween(getDisplayPos(), getDisplayPos().add(getSize()));

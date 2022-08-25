@@ -7,16 +7,13 @@ import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel;
 import io.github.kurrycat.mpkmod.gui.screens.MapOverviewGUI;
 import io.github.kurrycat.mpkmod.save.Serializer;
-import io.github.kurrycat.mpkmod.util.Colors;
-import io.github.kurrycat.mpkmod.util.FormatStringBuilder;
-import io.github.kurrycat.mpkmod.util.JSONConfig;
-import io.github.kurrycat.mpkmod.util.Vector2D;
+import io.github.kurrycat.mpkmod.util.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainGuiScreen extends ComponentScreen {
-
+    public MapOverviewGUI mapOverviewGUI = null;
     private ArrayList<Component> cachedElements;
 
     @Override
@@ -26,9 +23,9 @@ public class MainGuiScreen extends ComponentScreen {
             ArrayList<Component> jsonElements = loadJSONComponents();
             cachedElements = jsonElements != null ? jsonElements : initComponents();
         }
-        components = (ArrayList<Component>) cachedElements.clone();
+        movableComponents = new ArrayList<>(cachedElements);
 
-        buttons.add(new Button(
+        components.add(new Button(
                 "Reset",
                 new Vector2D(
                         Renderer2D.getScaledSize().getX() / 2D - 50,
@@ -37,29 +34,32 @@ public class MainGuiScreen extends ComponentScreen {
                 new Vector2D(100, 20),
                 mouseButton -> {
                     cachedElements = initComponents();
-                    components = (ArrayList<Component>) cachedElements.clone();
+                    movableComponents = new ArrayList<>(cachedElements);
                 }
         ));
 
-        buttons.add(new Button(
+        components.add(new Button(
                 "MapOverview",
                 new Vector2D(
-                        Renderer2D.getScaledSize().getX() / 2D + 150,
+                        Renderer2D.getScaledSize().getX() - 125,
                         Renderer2D.getScaledSize().getY() - 25
                 ),
                 new Vector2D(100, 20),
                 mouseButton -> {
-                    this.onGuiClosed();
-                    mapOverviewGUI.init();
+                    openPane(mapOverviewGUI);
                 }
         ));
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> Serializer.serialize(JSONConfig.configFile, components)));
+        mapOverviewGUI = new MapOverviewGUI(new Vector2D(20, 20), new Vector2D(Renderer2D.getScaledSize().sub(40)));
+
+        //Runtime.getRuntime().addShutdownHook(new Thread(() -> Serializer.serialize(JSONConfig.configFile, components)));
     }
 
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
+        mapOverviewGUI.close();
+        Serializer.serialize(JSONConfig.configFile, movableComponents);
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {

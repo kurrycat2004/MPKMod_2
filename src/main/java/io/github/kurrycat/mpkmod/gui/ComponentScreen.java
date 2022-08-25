@@ -3,7 +3,9 @@ package io.github.kurrycat.mpkmod.gui;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
-import io.github.kurrycat.mpkmod.gui.screens.MapOverviewGUI;
+import io.github.kurrycat.mpkmod.gui.components.Pane;
+import io.github.kurrycat.mpkmod.gui.components.PaneHolder;
+import io.github.kurrycat.mpkmod.util.ArrayListUtil;
 import io.github.kurrycat.mpkmod.util.BoundingBox2D;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -14,13 +16,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class ComponentScreen extends MPKGuiScreen {
-    public ArrayList<Component> components = new ArrayList<>();
-    public ArrayList<Button> buttons = new ArrayList<>();
+public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder {
+    public ArrayList<Button> components = new ArrayList<>();
+    public ArrayList<Pane> openPanes = new ArrayList<>();
+
+    public ArrayList<Component> movableComponents = new ArrayList<>();
     public Set<Component> selected = new HashSet<>();
     public Set<Component> holding = new HashSet<>();
-
-    public MapOverviewGUI mapOverviewGUI = null;
 
     private Vector2D lastClickedPos = null;
     private Component lastClicked = null;
@@ -28,27 +30,26 @@ public abstract class ComponentScreen extends MPKGuiScreen {
 
     public void onGuiInit() {
         super.onGuiInit();
+        movableComponents.clear();
         components.clear();
-        buttons.clear();
         selected.clear();
         holding.clear();
-        mapOverviewGUI = new MapOverviewGUI(new Vector2D(50, 50), new Vector2D(Renderer2D.getScaledSize().sub(100)));
+        lastClicked = null;
+        lastClickedPos = null;
+        holdingSetPosOffset = null;
     }
 
     public void onGuiClosed() {
         super.onGuiClosed();
-        for (Component c : components)
-            c.setSelected(false);
+        movableComponents.forEach(c -> c.setSelected(false));
         selected.clear();
         holding.clear();
-        mapOverviewGUI.removeWindow();
     }
 
     public void onKeyEvent(int keyCode, String key, boolean pressed) {
         super.onKeyEvent(keyCode, key, pressed);
 
         if (pressed && !selected.isEmpty()) {
-            System.out.println(key);
             Vector2D arrowKeyMove = Vector2D.ZERO;
             switch (key) {
                 case "LEFT":
@@ -74,8 +75,10 @@ public abstract class ComponentScreen extends MPKGuiScreen {
     public void onMouseClicked(Vector2D mouse, int mouseButton) {
         super.onMouseClicked(mouse, mouseButton);
 
-        buttons.forEach(b -> b.handleMouseInput(Mouse.State.DOWN, mouse, Mouse.Button.fromInt(mouseButton)));
-        mapOverviewGUI.buttons.forEach(b -> b.handleMouseInput(Mouse.State.DOWN, mouse, Mouse.Button.fromInt(mouseButton)));
+        if (handleMouseInput(Mouse.State.DOWN, mouse, Mouse.Button.fromInt(mouseButton))) return;
+
+        if (ArrayListUtil.orMap(components, b -> b.handleMouseInput(Mouse.State.DOWN, mouse, Mouse.Button.fromInt(mouseButton))))
+            return;
 
         if (Mouse.Button.LEFT.equals(mouseButton)) {
             lastClickedPos = mouse;
@@ -99,8 +102,10 @@ public abstract class ComponentScreen extends MPKGuiScreen {
     public void onMouseClickMove(Vector2D mouse, int mouseButton, long timeSinceLastClick) {
         super.onMouseClickMove(mouse, mouseButton, timeSinceLastClick);
 
-        buttons.forEach(b -> b.handleMouseInput(Mouse.State.DRAG, mouse, Mouse.Button.fromInt(mouseButton)));
-        mapOverviewGUI.buttons.forEach(b -> b.handleMouseInput(Mouse.State.DRAG, mouse, Mouse.Button.fromInt(mouseButton)));
+        if (handleMouseInput(Mouse.State.DRAG, mouse, Mouse.Button.fromInt(mouseButton))) return;
+
+        if (ArrayListUtil.orMap(components, b -> b.handleMouseInput(Mouse.State.DRAG, mouse, Mouse.Button.fromInt(mouseButton))))
+            return;
 
         selected = selected.stream().filter(c -> holding.contains(c)).collect(Collectors.toCollection(HashSet::new));
     }
@@ -108,8 +113,10 @@ public abstract class ComponentScreen extends MPKGuiScreen {
     public void onMouseReleased(Vector2D mouse, int mouseButton) {
         super.onMouseReleased(mouse, mouseButton);
 
-        buttons.forEach(b -> b.handleMouseInput(Mouse.State.UP, mouse, Mouse.Button.fromInt(mouseButton)));
-        mapOverviewGUI.buttons.forEach(b -> b.handleMouseInput(Mouse.State.UP, mouse, Mouse.Button.fromInt(mouseButton)));
+        if (handleMouseInput(Mouse.State.UP, mouse, Mouse.Button.fromInt(mouseButton))) return;
+
+        if (ArrayListUtil.orMap(components, b -> b.handleMouseInput(Mouse.State.UP, mouse, Mouse.Button.fromInt(mouseButton))))
+            return;
 
         if (Mouse.Button.LEFT.equals(mouseButton) && lastClickedPos != null) {
             boolean moved = lastClickedPos.sub(mouse).lengthSqr() > 3 * 3;
@@ -136,16 +143,39 @@ public abstract class ComponentScreen extends MPKGuiScreen {
         }
     }
 
+    public void openPane(Pane p) {
+        openPanes.add(p);
+        p.setParent(this);
+        p.setLoaded(true);
+
+        selected.clear();
+        holding.clear();
+        lastClicked = null;
+        lastClickedPos = null;
+        holdingSetPosOffset = null;
+    }
+
+    public void closePane(Pane p) {
+        openPanes.remove(p);
+        p.setLoaded(false);
+    }
+
+    public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
+        if (!openPanes.isEmpty())
+            openPanes.get(openPanes.size() - 1).handleMouseInput(state, mousePos, button);
+        return !openPanes.isEmpty();
+    }
+
     public ArrayList<Component> findContainPos(Vector2D p) {
-        return components.stream().filter(c -> c.contains(p)).collect(Collectors.toCollection(ArrayList::new));
+        return movableComponents.stream().filter(c -> c.contains(p)).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public ArrayList<Component> findAreContainedIn(Vector2D pos1, Vector2D pos2) {
-        return components.stream().filter(c -> c.getPos().isInRectBetween(pos1, pos2)).collect(Collectors.toCollection(ArrayList::new));
+        return movableComponents.stream().filter(c -> c.getPos().isInRectBetween(pos1, pos2)).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public ArrayList<Component> overlap(Vector2D p1, Vector2D p2) {
-        return components.stream().filter(
+        return movableComponents.stream().filter(
                 c -> {
                     Vector2D c1 = c.getDisplayPos();
                     Vector2D c2 = c.getDisplayPos().add(c.getSize());
@@ -182,16 +212,17 @@ public abstract class ComponentScreen extends MPKGuiScreen {
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
-        super.drawScreen(mouse, partialTicks);
+        if (openPanes.isEmpty()) drawDefaultBackground();
 
-        for (Component c : components) c.setSelected(selected.contains(c));
+        movableComponents.forEach(c -> c.setSelected(selected.contains(c)));
 
-        for (Component component : components) {
+        for (Component component : movableComponents) {
             if (!holding.contains(component))
                 component.render(mouse);
         }
 
-        for (Button b : buttons) b.render(mouse);
+        Vector2D hoverMousePos = openPanes.isEmpty() ? mouse : Vector2D.OFFSCREEN;
+        for (Button b : components) b.render(hoverMousePos);
 
         if (!holding.isEmpty()) {
             BoundingBox2D containingHolding = boundingBoxContainingAll(new ArrayList<>(holding));
@@ -213,10 +244,12 @@ public abstract class ComponentScreen extends MPKGuiScreen {
             Renderer2D.drawHollowRect(p, s, 1, Color.RED);
         }
 
-        if (mapOverviewGUI.isLoaded()) {
-            mapOverviewGUI.render(mouse);
-            for (Component c : mapOverviewGUI.components) c.render(mouse);
-            for (Button b : mapOverviewGUI.buttons) b.render(mouse);
+        if (!openPanes.isEmpty()) {
+            drawDefaultBackground();
+            for (int i = 0; i < openPanes.size() - 1; i++) {
+                openPanes.get(i).render(Vector2D.OFFSCREEN);
+            }
+            openPanes.get(openPanes.size() - 1).render(mouse);
         }
     }
 }

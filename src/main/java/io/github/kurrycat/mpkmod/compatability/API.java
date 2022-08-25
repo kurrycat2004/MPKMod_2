@@ -55,7 +55,7 @@ public class API {
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(
                         e -> {
-                            for (Component c : ((MainGuiScreen) getGuiScreen()).components) {
+                            for (Component c : ((MainGuiScreen) getGuiScreen()).movableComponents) {
                                 c.render(new Vector2D(-1, -1));
                             }
                         }
