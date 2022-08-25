@@ -3,8 +3,7 @@ package io.github.kurrycat.mpkmod.gui;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
-import io.github.kurrycat.mpkmod.gui.components.Pane;
-import io.github.kurrycat.mpkmod.gui.components.PaneHolder;
+import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.util.ArrayListUtil;
 import io.github.kurrycat.mpkmod.util.BoundingBox2D;
 import io.github.kurrycat.mpkmod.util.Mouse;
@@ -16,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder {
+public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder, MouseInputListener, MouseScrollListener {
     public ArrayList<Button> components = new ArrayList<>();
     public ArrayList<Pane> openPanes = new ArrayList<>();
 
@@ -74,6 +73,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
     public void onMouseClicked(Vector2D mouse, int mouseButton) {
         super.onMouseClicked(mouse, mouseButton);
+        System.out.println("click" + mouseButton);
 
         if (handleMouseInput(Mouse.State.DOWN, mouse, Mouse.Button.fromInt(mouseButton))) return;
 
@@ -101,6 +101,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
     public void onMouseClickMove(Vector2D mouse, int mouseButton, long timeSinceLastClick) {
         super.onMouseClickMove(mouse, mouseButton, timeSinceLastClick);
+        System.out.println("move" + mouseButton);
 
         if (handleMouseInput(Mouse.State.DRAG, mouse, Mouse.Button.fromInt(mouseButton))) return;
 
@@ -112,6 +113,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
     public void onMouseReleased(Vector2D mouse, int mouseButton) {
         super.onMouseReleased(mouse, mouseButton);
+        System.out.println("release" + mouseButton);
 
         if (handleMouseInput(Mouse.State.UP, mouse, Mouse.Button.fromInt(mouseButton))) return;
 
@@ -143,6 +145,10 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         }
     }
 
+    public void onMouseScroll(Vector2D mousePos, int delta) {
+        handleMouseScroll(mousePos, delta);
+    }
+
     public void openPane(Pane p) {
         openPanes.add(p);
         p.setParent(this);
@@ -163,6 +169,12 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
         if (!openPanes.isEmpty())
             openPanes.get(openPanes.size() - 1).handleMouseInput(state, mousePos, button);
+        return !openPanes.isEmpty();
+    }
+
+    public boolean handleMouseScroll(Vector2D mousePos, int delta) {
+        if (!openPanes.isEmpty())
+            openPanes.get(openPanes.size() - 1).handleMouseScroll(mousePos, delta);
         return !openPanes.isEmpty();
     }
 

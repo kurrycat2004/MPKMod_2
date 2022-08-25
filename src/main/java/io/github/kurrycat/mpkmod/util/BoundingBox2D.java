@@ -14,12 +14,20 @@ public class BoundingBox2D {
         );
     }
 
+    public static BoundingBox2D fromPosSize(Vector2D pos, Vector2D size) {
+        return new BoundingBox2D(pos.copy(), pos.add(size));
+    }
+
     public Vector2D getMin() {
         return min;
     }
 
     public Vector2D getMax() {
         return max;
+    }
+
+    public Vector2D getSize() {
+        return max.sub(min);
     }
 
     public double minX() {
@@ -36,5 +44,9 @@ public class BoundingBox2D {
 
     public double maxY() {
         return max.getY();
+    }
+
+    public boolean contains(Vector2D pos) {
+        return pos.isInRectBetween(min, max);
     }
 }

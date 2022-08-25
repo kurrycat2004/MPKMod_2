@@ -4,7 +4,9 @@ public class Mouse {
     public enum Button {
         LEFT(0),
         RIGHT(1),
-        WHEEL(2);
+        WHEEL(2),
+        BUTTON_4(3),
+        BUTTON_5(4);
 
         public final int value;
 

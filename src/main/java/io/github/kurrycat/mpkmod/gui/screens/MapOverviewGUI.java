@@ -1,9 +1,9 @@
 package io.github.kurrycat.mpkmod.gui.screens;
 
+import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.components.Button;
-import io.github.kurrycat.mpkmod.gui.components.Pane;
-import io.github.kurrycat.mpkmod.gui.components.ScrollableList;
-import io.github.kurrycat.mpkmod.gui.components.TextLabel;
+import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
@@ -32,11 +32,39 @@ public class MapOverviewGUI extends Pane {
                         }
                 )
         );
-        components.add(
-                new ScrollableList(
-                        getDisplayPos().add(100, 50),
-                        new Vector2D(100, 200)
-                )
+        ScrollableList<TestItem> test = new ScrollableList<>(
+                getDisplayPos().add(120, 20),
+                new Vector2D(200, 200)
         );
+        test.addItem(
+                new TestItem(test)
+        );
+        test.addItem(
+                new TestItem(test)
+        );
+        test.addItem(
+                new TestItem(test)
+        );
+        test.addItem(
+                new TestItem(test)
+        );
+        test.addItem(
+                new TestItem(test)
+        );
+        test.addItem(
+                new TestItem(test)
+        );
+        components.add(test);
+    }
+
+    public static class TestItem extends ScrollableListItem<TestItem> {
+        public TestItem(ScrollableList<TestItem> parent) {
+            super(parent);
+        }
+
+        public void render(Vector2D pos, Vector2D size, Vector2D mouse) {
+            Renderer2D.drawRectWithEdge(pos, size, 1, Color.GRAY, new Color(68, 86, 152, 128));
+            FontRenderer.drawCenteredString("TEST", pos.add(size.div(2)), Color.WHITE, false);
+        }
     }
 }
