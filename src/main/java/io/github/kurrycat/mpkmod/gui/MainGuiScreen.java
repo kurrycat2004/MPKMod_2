@@ -5,6 +5,7 @@ import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel;
+import io.github.kurrycat.mpkmod.gui.screens.MapOverviewGUI;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.FormatStringBuilder;
@@ -37,6 +38,19 @@ public class MainGuiScreen extends ComponentScreen {
                 mouseButton -> {
                     cachedElements = initComponents();
                     components = (ArrayList<Component>) cachedElements.clone();
+                }
+        ));
+
+        buttons.add(new Button(
+                "MapOverview",
+                new Vector2D(
+                        Renderer2D.getScaledSize().getX() / 2D + 150,
+                        Renderer2D.getScaledSize().getY() - 25
+                ),
+                new Vector2D(100, 20),
+                mouseButton -> {
+                    this.onGuiClosed();
+                    mapOverviewGUI.init();
                 }
         ));
 

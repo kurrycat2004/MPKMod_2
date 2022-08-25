@@ -3,6 +3,7 @@ package io.github.kurrycat.mpkmod.gui;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
+import io.github.kurrycat.mpkmod.gui.screens.MapOverviewGUI;
 import io.github.kurrycat.mpkmod.util.BoundingBox2D;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -18,6 +19,9 @@ public abstract class ComponentScreen extends MPKGuiScreen {
     public ArrayList<Button> buttons = new ArrayList<>();
     public Set<Component> selected = new HashSet<>();
     public Set<Component> holding = new HashSet<>();
+
+    public MapOverviewGUI mapOverviewGUI = null;
+
     private Vector2D lastClickedPos = null;
     private Component lastClicked = null;
     private Vector2D holdingSetPosOffset = null;
@@ -28,6 +32,7 @@ public abstract class ComponentScreen extends MPKGuiScreen {
         buttons.clear();
         selected.clear();
         holding.clear();
+        mapOverviewGUI = new MapOverviewGUI(new Vector2D(50, 50), new Vector2D(Renderer2D.getScaledSize().sub(100)));
     }
 
     public void onGuiClosed() {
@@ -36,6 +41,7 @@ public abstract class ComponentScreen extends MPKGuiScreen {
             c.setSelected(false);
         selected.clear();
         holding.clear();
+        mapOverviewGUI.removeWindow();
     }
 
     public void onKeyEvent(int keyCode, String key, boolean pressed) {
@@ -69,6 +75,7 @@ public abstract class ComponentScreen extends MPKGuiScreen {
         super.onMouseClicked(mouse, mouseButton);
 
         buttons.forEach(b -> b.handleMouseInput(Mouse.State.DOWN, mouse, Mouse.Button.fromInt(mouseButton)));
+        mapOverviewGUI.buttons.forEach(b -> b.handleMouseInput(Mouse.State.DOWN, mouse, Mouse.Button.fromInt(mouseButton)));
 
         if (Mouse.Button.LEFT.equals(mouseButton)) {
             lastClickedPos = mouse;
@@ -93,6 +100,7 @@ public abstract class ComponentScreen extends MPKGuiScreen {
         super.onMouseClickMove(mouse, mouseButton, timeSinceLastClick);
 
         buttons.forEach(b -> b.handleMouseInput(Mouse.State.DRAG, mouse, Mouse.Button.fromInt(mouseButton)));
+        mapOverviewGUI.buttons.forEach(b -> b.handleMouseInput(Mouse.State.DRAG, mouse, Mouse.Button.fromInt(mouseButton)));
 
         selected = selected.stream().filter(c -> holding.contains(c)).collect(Collectors.toCollection(HashSet::new));
     }
@@ -101,6 +109,7 @@ public abstract class ComponentScreen extends MPKGuiScreen {
         super.onMouseReleased(mouse, mouseButton);
 
         buttons.forEach(b -> b.handleMouseInput(Mouse.State.UP, mouse, Mouse.Button.fromInt(mouseButton)));
+        mapOverviewGUI.buttons.forEach(b -> b.handleMouseInput(Mouse.State.UP, mouse, Mouse.Button.fromInt(mouseButton)));
 
         if (Mouse.Button.LEFT.equals(mouseButton) && lastClickedPos != null) {
             boolean moved = lastClickedPos.sub(mouse).lengthSqr() > 3 * 3;
@@ -174,6 +183,7 @@ public abstract class ComponentScreen extends MPKGuiScreen {
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
         super.drawScreen(mouse, partialTicks);
+
         for (Component c : components) c.setSelected(selected.contains(c));
 
         for (Component component : components) {
@@ -201,6 +211,12 @@ public abstract class ComponentScreen extends MPKGuiScreen {
             Vector2D p = new Vector2D(Math.min(lastClickedPos.getX(), mouse.getX()), Math.min(lastClickedPos.getY(), mouse.getY()));
             Vector2D s = new Vector2D(Math.max(lastClickedPos.getX(), mouse.getX()), Math.max(lastClickedPos.getY(), mouse.getY())).sub(p);
             Renderer2D.drawHollowRect(p, s, 1, Color.RED);
+        }
+
+        if (mapOverviewGUI.isLoaded()) {
+            mapOverviewGUI.render(mouse);
+            for (Component c : mapOverviewGUI.components) c.render(mouse);
+            for (Button b : mapOverviewGUI.buttons) b.render(mouse);
         }
     }
 }
