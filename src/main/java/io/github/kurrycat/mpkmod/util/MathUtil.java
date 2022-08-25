@@ -6,7 +6,7 @@ import java.util.Locale;
 
 public class MathUtil {
     public static String formatDecimals(double value, int decimals, boolean keepZeros) {
-        if(keepZeros) {
+        if (keepZeros) {
             return String.format(Locale.US, "%." + decimals + "f", value);
         }
         String pattern;
@@ -38,5 +38,26 @@ public class MathUtil {
             max = temp;
         }
         return Math.max(min, Math.min(max, value));
+    }
+
+    public static int constrain(int value, int min, int max) {
+        if (min > max) {
+            int temp = min;
+            min = max;
+            max = temp;
+        }
+        return Math.max(min, Math.min(max, value));
+    }
+
+    public static int sqr(int v) {
+        return v * v;
+    }
+
+    public static double map(double v, double from, double to, double newFrom, double newTo) {
+        return ((v - from) / (to - from)) * (newTo - newFrom) + newFrom;
+    }
+
+    public static int map(int v, int from, int to, int newFrom, int newTo) {
+        return (int) map(v, from, to, newFrom, (double) newTo);
     }
 }

@@ -2,10 +2,12 @@ package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.Vector2D;
+import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
 
@@ -66,6 +68,14 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
     protected void mouseReleased(int mouseX, int mouseY, int state) {
         super.mouseReleased(mouseX, mouseY, state);
         eventReceiver.onMouseReleased(new Vector2D(mouseX, mouseY), state);
+    }
+
+    @Override
+    public void handleMouseInput() throws IOException {
+        super.handleMouseInput();
+
+        if (Mouse.getEventDWheel() != 0)
+            eventReceiver.onMouseScroll(new Vector2D(Mouse.getEventX(), Mouse.getEventY()), Mouse.getEventDWheel() / 40);
     }
 
     @Override

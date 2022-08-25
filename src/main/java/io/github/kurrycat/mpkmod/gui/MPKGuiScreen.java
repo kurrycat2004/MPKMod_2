@@ -26,6 +26,16 @@ public abstract class MPKGuiScreen {
     public void onMouseReleased(Vector2D mouse, int mouseButton) {
     }
 
+
+    /**
+     * @param mousePos Mouse position when scrolled
+     * @param delta number of lines to scroll (one scroll tick = 3 per default)<br>
+     *              delta < 0: scrolled down<br>
+     *              delta > 0: scrolled up
+     */
+    public void onMouseScroll(Vector2D mousePos, int delta) {
+    }
+
     public void drawScreen(Vector2D mouse, float partialTicks) {
     }
 

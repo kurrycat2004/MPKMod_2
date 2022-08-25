@@ -9,7 +9,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class Pane extends Component implements MouseInputListener {
+public class Pane extends Component implements MouseInputListener, MouseScrollListener {
     public ArrayList<Component> components = new ArrayList<>();
     public Color backgroundColor = new Color(255, 255, 255, 255);
 
@@ -35,10 +35,18 @@ public class Pane extends Component implements MouseInputListener {
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
         if (this.loaded) {
             return ArrayListUtil.orMap(
-                    components.stream()
-                            .filter(c -> c instanceof MouseInputListener)
-                            .map(c -> (MouseInputListener) c).collect(Collectors.toCollection(ArrayList<MouseInputListener>::new)),
+                    ArrayListUtil.getAllOfType(components, MouseInputListener.class),
                     b -> b.handleMouseInput(state, mousePos, button)
+            );
+        }
+        return false;
+    }
+
+    public boolean handleMouseScroll(Vector2D mousePos, int delta) {
+        if (this.loaded) {
+            return ArrayListUtil.orMap(
+                    ArrayListUtil.getAllOfType(components, MouseScrollListener.class),
+                    b -> b.handleMouseScroll(mousePos, delta)
             );
         }
         return false;
