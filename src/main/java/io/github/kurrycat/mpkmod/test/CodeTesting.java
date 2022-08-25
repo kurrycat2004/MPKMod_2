@@ -2,11 +2,12 @@ package io.github.kurrycat.mpkmod.test;
 
 import org.junit.jupiter.api.Test;
 
-public class CodeTesting {
+import java.awt.*;
 
+public class CodeTesting {
     @Test
     public void testAdd() {
-        System.out.println("Test2");
+        System.out.println(new Color(-804253680).getAlpha());
     }
 
 }

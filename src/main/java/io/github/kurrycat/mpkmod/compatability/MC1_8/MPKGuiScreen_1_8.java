@@ -29,7 +29,6 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        drawDefaultBackground();
         eventReceiver.drawScreen(new Vector2D(mouseX, mouseY), partialTicks);
     }
 

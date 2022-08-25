@@ -1,9 +1,6 @@
 package io.github.kurrycat.mpkmod.compatability.functions;
 
-import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer3D;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.*;
 
 public class FunctionRegistry {
     public static void registerDrawString(DrawStringFunction function) {
@@ -28,6 +25,10 @@ public class FunctionRegistry {
 
     public static void registerGetScaledSize(GetScaledSizeFunction function) {
         Renderer2D.registerGetScaledSize(function);
+    }
+
+    public static void registerPlayButtonSound(PlayButtonSoundFunction function) {
+        SoundManager.registerPlayButtonSound(function);
     }
 
 }

@@ -5,6 +5,7 @@ import io.github.kurrycat.mpkmod.compatability.functions.FunctionRegistry;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.ServerData;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -146,6 +148,9 @@ public class MPKMod_1_8 {
                                 Minecraft.getMinecraft().fontRendererObj.getStringWidth(text),
                                 Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT
                         )
+        );
+        FunctionRegistry.registerPlayButtonSound(() ->
+                Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F))
         );
 
         ClientRegistry.registerKeyBinding(keyBinding);

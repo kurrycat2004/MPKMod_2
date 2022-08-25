@@ -14,8 +14,6 @@ public class KeyBindingLabel extends Component {
     @JsonProperty("name")
     private final String name;
     private final KeyBinding keyBinding;
-    @JsonProperty("size")
-    private final Vector2D size;
 
     @JsonProperty
     public Color keyDownColor = new Color(255, 255, 255, 95);
@@ -29,7 +27,7 @@ public class KeyBindingLabel extends Component {
         super(pos);
         this.name = name;
         this.keyBinding = KeyBinding.getByName(name);
-        this.size = new Vector2D(15, 15);
+        this.setSize(new Vector2D(15, 15));
     }
 
     public void render(Vector2D mouse) {
@@ -37,25 +35,14 @@ public class KeyBindingLabel extends Component {
         boolean keyDown = keyBinding != null && keyBinding.isKeyDown();
         Color c = selected ? selectedColor : keyDown ? keyDownColor : keyUpColor;
 
-        Renderer2D.drawRect(getDisplayPos(), size, c);
+        Renderer2D.drawRect(getDisplayPos(), getSize(), c);
 
         FontRenderer.drawCenteredString(
                 displayName,
-                getDisplayPos().add(size.div(2)).add(new Vector2D(0, 1)),
+                getDisplayPos().add(getSize().div(2)).add(new Vector2D(0, 1)),
                 keyDown ? Color.BLACK : Color.WHITE,
                 false
         );
-    }
-
-    @JsonProperty("size")
-    public Vector2D getSize() {
-        return this.size;
-    }
-
-    @JsonProperty("size")
-    public KeyBindingLabel setSize(Vector2D size) {
-        this.size.set(size);
-        return this;
     }
 
     @JsonProperty("name")

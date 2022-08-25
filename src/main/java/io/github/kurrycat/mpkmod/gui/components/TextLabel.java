@@ -7,7 +7,6 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 
 public class TextLabel extends Label {
-
     private Color backgroundColor = new Color(255, 255, 255, 0);
     private Color borderColor = new Color(255, 255, 255, 0);
 
@@ -33,5 +32,4 @@ public class TextLabel extends Label {
     public void setBorderColor(Color borderColor) {
         this.borderColor = borderColor;
     }
-
 }
