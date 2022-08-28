@@ -73,12 +73,8 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
     public void onMouseClicked(Vector2D mouse, int mouseButton) {
         super.onMouseClicked(mouse, mouseButton);
-        System.out.println("click" + mouseButton);
 
         if (handleMouseInput(Mouse.State.DOWN, mouse, Mouse.Button.fromInt(mouseButton))) return;
-
-        if (ArrayListUtil.orMap(components, b -> b.handleMouseInput(Mouse.State.DOWN, mouse, Mouse.Button.fromInt(mouseButton))))
-            return;
 
         if (Mouse.Button.LEFT.equals(mouseButton)) {
             lastClickedPos = mouse;
@@ -101,24 +97,16 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
     public void onMouseClickMove(Vector2D mouse, int mouseButton, long timeSinceLastClick) {
         super.onMouseClickMove(mouse, mouseButton, timeSinceLastClick);
-        System.out.println("move" + mouseButton);
 
         if (handleMouseInput(Mouse.State.DRAG, mouse, Mouse.Button.fromInt(mouseButton))) return;
-
-        if (ArrayListUtil.orMap(components, b -> b.handleMouseInput(Mouse.State.DRAG, mouse, Mouse.Button.fromInt(mouseButton))))
-            return;
 
         selected = selected.stream().filter(c -> holding.contains(c)).collect(Collectors.toCollection(HashSet::new));
     }
 
     public void onMouseReleased(Vector2D mouse, int mouseButton) {
         super.onMouseReleased(mouse, mouseButton);
-        System.out.println("release" + mouseButton);
 
         if (handleMouseInput(Mouse.State.UP, mouse, Mouse.Button.fromInt(mouseButton))) return;
-
-        if (ArrayListUtil.orMap(components, b -> b.handleMouseInput(Mouse.State.UP, mouse, Mouse.Button.fromInt(mouseButton))))
-            return;
 
         if (Mouse.Button.LEFT.equals(mouseButton) && lastClickedPos != null) {
             boolean moved = lastClickedPos.sub(mouse).lengthSqr() > 3 * 3;
@@ -167,9 +155,14 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
     }
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-        if (!openPanes.isEmpty())
+        if (!openPanes.isEmpty()) {
             openPanes.get(openPanes.size() - 1).handleMouseInput(state, mousePos, button);
-        return !openPanes.isEmpty();
+            return true;
+        }
+        return ArrayListUtil.orMap(
+                ArrayListUtil.getAllOfType(MouseInputListener.class, components, movableComponents),
+                b -> b.handleMouseInput(state, mousePos, button)
+        );
     }
 
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {

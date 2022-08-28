@@ -7,7 +7,6 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class Pane extends Component implements MouseInputListener, MouseScrollListener {
     public ArrayList<Component> components = new ArrayList<>();
@@ -35,7 +34,7 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
         if (this.loaded) {
             return ArrayListUtil.orMap(
-                    ArrayListUtil.getAllOfType(components, MouseInputListener.class),
+                    ArrayListUtil.getAllOfType(MouseInputListener.class, components),
                     b -> b.handleMouseInput(state, mousePos, button)
             );
         }
@@ -45,7 +44,7 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
         if (this.loaded) {
             return ArrayListUtil.orMap(
-                    ArrayListUtil.getAllOfType(components, MouseScrollListener.class),
+                    ArrayListUtil.getAllOfType(MouseScrollListener.class, components),
                     b -> b.handleMouseScroll(mousePos, delta)
             );
         }

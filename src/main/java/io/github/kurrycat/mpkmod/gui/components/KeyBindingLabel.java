@@ -1,7 +1,6 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding;
@@ -10,7 +9,7 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
 
-public class KeyBindingLabel extends Component {
+public class KeyBindingLabel extends ResizableComponent {
     @JsonProperty("name")
     private final String name;
     private final KeyBinding keyBinding;
@@ -23,11 +22,10 @@ public class KeyBindingLabel extends Component {
     public Color selectedColor = new Color(255, 170, 0, 100);
 
     @JsonCreator
-    public KeyBindingLabel(@JsonProperty("pos") Vector2D pos, @JsonProperty("name") String name) {
-        super(pos);
+    public KeyBindingLabel(@JsonProperty("pos") Vector2D pos, @JsonProperty("size") Vector2D size, @JsonProperty("name") String name) {
+        super(pos, size);
         this.name = name;
         this.keyBinding = KeyBinding.getByName(name);
-        this.setSize(new Vector2D(15, 15));
     }
 
     public void render(Vector2D mouse) {
@@ -43,6 +41,7 @@ public class KeyBindingLabel extends Component {
                 keyDown ? Color.BLACK : Color.WHITE,
                 false
         );
+        renderHoverEdges(mouse);
     }
 
     @JsonProperty("name")
