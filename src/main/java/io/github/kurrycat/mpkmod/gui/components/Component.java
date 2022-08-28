@@ -10,7 +10,7 @@ public abstract class Component {
     @JsonProperty
     public Vector2D pos;
     public boolean selected = false;
-    private Vector2D size;
+    protected Vector2D size;
 
     @JsonCreator
     public Component(@JsonProperty Vector2D pos) {

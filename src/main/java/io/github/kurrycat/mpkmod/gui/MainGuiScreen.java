@@ -7,7 +7,10 @@ import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel;
 import io.github.kurrycat.mpkmod.gui.screens.MapOverviewGUI;
 import io.github.kurrycat.mpkmod.save.Serializer;
-import io.github.kurrycat.mpkmod.util.*;
+import io.github.kurrycat.mpkmod.util.Colors;
+import io.github.kurrycat.mpkmod.util.FormatStringBuilder;
+import io.github.kurrycat.mpkmod.util.JSONConfig;
+import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,12 +93,13 @@ public class MainGuiScreen extends ComponentScreen {
         initComponents.add(new InfoLabel("{gold}Yaw: {white}{player.yaw,5!} {gold}{player.facing}", new Vector2D(5, 50)));
         initComponents.add(new InfoLabel("{gold}Pitch: {white}{player.pitch,5}", new Vector2D(5, 60)));
 
-        initComponents.add(new KeyBindingLabel(new Vector2D(-35, 70), "key.forward"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-50, 85), "key.left"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-35, 85), "key.back"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-20, 85), "key.right"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-50, 100), "key.sneak"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-28, 100), "key.sprint"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-35, 70), new Vector2D(15, 15), "key.forward"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-50, 85), new Vector2D(15, 15), "key.left"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-35, 85), new Vector2D(15, 15), "key.back"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-20, 85), new Vector2D(15, 15), "key.right"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-50, 100), new Vector2D(22, 15), "key.sneak"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-28, 100), new Vector2D(22, 15), "key.sprint"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-50, 100), new Vector2D(45, 15), "key.sprint"));
         return initComponents;
     }
 }

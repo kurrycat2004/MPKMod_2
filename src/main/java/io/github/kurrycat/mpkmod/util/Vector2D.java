@@ -153,8 +153,16 @@ public class Vector2D {
         return Math.sqrt(lengthSqr());
     }
 
+    public double dist(Vector2D other) {
+        return this.sub(other).length();
+    }
+
     public Vector2D add(double x, double y) {
         return new Vector2D(this.x + x, this.y + y);
+    }
+
+    public double dot(Vector2D other) {
+        return x * other.x + y * other.y;
     }
 
     public boolean isInRectBetween(Vector2D pos1, Vector2D pos2) {
