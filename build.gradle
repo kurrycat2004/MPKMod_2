@@ -15,6 +15,7 @@ apply plugin: 'maven-publish'
 allprojects {
     repositories {
         maven { url 'https://jitpack.io/' }
+        mavenCentral()
     }
 }
 
@@ -91,6 +92,8 @@ minecraft {
 }
 
 dependencies {
+    implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
@@ -100,6 +103,14 @@ dependencies {
 
     //gives error idk why
     //compile 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.8'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.8'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.8'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
@@ -137,6 +148,9 @@ jar {
 
     from {
         zipTree(configurations.compile.find { it.name.contains("discord-game-sdk4j")})
+    }
+    from {
+        configurations.compile.findAll { it.name.contains("jackson") }.collect { zipTree(it) }
     }
 }
 

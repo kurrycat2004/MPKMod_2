@@ -2,7 +2,9 @@ package io.github.kurrycat.mpkmod.compatability.MC1_14;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.ControlsScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -22,9 +24,8 @@ public class MPKGuiScreen_1_14 extends Screen {
     }
 
     public void render(int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground();
         if (eventReceiver != null)
-            eventReceiver.drawScreen(mouseX, mouseY, partialTicks);
+            eventReceiver.drawScreen(new Vector2D(mouseX, mouseY), partialTicks);
     }
 
     public void onClose() {
@@ -37,27 +38,36 @@ public class MPKGuiScreen_1_14 extends Screen {
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int state) {
-        eventReceiver.onMouseReleased((int) mouseX, (int) mouseY, state);
+        eventReceiver.onMouseClicked(new Vector2D(mouseX, mouseY), state);
         return super.mouseClicked(mouseX, mouseY, state);
     }
 
     public boolean mouseReleased(double mouseX, double mouseY, int state) {
-        eventReceiver.onMouseReleased((int) mouseX, (int) mouseY, state);
+        eventReceiver.onMouseReleased(new Vector2D(mouseX, mouseY), state);
         return super.mouseReleased(mouseX, mouseY, state);
     }
 
-    public boolean mouseDragged(double p_mouseDragged_1_, double p_mouseDragged_3_, int clickedMouseButton, double mouseX, double mouseY) {
-        eventReceiver.onMouseClickMove((int) mouseX, (int) mouseY, clickedMouseButton, 0);
-        return super.mouseDragged(p_mouseDragged_1_, p_mouseDragged_3_, clickedMouseButton, mouseX, mouseY);
+    public boolean mouseDragged(double mouseX, double mouseY, int clickedMouseButton, double mouseXOff, double mouseYOff) {
+        eventReceiver.onMouseClickMove(new Vector2D(mouseX, mouseY), clickedMouseButton, 0);
+        return super.mouseDragged(mouseX, mouseY, clickedMouseButton, mouseXOff, mouseYOff);
     }
 
     public boolean keyPressed(int key, int scanCode, int modifiers) {
-        eventReceiver.onKeyEvent(key, InputMappings.getInputByCode(key, scanCode).getTranslationKey(), true);
+        String keyString = InputMappings.getInputByCode(key, scanCode).getTranslationKey();
+        if(keyString.startsWith("key.keyboard.")) keyString = keyString.substring(13).toUpperCase();
+        eventReceiver.onKeyEvent(key, keyString, true);
         return super.keyPressed(key, scanCode, modifiers);
     }
 
     public boolean keyReleased(int key, int scanCode, int modifiers) {
-        eventReceiver.onKeyEvent(key, InputMappings.getInputByCode(key, scanCode).getTranslationKey(), true);
+        String keyString = InputMappings.getInputByCode(key, scanCode).getTranslationKey();
+        if(keyString.startsWith("key.keyboard.")) keyString = keyString.substring(13).toUpperCase();
+        eventReceiver.onKeyEvent(key, keyString, false);
         return super.keyReleased(key, scanCode, modifiers);
+    }
+
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        eventReceiver.onMouseScroll(new Vector2D(mouseX, mouseY), (int) delta);
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 }

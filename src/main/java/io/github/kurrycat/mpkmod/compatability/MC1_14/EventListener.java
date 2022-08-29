@@ -8,10 +8,8 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.network.NetworkManager;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 
@@ -44,8 +42,13 @@ public class EventListener {
 
     @SubscribeEvent
     public void onRender(RenderGameOverlayEvent e) {
-        if(e.getType() == RenderGameOverlayEvent.ElementType.TEXT)
+        if (e.getType() == RenderGameOverlayEvent.ElementType.TEXT)
             API.Events.onRenderOverlay();
+    }
+
+    @SubscribeEvent
+    public void onRender(RenderWorldLastEvent e) {
+        API.Events.onRenderWorldOverlay(e.getPartialTicks());
     }
 
     @SubscribeEvent
