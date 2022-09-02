@@ -3,6 +3,10 @@ package io.github.kurrycat.mpkmod.compatability.MCClasses;
 import io.github.kurrycat.mpkmod.compatability.functions.GetIPFunction;
 import io.github.kurrycat.mpkmod.events.Event;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+@SuppressWarnings("unused")
 public class Minecraft {
     public static String version;
     public static WorldState worldState = WorldState.MENU;
@@ -17,6 +21,14 @@ public class Minecraft {
     public static String getIP() {
         if (isSingleplayer()) return "Singleplayer";
         return getIPFunction.apply();
+    }
+
+    public static String getTime() {
+        return new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+    }
+
+    public static String getDate() {
+        return new SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().getTime());
     }
 
     public static boolean isSingleplayer() {

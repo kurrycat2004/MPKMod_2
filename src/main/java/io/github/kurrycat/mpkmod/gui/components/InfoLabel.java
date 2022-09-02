@@ -22,6 +22,7 @@ public class InfoLabel extends Label {
         FontRenderer.drawString(getFormattedText(), getDisplayPos(), color, true);
     }
 
+    @JsonIgnore
     public Vector2D getSize() {
         return FontRenderer.getStringSize(getFormattedText());
     }

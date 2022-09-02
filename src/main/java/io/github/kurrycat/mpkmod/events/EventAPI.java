@@ -1,6 +1,6 @@
 package io.github.kurrycat.mpkmod.events;
 
-import io.github.kurrycat.mpkmod.compatability.API;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -14,7 +14,7 @@ public class EventAPI {
     }
 
     public static void postEvent(Event event) {
-        if (API.getLastPlayer() != null)
+        if (Player.getLatest() != null)
             listeners.postEvent(event);
     }
 

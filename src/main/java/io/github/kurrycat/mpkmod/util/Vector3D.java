@@ -47,4 +47,13 @@ public class Vector3D {
     public Vector3D mult(double v) {
         return new Vector3D(this.x * v, this.y * v, this.z * v);
     }
+
+    @Override
+    public String toString() {
+        return "[" + x + ", " + y + ", " + z + "]";
+    }
+
+    public Vector3D copy() {
+        return new Vector3D(this.x, this.y, this.z);
+    }
 }

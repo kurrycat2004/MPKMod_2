@@ -1,9 +1,7 @@
 package io.github.kurrycat.mpkmod.compatability;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
-import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.MainGuiScreen;
@@ -21,12 +19,6 @@ public class API {
     public static final String KEYBINDING_CATEGORY = NAME;
     public static Instant gameStartedInstant;
     private static MPKGuiScreen guiScreen;
-
-    private static Player lastPlayer = null;
-
-    public static Player getLastPlayer() {
-        return lastPlayer;
-    }
 
     public static MPKGuiScreen getGuiScreen() {
         if (guiScreen == null) {
@@ -83,13 +75,11 @@ public class API {
     }
 
     public static class Events {
-        public static void onTickStart(Player player) {
-            lastPlayer = player;
+        public static void onTickStart() {
             EventAPI.postEvent(new OnTickStartEvent());
         }
 
-        public static void onTickEnd(Player player) {
-            lastPlayer = player;
+        public static void onTickEnd() {
             EventAPI.postEvent(new OnTickEndEvent());
         }
 

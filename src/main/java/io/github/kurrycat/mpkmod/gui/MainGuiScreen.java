@@ -93,13 +93,21 @@ public class MainGuiScreen extends ComponentScreen {
         initComponents.add(new InfoLabel("{gold}Yaw: {white}{player.yaw,5!} {gold}{player.facing}", new Vector2D(5, 50)));
         initComponents.add(new InfoLabel("{gold}Pitch: {white}{player.pitch,5}", new Vector2D(5, 60)));
 
+        int i = 7;
+        initComponents.add(new InfoLabel("{gold}Speed: {white}{player.speed}", new Vector2D(5, i++*10)));
+        initComponents.add(new InfoLabel("{gold}Time: {white}{mc.time}", new Vector2D(5, i++*10)));
+        initComponents.add(new InfoLabel("{gold}Date: {white}{mc.date}", new Vector2D(5, i++*10)));
+        initComponents.add(new InfoLabel("{gold}Last Turning: {white}{player.deltaYaw,5}", new Vector2D(5, i++*10)));
+        initComponents.add(new InfoLabel("{gold}Airtime: {white}{player.airtime}", new Vector2D(5, i++*10)));
+        initComponents.add(new InfoLabel("{gold}Tier: {white}{player.tier}", new Vector2D(5, i++*10)));
+
         initComponents.add(new KeyBindingLabel(new Vector2D(-35, 70), new Vector2D(15, 15), "key.forward"));
         initComponents.add(new KeyBindingLabel(new Vector2D(-50, 85), new Vector2D(15, 15), "key.left"));
         initComponents.add(new KeyBindingLabel(new Vector2D(-35, 85), new Vector2D(15, 15), "key.back"));
         initComponents.add(new KeyBindingLabel(new Vector2D(-20, 85), new Vector2D(15, 15), "key.right"));
         initComponents.add(new KeyBindingLabel(new Vector2D(-50, 100), new Vector2D(22, 15), "key.sneak"));
         initComponents.add(new KeyBindingLabel(new Vector2D(-28, 100), new Vector2D(22, 15), "key.sprint"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-50, 100), new Vector2D(45, 15), "key.sprint"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-50, 115), new Vector2D(45, 15), "key.jump"));
         return initComponents;
     }
 }

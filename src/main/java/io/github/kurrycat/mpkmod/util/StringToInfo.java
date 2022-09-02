@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.util;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +29,7 @@ public class StringToInfo {
             String varName = matcher.group(1);
             String decimalsString = matcher.group(3);
             String keepZeros = matcher.group(4);
+            if(keepZeros == null) keepZeros = "";
 
             String value = getColorCodeOrValueFromString(varName);
 
@@ -70,7 +72,7 @@ public class StringToInfo {
         String[] subVars = Arrays.copyOfRange(splitVars, 1, splitVars.length);
 
         Object currObj = null;
-        if (objectIdentifier.equals("player")) currObj = API.getLastPlayer();
+        if (objectIdentifier.equals("player")) currObj = Player.lastUpdated;
         else if (Arrays.asList("minecraft", "mc").contains(objectIdentifier)) currObj = Minecraft.class;
 
         if (currObj == null) return null;

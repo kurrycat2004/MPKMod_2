@@ -32,14 +32,17 @@ public class EventListener {
                     .setPos(new Vector3D(mcPlayer.posX, mcPlayer.posY, mcPlayer.posZ))
                     .setLastPos(new Vector3D(mcPlayer.lastTickPosX, mcPlayer.lastTickPosY, mcPlayer.lastTickPosZ))
                     .setMotion(new Vector3D(mcPlayer.motionX, mcPlayer.motionY, mcPlayer.motionZ))
-                    .setTrueYaw(mcPlayer.rotationYaw)
-                    .setTruePitch(mcPlayer.rotationPitch);
+                    .setRotation(mcPlayer.rotationYaw, mcPlayer.rotationPitch)
+                    .setOnGround(mcPlayer.onGround)
+                    .constructKeyInput()
+                    .build();
         }
-
-        if (e.phase == TickEvent.Phase.START)
-            API.Events.onTickStart(player);
-        else if (e.phase == TickEvent.Phase.END)
-            API.Events.onTickEnd(player);
+        if (e.phase == TickEvent.Phase.START) {
+            if (player != null)
+                Player.savePlayerState(player);
+            API.Events.onTickStart();
+        } else if (e.phase == TickEvent.Phase.END)
+            API.Events.onTickEnd();
     }
 
     @SideOnly(Side.CLIENT)
