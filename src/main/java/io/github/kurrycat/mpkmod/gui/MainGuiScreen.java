@@ -29,6 +29,20 @@ public class MainGuiScreen extends ComponentScreen {
         movableComponents = new ArrayList<>(cachedElements);
 
         components.add(new Button(
+                "Reload From File",
+                new Vector2D(
+                        25,
+                        Renderer2D.getScaledSize().getY() - 25
+                ),
+                new Vector2D(100, 20),
+                mouseButton -> {
+                    ArrayList<Component> jsonElements = loadJSONComponents();
+                    cachedElements = jsonElements != null ? jsonElements : initComponents();
+                    movableComponents = new ArrayList<>(cachedElements);
+                }
+        ));
+
+        components.add(new Button(
                 "Reset",
                 new Vector2D(
                         Renderer2D.getScaledSize().getX() / 2D - 50,
@@ -100,6 +114,7 @@ public class MainGuiScreen extends ComponentScreen {
         initComponents.add(new InfoLabel("{gold}Last Turning: {white}{player.deltaYaw,5}", new Vector2D(5, i++*10)));
         initComponents.add(new InfoLabel("{gold}Airtime: {white}{player.airtime}", new Vector2D(5, i++*10)));
         initComponents.add(new InfoLabel("{gold}Tier: {white}{player.tier}", new Vector2D(5, i++*10)));
+        initComponents.add(new InfoLabel("{gold}Last 45: {white}{player.last45,5}", new Vector2D(5, i++*10)));
 
         initComponents.add(new KeyBindingLabel(new Vector2D(-35, 70), new Vector2D(15, 15), "key.forward"));
         initComponents.add(new KeyBindingLabel(new Vector2D(-50, 85), new Vector2D(15, 15), "key.left"));

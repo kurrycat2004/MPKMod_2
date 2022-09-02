@@ -1,6 +1,5 @@
 package io.github.kurrycat.mpkmod.util;
 
-import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 
@@ -72,7 +71,7 @@ public class StringToInfo {
         String[] subVars = Arrays.copyOfRange(splitVars, 1, splitVars.length);
 
         Object currObj = null;
-        if (objectIdentifier.equals("player")) currObj = Player.lastUpdated;
+        if (objectIdentifier.equals("player")) currObj = Player.displayInstance;
         else if (Arrays.asList("minecraft", "mc").contains(objectIdentifier)) currObj = Minecraft.class;
 
         if (currObj == null) return null;

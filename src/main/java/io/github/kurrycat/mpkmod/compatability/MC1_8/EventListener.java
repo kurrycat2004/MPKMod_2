@@ -24,22 +24,17 @@ public class EventListener {
         if (e.type != TickEvent.Type.CLIENT) return;
         if (e.side != Side.CLIENT) return;
 
-        Player player;
-        if (mcPlayer == null)
-            player = null;
-        else {
-            player = new Player()
+        if (mcPlayer != null && e.phase == TickEvent.Phase.START) {
+            new Player()
                     .setPos(new Vector3D(mcPlayer.posX, mcPlayer.posY, mcPlayer.posZ))
                     .setLastPos(new Vector3D(mcPlayer.lastTickPosX, mcPlayer.lastTickPosY, mcPlayer.lastTickPosZ))
                     .setMotion(new Vector3D(mcPlayer.motionX, mcPlayer.motionY, mcPlayer.motionZ))
                     .setRotation(mcPlayer.rotationYaw, mcPlayer.rotationPitch)
                     .setOnGround(mcPlayer.onGround)
                     .constructKeyInput()
-                    .build();
+                    .buildAndSave();
         }
         if (e.phase == TickEvent.Phase.START) {
-            if (player != null)
-                Player.savePlayerState(player);
             API.Events.onTickStart();
         } else if (e.phase == TickEvent.Phase.END)
             API.Events.onTickEnd();

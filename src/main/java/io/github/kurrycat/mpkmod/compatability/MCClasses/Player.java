@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class Player {
     public static ArrayList<Player> tickHistory = new ArrayList<>();
     public static int maxSavedTicks = 20;
-    public static Player lastUpdated = new Player();
+    public static Player displayInstance = new Player();
     public KeyInput keyInput = null;
     private Vector3D pos = null;
     private Vector3D lastPos = null;
@@ -22,23 +22,27 @@ public class Player {
     private Float deltaYaw = 0F;
     private Float deltaPitch = 0F;
     private int airtime = 0;
+    private Float last45 = 0F;
+    private boolean jumpTick = false;
 
     public static void savePlayerState(Player player) {
         tickHistory.add(player);
         if (tickHistory.size() > maxSavedTicks)
             tickHistory.remove(0);
+    }
 
+    public static void updateDisplayInstance() {
         try {
             for (Field f : Player.class.getDeclaredFields()) {
                 if (Modifier.isStatic(f.getModifiers())) continue;
                 f.setAccessible(true);
-                Object o = f.get(player);
+                Object o = f.get(getLatest());
                 if (o instanceof Integer && (Integer) o == 0) continue;
                 if (o instanceof Float && (Float) o == 0F) continue;
 
-                if (o instanceof Vector3D) f.set(lastUpdated, ((Vector3D) o).copy());
-                else if (o instanceof KeyInput) f.set(lastUpdated, ((KeyInput) o).copy());
-                else f.set(lastUpdated, o);
+                if (o instanceof Vector3D) f.set(displayInstance, ((Vector3D) o).copy());
+                else if (o instanceof KeyInput) f.set(displayInstance, ((KeyInput) o).copy());
+                else f.set(displayInstance, o);
             }
         } catch (IllegalAccessException ignored) {
         }
@@ -77,6 +81,10 @@ public class Player {
         }
 
         return value;
+    }
+
+    public Float getLast45() {
+        return last45;
     }
 
     public Player getPrevious() {
@@ -199,8 +207,9 @@ public class Player {
         return -(airtime - 12);
     }
 
-    public Player build() {
-        Player prev = getLatest();
+    public Player buildAndSave() {
+        Player.savePlayerState(this);
+        Player prev = getPrevious();
         if (prev != null) {
             if (prev.onGround) airtime = 0;
             else airtime = prev.airtime + 1;
@@ -208,7 +217,13 @@ public class Player {
 
             deltaYaw = trueYaw - prev.trueYaw;
             deltaPitch = truePitch - prev.truePitch;
+
+            jumpTick = !onGround && prev.onGround && keyInput.jump;
+
+            if (prev.jumpTick && !prev.keyInput.movingSideways() && keyInput.movingSideways())
+                last45 = deltaYaw;
         }
+        Player.updateDisplayInstance();
         return this;
     }
 
@@ -228,7 +243,7 @@ public class Player {
 
         public static KeyInput construct() {
             KeyInput k = new KeyInput();
-            for (Field f : KeyInput.class.getFields()) {
+            for (Field f : KeyInput.class.getDeclaredFields()) {
                 KeyBinding b = KeyBinding.getByName("key." + f.getName());
                 if (b == null) continue;
                 try {
@@ -249,6 +264,14 @@ public class Player {
             k.sprint = this.sprint;
             k.jump = this.jump;
             return k;
+        }
+
+        public boolean movingSideways() {
+            return left ^ right;
+        }
+
+        public String toString() {
+            return "{W:" + forward + ", A:" + left + ", S:" + back + ", D:" + right + ", N:" + sneak + ", P:" + sprint + ", J:" + jump + "}";
         }
     }
 }
