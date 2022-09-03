@@ -67,7 +67,7 @@ public class MainGuiScreen extends ComponentScreen {
                 }
         ));
 
-        mapOverviewGUI = new MapOverviewGUI(new Vector2D(20, 20), new Vector2D(Renderer2D.getScaledSize().sub(40)));
+        mapOverviewGUI = new MapOverviewGUI(new Vector2D(20, 0), new Vector2D(Renderer2D.getScaledSize().getX() - 40, Renderer2D.getScaledSize().getY()+5));
 
         //Runtime.getRuntime().addShutdownHook(new Thread(() -> Serializer.serialize(JSONConfig.configFile, components)));
     }

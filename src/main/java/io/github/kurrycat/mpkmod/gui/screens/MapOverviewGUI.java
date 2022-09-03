@@ -21,6 +21,8 @@ public class MapOverviewGUI extends Pane {
     }
 
     private void initComponents() {
+        int padding = 10;
+
         components.add(new TextLabel("Test Label", this.getDisplayPos().add(50)));
         components.add(
                 new Button(
@@ -32,33 +34,27 @@ public class MapOverviewGUI extends Pane {
                         }
                 )
         );
-        ScrollableList<TestItem> test = new ScrollableList<>(
-                getDisplayPos().add(120, 20),
-                new Vector2D(200, 200)
+
+        double sizeX = getSize().getX() - getSize().getX()/2 - padding*2;
+        double sizeY = getSize().getY() - padding*2;
+
+        ScrollableList<MapItem> mapItemList = new ScrollableList<>(
+                getDisplayPos().add(getSize().getX() - sizeX - padding , padding),
+                new Vector2D(sizeX, sizeY)
         );
-        test.addItem(
-                new TestItem(test)
-        );
-        test.addItem(
-                new TestItem(test)
-        );
-        test.addItem(
-                new TestItem(test)
-        );
-        test.addItem(
-                new TestItem(test)
-        );
-        test.addItem(
-                new TestItem(test)
-        );
-        test.addItem(
-                new TestItem(test)
-        );
-        components.add(test);
+
+        mapItemList.addItem(new MapItem(mapItemList));
+        mapItemList.addItem(new MapItem(mapItemList));
+        mapItemList.addItem(new MapItem(mapItemList));
+        mapItemList.addItem(new MapItem(mapItemList));
+        mapItemList.addItem(new MapItem(mapItemList));
+        mapItemList.addItem(new MapItem(mapItemList));
+        mapItemList.addItem(new MapItem(mapItemList));
+        components.add(mapItemList);
     }
 
-    public static class TestItem extends ScrollableListItem<TestItem> {
-        public TestItem(ScrollableList<TestItem> parent) {
+    public static class MapItem extends ScrollableListItem<MapItem> {
+        public MapItem(ScrollableList<MapItem> parent) {
             super(parent);
         }
 

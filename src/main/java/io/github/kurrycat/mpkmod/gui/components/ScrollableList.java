@@ -25,8 +25,6 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     }
 
     public void render(Vector2D mouse) {
-        Renderer2D.drawRectWithEdge(getDisplayPos(), getSize(), 1, backgroundColor, Color.BLACK);
-        scrollBar.render(mouse);
         int h = 1;
         for (I item : items) {
             if (h - scrollBar.scrollAmount > -item.getHeight() && h - scrollBar.scrollAmount < getSize().getY())
@@ -37,6 +35,11 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
                 );
             h += item.getHeight() + 1;
         }
+
+        Renderer2D.drawHollowRect(getDisplayPos().add(1), getSize().sub(2), 1, Color.BLACK);
+        scrollBar.render(mouse);
+        Renderer2D.drawRect(new Vector2D(getDisplayPos().getX(), getDisplayPos().getY()-30), new Vector2D(getSize().getX(), 30), Color.DARK_GRAY);
+        Renderer2D.drawRect(new Vector2D(getDisplayPos().getX(), getDisplayPos().getY()+getSize().getY()), new Vector2D(getSize().getX(), 30), Color.DARK_GRAY);
     }
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
@@ -45,7 +48,7 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     }
 
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
-        scrollBar.scrollBy(-delta);
+        scrollBar.scrollBy(-delta / items.get(0).getHeight());
         return contains(mousePos);
     }
 
