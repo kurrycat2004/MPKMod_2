@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.compatability.MCClasses;
 
+import io.github.kurrycat.mpkmod.compatability.functions.GetFPSFunction;
 import io.github.kurrycat.mpkmod.compatability.functions.GetIPFunction;
 import io.github.kurrycat.mpkmod.events.Event;
 
@@ -13,14 +14,23 @@ public class Minecraft {
     public static PlayState playState = PlayState.ACTIVE;
 
     private static GetIPFunction getIPFunction;
+    private static GetFPSFunction getFPSFunction;
 
     public static void registerGetIPFunction(GetIPFunction f) {
         getIPFunction = f;
     }
 
+    public static void registerGetFPSFunction(GetFPSFunction f) {
+        getFPSFunction = f;
+    }
+
     public static String getIP() {
         if (isSingleplayer()) return "Singleplayer";
         return getIPFunction.apply();
+    }
+
+    public static String getFPS() {
+        return getFPSFunction.apply();
     }
 
     public static String getTime() {
@@ -41,6 +51,7 @@ public class Minecraft {
             else worldState = WorldState.MULTI_PLAYER;
         } else worldState = WorldState.MENU;
     }
+
 
     public enum WorldState {
         MENU,
