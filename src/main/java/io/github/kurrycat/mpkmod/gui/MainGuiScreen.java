@@ -115,7 +115,7 @@ public class MainGuiScreen extends ComponentScreen {
         initComponents.add(new InfoLabel("{gold}Airtime: {white}{player.airtime}", new Vector2D(5, i++*10)));
         initComponents.add(new InfoLabel("{gold}Tier: {white}{player.tier}", new Vector2D(5, i++*10)));
         initComponents.add(new InfoLabel("{gold}Last 45: {white}{player.last45,5}", new Vector2D(5, i++*10)));
-        initComponents.add(new InfoLabel("{gold}FPS: {white}{mc.fps}", new Vector2D(5, i++*10 + 5)));
+        initComponents.add(new InfoLabel("{gold}FPS: {white}{mc.FPS}", new Vector2D(5, i++*10 + 5)));
 
         initComponents.add(new KeyBindingLabel(new Vector2D(-35, 70), new Vector2D(15, 15), "key.forward"));
         initComponents.add(new KeyBindingLabel(new Vector2D(-50, 85), new Vector2D(15, 15), "key.left"));
