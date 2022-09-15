@@ -24,6 +24,7 @@ public class Player {
     private int airtime = 0;
     private Float last45 = 0F;
     private boolean jumpTick = false;
+    private Vector3D lastLanding = new Vector3D(0, 0, 0);
 
     public static void savePlayerState(Player player) {
         tickHistory.add(player);
@@ -207,6 +208,10 @@ public class Player {
         return -(airtime - 12);
     }
 
+    public Vector3D getLastLanding() {
+        return lastLanding;
+    }
+
     public Player buildAndSave() {
         Player.savePlayerState(this);
         Player prev = getPrevious();
@@ -214,6 +219,8 @@ public class Player {
             if (prev.onGround) airtime = 0;
             else airtime = prev.airtime + 1;
             if (prev.onGround && !onGround) airtime = 1;
+
+            lastLanding = (!prev.onGround && onGround) ? pos : prev.lastLanding;
 
             deltaYaw = trueYaw - prev.trueYaw;
             deltaPitch = truePitch - prev.truePitch;
