@@ -57,6 +57,9 @@ public class MPKMod_1_8 {
                 (text, pos, color, dropShadow) ->
                         Minecraft.getMinecraft().fontRendererObj.drawString(text, pos.getXF(), pos.getYF(), color.getRGB(), dropShadow)
         );
+        FunctionRegistry.registerGetFPS(
+                () -> String.valueOf(Minecraft.getDebugFPS())
+        );
         FunctionRegistry.registerGetIP(
                 () -> {
                     ServerData d = Minecraft.getMinecraft().getCurrentServerData();

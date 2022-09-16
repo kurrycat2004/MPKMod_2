@@ -12,6 +12,8 @@ import java.awt.*;
 public class KeyBindingLabel extends ResizableComponent {
     @JsonProperty("name")
     private final String name;
+    @JsonProperty("displayName")
+    private final String displayName;
     private final KeyBinding keyBinding;
 
     @JsonProperty
@@ -20,16 +22,24 @@ public class KeyBindingLabel extends ResizableComponent {
     public Color keyUpColor = new Color(31, 31, 31, 47);
     @JsonProperty
     public Color selectedColor = new Color(255, 170, 0, 100);
-
-    @JsonCreator
+    
     public KeyBindingLabel(@JsonProperty("pos") Vector2D pos, @JsonProperty("size") Vector2D size, @JsonProperty("name") String name) {
         super(pos, size);
         this.name = name;
         this.keyBinding = KeyBinding.getByName(name);
+        this.displayName = keyBinding == null ? name : keyBinding.getDisplayName();
+    }
+
+    @JsonCreator
+    public KeyBindingLabel(@JsonProperty("pos") Vector2D pos, @JsonProperty("size") Vector2D size, @JsonProperty("name") String name, @JsonProperty("displayName") String displayName) {
+        super(pos, size);
+        this.name = name;
+        this.keyBinding = KeyBinding.getByName(name);
+        this.displayName = displayName == null ? (keyBinding == null ? name : keyBinding.getDisplayName()) : displayName;
     }
 
     public void render(Vector2D mouse) {
-        String displayName = keyBinding == null ? name : keyBinding.getDisplayName();
+        String displayName = this.displayName;
         boolean keyDown = keyBinding != null && keyBinding.isKeyDown();
         Color c = selected ? selectedColor : keyDown ? keyDownColor : keyUpColor;
 

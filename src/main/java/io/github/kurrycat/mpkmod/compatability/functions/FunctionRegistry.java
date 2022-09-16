@@ -23,6 +23,8 @@ public class FunctionRegistry {
         Minecraft.registerGetIPFunction(function);
     }
 
+    public static void registerGetFPS(GetFPSFunction function) {Minecraft.registerGetFPSFunction(function);}
+
     public static void registerGetScaledSize(GetScaledSizeFunction function) {
         Renderer2D.registerGetScaledSize(function);
     }
