@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.compatability.MCClasses;
 
+import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 
 import java.lang.reflect.Field;
@@ -232,6 +233,20 @@ public class Player {
         }
         Player.updateDisplayInstance();
         return this;
+    }
+
+    public BoundingBox3D getBB() {
+        return new BoundingBox3D(
+                getPos().add(-0.6F / 2D, 0D, -0.6F / 2D), //TODO: use dynamic player size
+                getPos().add(0.6F / 2D, 1.8F, 0.6F / 2D)
+        );
+    }
+
+    public BoundingBox3D getLastBB() {
+        return new BoundingBox3D(
+                getLastPos().add(-0.6F / 2D, 0D, -0.6F / 2D), //TODO: use dynamic player size
+                getLastPos().add(0.6F / 2D, 1.8F, 0.6F / 2D)
+        );
     }
 
     @FunctionalInterface

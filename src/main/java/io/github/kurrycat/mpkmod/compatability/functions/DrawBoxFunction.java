@@ -7,5 +7,5 @@ import java.awt.*;
 
 @FunctionalInterface
 public interface DrawBoxFunction {
-    void apply(BoundingBox3D boundingBox, Color color, Player player, float partialTicks);
+    void apply(BoundingBox3D boundingBox, Color color, float partialTicks);
 }

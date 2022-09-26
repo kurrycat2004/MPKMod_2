@@ -15,6 +15,8 @@ import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -79,23 +81,27 @@ public class MPKMod_1_8 {
                 }
         );
         FunctionRegistry.registerDrawBox(
-                (bb, color, player, partialTicks) -> {
+                (bb, color, partialTicks) -> {
                     int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
 
                     GlStateManager.pushMatrix();
-                    GlStateManager.clear(256);
+                    GlStateManager.disableTexture2D();
+                    GlStateManager.disableAlpha();
+                    GlStateManager.enableBlend();
+                    GL11.glLineWidth(2.0F);
+                    GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
                     Tessellator tessellator = Tessellator.getInstance();
                     WorldRenderer wr = tessellator.getWorldRenderer();
-                    Vector3D trans = player.getLastPos().add(player.getPos().sub(player.getLastPos()).mult(partialTicks));
-                    wr.setTranslation(-trans.getX(), -trans.getY(), -trans.getZ());
 
-                    GlStateManager.enableBlend();
-                    GlStateManager.disableAlpha();
-                    GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-                    GL11.glEnable(GL11.GL_LINE_SMOOTH);
+                    Entity entity = Minecraft.getMinecraft().getRenderViewEntity();
+
+                    double entityX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) partialTicks;
+                    double entityY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double) partialTicks;
+                    double entityZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) partialTicks;
 
                     wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+                    wr.setTranslation(-entityX, -entityY, -entityZ);
 
                     wr.pos(bb.minX(), bb.maxY(), bb.minZ()).color(r, g, b, a).endVertex();
                     wr.pos(bb.maxX(), bb.maxY(), bb.minZ()).color(r, g, b, a).endVertex();
@@ -127,12 +133,13 @@ public class MPKMod_1_8 {
                     wr.pos(bb.maxX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).endVertex();
                     wr.pos(bb.maxX(), bb.minY(), bb.maxZ()).color(r, g, b, a).endVertex();
 
-                    tessellator.draw();
-                    GlStateManager.disableBlend();
-                    GlStateManager.enableAlpha();
-                    GL11.glDisable(GL11.GL_LINE_SMOOTH);
                     wr.setTranslation(0, 0, 0);
 
+                    tessellator.draw();
+
+                    GlStateManager.enableTexture2D();
+                    GlStateManager.enableAlpha();
+                    GL11.glDisable(GL11.GL_LINE_SMOOTH);
                     GlStateManager.popMatrix();
                 }
         );

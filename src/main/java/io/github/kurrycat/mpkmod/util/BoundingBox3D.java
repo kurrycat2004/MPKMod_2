@@ -27,19 +27,56 @@ public class BoundingBox3D {
     public double minX() {
         return min.getX();
     }
+
     public double maxX() {
         return max.getX();
     }
+
+    public double midX() {
+        return (minX() + maxX()) / 2D;
+    }
+
     public double minY() {
         return min.getY();
     }
+
     public double maxY() {
         return max.getY();
     }
+
+    public double midY() {
+        return (minY() + maxY()) / 2D;
+    }
+
     public double minZ() {
         return min.getZ();
     }
+
     public double maxZ() {
         return max.getZ();
+    }
+
+    public double midZ() {
+        return (minZ() + maxZ()) / 2D;
+    }
+
+    public boolean intersectsOrTouchesXZ(BoundingBox3D other) {
+        return other.maxX() >= this.minX() &&
+                other.minX() <= this.maxX() &&
+                other.maxZ() >= this.minZ() &&
+                other.minZ() <= this.maxZ();
+    }
+
+    public Vector3D distanceTo(BoundingBox3D other) {
+        return new Vector3D(
+                this.midX() > other.midX() ? this.minX() - other.maxX() : other.minX() - this.maxX(),
+                this.midY() > other.midY() ? this.minY() - other.maxY() : other.minY() - this.maxY(),
+                this.midZ() > other.midZ() ? this.minZ() - other.maxZ() : other.minZ() - this.maxZ()
+        );
+    }
+
+    @Override
+    public String toString() {
+        return "BoundingBox3D{" + min + " - " + max + "}";
     }
 }

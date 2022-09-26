@@ -40,12 +40,24 @@ public class Vector3D {
         return new Vector3D(this.x + v.x, this.y + v.y, this.z + v.z);
     }
 
+    public Vector3D add(double x, double y, double z) {
+        return new Vector3D(this.x + x, this.y + y, this.z + z);
+    }
+
     public Vector3D sub(Vector3D v) {
         return new Vector3D(this.x - v.x, this.y - v.y, this.z - v.z);
     }
 
     public Vector3D mult(double v) {
         return new Vector3D(this.x * v, this.y * v, this.z * v);
+    }
+
+    public double lengthSqr() {
+        return this.x * this.x + this.y * this.y + this.z * this.z;
+    }
+
+    public double length() {
+        return Math.sqrt(lengthSqr());
     }
 
     @Override

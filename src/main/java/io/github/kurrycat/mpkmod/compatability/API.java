@@ -1,15 +1,21 @@
 package io.github.kurrycat.mpkmod.compatability;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer3D;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
+import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
+import io.github.kurrycat.mpkmod.gui.screens.MapOverviewGUI;
+import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
+import java.awt.*;
 import java.time.Instant;
 
 public class API {
@@ -54,24 +60,35 @@ public class API {
                 )
         );
 
-        /*EventAPI.addListener(
+        EventAPI.addListener(
                 new EventAPI.EventListener<OnRenderWorldOverlayEvent>(
-                        e -> Renderer3D.drawBox(
-                                new BoundingBox(
-                                        new Vector3D(
-                                                0, 10, 0
-                                        ),
-                                        new Vector3D(
-                                                1, 11, 1
-                                        )
-                                ),
-                                new Color(255, 68, 68, 157),
-                                getLastPlayer(),
-                                e.partialTicks
-                        ),
+                        e -> {
+                            MapOverviewGUI.bbs.forEach(bb ->
+                                    Renderer3D.drawBox(
+                                            bb,
+                                            new Color(255, 68, 68, 157),
+                                            e.partialTicks
+                                    )
+                            );
+                        },
                         Event.EventType.RENDER_WORLD_OVERLAY
                 )
-        );*/
+        );
+
+        EventAPI.addListener(
+                EventAPI.EventListener.onTickEnd(
+                        e -> {
+                            if (Player.getLatest() == null) return;
+                            MapOverviewGUI.bbs.stream()
+                                    .filter(LandingBlock::isTryingToLandOn)
+                                    .peek(System.out::println)
+                                    .map(bb -> bb.distanceTo(Player.getLatest().getBB()))
+                                    .peek(System.out::println)
+                                    .filter(vec -> vec.lengthSqr() < 0.3 * 0.3)
+                                    .forEach(System.out::println);
+                        }
+                )
+        );
     }
 
     public static class Events {

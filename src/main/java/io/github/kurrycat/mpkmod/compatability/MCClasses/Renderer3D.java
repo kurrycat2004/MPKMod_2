@@ -12,7 +12,7 @@ public class Renderer3D {
         drawBoxFunction = f;
     }
 
-    public static void drawBox(BoundingBox3D boundingBox, Color color, Player player, float partialTicks) {
-        drawBoxFunction.apply(boundingBox, color, player, partialTicks);
+    public static void drawBox(BoundingBox3D boundingBox, Color color, float partialTicks) {
+        drawBoxFunction.apply(boundingBox, color, partialTicks);
     }
 }
