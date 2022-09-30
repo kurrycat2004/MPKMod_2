@@ -11,12 +11,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public abstract class ResizableComponent extends Component implements MouseInputListener {
-    public static final double minSize = 5;
+    private Vector2D minSize = new Vector2D(5, 5);
     private BoundingBox2D.Edge[] areBeingResized = null;
 
     public ResizableComponent(Vector2D pos, Vector2D size) {
         super(pos);
         this.setSize(size);
+    }
+
+    public Vector2D getMinSize() {
+        return minSize;
+    }
+
+    public ResizableComponent setMinSize(Vector2D minSize) {
+        this.minSize = minSize;
+        return this;
     }
 
     @Override
@@ -64,13 +73,13 @@ public abstract class ResizableComponent extends Component implements MouseInput
 
         Vector2D topLeftRelativePos = pos.sub(getDisplayPos());
         topLeftRelativePos = new Vector2D(
-                Math.min(topLeftRelativePos.getX(), this.size.getX() - minSize),
-                Math.min(topLeftRelativePos.getY(), this.size.getY() - minSize)
+                Math.min(topLeftRelativePos.getX(), this.size.getX() - minSize.getX()),
+                Math.min(topLeftRelativePos.getY(), this.size.getY() - minSize.getY())
         );
         Vector2D bottomRightRelativePos = pos.sub(getDisplayPos().add(getSize()));
         bottomRightRelativePos = new Vector2D(
-                Math.max(bottomRightRelativePos.getX(), -this.size.getX() + minSize),
-                Math.max(bottomRightRelativePos.getY(), -this.size.getY() + minSize)
+                Math.max(bottomRightRelativePos.getX(), -this.size.getX() + minSize.getX()),
+                Math.max(bottomRightRelativePos.getY(), -this.size.getY() + minSize.getY())
         );
 
         if (beingResized.contains(BoundingBox2D.Edge.TOP)) {

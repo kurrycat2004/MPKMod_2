@@ -44,8 +44,16 @@ public class Vector3D {
         return new Vector3D(this.x + x, this.y + y, this.z + z);
     }
 
+    public Vector3D add(double v) {
+        return new Vector3D(this.x + v, this.y + v, this.z + v);
+    }
+
     public Vector3D sub(Vector3D v) {
         return new Vector3D(this.x - v.x, this.y - v.y, this.z - v.z);
+    }
+
+    public Vector3D sub(double v) {
+        return new Vector3D(this.x - v, this.y - v, this.z - v);
     }
 
     public Vector3D mult(double v) {
@@ -67,5 +75,9 @@ public class Vector3D {
 
     public Vector3D copy() {
         return new Vector3D(this.x, this.y, this.z);
+    }
+
+    public double lengthXZSqr() {
+        return this.x * this.x + this.z * this.z;
     }
 }

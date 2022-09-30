@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder, MouseInputListener, MouseScrollListener {
+public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder, MouseInputListener, MouseScrollListener, MessageReceiver {
     public ArrayList<Button> components = new ArrayList<>();
     public ArrayList<Pane> openPanes = new ArrayList<>();
 
@@ -26,6 +26,12 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
     private Vector2D lastClickedPos = null;
     private Component lastClicked = null;
     private Vector2D holdingSetPosOffset = null;
+
+    public void postMessage(String receiverID, String content) {
+        MessageQueue q = MessageQueue.getReceiverFor(receiverID, ArrayListUtil.getAllOfType(MessageQueue.class, movableComponents));
+        if (q != null)
+            q.postMessage(content);
+    }
 
     public void onGuiInit() {
         super.onGuiInit();

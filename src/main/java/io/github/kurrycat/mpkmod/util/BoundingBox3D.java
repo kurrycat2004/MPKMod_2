@@ -75,6 +75,13 @@ public class BoundingBox3D {
         );
     }
 
+    public BoundingBox3D expand(double amount) {
+        return new BoundingBox3D(
+                this.min.sub(amount),
+                this.max.add(amount)
+        );
+    }
+
     @Override
     public String toString() {
         return "BoundingBox3D{" + min + " - " + max + "}";

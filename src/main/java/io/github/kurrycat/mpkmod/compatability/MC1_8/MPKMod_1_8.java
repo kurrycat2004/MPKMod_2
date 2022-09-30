@@ -56,8 +56,11 @@ public class MPKMod_1_8 {
         gui = new MPKGuiScreen_1_8(API.getGuiScreen());
 
         FunctionRegistry.registerDrawString(
-                (text, pos, color, dropShadow) ->
-                        Minecraft.getMinecraft().fontRendererObj.drawString(text, pos.getXF(), pos.getYF(), color.getRGB(), dropShadow)
+                (text, pos, color, dropShadow) -> {
+                    GlStateManager.enableBlend();
+                    Minecraft.getMinecraft().fontRendererObj.drawString(text, pos.getXF(), pos.getYF(), color.getRGB(), dropShadow);
+                    GlStateManager.disableBlend();
+                }
         );
         FunctionRegistry.registerGetFPS(
                 () -> String.valueOf(Minecraft.getDebugFPS())
@@ -139,6 +142,7 @@ public class MPKMod_1_8 {
 
                     GlStateManager.enableTexture2D();
                     GlStateManager.enableAlpha();
+                    GlStateManager.disableBlend();
                     GL11.glDisable(GL11.GL_LINE_SMOOTH);
                     GlStateManager.popMatrix();
                 }

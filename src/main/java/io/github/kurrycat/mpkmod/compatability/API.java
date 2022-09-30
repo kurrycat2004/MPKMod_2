@@ -1,18 +1,20 @@
 package io.github.kurrycat.mpkmod.compatability;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer3D;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
+import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.screens.MapOverviewGUI;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
+import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
+import io.github.kurrycat.mpkmod.util.MathUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
@@ -65,7 +67,7 @@ public class API {
                         e -> {
                             MapOverviewGUI.bbs.forEach(bb ->
                                     Renderer3D.drawBox(
-                                            bb,
+                                            bb.expand(0.005D),
                                             new Color(255, 68, 68, 157),
                                             e.partialTicks
                                     )
@@ -78,14 +80,21 @@ public class API {
         EventAPI.addListener(
                 EventAPI.EventListener.onTickEnd(
                         e -> {
-                            if (Player.getLatest() == null) return;
+                            BoundingBox3D playerBB = LandingBlock.landingMode.getPlayerBB();
+                            if (playerBB == null) return;
                             MapOverviewGUI.bbs.stream()
                                     .filter(LandingBlock::isTryingToLandOn)
-                                    .peek(System.out::println)
-                                    .map(bb -> bb.distanceTo(Player.getLatest().getBB()))
-                                    .peek(System.out::println)
-                                    .filter(vec -> vec.lengthSqr() < 0.3 * 0.3)
-                                    .forEach(System.out::println);
+                                    .map(bb -> bb.distanceTo(playerBB).mult(-1D))
+                                    .filter(vec -> vec.getX() > -0.3 && vec.getZ() > -0.3)
+                                    .forEach(offset -> {
+                                        MPKGuiScreen screen = getGuiScreen();
+                                        if (screen instanceof ComponentScreen)
+                                            ((ComponentScreen) screen).postMessage(
+                                                    "offset",
+                                                    MathUtil.formatDecimals(offset.getX(), 5, false) +
+                                                            ", " + MathUtil.formatDecimals(offset.getZ(), 5, false)
+                                            );
+                                    });
                         }
                 )
         );

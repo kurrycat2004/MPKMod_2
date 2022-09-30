@@ -26,34 +26,45 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
 
     public void render(Vector2D mouse) {
         int h = 1;
+
+        double itemWidth = getSize().getX() - 2;
+        if (shouldRenderScrollbar()) itemWidth -= scrollBar.barWidth - 1;
+
         for (I item : items) {
             if (h - scrollBar.scrollAmount > -item.getHeight() && h - scrollBar.scrollAmount < getSize().getY())
                 item.render(
                         new Vector2D(getDisplayPos().getX() + 1, getDisplayPos().getY() + h - scrollBar.scrollAmount),
-                        new Vector2D(getSize().getX() - 1 - scrollBar.barWidth, item.getHeight()),
+                        new Vector2D(itemWidth, item.getHeight()),
                         mouse
                 );
             h += item.getHeight() + 1;
         }
 
         Renderer2D.drawHollowRect(getDisplayPos().add(1), getSize().sub(2), 1, Color.BLACK);
-        scrollBar.render(mouse);
-        Renderer2D.drawRect(new Vector2D(getDisplayPos().getX(), getDisplayPos().getY()-30), new Vector2D(getSize().getX(), 30), Color.DARK_GRAY);
-        Renderer2D.drawRect(new Vector2D(getDisplayPos().getX(), getDisplayPos().getY()+getSize().getY()), new Vector2D(getSize().getX(), 30), Color.DARK_GRAY);
+        if (shouldRenderScrollbar())
+            scrollBar.render(mouse);
+        Renderer2D.drawRect(new Vector2D(getDisplayPos().getX(), getDisplayPos().getY() - 30), new Vector2D(getSize().getX(), 30), Color.DARK_GRAY);
+        Renderer2D.drawRect(new Vector2D(getDisplayPos().getX(), getDisplayPos().getY() + getSize().getY()), new Vector2D(getSize().getX(), 30), Color.DARK_GRAY);
+    }
+
+    private boolean shouldRenderScrollbar() {
+        return totalHeight() > getSize().getY() - 2;
     }
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-        scrollBar.handleMouseInput(state, mousePos, button);
+        if (shouldRenderScrollbar())
+            scrollBar.handleMouseInput(state, mousePos, button);
         return contains(mousePos);
     }
 
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
-        scrollBar.scrollBy(-delta / items.get(0).getHeight());
+        if (shouldRenderScrollbar())
+            scrollBar.scrollBy(-delta);
         return contains(mousePos);
     }
 
     public int totalHeight() {
-        return items.stream().mapToInt(ScrollableListItem::getHeight).sum();
+        return items.stream().mapToInt(item -> item.getHeight() + 1).sum() + 3;
     }
 
     public static class ScrollBar<I extends ScrollableListItem<I>> extends Component implements MouseInputListener {
@@ -142,7 +153,7 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         }
 
         public int getScrollButtonHeight() {
-            return MathUtil.sqr(getSize().getYI() - 2) / parent.totalHeight();
+            return Math.min(MathUtil.sqr(getSize().getYI() - 2) / parent.totalHeight(), getSize().getYI() - 2);
         }
 
         public void constrainScrollAmountToScreen() {
