@@ -17,6 +17,10 @@ import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
 import io.github.kurrycat.mpkmod.util.MathUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.awt.*;
 import java.time.Instant;
@@ -24,6 +28,11 @@ import java.util.Optional;
 
 public class API {
     public static final String MODID = "mpkmod";
+
+    public static final Logger LOGGER = LogManager.getLogger(MODID);
+    public static final Marker DISCORD_RPC_MARKER = MarkerManager.getMarker("DISCORD_RPC");
+    public static final Marker COMPATIBILITY_MARKER = MarkerManager.getMarker("COMPATIBILITY");
+
     public static final String NAME = "MPK Mod";
     public static final String VERSION = "2.0";
     public static final String KEYBINDING_CATEGORY = NAME;
@@ -53,6 +62,7 @@ public class API {
 
         EventAPI.init();
 
+        API.LOGGER.info(API.DISCORD_RPC_MARKER, "Starting DiscordRPC...");
         DiscordRPC.init();
 
         EventAPI.addListener(

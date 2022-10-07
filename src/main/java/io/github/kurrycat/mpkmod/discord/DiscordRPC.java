@@ -15,7 +15,7 @@ public class DiscordRPC {
     public static void init() {
         File discordLibrary = DiscordNativeLibrary.getNativeLibrary();
         if (discordLibrary == null) {
-            System.out.println("Discord library not found.");
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, "Discord library not found.");
             return;
         }
         // Initialize the Core

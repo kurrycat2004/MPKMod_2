@@ -1,5 +1,7 @@
 package io.github.kurrycat.mpkmod.compatability.MCClasses;
 
+import io.github.kurrycat.mpkmod.compatability.API;
+
 import java.util.HashMap;
 import java.util.function.Supplier;
 
@@ -16,7 +18,7 @@ public class KeyBinding {
 
         keyMap.put(this.name, this);
 
-        System.out.println(this.name);
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Loaded keybinding: " + this.name);
     }
 
     public static KeyBinding getByName(String name) {

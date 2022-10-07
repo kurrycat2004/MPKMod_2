@@ -16,14 +16,14 @@ public class Minecraft {
     public static String getIP() {
         if (isSingleplayer()) return "Singleplayer";
         return Interface.get().map(Interface::getIP).orElseGet(() -> {
-            System.out.println("Failed to get IP, are you playing on an unsupported minecraft version?");
+            API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get IP, are you playing on an unsupported minecraft version?");
             return "Failed getting IP";
         });
     }
 
     public static String getFPS() {
         return Interface.get().map(Interface::getFPS).orElseGet(() -> {
-            System.out.println("Failed to get FPS, are you playing on an unsupported minecraft version?");
+            API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get FPS, are you playing on an unsupported minecraft version?");
             return "Error";
         });
     }

@@ -1,5 +1,7 @@
 package io.github.kurrycat.mpkmod.discord;
 
+import io.github.kurrycat.mpkmod.compatability.API;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -7,7 +9,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 // https://github.com/JnCrMx/discord-game-sdk4j
@@ -15,7 +16,8 @@ import java.util.zip.ZipInputStream;
 public class DiscordNativeLibrary {
     public static final String DISCORD_GAME_SDK_URL = "https://dl-game-sdk.discordapp.net/2.5.6/discord_game_sdk.zip";
     public static final String DISCORD_FILE_NAME = "discord_game_sdk";
-    private static String getLibPath() throws IOException {
+
+    private static String getLibPath() throws RuntimeException {
         String arch = System.getProperty("os.arch").toLowerCase(Locale.ROOT);
         if (arch.equals("amd64")) arch = "x86_64";
 
@@ -33,7 +35,7 @@ public class DiscordNativeLibrary {
         } else if (osName.contains("mac os")) {
             suffix = ".dylib";
         } else {
-            throw new RuntimeException("cannot determine OS type: " + osName);
+            throw new RuntimeException("Cannot determine OS type: " + osName);
         }
         return suffix;
     }
@@ -43,21 +45,27 @@ public class DiscordNativeLibrary {
         try {
             lib = openNativeLibraryFromResources();
         } catch (IOException e) {
-            System.out.println("Could not load discord library from resources. Attempting to download...");
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, "Could not load discord library from resources. Attempting to download...");
+        } catch (RuntimeException e) {
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, e.getMessage());
         }
 
         try {
             lib = downloadNativeLibrary();
         } catch (IOException e) {
-            System.out.println("Could not download discord library");
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, "Could not download discord library");
+        } catch (RuntimeException e) {
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, e.getMessage());
         }
 
         return lib;
     }
-    public static File openNativeLibraryFromResources() throws IOException {
+
+    public static File openNativeLibraryFromResources() throws IOException, RuntimeException {
         return new File(getLibPath());
     }
-    public static File downloadNativeLibrary() throws IOException {
+
+    public static File downloadNativeLibrary() throws IOException, RuntimeException {
         // Path of Discord's library inside the ZIP
         String zipPath = "lib/" + getLibPath();
 

@@ -40,14 +40,16 @@ public class MPKMod_1_8 {
         );
         gui = new MPKGuiScreen_1_8(API.getGuiScreen());
 
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering compatibility functions...");
         API.registerFunctionHolder(new FunctionCompatibility());
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Done");
 
         ClientRegistry.registerKeyBinding(keyBinding);
 
         MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(this);
 
-        System.out.println("Registering Keybindings...");
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering Keybindings...");
         for (KeyBinding k : Minecraft.getMinecraft().gameSettings.keyBindings) {
             new io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding(
                     () -> GameSettings.getKeyDisplayString(k.getKeyCode()),
@@ -55,6 +57,7 @@ public class MPKMod_1_8 {
                     k::isKeyDown
             );
         }
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Done");
 
         API.init(Minecraft.getSessionInfo().get("X-Minecraft-Version"));
     }
