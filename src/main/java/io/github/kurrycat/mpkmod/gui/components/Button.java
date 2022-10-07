@@ -23,6 +23,13 @@ public class Button extends Component implements MouseInputListener {
         this.setSize(size);
     }
 
+    public Button(String text, Vector2D pos, Vector2D size) {
+        super(pos);
+        this.text = text;
+        this.buttonCallback = null;
+        this.setSize(size);
+    }
+
     public String getText() {
         return text;
     }
@@ -30,6 +37,14 @@ public class Button extends Component implements MouseInputListener {
     public Button setText(String text) {
         this.text = text;
         return this;
+    }
+
+    public boolean isPressed() {
+        return isBeingPressed;
+    }
+
+    public void setPressed(boolean pressed) {
+        isBeingPressed = pressed;
     }
 
     public void render(Vector2D mouse) {
@@ -54,7 +69,8 @@ public class Button extends Component implements MouseInputListener {
                 case UP:
                     if (isBeingPressed) {
                         isBeingPressed = false;
-                        buttonCallback.apply(button);
+                        if (buttonCallback != null)
+                            buttonCallback.apply(button);
                         return true;
                     }
                     break;

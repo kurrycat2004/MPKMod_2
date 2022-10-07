@@ -31,6 +31,12 @@ public class MathUtil {
         }
     }
 
+    /**
+     * @param value value to constrain
+     * @param min min bounds
+     * @param max max bounds
+     * @return min if value < min, max if value > max or else value
+     */
     public static double constrain(double value, double min, double max) {
         if (min > max) {
             double temp = min;
@@ -53,11 +59,27 @@ public class MathUtil {
         return v * v;
     }
 
+    /**
+     * @param v value to be mapped
+     * @param from min bound of the range of value
+     * @param to max bound of the range of value
+     * @param newFrom new min bound for the mapped value
+     * @param newTo new max boung for the mapped value
+     * @return v mapped between newFrom and newTo
+     */
     public static double map(double v, double from, double to, double newFrom, double newTo) {
         return ((v - from) / (to - from)) * (newTo - newFrom) + newFrom;
     }
 
+    public static double strictMap(double v, double from, double to, double newFrom, double newTo) {
+        return constrain(map(v, from, to, newFrom, newTo), newFrom, newTo);
+    }
+
     public static int map(int v, int from, int to, int newFrom, int newTo) {
         return (int) map(v, from, to, newFrom, (double) newTo);
+    }
+
+    public static double roundToStep(double value, double step) {
+        return Math.round(value / step) * step;
     }
 }

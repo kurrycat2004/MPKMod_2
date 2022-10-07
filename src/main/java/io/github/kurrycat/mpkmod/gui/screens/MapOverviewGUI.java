@@ -42,6 +42,15 @@ public class MapOverviewGUI extends Pane {
                 )
         );
 
+        components.add(
+            new NumberSlider(
+                    0, 5, 1, 3,
+                    getDisplayPos().add(50, 150),
+                    new Vector2D(100, 20),
+                    System.out::println
+            )
+        );
+
         double sizeX = getSize().getX() - getSize().getX() / 2 - padding * 2;
         double sizeY = getSize().getY() - padding * 2;
 
