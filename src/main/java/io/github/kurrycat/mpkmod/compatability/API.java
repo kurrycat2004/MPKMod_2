@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.compatability;
 
+import io.github.kurrycat.mpkmod.compatability.MCClasses.FunctionHolder;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer3D;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
@@ -19,6 +20,7 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.Optional;
 
 public class API {
     public static final String MODID = "mpkmod";
@@ -27,6 +29,7 @@ public class API {
     public static final String KEYBINDING_CATEGORY = NAME;
     public static Instant gameStartedInstant;
     private static MPKGuiScreen guiScreen;
+    private static FunctionHolder functionHolder;
 
     public static MPKGuiScreen getGuiScreen() {
         if (guiScreen == null) {
@@ -98,6 +101,14 @@ public class API {
                         }
                 )
         );
+    }
+
+    public static void registerFunctionHolder(FunctionHolder holder) {
+        functionHolder = holder;
+    }
+
+    public static <T extends FunctionHolder> Optional<T> getFunctionHolder(Class<T> subClass) {
+        return Optional.ofNullable(subClass.isInstance(functionHolder) ? subClass.cast(functionHolder) : null);
     }
 
     public static class Events {

@@ -1,15 +1,18 @@
 package io.github.kurrycat.mpkmod.compatability.MCClasses;
 
-import io.github.kurrycat.mpkmod.compatability.functions.PlayButtonSoundFunction;
+import io.github.kurrycat.mpkmod.compatability.API;
+
+import java.util.Optional;
 
 public class SoundManager {
-    private static PlayButtonSoundFunction playButtonSoundFunction;
-
-    public static void registerPlayButtonSound(PlayButtonSoundFunction f) {
-        playButtonSoundFunction = f;
-    }
-
     public static void playButtonSound() {
-        playButtonSoundFunction.apply();
+        Interface.get().ifPresent(Interface::playButtonSound);
+    }
+    public interface Interface extends FunctionHolder {
+        static Optional<Interface> get() {
+            return API.getFunctionHolder(Interface.class);
+        }
+
+        void playButtonSound();
     }
 }

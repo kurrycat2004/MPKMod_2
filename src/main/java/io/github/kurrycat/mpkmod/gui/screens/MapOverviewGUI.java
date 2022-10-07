@@ -1,14 +1,13 @@
 package io.github.kurrycat.mpkmod.gui.screens;
 
-import io.github.kurrycat.mpkmod.compatability.MC1_8.WorldInteraction;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.WorldInteraction;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
-
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -43,11 +42,11 @@ public class MapOverviewGUI extends Pane {
                 )
         );
 
-        double sizeX = getSize().getX() - getSize().getX()/2 - padding*2;
-        double sizeY = getSize().getY() - padding*2;
+        double sizeX = getSize().getX() - getSize().getX() / 2 - padding * 2;
+        double sizeY = getSize().getY() - padding * 2;
 
         ScrollableList<MapItem> mapItemList = new ScrollableList<>(
-                getDisplayPos().add(getSize().getX() - sizeX - padding , padding),
+                getDisplayPos().add(getSize().getX() - sizeX - padding, padding),
                 new Vector2D(sizeX, sizeY)
         );
 

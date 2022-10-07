@@ -25,16 +25,17 @@ public abstract class Component {
     }
 
     public Component setPos(Vector2D pos) {
+        Vector2D windowSize = Renderer2D.getScaledSize();
         this.pos = new Vector2D(
                 MathUtil.constrain(
                         pos.getX(),
-                        this.pos.getX() < 0 ? -Renderer2D.getScaledSize().getX() : 0,
-                        this.pos.getX() < 0 ? -1 : Renderer2D.getScaledSize().getX() - getSize().getX()
+                        this.pos.getX() < 0 ? -windowSize.getX() : 0,
+                        this.pos.getX() < 0 ? -1 : windowSize.getX() - getSize().getX()
                 ),
                 MathUtil.constrain(
                         pos.getY(),
-                        this.pos.getY() < 0 ? -Renderer2D.getScaledSize().getY() : 0,
-                        this.pos.getY() < 0 ? -getSize().getY() : Renderer2D.getScaledSize().getY() - getSize().getY()
+                        this.pos.getY() < 0 ? -windowSize.getY() : 0,
+                        this.pos.getY() < 0 ? -getSize().getY() : windowSize.getY() - getSize().getY()
                 )
         );
         return this;

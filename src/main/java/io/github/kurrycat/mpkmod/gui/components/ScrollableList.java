@@ -90,8 +90,8 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
             BoundingBox2D scrollButtonBB = getScrollButtonBB();
 
             Renderer2D.drawRect(
-                    scrollButtonBB.getMin(),
-                    scrollButtonBB.getSize(),
+                    scrollButtonBB.getMin().add(1),
+                    scrollButtonBB.getSize().sub(2),
                     clickedYOffset != -1 ? clickedColor : contains(mouse) ? hoverColor : Color.WHITE
             );
         }

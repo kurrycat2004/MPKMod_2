@@ -34,7 +34,14 @@ public class EventAPI {
         }
 
         public void postEvent(Event event) {
-            get(event.getType()).forEach(listener -> listener.run(event));
+            get(event.getType()).forEach(listener -> {
+                try {
+                    listener.run(event);
+                } catch (Exception e) {
+                    System.err.println("Error during Event: " + event.getType().name());
+                    e.printStackTrace();
+                }
+            });
         }
     }
 

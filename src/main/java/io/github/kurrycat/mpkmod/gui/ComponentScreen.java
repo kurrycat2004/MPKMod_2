@@ -224,15 +224,15 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
         if (openPanes.isEmpty()) drawDefaultBackground();
+        Vector2D hoverMousePos = openPanes.isEmpty() ? mouse : Vector2D.OFFSCREEN;
 
         movableComponents.forEach(c -> c.setSelected(selected.contains(c)));
 
         for (Component component : movableComponents) {
             if (!holding.contains(component))
-                component.render(mouse);
+                component.render(hoverMousePos);
         }
 
-        Vector2D hoverMousePos = openPanes.isEmpty() ? mouse : Vector2D.OFFSCREEN;
         for (Button b : components) b.render(hoverMousePos);
 
         if (!holding.isEmpty()) {
@@ -244,7 +244,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
             for (Component component : holding) {
                 Vector2D p = component.getPos();
                 component.setPos(p.add(toMove));
-                component.render(mouse);
+                component.render(hoverMousePos);
                 component.setPos(p);
             }
         }

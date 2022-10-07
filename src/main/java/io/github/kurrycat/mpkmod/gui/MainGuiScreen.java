@@ -25,11 +25,13 @@ public class MainGuiScreen extends ComponentScreen {
         }
         movableComponents = new ArrayList<>(cachedElements);
 
+        Vector2D windowSize = Renderer2D.getScaledSize();
+
         components.add(new Button(
                 "Reload From File",
                 new Vector2D(
                         25,
-                        Renderer2D.getScaledSize().getY() - 25
+                        windowSize.getY() - 25
                 ),
                 new Vector2D(100, 20),
                 mouseButton -> {
@@ -42,8 +44,8 @@ public class MainGuiScreen extends ComponentScreen {
         components.add(new Button(
                 "Reset",
                 new Vector2D(
-                        Renderer2D.getScaledSize().getX() / 2D - 50,
-                        Renderer2D.getScaledSize().getY() - 25
+                        windowSize.getX() / 2D - 50,
+                        windowSize.getY() - 25
                 ),
                 new Vector2D(100, 20),
                 mouseButton -> {
@@ -55,8 +57,8 @@ public class MainGuiScreen extends ComponentScreen {
         components.add(new Button(
                 "MapOverview",
                 new Vector2D(
-                        Renderer2D.getScaledSize().getX() - 125,
-                        Renderer2D.getScaledSize().getY() - 25
+                        windowSize.getX() - 125,
+                        windowSize.getY() - 25
                 ),
                 new Vector2D(100, 20),
                 mouseButton -> {
@@ -64,7 +66,7 @@ public class MainGuiScreen extends ComponentScreen {
                 }
         ));
 
-        mapOverviewGUI = new MapOverviewGUI(new Vector2D(20, 0), new Vector2D(Renderer2D.getScaledSize().getX() - 40, Renderer2D.getScaledSize().getY() + 5));
+        mapOverviewGUI = new MapOverviewGUI(new Vector2D(20, 0), new Vector2D(windowSize.getX() - 40, windowSize.getY() + 5));
 
         //Runtime.getRuntime().addShutdownHook(new Thread(() -> Serializer.serialize(JSONConfig.configFile, components)));
     }
