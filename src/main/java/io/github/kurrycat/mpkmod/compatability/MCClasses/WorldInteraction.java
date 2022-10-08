@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class WorldInteraction {
+    /**
+     * @param blockPosVec the block space in which collision bounding boxes will be searched
+     * @return a list of all collision bounding boxes inside the specified block
+     */
     public static List<BoundingBox3D> getCollisionBoundingBoxes(Vector3D blockPosVec) {
         return Interface.get().map(w -> w.getCollisionBoundingBoxes(blockPosVec)).orElseGet(ArrayList::new);
     }

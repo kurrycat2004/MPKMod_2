@@ -7,12 +7,23 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringToInfo {
+    @SuppressWarnings("all")
     public static final String FORMATTING_REGEX = "\\{(.*?)(,(\\d+)(!?))?\\}";
     public static final Pattern FORMATTING_PATTERN = Pattern.compile(FORMATTING_REGEX);
+
+    public static final HashMap<String, Object> START_OBJECTS_MAP;
+
+    static {
+        START_OBJECTS_MAP = new HashMap<>();
+        START_OBJECTS_MAP.put("player", Player.displayInstance);
+        START_OBJECTS_MAP.put("minecraft", Minecraft.class);
+        START_OBJECTS_MAP.put("mc", Minecraft.class);
+    }
 
     public static String replaceVarsInString(String input) {
         StringBuilder sb = new StringBuilder();
@@ -28,7 +39,7 @@ public class StringToInfo {
             String varName = matcher.group(1);
             String decimalsString = matcher.group(3);
             String keepZeros = matcher.group(4);
-            if(keepZeros == null) keepZeros = "";
+            if (keepZeros == null) keepZeros = "";
 
             String value = getColorCodeOrValueFromString(varName);
 
@@ -70,9 +81,7 @@ public class StringToInfo {
         String objectIdentifier = splitVars[0];
         String[] subVars = Arrays.copyOfRange(splitVars, 1, splitVars.length);
 
-        Object currObj = null;
-        if (objectIdentifier.equals("player")) currObj = Player.displayInstance;
-        else if (Arrays.asList("minecraft", "mc").contains(objectIdentifier)) currObj = Minecraft.class;
+        Object currObj = START_OBJECTS_MAP.get(objectIdentifier);
 
         if (currObj == null) return null;
 

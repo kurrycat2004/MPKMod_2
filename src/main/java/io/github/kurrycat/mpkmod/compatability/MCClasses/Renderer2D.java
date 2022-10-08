@@ -24,6 +24,13 @@ public class Renderer2D {
         drawRect(pos.add(size.getX(), 0), new Vector2D(edgeThickness, size.getY()), color);
     }
 
+    /**
+     * @param pos top left corner of the rectangle
+     * @param size size of the rectangle (edge is contained within)
+     * @param edgeThickness thickness of the edge
+     * @param fillColor fill color of the rectangle
+     * @param edgeColor edge color of the rectangle
+     */
     public static void drawRectWithEdge(Vector2D pos, Vector2D size, double edgeThickness, Color fillColor, Color edgeColor) {
         drawRect(pos, size, fillColor);
         drawHollowRect(pos.add(edgeThickness), size.sub(edgeThickness * 2), edgeThickness, edgeColor);

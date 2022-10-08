@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class Vector2D {
     public static Vector2D ZERO = new Vector2D(0, 0);
     public static Vector2D OFFSCREEN = new Vector2D(-1, -1);
@@ -135,6 +136,12 @@ public class Vector2D {
         return new Vector2D(this.x, this.y);
     }
 
+
+    /**
+     * @param from top left corner
+     * @param to botton right corner
+     * @return a new {@link Vector2D}, being a <code>this</code>, but looped to the other end of the input rectangle if outside it
+     */
     public Vector2D asInRange(Vector2D from, Vector2D to) {
         Vector2D diff = to.sub(from);
         Vector2D curr = this.copy();
@@ -165,6 +172,11 @@ public class Vector2D {
         return x * other.x + y * other.y;
     }
 
+    /**
+     * @param pos1 top left corner
+     * @param pos2 bottom right corner
+     * @return whether <code>this</code> is inside the input rectangle
+     */
     public boolean isInRectBetween(Vector2D pos1, Vector2D pos2) {
         return this.x > pos1.x && this.x < pos2.x
                 && this.y > pos1.y && this.y < pos2.y;
@@ -185,6 +197,12 @@ public class Vector2D {
         return other.x == x && other.y == y;
     }
 
+    /**
+     * @param v1 top left corner
+     * @param v2 bottom right corner
+     * @return a new {@link Vector2D} with <code>x</code> constrained between <code>v1.x</code> and <code>v2.x</code> and <code>y</code> constrained between
+     * <code>v1.y</code> and <code>v2.y</code> using {@link MathUtil#constrain}
+     */
     public Vector2D constrain(Vector2D v1, Vector2D v2) {
         return new Vector2D(MathUtil.constrain(this.x, v1.x, v2.x), MathUtil.constrain(this.y, v1.y, v2.y));
     }

@@ -6,9 +6,40 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.function.Consumer;
 
+/**
+ * Custom event API that provides minecraft version independent events
+ */
+@SuppressWarnings("unused")
 public class EventAPI {
     private static final EventListenerMap listeners = new EventListenerMap();
 
+    /**
+     * Listeners should be added in {@link io.github.kurrycat.mpkmod.compatability.API#init API.init}<br>
+     * Usage example:
+     * <pre>{@code
+     *      EventAPI.addListener(
+     *          EventAPI.EventListener.onTickEnd(
+     *              e -> {
+     *                  System.out.println("I will print a message at the end of every tick!")
+     *              }
+     *          )
+     *      )
+     * }</pre>
+     *
+     * or more general
+     * <pre>{@code
+     *      EventAPI.addListener(
+     *          new EventAPI.EventListener<OnTickEndEvent>(
+     *              e -> {
+     *                  System.out.println("I will print a message at the end of every tick!")
+     *              },
+     *              OnTickEndEvent.class
+     *          )
+     *      )
+     * }</pre>
+     *
+     * @param listener the listener to be added
+     */
     public static void addListener(EventListener<?> listener) {
         listeners.addListener(listener);
     }

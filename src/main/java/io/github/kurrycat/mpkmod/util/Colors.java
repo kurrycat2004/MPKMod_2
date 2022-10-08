@@ -2,6 +2,10 @@ package io.github.kurrycat.mpkmod.util;
 
 import java.awt.*;
 
+/**
+ * Enum containing all minecraft chat colors and styles
+ */
+@SuppressWarnings("unused")
 public enum Colors {
 	BLACK("black", "0", new Color(0, 0, 0)),
 	DARK_BLUE("dblue", "1", new Color(0, 0, 170)),

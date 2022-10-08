@@ -1,5 +1,12 @@
 package io.github.kurrycat.mpkmod.util;
 
+/**
+ * 3-dimensional Vector<br>
+ * Contains an x, y and z.<br>
+ * Provides some utility functions that help with manipulating the vector.<br>
+ * Every manipulation method that does not have <code>set</code> in its name, does not change the original vector but returns a new instance instead
+ */
+@SuppressWarnings("unused")
 public class Vector3D {
     private double x, y, z;
 
