@@ -53,7 +53,7 @@ public class Button extends Component implements MouseInputListener {
 
         FontRenderer.drawCenteredString(
                 this.getText(),
-                getDisplayPos().add(getSize().div(2)).add(new Vector2D(0, 1)),
+                getDisplayPos().add(getSize().div(2)).add(new Vector2D(0.5, this.getText().toLowerCase().equals(this.getText()) ? 0 : 1)),
                 isBeingPressed ? Color.BLACK : Color.WHITE,
                 false
         );

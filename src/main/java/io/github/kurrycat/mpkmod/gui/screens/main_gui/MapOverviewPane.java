@@ -36,6 +36,13 @@ public class MapOverviewPane extends Pane {
         );
 
         components.add(
+                new CheckButton(
+                        getDisplayPos().add(110, 100),
+                        System.out::println
+                )
+        );
+
+        components.add(
                 new NumberSlider(
                         0, 5, 1, 3,
                         getDisplayPos().add(50, 150),

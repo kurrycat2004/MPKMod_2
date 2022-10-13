@@ -70,7 +70,7 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
 
     public Button createCloseButton() {
         return new Button(
-                "X",
+                "x",
                 new Vector2D(this.getPos().getX() + this.getSize().getX() - 10, this.getPos().getY()),
                 new Vector2D(10, 10),
                 mouseButton -> {
