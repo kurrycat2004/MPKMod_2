@@ -6,14 +6,13 @@ import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer3D;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
-import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
-import io.github.kurrycat.mpkmod.gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
-import io.github.kurrycat.mpkmod.gui.screens.MapOverviewGUI;
+import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
+import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
+import io.github.kurrycat.mpkmod.gui.screens.main_gui.MapOverviewPane;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
-import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
 import io.github.kurrycat.mpkmod.util.MathUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -24,6 +23,8 @@ import org.apache.logging.log4j.MarkerManager;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class API {
@@ -37,14 +38,19 @@ public class API {
     public static final String VERSION = "2.0";
     public static final String KEYBINDING_CATEGORY = NAME;
     public static Instant gameStartedInstant;
-    private static MPKGuiScreen guiScreen;
+    public static MainGuiScreen mainGUI;
+    public static Map<String, MPKGuiScreen> guiScreenMap = new HashMap<>();
     private static FunctionHolder functionHolder;
 
-    public static MPKGuiScreen getGuiScreen() {
-        if (guiScreen == null) {
-            guiScreen = new MainGuiScreen();
-        }
-        return guiScreen;
+    /**
+     * Gets called at the beginning of mod init<br>
+     * Register GUIs here using {@link #registerGUIScreen(String, MPKGuiScreen) registerGuiScreen}
+     */
+    public static void preInit() {
+        mainGUI = new MainGuiScreen();
+        registerGUIScreen("main_gui", mainGUI);
+
+        registerGUIScreen("lb_gui", new LandingBlockGuiScreen());
     }
 
     /**
@@ -64,13 +70,15 @@ public class API {
 
         API.LOGGER.info(API.DISCORD_RPC_MARKER, "Starting DiscordRPC...");
         DiscordRPC.init();
+        API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC started");
 
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(
                         e -> {
-                            for (Component c : ((MainGuiScreen) getGuiScreen()).movableComponents) {
-                                c.render(new Vector2D(-1, -1));
-                            }
+                            if (mainGUI != null)
+                                for (Component c : mainGUI.movableComponents) {
+                                    c.render(new Vector2D(-1, -1));
+                                }
                         }
                 )
         );
@@ -78,12 +86,14 @@ public class API {
         EventAPI.addListener(
                 new EventAPI.EventListener<OnRenderWorldOverlayEvent>(
                         e -> {
-                            MapOverviewGUI.bbs.forEach(bb ->
-                                    Renderer3D.drawBox(
-                                            bb.expand(0.005D),
-                                            new Color(255, 68, 68, 157),
-                                            e.partialTicks
-                                    )
+                            LandingBlockGuiScreen.lbs.forEach(lb -> {
+                                if(lb.boundingBox != null)
+                                        Renderer3D.drawBox(
+                                                lb.boundingBox.expand(0.005D),
+                                                new Color(255, 68, 68, 157),
+                                                e.partialTicks
+                                        );
+                                    }
                             );
                         },
                         Event.EventType.RENDER_WORLD_OVERLAY
@@ -92,27 +102,39 @@ public class API {
 
         EventAPI.addListener(
                 EventAPI.EventListener.onTickEnd(
-                        e -> {
-                            BoundingBox3D playerBB = LandingBlock.landingMode.getPlayerBB();
-                            if (playerBB == null) return;
-                            MapOverviewGUI.bbs.stream()
-                                    .filter(LandingBlock::isTryingToLandOn)
-                                    .map(bb -> bb.distanceTo(playerBB).mult(-1D))
-                                    .filter(vec -> vec.getX() > -0.3 && vec.getZ() > -0.3)
-                                    .forEach(offset -> {
-                                        MPKGuiScreen screen = getGuiScreen();
-                                        if (screen instanceof ComponentScreen)
-                                            ((ComponentScreen) screen).postMessage(
-                                                    "offset",
-                                                    MathUtil.formatDecimals(offset.getX(), 5, false) +
-                                                            ", " + MathUtil.formatDecimals(offset.getZ(), 5, false)
-                                            );
-                                    });
-                        }
+                        e -> LandingBlockGuiScreen.lbs.stream()
+                                .filter(LandingBlock::isTryingToLandOn)
+                                .filter(lb -> lb.landingMode.getPlayerBB() != null)
+                                .map(lb -> lb.boundingBox.distanceTo(lb.landingMode.getPlayerBB()).mult(-1D))
+                                .filter(vec -> vec.getX() > -0.3 && vec.getZ() > -0.3)
+                                .forEach(offset -> {
+                                    if (mainGUI != null)
+                                        mainGUI.postMessage(
+                                                "offset",
+                                                MathUtil.formatDecimals(offset.getX(), 5, false) +
+                                                        ", " + MathUtil.formatDecimals(offset.getZ(), 5, false)
+                                        );
+                                })
                 )
         );
     }
 
+    /**
+     * Should be called in {@link #preInit()}
+     *
+     * @param guiID  ID used to display the GUI and localize the GUI key bind ({@link API#MODID} + ".key." + guiID + ".desc")
+     * @param screen {@link MPKGuiScreen} instance to be registered
+     */
+    public static void registerGUIScreen(String guiID, MPKGuiScreen screen) {
+        guiScreenMap.put(guiID, screen);
+    }
+
+    /**
+     * Used to link mc version specific functions to their static counterpart in one of the {@link FunctionHolder}s in {@link io.github.kurrycat.mpkmod.compatability.MCClasses MCClasses}
+     *
+     * @param holder an interface of a mc compatibility class that extends {@link FunctionHolder}<br>
+     *               e.g. {@link io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D.Interface Renderer2D.Interface}
+     */
     public static void registerFunctionHolder(FunctionHolder holder) {
         functionHolder = holder;
     }
@@ -139,7 +161,9 @@ public class API {
         }
 
         public static void onLoadComplete() {
-            getGuiScreen().onGuiInit();
+            guiScreenMap.forEach((id, guiScreen) -> {
+                guiScreen.onGuiInit();
+            });
         }
 
         public static void onServerConnect(boolean isLocal) {

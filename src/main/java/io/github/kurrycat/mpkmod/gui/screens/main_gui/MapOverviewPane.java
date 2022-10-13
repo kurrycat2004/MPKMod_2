@@ -1,22 +1,15 @@
-package io.github.kurrycat.mpkmod.gui.screens;
+package io.github.kurrycat.mpkmod.gui.screens.main_gui;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.WorldInteraction;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.*;
-import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector2D;
-import io.github.kurrycat.mpkmod.util.Vector3D;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 
-public class MapOverviewGUI extends Pane {
-    public static List<BoundingBox3D> bbs = new ArrayList<>();
-
-    public MapOverviewGUI(Vector2D pos, Vector2D size) {
+public class MapOverviewPane extends Pane {
+    public MapOverviewPane(Vector2D pos, Vector2D size) {
         super(pos, size);
         this.backgroundColor = Color.DARK_GRAY;
         initComponents();
@@ -37,18 +30,18 @@ public class MapOverviewGUI extends Pane {
                         getDisplayPos().add(50, 100),
                         new Vector2D(50, 20),
                         mouseButton -> {
-                            bbs = WorldInteraction.getCollisionBoundingBoxes(new Vector3D(0, 10, 0));
+
                         }
                 )
         );
 
         components.add(
-            new NumberSlider(
-                    0, 5, 1, 3,
-                    getDisplayPos().add(50, 150),
-                    new Vector2D(100, 20),
-                    System.out::println
-            )
+                new NumberSlider(
+                        0, 5, 1, 3,
+                        getDisplayPos().add(50, 150),
+                        new Vector2D(100, 20),
+                        System.out::println
+                )
         );
 
         double sizeX = getSize().getX() - getSize().getX() / 2 - padding * 2;
@@ -74,7 +67,7 @@ public class MapOverviewGUI extends Pane {
             super(parent);
         }
 
-        public void render(Vector2D pos, Vector2D size, Vector2D mouse) {
+        public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
             Renderer2D.drawRectWithEdge(pos, size, 1, Color.GRAY, new Color(68, 86, 152, 128));
             FontRenderer.drawCenteredString("TEST", pos.add(size.div(2)), Color.WHITE, false);
         }

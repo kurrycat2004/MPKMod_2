@@ -1,7 +1,6 @@
 package io.github.kurrycat.mpkmod.gui;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
-import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.util.ArrayListUtil;
@@ -16,7 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder, MouseInputListener, MouseScrollListener, MessageReceiver {
-    public ArrayList<Button> components = new ArrayList<>();
+    public ArrayList<Component> components = new ArrayList<>();
     public ArrayList<Pane> openPanes = new ArrayList<>();
 
     public ArrayList<Component> movableComponents = new ArrayList<>();
@@ -82,6 +81,8 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
         if (handleMouseInput(Mouse.State.DOWN, mouse, Mouse.Button.fromInt(mouseButton))) return;
 
+        if (movableComponents.isEmpty()) return;
+
         if (Mouse.Button.LEFT.equals(mouseButton)) {
             lastClickedPos = mouse;
 
@@ -106,6 +107,8 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
         if (handleMouseInput(Mouse.State.DRAG, mouse, Mouse.Button.fromInt(mouseButton))) return;
 
+        if (movableComponents.isEmpty()) return;
+
         selected = selected.stream().filter(c -> holding.contains(c)).collect(Collectors.toCollection(HashSet::new));
     }
 
@@ -113,6 +116,8 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         super.onMouseReleased(mouse, mouseButton);
 
         if (handleMouseInput(Mouse.State.UP, mouse, Mouse.Button.fromInt(mouseButton))) return;
+
+        if (movableComponents.isEmpty()) return;
 
         if (Mouse.Button.LEFT.equals(mouseButton) && lastClickedPos != null) {
             boolean moved = lastClickedPos.sub(mouse).lengthSqr() > 3 * 3;
@@ -174,7 +179,10 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
         if (!openPanes.isEmpty())
             openPanes.get(openPanes.size() - 1).handleMouseScroll(mousePos, delta);
-        return !openPanes.isEmpty();
+        return ArrayListUtil.orMap(
+                ArrayListUtil.getAllOfType(MouseScrollListener.class, components, movableComponents),
+                b -> b.handleMouseScroll(mousePos, delta)
+        );
     }
 
     public ArrayList<Component> findContainPos(Vector2D p) {
@@ -233,7 +241,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                 component.render(hoverMousePos);
         }
 
-        for (Button b : components) b.render(hoverMousePos);
+        for (Component b : components) b.render(hoverMousePos);
 
         if (!holding.isEmpty()) {
             BoundingBox2D containingHolding = boundingBoxContainingAll(new ArrayList<>(holding));

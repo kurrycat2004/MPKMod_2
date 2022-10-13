@@ -3,19 +3,33 @@ package io.github.kurrycat.mpkmod.landingblock;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 
-public class LandingBlock {
-    public static LandingMode landingMode = LandingMode.LAND;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-    public static boolean isTryingToLandOn(BoundingBox3D bb) {
+public class LandingBlock {
+    public LandingMode landingMode = LandingMode.LAND;
+    public BoundingBox3D boundingBox;
+
+    public LandingBlock(BoundingBox3D boundingBox) {
+        this.boundingBox = boundingBox;
+    }
+
+    public static List<LandingBlock> asLandingBlocks(List<BoundingBox3D> collisionBoundingBoxes) {
+        return collisionBoundingBoxes.stream().map(LandingBlock::new).collect(Collectors.toCollection(ArrayList<LandingBlock>::new));
+    }
+
+
+    public boolean isTryingToLandOn() {
         if (Player.getLatest() == null) return false;
 
         BoundingBox3D playerBB = Player.getLatest().getBB();
         BoundingBox3D lastPlayerBB = Player.getLatest().getLastBB();
 
         if (landingMode != LandingMode.ENTER)
-            return playerBB.minY() <= bb.maxY() && lastPlayerBB.minY() > bb.maxY();
+            return playerBB.minY() <= boundingBox.maxY() && lastPlayerBB.minY() > boundingBox.maxY();
         else
-            return playerBB.minY() < bb.maxY() && playerBB.minY() >= bb.minY() && playerBB.minY() < lastPlayerBB.minY();
+            return playerBB.minY() < boundingBox.maxY() && playerBB.minY() >= boundingBox.minY() && playerBB.minY() < lastPlayerBB.minY();
     }
 
     public enum LandingMode {

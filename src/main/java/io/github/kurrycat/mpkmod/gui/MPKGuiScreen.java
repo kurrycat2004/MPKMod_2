@@ -40,6 +40,10 @@ public abstract class MPKGuiScreen {
     }
 
     public void drawDefaultBackground() {
-        Renderer2D.drawRect(Vector2D.ZERO, Renderer2D.getScaledSize(), new Color(16, 16, 16, 140));
+        Renderer2D.drawRect(Vector2D.ZERO, Renderer2D.getScaledSize().add(2), new Color(16, 16, 16, 140));
+    }
+
+    public boolean shouldCreateKeyBind() {
+        return false;
     }
 }

@@ -32,6 +32,7 @@ public class DiscordRPC {
         updateWorldAndPlayState();
 
         startCallbackThread();
+        API.LOGGER.info(API.DISCORD_RPC_MARKER, "Started DiscordRPC callback thread");
     }
 
     public static void updateActivity(String details, String state) {

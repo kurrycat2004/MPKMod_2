@@ -16,5 +16,5 @@ public abstract class ScrollableListItem<I extends ScrollableListItem<I>> {
     }
 
 
-    public abstract void render(Vector2D pos, Vector2D size, Vector2D mouse);
+    public abstract void render(int index, Vector2D pos, Vector2D size, Vector2D mouse);
 }

@@ -1,8 +1,8 @@
-package io.github.kurrycat.mpkmod.gui;
+package io.github.kurrycat.mpkmod.gui.screens.main_gui;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.components.*;
-import io.github.kurrycat.mpkmod.gui.screens.MapOverviewGUI;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.FormatStringBuilder;
@@ -13,8 +13,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainGuiScreen extends ComponentScreen {
-    public MapOverviewGUI mapOverviewGUI = null;
+    public MapOverviewPane mapOverviewPane = null;
     private ArrayList<Component> cachedElements;
+
+    @Override
+    public boolean shouldCreateKeyBind() {
+        return true;
+    }
 
     @Override
     public void onGuiInit() {
@@ -62,11 +67,11 @@ public class MainGuiScreen extends ComponentScreen {
                 ),
                 new Vector2D(100, 20),
                 mouseButton -> {
-                    openPane(mapOverviewGUI);
+                    openPane(mapOverviewPane);
                 }
         ));
 
-        mapOverviewGUI = new MapOverviewGUI(new Vector2D(20, 0), new Vector2D(windowSize.getX() - 40, windowSize.getY() + 5));
+        mapOverviewPane = new MapOverviewPane(new Vector2D(20, 0), new Vector2D(windowSize.getX() - 40, windowSize.getY() + 5));
 
         //Runtime.getRuntime().addShutdownHook(new Thread(() -> Serializer.serialize(JSONConfig.configFile, components)));
     }
@@ -74,7 +79,7 @@ public class MainGuiScreen extends ComponentScreen {
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
-        mapOverviewGUI.close();
+        mapOverviewPane.close();
         Serializer.serialize(JSONConfig.configFile, movableComponents);
     }
 
@@ -117,13 +122,13 @@ public class MainGuiScreen extends ComponentScreen {
         initComponents.add(new InfoLabel("{gold}Last Landing: {white}[{player.lastLanding.x,5}, {player.lastLanding.y,5}, {player.lastLanding.z,5}]", new Vector2D(5, i++ * 10)));
         initComponents.add(new InfoLabel("{gold}FPS: {white}{mc.FPS}", new Vector2D(5, i++ * 10 + 5)));
 
-        initComponents.add(new KeyBindingLabel(new Vector2D(-48.0,  89.0), new Vector2D(20, 20), "key.forward", "W"));
-        initComponents.add(new KeyBindingLabel(new Vector2D( -71.0, 112.0),  new Vector2D(20, 20), "key.left", "A"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-48.0, 112.0),  new Vector2D(20, 20), "key.back", "S"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-25.0, 112.0),  new Vector2D(20, 20), "key.right", "D"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-71.0, 135.0),  new Vector2D(32, 20), "key.sneak", "Shift"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-37.0, 135.0),  new Vector2D(32, 20), "key.sprint", "Ctrl"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-71.0, 158.0),  new Vector2D(66, 20), "key.jump", "Space"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-48.0, 89.0), new Vector2D(20, 20), "key.forward", "W"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-71.0, 112.0), new Vector2D(20, 20), "key.left", "A"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-48.0, 112.0), new Vector2D(20, 20), "key.back", "S"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-25.0, 112.0), new Vector2D(20, 20), "key.right", "D"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-71.0, 135.0), new Vector2D(32, 20), "key.sneak", "Shift"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-37.0, 135.0), new Vector2D(32, 20), "key.sprint", "Ctrl"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-71.0, 158.0), new Vector2D(66, 20), "key.jump", "Space"));
 
         initComponents.add(new MessageQueue(new Vector2D(-35, 10), new Vector2D(30, 22), "Offsets"));
         return initComponents;

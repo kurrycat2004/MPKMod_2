@@ -24,15 +24,31 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         this.items.add(item);
     }
 
+    public ArrayList<I> getItems() {
+        return items;
+    }
+
+    public int getItemCount() {
+        return this.items.size();
+    }
+
+    public I getItem(int index) {
+        return null;
+    }
+
     public void render(Vector2D mouse) {
         int h = 1;
+        ArrayList<I> items = getItems();
 
         double itemWidth = getSize().getX() - 2;
         if (shouldRenderScrollbar()) itemWidth -= scrollBar.barWidth - 1;
 
-        for (I item : items) {
+        for (int i = 0; i < getItemCount(); i++) {
+            I item = getItem(i);
+            if (item == null) item = items.get(i);
             if (h - scrollBar.scrollAmount > -item.getHeight() && h - scrollBar.scrollAmount < getSize().getY())
                 item.render(
+                        i,
                         new Vector2D(getDisplayPos().getX() + 1, getDisplayPos().getY() + h - scrollBar.scrollAmount),
                         new Vector2D(itemWidth, item.getHeight()),
                         mouse
@@ -43,8 +59,22 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         Renderer2D.drawHollowRect(getDisplayPos().add(1), getSize().sub(2), 1, Color.BLACK);
         if (shouldRenderScrollbar())
             scrollBar.render(mouse);
-        Renderer2D.drawRect(new Vector2D(getDisplayPos().getX(), getDisplayPos().getY() - 30), new Vector2D(getSize().getX(), 30), Color.DARK_GRAY);
-        Renderer2D.drawRect(new Vector2D(getDisplayPos().getX(), getDisplayPos().getY() + getSize().getY()), new Vector2D(getSize().getX(), 30), Color.DARK_GRAY);
+        drawTopCover(
+                new Vector2D(getDisplayPos().getX(), 0),
+                new Vector2D(getSize().getX(), getDisplayPos().getY())
+        );
+        drawBottomCover(
+                new Vector2D(getDisplayPos().getX(), getDisplayPos().getY() + getSize().getY()),
+                new Vector2D(getSize().getX(), Renderer2D.getScaledSize().getY() - (getDisplayPos().getY() + getSize().getY()) + 2)
+        );
+    }
+
+    public void drawTopCover(Vector2D pos, Vector2D size) {
+        Renderer2D.drawRect(pos, size, Color.DARK_GRAY);
+    }
+
+    public void drawBottomCover(Vector2D pos, Vector2D size) {
+        Renderer2D.drawRect(pos, size, Color.DARK_GRAY);
     }
 
     private boolean shouldRenderScrollbar() {
@@ -64,7 +94,15 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     }
 
     public int totalHeight() {
-        return items.stream().mapToInt(item -> item.getHeight() + 1).sum() + 3;
+        if (getItemCount() == 0) return 0;
+
+        int sum = 3;
+        ArrayList<I> items = getItems();
+        for (int i = 0; i < getItemCount(); i++) {
+            if (getItem(i) != null) sum += getItem(i).getHeight() + 1;
+            else sum += items.get(i).getHeight() + 1;
+        }
+        return sum;
     }
 
     public static class ScrollBar<I extends ScrollableListItem<I>> extends Component implements MouseInputListener {

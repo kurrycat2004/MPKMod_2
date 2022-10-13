@@ -17,6 +17,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Mod(
         modid = API.MODID,
         version = API.VERSION,
@@ -28,23 +31,27 @@ import org.lwjgl.input.Keyboard;
 public class MPKMod_1_8 {
     //public static final String GUI_FACTORY = "io.github.kurrycat.mpkmod.config.GuiFactory";
 
-    public KeyBinding keyBinding;
-    public MPKGuiScreen_1_8 gui;
+    public Map<String, KeyBinding> keyBindingMap = new HashMap<>();
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        keyBinding = new KeyBinding(
-                API.MODID + ".key.gui.desc",
-                Keyboard.KEY_NONE,
-                API.KEYBINDING_CATEGORY
-        );
-        gui = new MPKGuiScreen_1_8(API.getGuiScreen());
+        API.preInit();
+
+        API.guiScreenMap.forEach((id, guiScreen) -> {
+            if (guiScreen.shouldCreateKeyBind()) {
+                KeyBinding keyBinding = new KeyBinding(
+                        API.MODID + ".key." + id + ".desc",
+                        Keyboard.KEY_NONE,
+                        API.KEYBINDING_CATEGORY
+                );
+                keyBindingMap.put(id, keyBinding);
+                ClientRegistry.registerKeyBinding(keyBinding);
+            }
+        });
 
         API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering compatibility functions...");
         API.registerFunctionHolder(new FunctionCompatibility());
         API.LOGGER.info(API.COMPATIBILITY_MARKER, "Done");
-
-        ClientRegistry.registerKeyBinding(keyBinding);
 
         MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(this);
@@ -70,9 +77,12 @@ public class MPKMod_1_8 {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public void onEvent(InputEvent.KeyInputEvent event) {
-        if (keyBinding.isPressed()) {
-            Minecraft.getMinecraft().displayGuiScreen(gui);
-        }
+        keyBindingMap.forEach((id, keyBinding) -> {
+            if (keyBinding.isPressed() && API.guiScreenMap.containsKey(id)) {
+                Minecraft.getMinecraft().displayGuiScreen(
+                        new MPKGuiScreen_1_8(API.guiScreenMap.get(id))
+                );
+            }
+        });
     }
-
 }
