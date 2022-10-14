@@ -1,10 +1,7 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
-import io.github.kurrycat.mpkmod.util.BoundingBox2D;
-import io.github.kurrycat.mpkmod.util.MathUtil;
-import io.github.kurrycat.mpkmod.util.Mouse;
-import io.github.kurrycat.mpkmod.util.Vector2D;
+import io.github.kurrycat.mpkmod.util.*;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -33,7 +30,7 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     }
 
     public I getItem(int index) {
-        return null;
+        return getItems().get(index);
     }
 
     public void render(Vector2D mouse) {
@@ -69,6 +66,24 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         );
     }
 
+    public Pair<I, Vector2D> getItemAndRelMousePosUnderMouse(Vector2D mouse) {
+        double itemWidth = getSize().getX() - 2;
+        if (shouldRenderScrollbar()) itemWidth -= scrollBar.barWidth - 1;
+        if (mouse.getX() < getDisplayPos().getX() + 1 || mouse.getX() > getDisplayPos().getX() + itemWidth + 1)
+            return null;
+
+        double currY = mouse.getY() - 1 - getDisplayPos().getY() + scrollBar.scrollAmount;
+        for (int i = 0; i < getItemCount(); i++) {
+            I item = getItem(i);
+            if (item == null) item = getItems().get(i);
+            if (currY >= 0 && currY <= item.getHeight()) {
+                return new Pair<>(item, new Vector2D(mouse.getX() - getDisplayPos().getX() - 1, currY));
+            }
+            currY -= item.getHeight() + 1;
+        }
+        return null;
+    }
+
     public void drawTopCover(Vector2D pos, Vector2D size) {
         Renderer2D.drawRect(pos, size, Color.DARK_GRAY);
     }
@@ -84,10 +99,25 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
         if (shouldRenderScrollbar())
             scrollBar.handleMouseInput(state, mousePos, button);
+
+        Pair<I, Vector2D> p = getItemAndRelMousePosUnderMouse(mousePos);
+        if (p != null) {
+            I item = p.first;
+            Vector2D relMousePos = p.second;
+            return item.handleMouseInput(state, mousePos, button);
+        }
+
         return contains(mousePos);
     }
 
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
+        Pair<I, Vector2D> p = getItemAndRelMousePosUnderMouse(mousePos);
+        if (p != null) {
+            I item = p.first;
+            Vector2D relMousePos = p.second;
+            return item.handleMouseScroll(mousePos, delta);
+        }
+
         if (shouldRenderScrollbar())
             scrollBar.scrollBy(-delta);
         return contains(mousePos);

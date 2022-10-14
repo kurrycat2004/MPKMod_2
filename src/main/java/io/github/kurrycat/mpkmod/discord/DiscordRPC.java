@@ -68,7 +68,7 @@ public class DiscordRPC {
         Thread t = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    if (core.isOpen()) core.runCallbacks();
+                    if (core != null && core.isOpen()) core.runCallbacks();
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     core.close();

@@ -9,7 +9,7 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 
 public class CheckButton extends Component implements MouseInputListener {
-    private final CheckButtonCallback checkButtonCallback;
+    public CheckButtonCallback checkButtonCallback;
     public Color checkedColor = new Color(255, 255, 255, 95);
     public Color normalColor = new Color(31, 31, 31, 150);
     private boolean isChecked = false;
@@ -40,7 +40,7 @@ public class CheckButton extends Component implements MouseInputListener {
         if (isChecked)
             FontRenderer.drawCenteredString(
                     "x",
-                    getDisplayPos().add(getSize().div(2)).add(new Vector2D(0.5, 0)),
+                    getDisplayPos().add(getSize().div(2)).add(new Vector2D(0.3, 0)),
                     Color.WHITE,
                     false
             );

@@ -87,10 +87,12 @@ public class API {
                 new EventAPI.EventListener<OnRenderWorldOverlayEvent>(
                         e -> {
                             LandingBlockGuiScreen.lbs.forEach(lb -> {
-                                if(lb.boundingBox != null)
+                                if(lb.shouldRender && lb.boundingBox != null)
                                         Renderer3D.drawBox(
                                                 lb.boundingBox.expand(0.005D),
-                                                new Color(255, 68, 68, 157),
+                                                lb.highlight ?
+                                                        new Color(98, 255, 74, 157) :
+                                                        new Color(255, 68, 68, 157),
                                                 e.partialTicks
                                         );
                                     }

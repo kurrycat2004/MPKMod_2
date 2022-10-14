@@ -1,8 +1,9 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
+import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
-public abstract class ScrollableListItem<I extends ScrollableListItem<I>> {
+public abstract class ScrollableListItem<I extends ScrollableListItem<I>> implements MouseInputListener, MouseScrollListener {
     protected int height;
     private ScrollableList<I> parent;
 
@@ -17,4 +18,12 @@ public abstract class ScrollableListItem<I extends ScrollableListItem<I>> {
 
 
     public abstract void render(int index, Vector2D pos, Vector2D size, Vector2D mouse);
+
+    public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
+        return false;
+    }
+
+    public boolean handleMouseScroll(Vector2D mousePos, int delta) {
+        return false;
+    }
 }
