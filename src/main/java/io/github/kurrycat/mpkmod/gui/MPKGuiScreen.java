@@ -7,8 +7,10 @@ import java.awt.*;
 
 @SuppressWarnings("unused")
 public abstract class MPKGuiScreen {
+    private boolean initialized = false;
 
     public void onGuiInit() {
+        initialized = true;
     }
 
     public void onGuiClosed() {
@@ -45,5 +47,13 @@ public abstract class MPKGuiScreen {
 
     public boolean shouldCreateKeyBind() {
         return false;
+    }
+
+    public boolean resetOnOpen() {
+        return true;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 }

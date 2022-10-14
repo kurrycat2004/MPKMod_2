@@ -1,0 +1,200 @@
+package io.github.kurrycat.mpkmod.gui.components;
+
+import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.util.MathUtil;
+import io.github.kurrycat.mpkmod.util.Mouse;
+import io.github.kurrycat.mpkmod.util.Vector2D;
+
+import java.awt.*;
+import java.util.Arrays;
+
+public class InputField extends Component implements KeyInputListener, MouseInputListener {
+    public boolean numbersOnly;
+    public String content;
+
+    public Color normalColor = new Color(31, 31, 31, 150);
+    public Color cursorColor = new Color(255, 255, 255, 150);
+    public Color highlightColor = new Color(255, 255, 255, 150);
+
+    private boolean isFocused = false;
+    private int cursorPos = 0;
+    private int highlightStart = 0;
+    private int highlightEnd = 0;
+
+    public InputField(Vector2D pos, double width) {
+        this("", pos, width, false);
+    }
+
+    public InputField(String content, Vector2D pos, double width) {
+        this(content, pos, width, false);
+    }
+
+    public InputField(String content, Vector2D pos, double width, boolean numbersOnly) {
+        super(pos);
+        this.setSize(new Vector2D(width, 11));
+        this.content = content;
+        this.numbersOnly = numbersOnly;
+    }
+
+    @Override
+    public void render(Vector2D mouse) {
+        Renderer2D.drawRectWithEdge(getDisplayPos(), getSize(), 1, normalColor, normalColor);
+
+        FontRenderer.drawString(
+                content.substring(0, highlightStart),
+                getDisplayPos().add(2, 2),
+                Color.WHITE, false
+        );
+        if (highlightStart != highlightEnd)
+            Renderer2D.drawRect(
+                    getDisplayPos().add(2 + FontRenderer.getStringSize(content.substring(0, highlightStart)).getX(), 2),
+                    new Vector2D(FontRenderer.getStringSize(content.substring(highlightStart, highlightEnd)).getX(), getSize().getY() - 4),
+                    highlightColor
+            );
+        FontRenderer.drawString(
+                content.substring(highlightStart, highlightEnd),
+                getDisplayPos().add(2 + FontRenderer.getStringSize(content.substring(0, highlightStart)).getX(), 2),
+                Color.BLACK, false
+        );
+        FontRenderer.drawString(
+                content.substring(highlightEnd),
+                getDisplayPos().add(2 + FontRenderer.getStringSize(content.substring(0, highlightEnd)).getX(), 2),
+                Color.WHITE, false
+        );
+
+        if (isFocused && highlightStart == highlightEnd)
+            Renderer2D.drawRect(
+                    new Vector2D(getDisplayPos().getX() + getCursorX(), getDisplayPos().getY() + 1),
+                    new Vector2D(1, getSize().getY() - 2),
+                    cursorColor
+            );
+    }
+
+    @Override
+    public boolean handleKeyInput(int keyCode, String key, boolean pressed) {
+        if (!isFocused) return false;
+
+        if (pressed) {
+            String character = null;
+            String testKey = key;
+            if(testKey.startsWith("NUMPAD")) testKey = testKey.substring(6);
+
+            if(testKey.length() == 1) character = testKey.toLowerCase();
+            if(Arrays.asList("COMMA", "PERIOD", "DECIMAL").contains(testKey)) character = ".";
+
+            switch (key) {
+                /*case "LSHIFT":
+                    System.out.println(cursorPos + ", " + highlightStart + ", " + highlightEnd);
+                    break;*/
+                case "BACK":
+                    deleteSelection();
+                    if (highlightStart == highlightEnd)
+                        cursorPos--;
+                    else cursorPos = highlightStart;
+                    break;
+                case "DELETE":
+                    if(highlightStart == highlightEnd)
+                        cursorPos++;
+                    deleteSelection();
+                    if(highlightStart == highlightEnd)
+                        cursorPos--;
+                    break;
+                case "LEFT":
+                    if (highlightStart == highlightEnd)
+                        cursorPos--;
+                    else cursorPos = highlightStart;
+                    break;
+                case "RIGHT":
+                    if (highlightStart == highlightEnd)
+                        cursorPos++;
+                    else cursorPos = highlightEnd;
+                    break;
+                default:
+                    if (character != null) {
+                        replaceSelectionWithChar(character);
+                        cursorPos = highlightStart + 1;
+                    } /*else {
+                        System.out.println(key);
+                    }*/
+                    break;
+            }
+            if(Arrays.asList("BACK", "DELETE", "LEFT", "RIGHT").contains(key) || character != null) {
+                cursorPos = MathUtil.constrain(cursorPos, 0, content.length());
+                highlightStart = cursorPos;
+                highlightEnd = cursorPos;
+            }
+        }
+
+        return true;
+    }
+
+    private void deleteSelection() {
+        if (highlightStart == highlightEnd)
+            content = content.substring(0, Math.max(cursorPos - 1, 0)) + (cursorPos >= content.length() ? "" : content.substring(cursorPos));
+        else
+            content = content.substring(0, highlightStart) + content.substring(highlightEnd);
+    }
+
+    private void replaceSelectionWithChar(String c) {
+        content = content.substring(0, highlightStart) + c + content.substring(highlightEnd);
+    }
+
+    private double getCursorX() {
+        return 2 + FontRenderer.getStringSize(content.substring(0, cursorPos)).getX();
+    }
+
+    private int getCursorPosFromMousePos(Vector2D mouse) {
+        double x = mouse.getX() - getDisplayPos().getX() - 2;
+        if (x < 0)
+            return 0;
+        else if (x > FontRenderer.getStringSize(content).getX())
+            return content.length();
+
+        for (int i = 1; i <= content.length(); i++) {
+            int charWidth = FontRenderer.getStringSize(content.substring(i - 1, i)).getXI();
+            if (x < charWidth / 2D)
+                return i - 1;
+            else if (x < charWidth)
+                return i;
+
+            x -= charWidth;
+        }
+        return content.length();
+    }
+
+    @Override
+    public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
+        if (button == Mouse.Button.LEFT) {
+            switch (state) {
+                case DOWN:
+                    if (contains(mousePos)) {
+                        isFocused = true;
+                        cursorPos = getCursorPosFromMousePos(mousePos);
+                        highlightStart = cursorPos;
+                        highlightEnd = cursorPos;
+                        return true;
+                    } else {
+                        isFocused = false;
+                        highlightStart = 0;
+                        highlightEnd = 0;
+                    }
+                case DRAG:
+                case UP:
+                    if (isFocused) {
+                        int c = getCursorPosFromMousePos(mousePos);
+                        if (c < cursorPos) {
+                            highlightStart = c;
+                            highlightEnd = cursorPos;
+                        } else {
+                            highlightStart = cursorPos;
+                            highlightEnd = c;
+                        }
+
+                        return contains(mousePos);
+                    }
+            }
+        }
+        return false;
+    }
+}

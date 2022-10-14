@@ -28,6 +28,11 @@ public class LandingBlockGuiScreen extends ComponentScreen {
     }
 
     @Override
+    public boolean resetOnOpen() {
+        return true;
+    }
+
+    @Override
     public void onGuiInit() {
         super.onGuiInit();
 
@@ -55,6 +60,13 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                         new Vector2D(10, 150),
                         new Vector2D(100, 20),
                         System.out::println
+                )
+        );
+
+        components.add(
+                new InputField(
+                        new Vector2D(10, 180),
+                        100
                 )
         );
 

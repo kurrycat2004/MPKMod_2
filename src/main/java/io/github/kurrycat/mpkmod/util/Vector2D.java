@@ -206,4 +206,8 @@ public class Vector2D {
     public Vector2D constrain(Vector2D v1, Vector2D v2) {
         return new Vector2D(MathUtil.constrain(this.x, v1.x, v2.x), MathUtil.constrain(this.y, v1.y, v2.y));
     }
+
+    public Vector2D round() {
+        return new Vector2D(Math.round(this.x), Math.round(this.y));
+    }
 }

@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.compatability;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FunctionHolder;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Keyboard;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer3D;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
@@ -10,7 +11,6 @@ import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
-import io.github.kurrycat.mpkmod.gui.screens.main_gui.MapOverviewPane;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
@@ -87,14 +87,14 @@ public class API {
                 new EventAPI.EventListener<OnRenderWorldOverlayEvent>(
                         e -> {
                             LandingBlockGuiScreen.lbs.forEach(lb -> {
-                                if(lb.shouldRender && lb.boundingBox != null)
-                                        Renderer3D.drawBox(
-                                                lb.boundingBox.expand(0.005D),
-                                                lb.highlight ?
-                                                        new Color(98, 255, 74, 157) :
-                                                        new Color(255, 68, 68, 157),
-                                                e.partialTicks
-                                        );
+                                        if (lb.shouldRender && lb.boundingBox != null)
+                                            Renderer3D.drawBox(
+                                                    lb.boundingBox.expand(0.005D),
+                                                    lb.highlight ?
+                                                            new Color(98, 255, 74, 157) :
+                                                            new Color(255, 68, 68, 157),
+                                                    e.partialTicks
+                                            );
                                     }
                             );
                         },
@@ -119,6 +119,23 @@ public class API {
                                 })
                 )
         );
+
+        /*EventAPI.addListener(
+                new EventAPI.EventListener<OnKeyInputEvent>(
+                        e -> {
+                            System.out.println(
+                                    "KeyCode: " + e.keyCode +
+                                            " Key: " + e.key +
+                                            " Pressed: " + e.pressed
+                            );
+
+                            System.out.println(
+                                    Keyboard.getPressedButtons()
+                            );
+                        },
+                        Event.EventType.KEY_INPUT
+                )
+        );*/
     }
 
     /**
@@ -176,6 +193,10 @@ public class API {
         public static void onServerDisconnect() {
             Minecraft.updateWorldState(Event.EventType.SERVER_DISCONNECT, false);
             DiscordRPC.updateWorldAndPlayState();
+        }
+
+        public static void onKeyInput(int keyCode, String key, boolean pressed) {
+            EventAPI.postEvent(new OnKeyInputEvent(keyCode, key, pressed));
         }
     }
 }

@@ -19,6 +19,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -32,7 +33,8 @@ public class FunctionCompatibility implements FunctionHolder,
         Renderer3D.Interface,
         Renderer2D.Interface,
         FontRenderer.Interface,
-        io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft.Interface {
+        io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft.Interface,
+        io.github.kurrycat.mpkmod.compatability.MCClasses.Keyboard.Interface {
     /**
      * Is called in {@link SoundManager.Interface}
      */
@@ -164,14 +166,31 @@ public class FunctionCompatibility implements FunctionHolder,
         );
     }
 
+    /**
+     * Is called in {@link io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft.Interface Minecraft.Interface}
+     */
     public String getIP() {
         ServerData d = Minecraft.getMinecraft().getCurrentServerData();
         if (d == null) return "Multiplayer";
         else return d.serverIP;
     }
 
-    @Override
+    /**
+     * Is called in {@link io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft.Interface Minecraft.Interface}
+     */
     public String getFPS() {
         return String.valueOf(Minecraft.getDebugFPS());
+    }
+
+
+    /**
+     * Is called in {@link io.github.kurrycat.mpkmod.compatability.MCClasses.Keyboard.Interface Keyboard.Interface}
+     */
+    public List<String> getPressedButtons() {
+        List<String> keysDown = new ArrayList<>();
+        for (int i = 0; i < Keyboard.getKeyCount(); i++)
+            if (Keyboard.isKeyDown(i))
+                keysDown.add(Keyboard.getKeyName(i));
+        return keysDown;
     }
 }

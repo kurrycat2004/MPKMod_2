@@ -117,7 +117,7 @@ public class NumberSlider extends Component implements MouseInputListener {
                     this.button.pos = getDisplayPos().add(getRelativeXPosFromValue(), 1);
                     return true;
                 }
-                break;
+                return false;
         }
         return contains(mousePos);
     }

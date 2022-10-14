@@ -2,7 +2,6 @@ package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.Vector2D;
-import net.minecraft.client.gui.GuiListExtended;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -26,7 +25,8 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
         repeatEventsEnabled = Keyboard.areRepeatEventsEnabled();
         Keyboard.enableRepeatEvents(true);
         super.initGui();
-        eventReceiver.onGuiInit();
+        if (!eventReceiver.isInitialized() || eventReceiver.resetOnOpen())
+            eventReceiver.onGuiInit();
     }
 
     @Override

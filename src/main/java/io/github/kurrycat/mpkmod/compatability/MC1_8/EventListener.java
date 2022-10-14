@@ -9,12 +9,33 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
 
 public class EventListener {
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
+    public void onEvent(InputEvent.KeyInputEvent event) {
+        int keyCode = Keyboard.getEventKey();
+        String key = Keyboard.getKeyName(keyCode);
+        boolean pressed = Keyboard.getEventKeyState();
+
+        API.Events.onKeyInput(keyCode, key, pressed);
+
+        MPKMod_1_8.keyBindingMap.forEach((id, keyBinding) -> {
+            if (keyBinding.isPressed() && API.guiScreenMap.containsKey(id)) {
+                Minecraft.getMinecraft().displayGuiScreen(
+                        new MPKGuiScreen_1_8(API.guiScreenMap.get(id))
+                );
+            }
+        });
+    }
+
+
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent e) {

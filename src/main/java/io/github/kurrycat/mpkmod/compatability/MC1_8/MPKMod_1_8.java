@@ -31,7 +31,7 @@ import java.util.Map;
 public class MPKMod_1_8 {
     //public static final String GUI_FACTORY = "io.github.kurrycat.mpkmod.config.GuiFactory";
 
-    public Map<String, KeyBinding> keyBindingMap = new HashMap<>();
+    public static Map<String, KeyBinding> keyBindingMap = new HashMap<>();
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
@@ -72,17 +72,5 @@ public class MPKMod_1_8 {
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent e) {
         API.Events.onLoadComplete();
-    }
-
-    @SideOnly(Side.CLIENT)
-    @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
-    public void onEvent(InputEvent.KeyInputEvent event) {
-        keyBindingMap.forEach((id, keyBinding) -> {
-            if (keyBinding.isPressed() && API.guiScreenMap.containsKey(id)) {
-                Minecraft.getMinecraft().displayGuiScreen(
-                        new MPKGuiScreen_1_8(API.guiScreenMap.get(id))
-                );
-            }
-        });
     }
 }

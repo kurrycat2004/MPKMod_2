@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder, MouseInputListener, MouseScrollListener, MessageReceiver {
+public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder, MouseInputListener, MouseScrollListener, KeyInputListener, MessageReceiver {
     public ArrayList<Component> components = new ArrayList<>();
     public ArrayList<Pane> openPanes = new ArrayList<>();
 
@@ -52,6 +52,8 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
     public void onKeyEvent(int keyCode, String key, boolean pressed) {
         super.onKeyEvent(keyCode, key, pressed);
+
+        if(handleKeyInput(keyCode, key, pressed)) return;
 
         if (pressed && !selected.isEmpty()) {
             Vector2D arrowKeyMove = Vector2D.ZERO;
@@ -182,6 +184,13 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         return ArrayListUtil.orMap(
                 ArrayListUtil.getAllOfType(MouseScrollListener.class, components, movableComponents),
                 b -> b.handleMouseScroll(mousePos, delta)
+        );
+    }
+
+    public boolean handleKeyInput(int keyCode, String key, boolean pressed) {
+        return ArrayListUtil.orMap(
+                ArrayListUtil.getAllOfType(KeyInputListener.class, components, movableComponents),
+                b -> b.handleKeyInput(keyCode, key, pressed)
         );
     }
 
