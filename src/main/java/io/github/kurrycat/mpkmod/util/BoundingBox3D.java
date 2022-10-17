@@ -60,6 +60,36 @@ public class BoundingBox3D {
         return (minZ() + maxZ()) / 2D;
     }
 
+    public BoundingBox3D setMinX(double minX) {
+        this.min.setX(minX);
+        return this;
+    }
+
+    public BoundingBox3D setMinY(double minY) {
+        this.min.setY(minY);
+        return this;
+    }
+
+    public BoundingBox3D setMinZ(double minZ) {
+        this.min.setY(minZ);
+        return this;
+    }
+
+    public BoundingBox3D setMaxX(double maxX) {
+        this.max.setX(maxX);
+        return this;
+    }
+
+    public BoundingBox3D setMaxY(double maxY) {
+        this.max.setY(maxY);
+        return this;
+    }
+
+    public BoundingBox3D setMaxZ(double maxZ) {
+        this.max.setZ(maxZ);
+        return this;
+    }
+
     public boolean intersectsOrTouchesXZ(BoundingBox3D other) {
         return other.maxX() >= this.minX() &&
                 other.minX() <= this.maxX() &&

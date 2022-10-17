@@ -38,8 +38,8 @@ public class LandingBlockGuiScreen extends ComponentScreen {
 
         Vector2D windowSize = Renderer2D.getScaledSize();
         lbList = new LBList(
-                new Vector2D(windowSize.getX() / 4D, 20),
-                new Vector2D(windowSize.getX() / 2D, windowSize.getY() - 40)
+                new Vector2D(windowSize.getX() / 5D, 20).round(),
+                new Vector2D(windowSize.getX() / 5D * 3D, windowSize.getY() - 40).round()
         );
 
         components.add(
@@ -133,12 +133,24 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                 landingBlock.shouldRender = checked;
             });
             shouldRender.setChecked(landingBlock.shouldRender);
-            minX = new InputField("" + landingBlock.boundingBox.getMin().getX(), Vector2D.OFFSCREEN, 25).setName("minX: ");
-            minY = new InputField("" + landingBlock.boundingBox.getMin().getY(), Vector2D.OFFSCREEN, 25).setName("minY: ");
-            minZ = new InputField("" + landingBlock.boundingBox.getMin().getZ(), Vector2D.OFFSCREEN, 25).setName("minZ: ");
-            maxX = new InputField("" + landingBlock.boundingBox.getMax().getX(), Vector2D.OFFSCREEN, 25).setName("maxX: ");
-            maxY = new InputField("" + landingBlock.boundingBox.getMax().getY(), Vector2D.OFFSCREEN, 25).setName("maxY: ");
-            maxZ = new InputField("" + landingBlock.boundingBox.getMax().getZ(), Vector2D.OFFSCREEN, 25).setName("maxZ: ");
+            minX = new InputField("" + landingBlock.boundingBox.getMin().getX(), Vector2D.OFFSCREEN, 25, true)
+                    .setName("minX: ")
+                    .setOnContentChange(c -> landingBlock.boundingBox.setMinX(c.getNumber()));
+            minY = new InputField("" + landingBlock.boundingBox.getMin().getY(), Vector2D.OFFSCREEN, 25, true)
+                    .setName("minY: ")
+                    .setOnContentChange(c -> landingBlock.boundingBox.setMinY(c.getNumber()));;
+            minZ = new InputField("" + landingBlock.boundingBox.getMin().getZ(), Vector2D.OFFSCREEN, 25, true)
+                    .setName("minZ: ")
+                    .setOnContentChange(c -> landingBlock.boundingBox.setMinZ(c.getNumber()));;
+            maxX = new InputField("" + landingBlock.boundingBox.getMax().getX(), Vector2D.OFFSCREEN, 25, true)
+                    .setName("maxX: ")
+                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxX(c.getNumber()));;
+            maxY = new InputField("" + landingBlock.boundingBox.getMax().getY(), Vector2D.OFFSCREEN, 25, true)
+                    .setName("maxY: ")
+                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxY(c.getNumber()));;
+            maxZ = new InputField("" + landingBlock.boundingBox.getMax().getZ(), Vector2D.OFFSCREEN, 25, true)
+                    .setName("maxZ: ")
+                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxZ(c.getNumber()));;
 
             fields = new InputField[]{minX, minY, minZ, maxX, maxY, maxZ};
         }

@@ -12,12 +12,11 @@ import java.util.Arrays;
 public class InputField extends Component implements KeyInputListener, MouseInputListener {
     public boolean numbersOnly;
     public String content;
+    public ContentProvider onContentChange = null;
     public String name = null;
-
     public Color normalColor = new Color(31, 31, 31, 150);
     public Color cursorColor = new Color(255, 255, 255, 150);
     public Color highlightColor = new Color(255, 255, 255, 175);
-
     private boolean isFocused = false;
     private int cursorPos = 0;
     private int highlightStart = 0;
@@ -40,6 +39,11 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
 
     public InputField setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public InputField setOnContentChange(ContentProvider onContentChange) {
+        this.onContentChange = onContentChange;
         return this;
     }
 
@@ -99,8 +103,11 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
             String testKey = key;
             if (testKey.startsWith("NUMPAD")) testKey = testKey.substring(6);
 
-            if (testKey.length() == 1) character = testKey.toLowerCase();
+            if (testKey.length() == 1)
+                if (!numbersOnly || "1234567890".contains(testKey))
+                    character = testKey.toLowerCase();
             if (Arrays.asList("COMMA", "PERIOD", "DECIMAL").contains(testKey)) character = ".";
+            if (testKey.equals("MINUS")) character = "-";
 
             switch (key) {
                 /*case "LSHIFT":
@@ -150,13 +157,19 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
 
     private void deleteSelection() {
         if (highlightStart == highlightEnd)
-            content = content.substring(0, Math.max(cursorPos - 1, 0)) + (cursorPos >= content.length() ? "" : content.substring(cursorPos));
+            updateContent(content.substring(0, Math.max(cursorPos - 1, 0)) + (cursorPos >= content.length() ? "" : content.substring(cursorPos)));
         else
-            content = content.substring(0, highlightStart) + content.substring(highlightEnd);
+            updateContent(content.substring(0, highlightStart) + content.substring(highlightEnd));
     }
 
     private void replaceSelectionWithChar(String c) {
-        content = content.substring(0, highlightStart) + c + content.substring(highlightEnd);
+        updateContent(content.substring(0, highlightStart) + c + content.substring(highlightEnd));
+    }
+
+    private void updateContent(String content) {
+        this.content = content;
+        if (onContentChange != null)
+            onContentChange.apply(new Content(content));
     }
 
     private double getCursorX() {
@@ -222,5 +235,30 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
             }
         }
         return false;
+    }
+
+    @FunctionalInterface
+    public interface ContentProvider {
+        void apply(Content content);
+    }
+
+    public static class Content {
+        public String content;
+
+        public Content(String content) {
+            this.content = content;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public Double getNumber() {
+            try {
+                return Double.parseDouble(content);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
     }
 }
