@@ -1,6 +1,9 @@
 package io.github.kurrycat.mpkmod.util;
 
+import scala.actors.threadpool.Arrays;
+
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
@@ -8,9 +11,10 @@ public class ArrayListUtil {
     /**
      * Runs <code>elementSupplier</code> for every element of <code>list</code>, until it returns true.<br>
      * Info: Returns after the first true return of <code>elementSupplier</code>
-     * @param list list of elements of type T
+     *
+     * @param list            list of elements of type T
      * @param elementSupplier supplier that takes an element as argument and returns a boolean
-     * @param <T> any type
+     * @param <T>             any type
      * @return true if <code>elementSupplier</code> returned true for any element or else false
      */
     public static <T> boolean orMap(ArrayList<T> list, ListElementSupplier<T> elementSupplier) {
@@ -19,10 +23,17 @@ public class ArrayListUtil {
         return false;
     }
 
+    public static <T> boolean orMapAll(ArrayList<T> list, ListElementSupplier<T> elementSupplier) {
+        boolean b = false;
+        for (T e : list)
+            if (elementSupplier.apply(e)) b = true;
+        return b;
+    }
+
     /**
      * @param tClass any class
-     * @param list any list
-     * @param <T> the type to filter for
+     * @param list   any list
+     * @param <T>    the type to filter for
      * @return a list containing any element of <code>list</code> for that <code>element instanceof tClass</code> is true
      */
     @SuppressWarnings("unchecked")
@@ -32,10 +43,18 @@ public class ArrayListUtil {
                 .map(c -> (T) c).collect(Collectors.toCollection(ArrayList<T>::new));
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> ArrayList<T> getAllOfType(Class<T> tClass, Object... list) {
+        return (ArrayList<T>) Arrays.asList(list).stream()
+                .filter(Objects::nonNull)
+                .filter(tClass::isInstance)
+                .map(c -> (T) c).collect(Collectors.toCollection(ArrayList<T>::new));
+    }
+
     /**
      * @param tClass any class
-     * @param lists any list of lists
-     * @param <T> any type
+     * @param lists  any list of lists
+     * @param <T>    any type
      * @return the result of {@link ArrayListUtil#getAllOfType getAllOfType(tClass, list)} for every list in lists combined
      */
     public static <T> ArrayList<T> getAllOfType(Class<T> tClass, ArrayList<?>... lists) {

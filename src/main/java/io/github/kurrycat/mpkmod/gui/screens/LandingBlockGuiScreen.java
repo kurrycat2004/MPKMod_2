@@ -123,6 +123,9 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         public CheckButton shouldRender;
         public LandingBlock landingBlock;
 
+        public InputField minX, minY, minZ, maxX, maxY, maxZ;
+        public InputField[] fields;
+
         public LBListItem(ScrollableList<LBListItem> parent, LandingBlock landingBlock) {
             super(parent);
             this.landingBlock = landingBlock;
@@ -130,55 +133,45 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                 landingBlock.shouldRender = checked;
             });
             shouldRender.setChecked(landingBlock.shouldRender);
+            minX = new InputField("" + landingBlock.boundingBox.getMin().getX(), Vector2D.OFFSCREEN, 25).setName("minX: ");
+            minY = new InputField("" + landingBlock.boundingBox.getMin().getY(), Vector2D.OFFSCREEN, 25).setName("minY: ");
+            minZ = new InputField("" + landingBlock.boundingBox.getMin().getZ(), Vector2D.OFFSCREEN, 25).setName("minZ: ");
+            maxX = new InputField("" + landingBlock.boundingBox.getMax().getX(), Vector2D.OFFSCREEN, 25).setName("maxX: ");
+            maxY = new InputField("" + landingBlock.boundingBox.getMax().getY(), Vector2D.OFFSCREEN, 25).setName("maxY: ");
+            maxZ = new InputField("" + landingBlock.boundingBox.getMax().getZ(), Vector2D.OFFSCREEN, 25).setName("maxZ: ");
+
+            fields = new InputField[]{minX, minY, minZ, maxX, maxY, maxZ};
         }
 
         public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
-            shouldRender.pos = pos.add(size.getX() / 5 - 11, size.getY() / 2 - 5.5);
+            shouldRender.pos = pos.add(size.getX() / 16 - 4, size.getY() / 2 - 5.5);
 
             Renderer2D.drawRectWithEdge(pos, size, 1, lbListColorBg, lbListColorItemEdge);
-            FontRenderer.drawCenteredString(
-                    "minX: " + landingBlock.boundingBox.getMin().getX(),
-                    pos.add(size.getX() / 5 * 2,
-                            size.getY() / 4),
-                    Color.WHITE, false
-            );
-            FontRenderer.drawCenteredString(
-                    "minY: " + landingBlock.boundingBox.getMin().getY(),
-                    pos.add(size.getX() / 5 * 2,
-                            size.getY() / 2),
-                    Color.WHITE, false
-            );
-            FontRenderer.drawCenteredString(
-                    "minZ: " + landingBlock.boundingBox.getMin().getZ(),
-                    pos.add(size.getX() / 5 * 2,
-                            size.getY() / 4 * 3),
-                    Color.WHITE, false
-            );
 
-            FontRenderer.drawCenteredString(
-                    "maxX: " + landingBlock.boundingBox.getMax().getX(),
-                    pos.add(size.getX() / 5 * 4,
-                            size.getY() / 4),
-                    Color.WHITE, false
-            );
-            FontRenderer.drawCenteredString(
-                    "maxY: " + landingBlock.boundingBox.getMax().getY(),
-                    pos.add(size.getX() / 5 * 4,
-                            size.getY() / 2),
-                    Color.WHITE, false
-            );
-            FontRenderer.drawCenteredString(
-                    "maxZ: " + landingBlock.boundingBox.getMax().getZ(),
-                    pos.add(size.getX() / 5 * 4,
-                            size.getY() / 4 * 3),
-                    Color.WHITE, false
-            );
+            for (int i = 0; i < fields.length; i++) {
+                fields[i].pos = pos.add(
+                        size.getX() / 7 * (1 + ((int) (i / 3) * 3)),
+                        size.getY() / 4 * (1 + (i % 3)) - fields[i].getSize().getY() / 2
+                );
+                fields[i].setWidth(size.getX() / 3);
+                fields[i].render(mouse);
+            }
 
             shouldRender.render(mouse);
         }
 
         public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-            return shouldRender.handleMouseInput(state, mousePos, button);
+            return ArrayListUtil.orMapAll(
+                    ArrayListUtil.getAllOfType(MouseInputListener.class, minX, minY, minZ, maxX, maxY, maxZ, shouldRender),
+                    ele -> ele.handleMouseInput(state, mousePos, button)
+            );
+        }
+
+        public boolean handleKeyInput(int keyCode, String key, boolean pressed) {
+            return ArrayListUtil.orMapAll(
+                    ArrayListUtil.getAllOfType(KeyInputListener.class, minX, minY, minZ, maxX, maxY, maxZ),
+                    ele -> ele.handleKeyInput(keyCode, key, pressed)
+            );
         }
     }
 }

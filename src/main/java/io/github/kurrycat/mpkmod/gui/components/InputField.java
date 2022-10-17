@@ -12,10 +12,11 @@ import java.util.Arrays;
 public class InputField extends Component implements KeyInputListener, MouseInputListener {
     public boolean numbersOnly;
     public String content;
+    public String name = null;
 
     public Color normalColor = new Color(31, 31, 31, 150);
     public Color cursorColor = new Color(255, 255, 255, 150);
-    public Color highlightColor = new Color(255, 255, 255, 150);
+    public Color highlightColor = new Color(255, 255, 255, 175);
 
     private boolean isFocused = false;
     private int cursorPos = 0;
@@ -37,36 +38,54 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         this.numbersOnly = numbersOnly;
     }
 
+    public InputField setName(String name) {
+        this.name = name;
+        return this;
+    }
+
     @Override
     public void render(Vector2D mouse) {
-        Renderer2D.drawRectWithEdge(getDisplayPos(), getSize(), 1, normalColor, normalColor);
+        Vector2D nameSize = name == null ? Vector2D.ZERO : FontRenderer.getStringSize(name);
+        Vector2D rectPos = getDisplayPos().add(nameSize.getX(), 0);
+        Vector2D rectSize = getSize().sub(nameSize.getX(), 0);
+
+        if (name != null) {
+            FontRenderer.drawCenteredString(
+                    name,
+                    getDisplayPos().add(nameSize.getX() / 2D, getSize().getY() / 2D + 1),
+                    Color.WHITE,
+                    false
+            );
+        }
+
+        Renderer2D.drawRectWithEdge(rectPos.round(), rectSize.round(), 1, normalColor, normalColor);
 
         FontRenderer.drawString(
                 content.substring(0, highlightStart),
-                getDisplayPos().add(2, 2),
+                rectPos.add(2, 2),
                 Color.WHITE, false
         );
         if (highlightStart != highlightEnd)
             Renderer2D.drawRect(
-                    getDisplayPos().add(2 + FontRenderer.getStringSize(content.substring(0, highlightStart)).getX(), 2),
-                    new Vector2D(FontRenderer.getStringSize(content.substring(highlightStart, highlightEnd)).getX(), getSize().getY() - 4),
+                    rectPos.add(2 + FontRenderer.getStringSize(content.substring(0, highlightStart)).getX(), 2),
+                    new Vector2D(FontRenderer.getStringSize(content.substring(highlightStart, highlightEnd)).getX(), rectSize.getY() - 4),
                     highlightColor
             );
         FontRenderer.drawString(
                 content.substring(highlightStart, highlightEnd),
-                getDisplayPos().add(2 + FontRenderer.getStringSize(content.substring(0, highlightStart)).getX(), 2),
+                rectPos.add(2 + FontRenderer.getStringSize(content.substring(0, highlightStart)).getX(), 2),
                 Color.BLACK, false
         );
         FontRenderer.drawString(
                 content.substring(highlightEnd),
-                getDisplayPos().add(2 + FontRenderer.getStringSize(content.substring(0, highlightEnd)).getX(), 2),
+                rectPos.add(2 + FontRenderer.getStringSize(content.substring(0, highlightEnd)).getX(), 2),
                 Color.WHITE, false
         );
 
         if (isFocused && highlightStart == highlightEnd)
             Renderer2D.drawRect(
-                    new Vector2D(getDisplayPos().getX() + getCursorX(), getDisplayPos().getY() + 1),
-                    new Vector2D(1, getSize().getY() - 2),
+                    new Vector2D(rectPos.getX() + getCursorX(), rectPos.getY() + 1),
+                    new Vector2D(1, rectSize.getY() - 2),
                     cursorColor
             );
     }
@@ -78,10 +97,10 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         if (pressed) {
             String character = null;
             String testKey = key;
-            if(testKey.startsWith("NUMPAD")) testKey = testKey.substring(6);
+            if (testKey.startsWith("NUMPAD")) testKey = testKey.substring(6);
 
-            if(testKey.length() == 1) character = testKey.toLowerCase();
-            if(Arrays.asList("COMMA", "PERIOD", "DECIMAL").contains(testKey)) character = ".";
+            if (testKey.length() == 1) character = testKey.toLowerCase();
+            if (Arrays.asList("COMMA", "PERIOD", "DECIMAL").contains(testKey)) character = ".";
 
             switch (key) {
                 /*case "LSHIFT":
@@ -94,10 +113,10 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
                     else cursorPos = highlightStart;
                     break;
                 case "DELETE":
-                    if(highlightStart == highlightEnd)
+                    if (highlightStart == highlightEnd)
                         cursorPos++;
                     deleteSelection();
-                    if(highlightStart == highlightEnd)
+                    if (highlightStart == highlightEnd)
                         cursorPos--;
                     break;
                 case "LEFT":
@@ -119,7 +138,7 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
                     }*/
                     break;
             }
-            if(Arrays.asList("BACK", "DELETE", "LEFT", "RIGHT").contains(key) || character != null) {
+            if (Arrays.asList("BACK", "DELETE", "LEFT", "RIGHT").contains(key) || character != null) {
                 cursorPos = MathUtil.constrain(cursorPos, 0, content.length());
                 highlightStart = cursorPos;
                 highlightEnd = cursorPos;
@@ -145,7 +164,10 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
     }
 
     private int getCursorPosFromMousePos(Vector2D mouse) {
-        double x = mouse.getX() - getDisplayPos().getX() - 2;
+        Vector2D nameSize = name == null ? Vector2D.ZERO : FontRenderer.getStringSize(name);
+        Vector2D rectPos = getDisplayPos().add(nameSize.getX(), 0);
+
+        double x = mouse.getX() - rectPos.getX() - 2;
         if (x < 0)
             return 0;
         else if (x > FontRenderer.getStringSize(content).getX())
@@ -161,6 +183,10 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
             x -= charWidth;
         }
         return content.length();
+    }
+
+    public void setWidth(double width) {
+        this.size.setX(width);
     }
 
     @Override

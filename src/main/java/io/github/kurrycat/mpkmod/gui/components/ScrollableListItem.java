@@ -3,7 +3,7 @@ package io.github.kurrycat.mpkmod.gui.components;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
-public abstract class ScrollableListItem<I extends ScrollableListItem<I>> implements MouseInputListener, MouseScrollListener {
+public abstract class ScrollableListItem<I extends ScrollableListItem<I>> implements MouseInputListener, KeyInputListener, MouseScrollListener {
     protected int height;
     private ScrollableList<I> parent;
 
@@ -24,6 +24,10 @@ public abstract class ScrollableListItem<I extends ScrollableListItem<I>> implem
     }
 
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
+        return false;
+    }
+
+    public boolean handleKeyInput(int keyCode, String key, boolean pressed) {
         return false;
     }
 }
