@@ -38,7 +38,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
 
         Vector2D windowSize = Renderer2D.getScaledSize();
         lbList = new LBList(
-                new Vector2D(windowSize.getX() / 5D, 20).round(),
+                new Vector2D(windowSize.getX() / 5D, 15).round(),
                 new Vector2D(windowSize.getX() / 5D * 3D, windowSize.getY() - 40).round()
         );
 
@@ -86,7 +86,6 @@ public class LandingBlockGuiScreen extends ComponentScreen {
     }
 
     public static class LBList extends ScrollableList<LBListItem> {
-
         public LBList(Vector2D pos, Vector2D size) {
             super(pos, size);
             updateList();
@@ -110,7 +109,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         @Override
         public void drawTopCover(Vector2D pos, Vector2D size) {
             super.drawTopCover(pos, size);
-            FontRenderer.drawCenteredString(Colors.UNDERLINE + "Landing Blocks", pos.add(size.div(2)), Color.WHITE, false);
+            FontRenderer.drawCenteredString(Colors.UNDERLINE + "Landing Blocks", pos.add(size.div(2)).add(0, 1), Color.WHITE, false);
         }
 
         @Override
@@ -126,6 +125,9 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         public InputField minX, minY, minZ, maxX, maxY, maxZ;
         public InputField[] fields;
 
+        public boolean collapsed = true;
+        public Button collapseButton;
+
         public LBListItem(ScrollableList<LBListItem> parent, LandingBlock landingBlock) {
             super(parent);
             this.landingBlock = landingBlock;
@@ -138,43 +140,62 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                     .setOnContentChange(c -> landingBlock.boundingBox.setMinX(c.getNumber()));
             minY = new InputField("" + landingBlock.boundingBox.getMin().getY(), Vector2D.OFFSCREEN, 25, true)
                     .setName("minY: ")
-                    .setOnContentChange(c -> landingBlock.boundingBox.setMinY(c.getNumber()));;
+                    .setOnContentChange(c -> landingBlock.boundingBox.setMinY(c.getNumber()));
             minZ = new InputField("" + landingBlock.boundingBox.getMin().getZ(), Vector2D.OFFSCREEN, 25, true)
                     .setName("minZ: ")
-                    .setOnContentChange(c -> landingBlock.boundingBox.setMinZ(c.getNumber()));;
+                    .setOnContentChange(c -> landingBlock.boundingBox.setMinZ(c.getNumber()));
             maxX = new InputField("" + landingBlock.boundingBox.getMax().getX(), Vector2D.OFFSCREEN, 25, true)
                     .setName("maxX: ")
-                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxX(c.getNumber()));;
+                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxX(c.getNumber()));
             maxY = new InputField("" + landingBlock.boundingBox.getMax().getY(), Vector2D.OFFSCREEN, 25, true)
                     .setName("maxY: ")
-                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxY(c.getNumber()));;
+                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxY(c.getNumber()));
             maxZ = new InputField("" + landingBlock.boundingBox.getMax().getZ(), Vector2D.OFFSCREEN, 25, true)
                     .setName("maxZ: ")
-                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxZ(c.getNumber()));;
+                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxZ(c.getNumber()));
 
             fields = new InputField[]{minX, minY, minZ, maxX, maxY, maxZ};
+
+            collapseButton = new Button("v", Vector2D.OFFSCREEN, new Vector2D(11, 11), mouseButton -> {
+                if (mouseButton == Mouse.Button.LEFT) collapsed = !collapsed;
+            });
         }
 
         public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
-            shouldRender.pos = pos.add(size.getX() / 16 - 4, size.getY() / 2 - 5.5);
-
             Renderer2D.drawRectWithEdge(pos, size, 1, lbListColorBg, lbListColorItemEdge);
 
-            for (int i = 0; i < fields.length; i++) {
-                fields[i].pos = pos.add(
-                        size.getX() / 7 * (1 + ((int) (i / 3) * 3)),
-                        size.getY() / 4 * (1 + (i % 3)) - fields[i].getSize().getY() / 2
+            if (collapsed)
+                FontRenderer.drawString(
+                        landingBlock.boundingBox.getMin() + " - " + landingBlock.boundingBox.getMax(),
+                        pos.add(size.div(2))
+                                .sub(0, FontRenderer.getStringSize(landingBlock.boundingBox.getMin() + " - " + landingBlock.boundingBox.getMax()).getY() / 2D - 1)
+                                .sub(FontRenderer.getStringSize(landingBlock.boundingBox.getMin() + " ").getX(), 0)
+                                .sub(FontRenderer.getStringSize("-").getX() / 2D, 0),
+                        Color.WHITE,
+                        false
                 );
-                fields[i].setWidth(size.getX() / 3);
-                fields[i].render(mouse);
-            }
+            else
+                for (int i = 0; i < fields.length; i++) {
+                    fields[i].pos = pos.add(
+                            size.getX() / 7 * (1 + ((int) (i / 3) * 3)),
+                            size.getY() / 4 * (1 + (i % 3)) - fields[i].getSize().getY() / 2
+                    );
+                    fields[i].setWidth(size.getX() / 3);
+                    fields[i].render(mouse);
+                }
 
+            shouldRender.pos = pos.add(size.getX() / 16 - 4, size.getY() / 2 - 5.5).round();
             shouldRender.render(mouse);
+
+            collapseButton.setText(collapsed ? "v" : "^");
+            collapseButton.textOffset = collapsed ? Vector2D.ZERO : new Vector2D(0, 3);
+            collapseButton.pos = pos.add(size.getX() - size.getX() / 16, size.getY() / 2 - 5.5).round();
+            collapseButton.render(mouse);
         }
 
         public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
             return ArrayListUtil.orMapAll(
-                    ArrayListUtil.getAllOfType(MouseInputListener.class, minX, minY, minZ, maxX, maxY, maxZ, shouldRender),
+                    ArrayListUtil.getAllOfType(MouseInputListener.class, minX, minY, minZ, maxX, maxY, maxZ, shouldRender, collapseButton),
                     ele -> ele.handleMouseInput(state, mousePos, button)
             );
         }
@@ -184,6 +205,10 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                     ArrayListUtil.getAllOfType(KeyInputListener.class, minX, minY, minZ, maxX, maxY, maxZ),
                     ele -> ele.handleKeyInput(keyCode, key, pressed)
             );
+        }
+
+        public int getHeight() {
+            return collapsed ? 21 : 50;
         }
     }
 }

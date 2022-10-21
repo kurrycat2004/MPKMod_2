@@ -16,11 +16,30 @@ public class WorldInteraction {
     public static List<BoundingBox3D> getCollisionBoundingBoxes(Vector3D blockPosVec) {
         return Interface.get().map(w -> w.getCollisionBoundingBoxes(blockPosVec)).orElseGet(ArrayList::new);
     }
+
+    /**
+     * @return the block position that the player is looking at
+     */
+    public static Vector3D getLookingAt() {
+        return Interface.get().map(Interface::getLookingAt).orElse(null);
+    }
+
+    /**
+     * @return the result of {@link #getCollisionBoundingBoxes(Vector3D) getCollisionBoundingBoxes}({@link #getLookingAt()})
+     */
+    public static List<BoundingBox3D> getLookingAtCollisionBoundingBoxes() {
+        Vector3D blockPosVec = getLookingAt();
+        if(blockPosVec == null) return new ArrayList<>();
+        return getCollisionBoundingBoxes(blockPosVec);
+    }
+
     public interface Interface extends FunctionHolder {
         static Optional<Interface> get() {
             return API.getFunctionHolder(Interface.class);
         }
 
         List<BoundingBox3D> getCollisionBoundingBoxes(Vector3D blockPosVec);
+
+        Vector3D getLookingAt();
     }
 }

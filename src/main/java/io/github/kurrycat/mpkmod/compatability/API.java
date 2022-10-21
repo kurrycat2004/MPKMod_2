@@ -1,9 +1,9 @@
 package io.github.kurrycat.mpkmod.compatability;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FunctionHolder;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Keyboard;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer3D;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.WorldInteraction;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
@@ -15,6 +15,7 @@ import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
 import io.github.kurrycat.mpkmod.util.MathUtil;
+import io.github.kurrycat.mpkmod.util.Procedure;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +25,7 @@ import org.apache.logging.log4j.MarkerManager;
 import java.awt.*;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -40,6 +42,7 @@ public class API {
     public static Instant gameStartedInstant;
     public static MainGuiScreen mainGUI;
     public static Map<String, MPKGuiScreen> guiScreenMap = new HashMap<>();
+    public static Map<String, Procedure> keyBindingMap = new HashMap<>();
     private static FunctionHolder functionHolder;
 
     /**
@@ -51,6 +54,16 @@ public class API {
         registerGUIScreen("main_gui", mainGUI);
 
         registerGUIScreen("lb_gui", new LandingBlockGuiScreen());
+        registerKeyBinding("lb_set",
+                () -> {
+                    List<LandingBlock> lbs = LandingBlock.asLandingBlocks(WorldInteraction.getLookingAtCollisionBoundingBoxes());
+                    lbs.forEach(lb -> {
+                        if (LandingBlockGuiScreen.lbs.contains(lb))
+                            LandingBlockGuiScreen.lbs.remove(lb);
+                        else LandingBlockGuiScreen.lbs.add(lb);
+                    });
+                }
+        );
     }
 
     /**
@@ -146,6 +159,16 @@ public class API {
      */
     public static void registerGUIScreen(String guiID, MPKGuiScreen screen) {
         guiScreenMap.put(guiID, screen);
+    }
+
+    /**
+     * Should be called in {@link #preInit()}
+     *
+     * @param id        ID used to localize the key bind ({@link API#MODID} + ".key." + guiID + ".desc")
+     * @param procedure procedure to be called when key event is received
+     */
+    public static void registerKeyBinding(String id, Procedure procedure) {
+        keyBindingMap.put(id, procedure);
     }
 
     /**

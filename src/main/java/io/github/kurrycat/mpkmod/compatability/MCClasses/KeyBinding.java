@@ -16,7 +16,8 @@ public class KeyBinding {
         this.name = name;
         this.isKeyDown = isKeyDown;
 
-        keyMap.put(this.name, this);
+        if (!keyMap.containsKey(this.name))
+            keyMap.put(this.name, this);
 
         API.LOGGER.info(API.COMPATIBILITY_MARKER, "Loaded keybinding: " + this.name);
     }

@@ -116,4 +116,18 @@ public class BoundingBox3D {
     public String toString() {
         return "BoundingBox3D{" + min + " - " + max + "}";
     }
+
+    public String toDisplayString() {
+        return min + " - " + max;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.min.hashCode() + this.max.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof BoundingBox3D && this.min.equals(((BoundingBox3D) obj).min) && this.max.equals(((BoundingBox3D) obj).max);
+    }
 }

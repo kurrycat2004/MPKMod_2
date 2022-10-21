@@ -53,4 +53,14 @@ public class LandingBlock {
             }
         }
     }
+
+    @Override
+    public int hashCode() {
+        return this.boundingBox.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof LandingBlock && this.boundingBox.equals(((LandingBlock) obj).boundingBox);
+    }
 }

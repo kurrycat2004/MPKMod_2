@@ -10,11 +10,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
 import java.util.HashMap;
@@ -33,21 +28,26 @@ public class MPKMod_1_8 {
 
     public static Map<String, KeyBinding> keyBindingMap = new HashMap<>();
 
+    public static void registerKeyBinding(String id) {
+        KeyBinding keyBinding = new KeyBinding(
+                API.MODID + ".key." + id + ".desc",
+                Keyboard.KEY_NONE,
+                API.KEYBINDING_CATEGORY
+        );
+        keyBindingMap.put(id, keyBinding);
+        ClientRegistry.registerKeyBinding(keyBinding);
+    }
+
     @EventHandler
     public void init(FMLInitializationEvent event) {
         API.preInit();
 
         API.guiScreenMap.forEach((id, guiScreen) -> {
-            if (guiScreen.shouldCreateKeyBind()) {
-                KeyBinding keyBinding = new KeyBinding(
-                        API.MODID + ".key." + id + ".desc",
-                        Keyboard.KEY_NONE,
-                        API.KEYBINDING_CATEGORY
-                );
-                keyBindingMap.put(id, keyBinding);
-                ClientRegistry.registerKeyBinding(keyBinding);
-            }
+            if (guiScreen.shouldCreateKeyBind())
+                registerKeyBinding(id);
         });
+
+        API.keyBindingMap.forEach((id, consumer) -> registerKeyBinding(id));
 
         API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering compatibility functions...");
         API.registerFunctionHolder(new FunctionCompatibility());

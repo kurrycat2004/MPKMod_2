@@ -87,4 +87,14 @@ public class Vector3D {
     public double lengthXZSqr() {
         return this.x * this.x + this.z * this.z;
     }
+
+    @Override
+    public int hashCode() {
+        return Double.hashCode(this.x) + Double.hashCode(this.y) + Double.hashCode(this.z);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Vector3D && this.x == ((Vector3D) obj).x && this.y == ((Vector3D) obj).y && this.z == ((Vector3D) obj).z;
+    }
 }

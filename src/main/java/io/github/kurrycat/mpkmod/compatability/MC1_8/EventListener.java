@@ -27,10 +27,15 @@ public class EventListener {
         API.Events.onKeyInput(keyCode, key, pressed);
 
         MPKMod_1_8.keyBindingMap.forEach((id, keyBinding) -> {
-            if (keyBinding.isPressed() && API.guiScreenMap.containsKey(id)) {
+            boolean keyBindingPressed = keyBinding.isPressed();
+            if (keyBindingPressed && API.guiScreenMap.containsKey(id)) {
                 Minecraft.getMinecraft().displayGuiScreen(
                         new MPKGuiScreen_1_8(API.guiScreenMap.get(id))
                 );
+            }
+
+            if(keyBindingPressed && API.keyBindingMap.containsKey(id)) {
+                API.keyBindingMap.get(id).run();
             }
         });
     }

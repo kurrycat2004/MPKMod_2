@@ -88,11 +88,11 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     }
 
     public void drawTopCover(Vector2D pos, Vector2D size) {
-        Renderer2D.drawRect(pos, size, Color.DARK_GRAY);
+        Renderer2D.drawRectWithEdge(pos, size.add(0, 1), 1, Color.DARK_GRAY, Color.BLACK);
     }
 
     public void drawBottomCover(Vector2D pos, Vector2D size) {
-        Renderer2D.drawRect(pos, size, Color.DARK_GRAY);
+        Renderer2D.drawRectWithEdge(pos.sub(0, 1), size.add(0, 1), 1, Color.DARK_GRAY, Color.BLACK);
     }
 
     private boolean shouldRenderScrollbar() {
@@ -139,7 +139,7 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
 
     public static class ScrollBar<I extends ScrollableListItem<I>> extends Component implements MouseInputListener {
         private final ScrollableList<I> parent;
-        public double barWidth = 10;
+        public double barWidth = 11;
         public Color backgroundColor = Color.DARK_GRAY;
         public Color hoverColor = new Color(180, 180, 180);
         public Color clickedColor = new Color(101, 101, 101);

@@ -38,7 +38,7 @@ public class CheckButton extends Component implements MouseInputListener {
         if (isChecked)
             FontRenderer.drawString(
                     "x",
-                    getDisplayPos().add(new Vector2D(2, 1)),
+                    getDisplayPos().add(new Vector2D(3, 1)),
                     Color.WHITE,
                     false
             );

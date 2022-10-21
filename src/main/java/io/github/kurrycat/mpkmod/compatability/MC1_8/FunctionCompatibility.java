@@ -57,6 +57,15 @@ public class FunctionCompatibility implements FunctionHolder,
     }
 
     /**
+     * Is called in {@link WorldInteraction.Interface}
+     */
+    public Vector3D getLookingAt() {
+        BlockPos blockPos = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
+        if(blockPos == null) return null;
+        return new Vector3D(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+    }
+
+    /**
      * Is called in {@link Renderer3D.Interface}
      */
     public void drawBox(BoundingBox3D bb, Color color, float partialTicks) {
