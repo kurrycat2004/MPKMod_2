@@ -100,7 +100,7 @@ public class API {
                 new EventAPI.EventListener<OnRenderWorldOverlayEvent>(
                         e -> {
                             LandingBlockGuiScreen.lbs.forEach(lb -> {
-                                        if (lb.shouldRender && lb.boundingBox != null)
+                                        if (lb.enabled || lb.highlight && lb.boundingBox != null)
                                             Renderer3D.drawBox(
                                                     lb.boundingBox.expand(0.005D),
                                                     lb.highlight ?
@@ -118,6 +118,7 @@ public class API {
         EventAPI.addListener(
                 EventAPI.EventListener.onTickEnd(
                         e -> LandingBlockGuiScreen.lbs.stream()
+                                .filter(lb -> lb.enabled)
                                 .filter(LandingBlock::isTryingToLandOn)
                                 .filter(lb -> lb.landingMode.getPlayerBB() != null)
                                 .map(lb -> lb.boundingBox.distanceTo(lb.landingMode.getPlayerBB()).mult(-1D))

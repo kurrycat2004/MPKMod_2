@@ -119,7 +119,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
     }
 
     public static class LBListItem extends ScrollableListItem<LBListItem> {
-        public CheckButton shouldRender;
+        public CheckButton enabled;
         public LandingBlock landingBlock;
 
         public InputField minX, minY, minZ, maxX, maxY, maxZ;
@@ -127,38 +127,59 @@ public class LandingBlockGuiScreen extends ComponentScreen {
 
         public boolean collapsed = true;
         public Button collapseButton;
+        public Button deleteButton;
 
         public LBListItem(ScrollableList<LBListItem> parent, LandingBlock landingBlock) {
             super(parent);
             this.landingBlock = landingBlock;
-            shouldRender = new CheckButton(Vector2D.ZERO, checked -> {
-                landingBlock.shouldRender = checked;
+            enabled = new CheckButton(Vector2D.ZERO, checked -> {
+                landingBlock.enabled = checked;
             });
-            shouldRender.setChecked(landingBlock.shouldRender);
+            enabled.setChecked(landingBlock.enabled);
             minX = new InputField("" + landingBlock.boundingBox.getMin().getX(), Vector2D.OFFSCREEN, 25, true)
                     .setName("minX: ")
-                    .setOnContentChange(c -> landingBlock.boundingBox.setMinX(c.getNumber()));
+                    .setOnContentChange(c -> {
+                        if (c.getNumber() != null) landingBlock.boundingBox.setMinX(c.getNumber());
+                    });
             minY = new InputField("" + landingBlock.boundingBox.getMin().getY(), Vector2D.OFFSCREEN, 25, true)
                     .setName("minY: ")
-                    .setOnContentChange(c -> landingBlock.boundingBox.setMinY(c.getNumber()));
+                    .setOnContentChange(c -> {
+                        if (c.getNumber() != null) landingBlock.boundingBox.setMinY(c.getNumber());
+                    });
             minZ = new InputField("" + landingBlock.boundingBox.getMin().getZ(), Vector2D.OFFSCREEN, 25, true)
                     .setName("minZ: ")
-                    .setOnContentChange(c -> landingBlock.boundingBox.setMinZ(c.getNumber()));
+                    .setOnContentChange(c -> {
+                        if (c.getNumber() != null) landingBlock.boundingBox.setMinZ(c.getNumber());
+                    });
             maxX = new InputField("" + landingBlock.boundingBox.getMax().getX(), Vector2D.OFFSCREEN, 25, true)
                     .setName("maxX: ")
-                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxX(c.getNumber()));
+                    .setOnContentChange(c -> {
+                        if (c.getNumber() != null) landingBlock.boundingBox.setMaxX(c.getNumber());
+                    });
             maxY = new InputField("" + landingBlock.boundingBox.getMax().getY(), Vector2D.OFFSCREEN, 25, true)
                     .setName("maxY: ")
-                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxY(c.getNumber()));
+                    .setOnContentChange(c -> {
+                        if (c.getNumber() != null) landingBlock.boundingBox.setMaxY(c.getNumber());
+                    });
             maxZ = new InputField("" + landingBlock.boundingBox.getMax().getZ(), Vector2D.OFFSCREEN, 25, true)
                     .setName("maxZ: ")
-                    .setOnContentChange(c -> landingBlock.boundingBox.setMaxZ(c.getNumber()));
+                    .setOnContentChange(c -> {
+                        if (c.getNumber() != null) landingBlock.boundingBox.setMaxZ(c.getNumber());
+                    });
 
             fields = new InputField[]{minX, minY, minZ, maxX, maxY, maxZ};
 
             collapseButton = new Button("v", Vector2D.OFFSCREEN, new Vector2D(11, 11), mouseButton -> {
                 if (mouseButton == Mouse.Button.LEFT) collapsed = !collapsed;
             });
+            deleteButton = new Button("x", Vector2D.OFFSCREEN, new Vector2D(11, 11), mouseButton -> {
+                if(mouseButton == Mouse.Button.LEFT) {
+                    LandingBlockGuiScreen.lbs.remove(landingBlock);
+                    ((LBList) parent).updateList();
+                }
+            });
+            deleteButton.textColor = Color.RED;
+            deleteButton.pressedTextColor = Color.RED;
         }
 
         public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
@@ -184,18 +205,23 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                     fields[i].render(mouse);
                 }
 
-            shouldRender.pos = pos.add(size.getX() / 16 - 4, size.getY() / 2 - 5.5).round();
-            shouldRender.render(mouse);
+            enabled.pos = pos.add(size.getX() / 16 - 4, size.getY() / 2 - 5.5).round();
+            enabled.render(mouse);
 
             collapseButton.setText(collapsed ? "v" : "^");
             collapseButton.textOffset = collapsed ? Vector2D.ZERO : new Vector2D(0, 3);
             collapseButton.pos = pos.add(size.getX() - size.getX() / 16, size.getY() / 2 - 5.5).round();
+            if(!collapsed) collapseButton.pos = pos.add(size.getX() - size.getX() / 16, size.getY() / 3 - 5.5).round();
             collapseButton.render(mouse);
+
+            deleteButton.pos = pos.add(size.getX() - size.getX() / 8, size.getY() / 2 - 5.5).round();
+            if(!collapsed) deleteButton.pos = pos.add(size.getX() - size.getX() / 16, size.getY() / 3 * 2 - 5.5).round();
+            deleteButton.render(mouse);
         }
 
         public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
             return ArrayListUtil.orMapAll(
-                    ArrayListUtil.getAllOfType(MouseInputListener.class, minX, minY, minZ, maxX, maxY, maxZ, shouldRender, collapseButton),
+                    ArrayListUtil.getAllOfType(MouseInputListener.class, minX, minY, minZ, maxX, maxY, maxZ, enabled, collapseButton, deleteButton),
                     ele -> ele.handleMouseInput(state, mousePos, button)
             );
         }

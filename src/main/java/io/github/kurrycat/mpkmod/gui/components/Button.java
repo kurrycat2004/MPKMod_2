@@ -13,6 +13,8 @@ public class Button extends Component implements MouseInputListener {
     public Color pressedColor = new Color(255, 255, 255, 95);
     public Color normalColor = new Color(31, 31, 31, 150);
     public Color hoverColor = new Color(70, 70, 70, 150);
+    public Color textColor = Color.WHITE;
+    public Color pressedTextColor = Color.BLACK;
     private String text;
     private boolean isBeingPressed = false;
     public Vector2D textOffset = Vector2D.ZERO;
@@ -58,7 +60,7 @@ public class Button extends Component implements MouseInputListener {
                         .add(getSize().div(2))
                         .add(new Vector2D(0.5, this.getText().toLowerCase().equals(this.getText()) ? 0 : 1))
                         .add(textOffset),
-                isBeingPressed ? Color.BLACK : Color.WHITE,
+                isBeingPressed ? pressedTextColor : textColor,
                 false
         );
     }

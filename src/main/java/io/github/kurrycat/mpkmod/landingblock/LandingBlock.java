@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class LandingBlock {
     public LandingMode landingMode = LandingMode.LAND;
     public BoundingBox3D boundingBox;
-    public boolean shouldRender = true;
+    public boolean enabled = true;
     public boolean highlight = false;
 
     public LandingBlock(BoundingBox3D boundingBox) {
