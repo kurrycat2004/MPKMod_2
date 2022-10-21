@@ -18,6 +18,7 @@ public class Button extends Component implements MouseInputListener {
     private String text;
     private boolean isBeingPressed = false;
     public Vector2D textOffset = Vector2D.ZERO;
+    public boolean enabled = true;
 
     public Button(String text, Vector2D pos, Vector2D size, ButtonCallback buttonCallback) {
         super(pos);
@@ -66,6 +67,7 @@ public class Button extends Component implements MouseInputListener {
     }
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
+        if(!enabled) return false;
         if (contains(mousePos)) {
             switch (state) {
                 case DOWN:

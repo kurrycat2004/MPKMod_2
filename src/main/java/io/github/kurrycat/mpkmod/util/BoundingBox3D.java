@@ -71,7 +71,7 @@ public class BoundingBox3D {
     }
 
     public BoundingBox3D setMinZ(double minZ) {
-        this.min.setY(minZ);
+        this.min.setZ(minZ);
         return this;
     }
 

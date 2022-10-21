@@ -71,6 +71,11 @@ public class Player {
         return tickHistory.get(tickHistory.size() - 1);
     }
 
+    public static Player getBeforeLatest() {
+        if(tickHistory.size() < 2) return null;
+        return tickHistory.get(tickHistory.size() - 2);
+    }
+
     public static float wrapDegrees(float value) {
         value = value % 360.0F;
 

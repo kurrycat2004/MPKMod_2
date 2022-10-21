@@ -128,6 +128,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         public boolean collapsed = true;
         public Button collapseButton;
         public Button deleteButton;
+        public Button landingModeButton;
 
         public LBListItem(ScrollableList<LBListItem> parent, LandingBlock landingBlock) {
             super(parent);
@@ -173,13 +174,19 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                 if (mouseButton == Mouse.Button.LEFT) collapsed = !collapsed;
             });
             deleteButton = new Button("x", Vector2D.OFFSCREEN, new Vector2D(11, 11), mouseButton -> {
-                if(mouseButton == Mouse.Button.LEFT) {
+                if (mouseButton == Mouse.Button.LEFT) {
                     LandingBlockGuiScreen.lbs.remove(landingBlock);
                     ((LBList) parent).updateList();
                 }
             });
             deleteButton.textColor = Color.RED;
             deleteButton.pressedTextColor = Color.RED;
+
+            landingModeButton = new Button("", Vector2D.OFFSCREEN, Vector2D.ZERO, mouseButton -> {
+                if (mouseButton == Mouse.Button.LEFT) {
+                    landingBlock.landingMode = landingBlock.landingMode.getNext();
+                }
+            });
         }
 
         public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
@@ -198,30 +205,34 @@ public class LandingBlockGuiScreen extends ComponentScreen {
             else
                 for (int i = 0; i < fields.length; i++) {
                     fields[i].pos = pos.add(
-                            size.getX() / 7 * (1 + ((int) (i / 3) * 3)),
+                            size.getX() / 12 + size.getX() / 5 * 2 * (((int) (i / 3))),
                             size.getY() / 4 * (1 + (i % 3)) - fields[i].getSize().getY() / 2
                     );
                     fields[i].setWidth(size.getX() / 3);
                     fields[i].render(mouse);
                 }
 
-            enabled.pos = pos.add(size.getX() / 16 - 4, size.getY() / 2 - 5.5).round();
+            enabled.pos = pos.add(size.getX() / 16 - enabled.getSize().getX(), size.getY() / 2 - 5.5).round();
             enabled.render(mouse);
 
             collapseButton.setText(collapsed ? "v" : "^");
             collapseButton.textOffset = collapsed ? Vector2D.ZERO : new Vector2D(0, 3);
-            collapseButton.pos = pos.add(size.getX() - size.getX() / 16, size.getY() / 2 - 5.5).round();
-            if(!collapsed) collapseButton.pos = pos.add(size.getX() - size.getX() / 16, size.getY() / 3 - 5.5).round();
+            collapseButton.pos = pos.add(size.getX() - size.getX() / 16, size.getY() / (collapsed ? 2 : 3) - 5.5).round();
             collapseButton.render(mouse);
 
-            deleteButton.pos = pos.add(size.getX() - size.getX() / 8, size.getY() / 2 - 5.5).round();
-            if(!collapsed) deleteButton.pos = pos.add(size.getX() - size.getX() / 16, size.getY() / 3 * 2 - 5.5).round();
+            deleteButton.pos = pos.add(size.getX() - size.getX() / 8, size.getY() / (collapsed ? 2 : 3) - 5.5).round();
             deleteButton.render(mouse);
+
+            landingModeButton.pos = pos.add(size.getX() - size.getX() / 8, size.getY() / 3 * 2 - 5.5).round();
+            landingModeButton.setSize(new Vector2D(size.getX() / 16 + collapseButton.getSize().getX(), 11));
+            landingModeButton.enabled = !collapsed;
+            landingModeButton.setText(landingBlock.landingMode.toString());
+            if (!collapsed) landingModeButton.render(mouse);
         }
 
         public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
             return ArrayListUtil.orMapAll(
-                    ArrayListUtil.getAllOfType(MouseInputListener.class, minX, minY, minZ, maxX, maxY, maxZ, enabled, collapseButton, deleteButton),
+                    ArrayListUtil.getAllOfType(MouseInputListener.class, minX, minY, minZ, maxX, maxY, maxZ, enabled, collapseButton, deleteButton, landingModeButton),
                     ele -> ele.handleMouseInput(state, mousePos, button)
             );
         }
