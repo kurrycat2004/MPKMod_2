@@ -52,8 +52,8 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
 
     @Override
     public void handleKeyboardInput() throws IOException {
-        int keyCode = Keyboard.getEventKey();
-        String key = Keyboard.getKeyName(keyCode);
+        char keyCode = Keyboard.getEventCharacter();
+        String key = Keyboard.getKeyName(Keyboard.getEventKey());
         boolean pressed = Keyboard.getEventKeyState();
 
         eventReceiver.onKeyEvent(keyCode, key, pressed);

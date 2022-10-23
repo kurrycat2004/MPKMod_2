@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.gui;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.components.Component;
+import io.github.kurrycat.mpkmod.gui.components.PopupMenu;
 import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.util.ArrayListUtil;
 import io.github.kurrycat.mpkmod.util.BoundingBox2D;
@@ -50,10 +51,10 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         holding.clear();
     }
 
-    public void onKeyEvent(int keyCode, String key, boolean pressed) {
+    public void onKeyEvent(char keyCode, String key, boolean pressed) {
         super.onKeyEvent(keyCode, key, pressed);
 
-        if(handleKeyInput(keyCode, key, pressed)) return;
+        if (handleKeyInput(keyCode, key, pressed)) return;
 
         if (pressed && !selected.isEmpty()) {
             Vector2D arrowKeyMove = Vector2D.ZERO;
@@ -101,6 +102,19 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         } else if (Mouse.Button.RIGHT.equals(mouseButton)) {
             if (lastClickedPos != null && lastClicked == null)
                 lastClickedPos = null;
+            Component clicked = findFirstContainPos(mouse);
+            if (clicked != null) {
+                PopupMenu menu = clicked.getPopupMenu();
+                if (menu != null) {
+                    Vector2D windowSize = Renderer2D.getScaledSize();
+                    menu.pos = new Vector2D(
+                            clicked.getDisplayPos().getX() + clicked.getSize().getX() + menu.getSize().getX() < windowSize.getX() ?
+                                    clicked.getDisplayPos().getX() + clicked.getSize().getX() : clicked.getDisplayPos().getX() - menu.getSize().getX(),
+                            clicked.getDisplayPos().getY()
+                    );
+                    openPane(menu);
+                }
+            }
         }
     }
 
@@ -187,7 +201,9 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         );
     }
 
-    public boolean handleKeyInput(int keyCode, String key, boolean pressed) {
+    public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
+        if (!openPanes.isEmpty())
+            openPanes.get(openPanes.size() - 1).handleKeyInput(keyCode, key, pressed);
         return ArrayListUtil.orMap(
                 ArrayListUtil.getAllOfType(KeyInputListener.class, components, movableComponents),
                 b -> b.handleKeyInput(keyCode, key, pressed)
@@ -240,7 +256,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
-        if (openPanes.isEmpty()) drawDefaultBackground();
+        if (openPanes.isEmpty() || openPanes.get(openPanes.size() - 1) instanceof PopupMenu) drawDefaultBackground();
         Vector2D hoverMousePos = openPanes.isEmpty() ? mouse : Vector2D.OFFSCREEN;
 
         movableComponents.forEach(c -> c.setSelected(selected.contains(c)));
@@ -273,11 +289,13 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         }
 
         if (!openPanes.isEmpty()) {
-            drawDefaultBackground();
+            Pane last = openPanes.get(openPanes.size() - 1);
+            if (!(last instanceof PopupMenu))
+                drawDefaultBackground();
             for (int i = 0; i < openPanes.size() - 1; i++) {
                 openPanes.get(i).render(Vector2D.OFFSCREEN);
             }
-            openPanes.get(openPanes.size() - 1).render(mouse);
+            last.render(mouse);
         }
     }
 }

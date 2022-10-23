@@ -27,7 +27,7 @@ public abstract class MPKGuiScreen {
     public void onGuiClosed() {
     }
 
-    public void onKeyEvent(int keyCode, String key, boolean pressed) {
+    public void onKeyEvent(char keyCode, String key, boolean pressed) {
     }
 
     public void onMouseClicked(Vector2D mouse, int mouseButton) {

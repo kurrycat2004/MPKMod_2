@@ -95,60 +95,60 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
     }
 
     @Override
-    public boolean handleKeyInput(int keyCode, String key, boolean pressed) {
+    public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
         if (!isFocused) return false;
 
         if (pressed) {
             String character = null;
-            String testKey = key;
-            if (testKey.startsWith("NUMPAD")) testKey = testKey.substring(6);
 
-            if (testKey.length() == 1)
-                if (!numbersOnly || "1234567890".contains(testKey))
-                    character = testKey.toLowerCase();
-            if (Arrays.asList("COMMA", "PERIOD", "DECIMAL").contains(testKey)) character = ".";
-            if (testKey.equals("MINUS")) character = "-";
+            String regex = numbersOnly ? "[0-9.,\\-!]" : "[0-9a-zA-Z!?,.;\\-{}]";
+            if(Character.toString(keyCode).matches(regex)) {
+                character = Character.toString(keyCode);
+                if(character.equals(",")) character = ".";
+            }
 
-            switch (key) {
+            if(key != null) {
+                switch (key) {
                 /*case "LSHIFT":
                     System.out.println(cursorPos + ", " + highlightStart + ", " + highlightEnd);
                     break;*/
-                case "BACK":
-                    deleteSelection();
-                    if (highlightStart == highlightEnd)
-                        cursorPos--;
-                    else cursorPos = highlightStart;
-                    break;
-                case "DELETE":
-                    if (highlightStart == highlightEnd)
-                        cursorPos++;
-                    deleteSelection();
-                    if (highlightStart == highlightEnd)
-                        cursorPos--;
-                    break;
-                case "LEFT":
-                    if (highlightStart == highlightEnd)
-                        cursorPos--;
-                    else cursorPos = highlightStart;
-                    break;
-                case "RIGHT":
-                    if (highlightStart == highlightEnd)
-                        cursorPos++;
-                    else cursorPos = highlightEnd;
-                    break;
-                default:
-                    if (character != null) {
-                        replaceSelectionWithChar(character);
-                        cursorPos = highlightStart + 1;
-                    } /*else {
+                    case "BACK":
+                        deleteSelection();
+                        if (highlightStart == highlightEnd)
+                            cursorPos--;
+                        else cursorPos = highlightStart;
+                        break;
+                    case "DELETE":
+                        if (highlightStart == highlightEnd)
+                            cursorPos++;
+                        deleteSelection();
+                        if (highlightStart == highlightEnd)
+                            cursorPos--;
+                        break;
+                    case "LEFT":
+                        if (highlightStart == highlightEnd)
+                            cursorPos--;
+                        else cursorPos = highlightStart;
+                        break;
+                    case "RIGHT":
+                        if (highlightStart == highlightEnd)
+                            cursorPos++;
+                        else cursorPos = highlightEnd;
+                        break;
+                    default:
+                        if (character != null) {
+                            replaceSelectionWithChar(character);
+                            cursorPos = highlightStart + 1;
+                        } /*else {
                         System.out.println(key);
                     }*/
-                    break;
-            }
-            if (Arrays.asList("BACK", "DELETE", "LEFT", "RIGHT").contains(key) || character != null) {
-                cursorPos = MathUtil.constrain(cursorPos, 0, content.length());
-                highlightStart = cursorPos;
-                highlightEnd = cursorPos;
+                        break;
+                }
+                if (Arrays.asList("BACK", "DELETE", "LEFT", "RIGHT").contains(key) || character != null) {
+                    cursorPos = MathUtil.constrain(cursorPos, 0, content.length());
+                    highlightStart = cursorPos;
+                    highlightEnd = cursorPos;
+                }
             }
         }
 

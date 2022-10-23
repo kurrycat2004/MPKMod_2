@@ -27,6 +27,7 @@ public class MessageQueue extends ResizableComponent {
     public Color messageColor = new Color(255, 255, 255, 255);
     @JsonProperty
     public Color edgeColor = new Color(100, 100, 100, 50);
+    public Color selectedColor = new Color(255, 170, 0, 100);
     private ArrayList<Message> messages = new ArrayList<>();
 
 
@@ -42,8 +43,8 @@ public class MessageQueue extends ResizableComponent {
     }
 
     public void render(Vector2D mouse) {
-        Renderer2D.drawRectWithEdge(getDisplayPos(), getSize(), 1, backgroundColor, edgeColor);
-        Renderer2D.drawRect(getDisplayPos(), getSize(), backgroundColor);
+        Renderer2D.drawRectWithEdge(getDisplayPos(), getSize(), 1, selected ? selectedColor : backgroundColor, edgeColor);
+        //Renderer2D.drawRect(getDisplayPos(), getSize(), backgroundColor);
 
         messages = messages.stream().filter(Message::isAlive).collect(Collectors.toCollection(ArrayList::new));
 

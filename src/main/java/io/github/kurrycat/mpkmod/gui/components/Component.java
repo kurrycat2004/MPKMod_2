@@ -24,6 +24,10 @@ public abstract class Component {
         return this.pos;
     }
 
+    public PopupMenu getPopupMenu() {
+        return null;
+    }
+
     public Component setPos(Vector2D pos) {
         Vector2D windowSize = Renderer2D.getScaledSize();
         this.pos = new Vector2D(

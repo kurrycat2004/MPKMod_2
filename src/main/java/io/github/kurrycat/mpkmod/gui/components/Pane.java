@@ -8,7 +8,7 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Pane extends Component implements MouseInputListener, MouseScrollListener {
+public class Pane extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener {
     public ArrayList<Component> components = new ArrayList<>();
     public Color backgroundColor = new Color(255, 255, 255, 255);
 
@@ -33,7 +33,7 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
         if (this.loaded) {
-            return ArrayListUtil.orMap(
+            return ArrayListUtil.orMapAll(
                     ArrayListUtil.getAllOfType(MouseInputListener.class, components),
                     b -> b.handleMouseInput(state, mousePos, button)
             );
@@ -43,7 +43,7 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
 
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
         if (this.loaded) {
-            return ArrayListUtil.orMap(
+            return ArrayListUtil.orMapAll(
                     ArrayListUtil.getAllOfType(MouseScrollListener.class, components),
                     b -> b.handleMouseScroll(mousePos, delta)
             );
@@ -77,5 +77,15 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
                     close();
                 }
         );
+    }
+
+    public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
+        if (this.loaded) {
+            return ArrayListUtil.orMapAll(
+                    ArrayListUtil.getAllOfType(KeyInputListener.class, components),
+                    b -> b.handleKeyInput(keyCode, key, pressed)
+            );
+        }
+        return false;
     }
 }

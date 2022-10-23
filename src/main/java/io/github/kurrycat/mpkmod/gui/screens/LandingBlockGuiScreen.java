@@ -6,7 +6,6 @@ import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.*;
-import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.util.*;
 
@@ -234,7 +233,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
             );
         }
 
-        public boolean handleKeyInput(int keyCode, String key, boolean pressed) {
+        public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
             return ArrayListUtil.orMapAll(
                     ArrayListUtil.getAllOfType(KeyInputListener.class, minX, minY, minZ, maxX, maxY, maxZ),
                     ele -> ele.handleKeyInput(keyCode, key, pressed)
