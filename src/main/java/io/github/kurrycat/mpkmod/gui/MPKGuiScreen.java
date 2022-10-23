@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.gui;
 
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
@@ -8,6 +9,16 @@ import java.awt.*;
 @SuppressWarnings("unused")
 public abstract class MPKGuiScreen {
     private boolean initialized = false;
+    private String id = null;
+
+    public String getID() {
+        return id;
+    }
+
+    public MPKGuiScreen setID(String id) {
+        this.id = id;
+        return this;
+    }
 
     public void onGuiInit() {
         initialized = true;
@@ -55,5 +66,9 @@ public abstract class MPKGuiScreen {
 
     public boolean isInitialized() {
         return initialized;
+    }
+
+    public void close() {
+        Minecraft.displayGuiScreen(null);
     }
 }

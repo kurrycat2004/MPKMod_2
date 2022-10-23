@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.*;
+import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
@@ -34,7 +35,8 @@ public class FunctionCompatibility implements FunctionHolder,
         Renderer2D.Interface,
         FontRenderer.Interface,
         io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft.Interface,
-        io.github.kurrycat.mpkmod.compatability.MCClasses.Keyboard.Interface {
+        io.github.kurrycat.mpkmod.compatability.MCClasses.Keyboard.Interface,
+        Profiler.Interface {
     /**
      * Is called in {@link SoundManager.Interface}
      */
@@ -61,7 +63,7 @@ public class FunctionCompatibility implements FunctionHolder,
      */
     public Vector3D getLookingAt() {
         BlockPos blockPos = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
-        if(blockPos == null) return null;
+        if (blockPos == null) return null;
         return new Vector3D(blockPos.getX(), blockPos.getY(), blockPos.getZ());
     }
 
@@ -191,6 +193,13 @@ public class FunctionCompatibility implements FunctionHolder,
         return String.valueOf(Minecraft.getDebugFPS());
     }
 
+    /**
+     * Is called in {@link io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft.Interface Minecraft.Interface}
+     */
+    public void displayGuiScreen(MPKGuiScreen screen) {
+        Minecraft.getMinecraft().displayGuiScreen(screen == null ? null : new MPKGuiScreen_1_8(screen));
+    }
+
 
     /**
      * Is called in {@link io.github.kurrycat.mpkmod.compatability.MCClasses.Keyboard.Interface Keyboard.Interface}
@@ -201,5 +210,26 @@ public class FunctionCompatibility implements FunctionHolder,
             if (Keyboard.isKeyDown(i))
                 keysDown.add(Keyboard.getKeyName(i));
         return keysDown;
+    }
+
+    /**
+     * Is called in {@link Profiler.Interface}
+     */
+    public void startSection(String name) {
+        Minecraft.getMinecraft().mcProfiler.startSection(name);
+    }
+
+    /**
+     * Is called in {@link Profiler.Interface}
+     */
+    public void endStartSection(String name) {
+        Minecraft.getMinecraft().mcProfiler.endStartSection(name);
+    }
+
+    /**
+     * Is called in {@link Profiler.Interface}
+     */
+    public void endSection() {
+        Minecraft.getMinecraft().mcProfiler.endSection();
     }
 }

@@ -7,10 +7,11 @@ import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.util.Colors;
-import io.github.kurrycat.mpkmod.util.StringToInfo;
+import io.github.kurrycat.mpkmod.util.InfoString;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 public class InfoLabel extends Label {
+    public final InfoString infoString;
     /**
      * @param text the text to be displayed<br><br>
      *             <code>"{COLOR}"</code> with COLOR being any <code>{@link Colors}.name</code> will be replaced by that color's code<br><br>
@@ -21,10 +22,11 @@ public class InfoLabel extends Label {
     @JsonCreator
     public InfoLabel(@JsonProperty("text") String text, @JsonProperty("pos") Vector2D pos) {
         super(text, pos);
+        this.infoString = new InfoString(text);
     }
 
     public String getFormattedText() {
-        return StringToInfo.replaceVarsInString(text);
+        return infoString.getFormattedText(this.text);
     }
 
     public void render(Vector2D mouse) {

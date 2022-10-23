@@ -1,11 +1,12 @@
 package io.github.kurrycat.mpkmod.gui.screens;
 
+import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.WorldInteraction;
 import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.*;
+import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.util.*;
 
@@ -38,39 +39,35 @@ public class LandingBlockGuiScreen extends ComponentScreen {
 
         Vector2D windowSize = Renderer2D.getScaledSize();
         lbList = new LBList(
-                new Vector2D(windowSize.getX() / 5D, 15).round(),
+                new Vector2D(windowSize.getX() / 5D, 16).round(),
                 new Vector2D(windowSize.getX() / 5D * 3D, windowSize.getY() - 40).round()
+        );
+        components.add(lbList);
+        components.add(
+                new Button(
+                        "x",
+                        new Vector2D(
+                                lbList.getDisplayPos().getX() + lbList.getSize().getX() - lbList.getDisplayPos().getY() / 2 - 6,
+                                lbList.getDisplayPos().getY() / 2 - 5.5
+                        ).round(),
+                        new Vector2D(11, 11),
+                        mouseButton -> close()
+                )
         );
 
         components.add(
                 new Button(
-                        "TEST",
-                        new Vector2D(10, 50),
-                        new Vector2D(50, 20),
+                        "t",
+                        new Vector2D(
+                                lbList.getDisplayPos().getX() + lbList.getSize().getX() - lbList.getDisplayPos().getY() / 2 - 30,
+                                lbList.getDisplayPos().getY() / 2 - 5.5
+                        ).round(),
+                        new Vector2D(11, 11),
                         mouseButton -> {
-                            lbs = LandingBlock.asLandingBlocks(WorldInteraction.getCollisionBoundingBoxes(new Vector3D(0, 10, 0)));
-                            lbList.updateList();
+                            ArrayListUtil.getAllOfType(InfoLabel.class, API.mainGUI.movableComponents).forEach(i -> i.infoString.updateProviders());
                         }
                 )
         );
-
-        components.add(
-                new NumberSlider(
-                        0, 5, 1, 3,
-                        new Vector2D(10, 150),
-                        new Vector2D(100, 20),
-                        System.out::println
-                )
-        );
-
-        components.add(
-                new InputField(
-                        new Vector2D(10, 180),
-                        100
-                )
-        );
-
-        components.add(lbList);
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {

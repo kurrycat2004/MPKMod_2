@@ -1,9 +1,6 @@
 package io.github.kurrycat.mpkmod.compatability;
 
-import io.github.kurrycat.mpkmod.compatability.MCClasses.FunctionHolder;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer3D;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.WorldInteraction;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.*;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
@@ -88,10 +85,12 @@ public class API {
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(
                         e -> {
+                            Profiler.startSection("labels");
                             if (mainGUI != null)
                                 for (Component c : mainGUI.movableComponents) {
                                     c.render(new Vector2D(-1, -1));
                                 }
+                            Profiler.endSection();
                         }
                 )
         );
@@ -159,6 +158,7 @@ public class API {
      * @param screen {@link MPKGuiScreen} instance to be registered
      */
     public static void registerGUIScreen(String guiID, MPKGuiScreen screen) {
+        screen.setID(guiID);
         guiScreenMap.put(guiID, screen);
     }
 

@@ -1,5 +1,7 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
+import io.github.kurrycat.mpkmod.compatability.API;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Profiler;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.gui.GuiScreen;
@@ -31,7 +33,14 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        eventReceiver.drawScreen(new Vector2D(mouseX, mouseY), partialTicks);
+        Profiler.startSection(eventReceiver.getID() == null ? "mpk_gui" : eventReceiver.getID());
+        try {
+            eventReceiver.drawScreen(new Vector2D(mouseX, mouseY), partialTicks);
+        } catch (Exception e) {
+            System.err.println("Error in drawScreen with id: " + eventReceiver.getID());
+            e.printStackTrace();
+        }
+        Profiler.endSection();
     }
 
     @Override

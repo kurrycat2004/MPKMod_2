@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.compatability.MCClasses;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.events.Event;
+import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -47,6 +48,10 @@ public class Minecraft {
         } else worldState = WorldState.MENU;
     }
 
+    public static void displayGuiScreen(MPKGuiScreen screen) {
+        Interface.get().ifPresent(i -> i.displayGuiScreen(screen));
+    }
+
     public enum WorldState {
         MENU,
         SINGLE_PLAYER,
@@ -67,5 +72,7 @@ public class Minecraft {
         String getIP();
 
         String getFPS();
+
+        void displayGuiScreen(MPKGuiScreen screen);
     }
 }

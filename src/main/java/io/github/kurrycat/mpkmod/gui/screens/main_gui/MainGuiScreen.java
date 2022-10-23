@@ -72,7 +72,6 @@ public class MainGuiScreen extends ComponentScreen {
         ));
 
         mapOverviewPane = new MapOverviewPane(new Vector2D(20, 0), new Vector2D(windowSize.getX() - 40, windowSize.getY() + 5));
-
         //Runtime.getRuntime().addShutdownHook(new Thread(() -> Serializer.serialize(JSONConfig.configFile, components)));
     }
 
