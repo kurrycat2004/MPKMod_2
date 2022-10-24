@@ -9,6 +9,7 @@ import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.InfoString;
+import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
@@ -55,8 +56,10 @@ public class InfoLabel extends Label {
         PopupMenu menu = new PopupMenu();
         menu.addComponent(
                 new Button("Edit", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
-                    menu.parent.openPane(editPane);
-                    menu.parent.closePane(menu);
+                    if(Mouse.Button.LEFT.equals(mouseButton)) {
+                        menu.parent.openPane(editPane);
+                        menu.parent.closePane(menu);
+                    }
                 })
         );
         return menu;

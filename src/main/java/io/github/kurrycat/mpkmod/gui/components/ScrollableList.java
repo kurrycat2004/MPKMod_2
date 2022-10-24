@@ -61,13 +61,13 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         if (shouldRenderScrollbar())
             scrollBar.render(mouse);
         drawTopCover(
+                mouse,
                 new Vector2D(getDisplayPos().getX(), 0),
-                new Vector2D(getSize().getX(), getDisplayPos().getY())
-        );
+                new Vector2D(getSize().getX(), getDisplayPos().getY()));
         drawBottomCover(
+                mouse,
                 new Vector2D(getDisplayPos().getX(), getDisplayPos().getY() + getSize().getY()),
-                new Vector2D(getSize().getX(), Renderer2D.getScaledSize().getY() - (getDisplayPos().getY() + getSize().getY()) + 2)
-        );
+                new Vector2D(getSize().getX(), Renderer2D.getScaledSize().getY() - (getDisplayPos().getY() + getSize().getY()) + 2));
     }
 
     public Pair<I, Vector2D> getItemAndRelMousePosUnderMouse(Vector2D mouse) {
@@ -87,11 +87,11 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         return null;
     }
 
-    public void drawTopCover(Vector2D pos, Vector2D size) {
+    public void drawTopCover(Vector2D mouse, Vector2D pos, Vector2D size) {
         Renderer2D.drawRectWithEdge(pos, size.add(0, 1), 1, Color.DARK_GRAY, Color.BLACK);
     }
 
-    public void drawBottomCover(Vector2D pos, Vector2D size) {
+    public void drawBottomCover(Vector2D mouse, Vector2D pos, Vector2D size) {
         Renderer2D.drawRectWithEdge(pos.sub(0, 1), size.add(0, 1), 1, Color.DARK_GRAY, Color.BLACK);
     }
 
@@ -110,7 +110,7 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     }
 
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
-        if(ArrayListUtil.orMapAll(
+        if (ArrayListUtil.orMapAll(
                 getItems(),
                 e -> e.handleMouseScroll(mousePos, delta)
         )) return true;

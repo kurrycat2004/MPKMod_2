@@ -1,7 +1,9 @@
 package io.github.kurrycat.mpkmod.gui.screens;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.WorldInteraction;
 import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.*;
@@ -81,9 +83,24 @@ public class LandingBlockGuiScreen extends ComponentScreen {
     }
 
     public static class LBList extends ScrollableList<LBListItem> {
+        private final Button addLB;
+
         public LBList(Vector2D pos, Vector2D size) {
             super(pos, size);
             updateList();
+            this.addLB = new Button("Add LB", Vector2D.OFFSCREEN, new Vector2D(40, 20), mouseButton -> {
+                if (Mouse.Button.LEFT.equals(mouseButton)) {
+                    Vector3D lookingAt = WorldInteraction.getLookingAt();
+                    if (lookingAt != null) {
+                        lbs.add(new LandingBlock(new BoundingBox3D(lookingAt, lookingAt.add(1))));
+                    } else if (Player.getLatest() != null) {
+                        lbs.add(new LandingBlock(new BoundingBox3D(Player.getLatest().getPos(), Player.getLatest().getPos()).expand(0.5)));
+                    } else {
+                        lbs.add(new LandingBlock(new BoundingBox3D(new Vector3D(0, 0, 0), new Vector3D(0, 0, 0))));
+                    }
+                    items.add(new LBListItem(this, lbs.get(lbs.size() - 1)));
+                }
+            });
         }
 
         public void updateList() {
@@ -102,14 +119,21 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         }
 
         @Override
-        public void drawTopCover(Vector2D pos, Vector2D size) {
-            super.drawTopCover(pos, size);
+        public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
+            return super.handleMouseInput(state, mousePos, button) || this.addLB.handleMouseInput(state, mousePos, button);
+        }
+
+        @Override
+        public void drawTopCover(Vector2D mouse, Vector2D pos, Vector2D size) {
+            super.drawTopCover(mouse, pos, size);
             FontRenderer.drawCenteredString(Colors.UNDERLINE + "Landing Blocks", pos.add(size.div(2)).add(0, 1), Color.WHITE, false);
         }
 
         @Override
-        public void drawBottomCover(Vector2D pos, Vector2D size) {
-            super.drawBottomCover(pos, size);
+        public void drawBottomCover(Vector2D mouse, Vector2D pos, Vector2D size) {
+            super.drawBottomCover(mouse, pos, size);
+            this.addLB.pos = pos.add(size.div(2)).sub(this.addLB.getSize().div(2));
+            this.addLB.render(mouse);
         }
     }
 
@@ -171,7 +195,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
             deleteButton = new Button("x", Vector2D.OFFSCREEN, new Vector2D(11, 11), mouseButton -> {
                 if (mouseButton == Mouse.Button.LEFT) {
                     LandingBlockGuiScreen.lbs.remove(landingBlock);
-                    ((LBList) parent).updateList();
+                    parent.items.remove(this);
                 }
             });
             deleteButton.textColor = Color.RED;
@@ -180,6 +204,19 @@ public class LandingBlockGuiScreen extends ComponentScreen {
             landingModeButton = new Button("", Vector2D.OFFSCREEN, Vector2D.ZERO, mouseButton -> {
                 if (mouseButton == Mouse.Button.LEFT) {
                     landingBlock.landingMode = landingBlock.landingMode.getNext();
+                } else if (Mouse.Button.RIGHT.equals(mouseButton)) {
+                    switch (landingBlock.landingMode) {
+                        case Z_NEO:
+                            landingBlock.boundingBox.setMinZ(landingBlock.boundingBox.getMin().getZ() + 0.6D);
+                            landingBlock.boundingBox.setMaxZ(landingBlock.boundingBox.getMax().getZ() - 0.6D);
+                            break;
+                        case ENTER:
+                            landingBlock.boundingBox.setMaxX((int) landingBlock.boundingBox.getMin().getX() + 0.7D);
+                            landingBlock.boundingBox.setMaxZ((int) landingBlock.boundingBox.getMin().getZ() + 0.7D);
+                            landingBlock.boundingBox.setMinX((int) landingBlock.boundingBox.getMin().getX() + 0.3D);
+                            landingBlock.boundingBox.setMinZ((int) landingBlock.boundingBox.getMin().getZ() + 0.3D);
+                            break;
+                    }
                 }
             });
         }
