@@ -88,6 +88,8 @@ public class InfoString {
             if (finalCurrObj.getObj() == null) return fullMatch;
             if (finalCurrObj.getObj() instanceof Double)
                 return MathUtil.formatDecimals((Double) finalCurrObj.getObj(), decimals, keepZeros);
+            if (finalCurrObj.getObj() instanceof Float)
+                return MathUtil.formatDecimals((Float) finalCurrObj.getObj(), decimals, keepZeros);
             return finalCurrObj.getObj().toString();
         };
     }

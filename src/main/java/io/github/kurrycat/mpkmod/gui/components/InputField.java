@@ -9,6 +9,7 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 import java.util.Arrays;
 
+//TODO: Multiline InputField
 public class InputField extends Component implements KeyInputListener, MouseInputListener {
     public boolean numbersOnly;
     public String content;
@@ -101,10 +102,10 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         if (pressed) {
             String character = null;
 
-            String regex = numbersOnly ? "[0-9.,\\-!]" : "[0-9a-zA-Z!?,.;\\-{}]";
+            String regex = numbersOnly ? "[0-9.,\\-!]" : "[0-9a-zA-Z!?,.;\\-{} ]";
             if(Character.toString(keyCode).matches(regex)) {
                 character = Character.toString(keyCode);
-                if(character.equals(",")) character = ".";
+                //if(character.equals(",")) character = ".";
             }
 
             if(key != null) {

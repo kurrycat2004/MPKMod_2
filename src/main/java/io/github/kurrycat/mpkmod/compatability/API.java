@@ -6,6 +6,7 @@ import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
+import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
@@ -88,7 +89,13 @@ public class API {
                             Profiler.startSection("labels");
                             if (mainGUI != null)
                                 for (Component c : mainGUI.movableComponents) {
-                                    c.render(new Vector2D(-1, -1));
+                                    try {
+                                        c.render(new Vector2D(-1, -1));
+                                    } catch (ClassCastException err) {
+                                        if(c instanceof InfoLabel) {
+                                            ((InfoLabel) c).infoString.updateProviders();
+                                        }
+                                    }
                                 }
                             Profiler.endSection();
                         }

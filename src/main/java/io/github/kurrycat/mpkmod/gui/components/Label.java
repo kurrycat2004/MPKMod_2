@@ -14,6 +14,7 @@ public class Label extends Component {
     public Color color = Color.WHITE;
     @JsonProperty
     public Color selectedColor = new Color(255, 170, 0, 100);
+    public Color backgroundColor = null;
 
     public Label(String text, Vector2D pos) {
         super(pos);
@@ -22,6 +23,7 @@ public class Label extends Component {
 
     public void render(Vector2D mouse) {
         drawDefaultSelectedBackground();
+        if (backgroundColor != null) Renderer2D.drawRect(getDisplayPos(), getSize(), backgroundColor);
         FontRenderer.drawString(text, getDisplayPos(), color, true);
     }
 

@@ -1,6 +1,5 @@
 package io.github.kurrycat.mpkmod.gui.screens;
 
-import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.ComponentScreen;
@@ -54,7 +53,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                 )
         );
 
-        components.add(
+        /*components.add(
                 new Button(
                         "t",
                         new Vector2D(
@@ -66,7 +65,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                             ArrayListUtil.getAllOfType(InfoLabel.class, API.mainGUI.movableComponents).forEach(i -> i.infoString.updateProviders());
                         }
                 )
-        );
+        );*/
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
