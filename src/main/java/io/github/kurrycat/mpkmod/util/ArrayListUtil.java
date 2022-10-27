@@ -1,8 +1,7 @@
 package io.github.kurrycat.mpkmod.util;
 
-import scala.actors.threadpool.Arrays;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -45,7 +44,7 @@ public class ArrayListUtil {
 
     @SuppressWarnings("unchecked")
     public static <T> ArrayList<T> getAllOfType(Class<T> tClass, Object... list) {
-        return (ArrayList<T>) Arrays.asList(list).stream()
+        return (ArrayList<T>) Arrays.stream(list)
                 .filter(Objects::nonNull)
                 .filter(tClass::isInstance)
                 .map(c -> (T) c).collect(Collectors.toCollection(ArrayList<T>::new));

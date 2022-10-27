@@ -81,7 +81,6 @@ public class API {
 
         API.LOGGER.info(API.DISCORD_RPC_MARKER, "Starting DiscordRPC...");
         DiscordRPC.init();
-        API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC started");
 
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(
