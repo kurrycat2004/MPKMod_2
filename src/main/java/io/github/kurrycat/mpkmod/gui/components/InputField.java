@@ -11,6 +11,10 @@ import java.util.Arrays;
 
 //TODO: Multiline InputField
 public class InputField extends Component implements KeyInputListener, MouseInputListener {
+    public static String FILTER_ALL = "[0-9a-zA-Z!?,.;\\-{} ]";
+    public static String FILTER_NUMBERS = "[0-9.,\\-!]";
+    public static String FILTER_HEX = "[#0-9a-fA-F]";
+
     public boolean numbersOnly;
     public String content;
     public ContentProvider onContentChange = null;
@@ -22,6 +26,7 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
     private int cursorPos = 0;
     private int highlightStart = 0;
     private int highlightEnd = 0;
+    private String customFilter = null;
 
     public InputField(Vector2D pos, double width) {
         this("", pos, width, false);
@@ -36,6 +41,18 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         this.setSize(new Vector2D(width, 11));
         this.content = content;
         this.numbersOnly = numbersOnly;
+    }
+
+    private String getFilter() {
+        if (customFilter != null) {
+            return customFilter;
+        }
+        return numbersOnly ? FILTER_NUMBERS : FILTER_ALL;
+    }
+
+    public InputField setFilter(String filter) {
+        this.customFilter = filter;
+        return this;
     }
 
     public InputField setName(String name) {
@@ -102,13 +119,12 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         if (pressed) {
             String character = null;
 
-            String regex = numbersOnly ? "[0-9.,\\-!]" : "[0-9a-zA-Z!?,.;\\-{} ]";
-            if(Character.toString(keyCode).matches(regex)) {
+            if (Character.toString(keyCode).matches(getFilter())) {
                 character = Character.toString(keyCode);
                 //if(character.equals(",")) character = ".";
             }
 
-            if(key != null) {
+            if (key != null) {
                 switch (key) {
                 /*case "LSHIFT":
                     System.out.println(cursorPos + ", " + highlightStart + ", " + highlightEnd);

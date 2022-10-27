@@ -9,7 +9,7 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 
 public class Button extends Component implements MouseInputListener {
-    private final ButtonCallback buttonCallback;
+    private ButtonCallback buttonCallback;
     public Color pressedColor = new Color(255, 255, 255, 95);
     public Color normalColor = new Color(31, 31, 31, 150);
     public Color hoverColor = new Color(70, 70, 70, 150);
@@ -25,6 +25,11 @@ public class Button extends Component implements MouseInputListener {
         this.text = text;
         this.buttonCallback = buttonCallback;
         this.setSize(size);
+    }
+
+    public Button setButtonCallback(ButtonCallback buttonCallback) {
+        this.buttonCallback = buttonCallback;
+        return this;
     }
 
     public Button(String text, Vector2D pos, Vector2D size) {

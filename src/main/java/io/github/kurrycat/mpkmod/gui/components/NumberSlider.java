@@ -9,7 +9,7 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
 
-public class NumberSlider extends Component implements MouseInputListener {
+public class NumberSlider extends Component implements MouseInputListener, MouseScrollListener {
     private final SliderCallback sliderCallback;
     private final double from, to, step;
     private final Button button;
@@ -67,6 +67,7 @@ public class NumberSlider extends Component implements MouseInputListener {
 
     public NumberSlider setValue(double value) {
         this.value = value;
+        this.button.pos = getDisplayPos().add(getRelativeXPosFromValue(), 1);
         return this;
     }
 
@@ -80,6 +81,7 @@ public class NumberSlider extends Component implements MouseInputListener {
                 false
         );
 
+        this.setValue(value);
         this.button.render(mouse);
     }
 
@@ -120,6 +122,15 @@ public class NumberSlider extends Component implements MouseInputListener {
                 return false;
         }
         return contains(mousePos);
+    }
+
+    @Override
+    public boolean handleMouseScroll(Vector2D mousePos, int delta) {
+        if(contains(mousePos)) {
+            setValue(this.value - (delta * step / 3));
+            return true;
+        }
+        return false;
     }
 
     @FunctionalInterface

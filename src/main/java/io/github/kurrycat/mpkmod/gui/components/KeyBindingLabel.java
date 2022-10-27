@@ -22,7 +22,7 @@ public class KeyBindingLabel extends ResizableComponent {
     public Color keyUpColor = new Color(31, 31, 31, 47);
     @JsonProperty
     public Color selectedColor = new Color(255, 170, 0, 100);
-    
+
     public KeyBindingLabel(@JsonProperty("pos") Vector2D pos, @JsonProperty("size") Vector2D size, @JsonProperty("name") String name) {
         super(pos, size);
         this.name = name;
@@ -57,5 +57,21 @@ public class KeyBindingLabel extends ResizableComponent {
     @JsonProperty("name")
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public PopupMenu getPopupMenu() {
+        PopupMenu menu = new PopupMenu();
+
+        PopupMenu keyUpColorMenu = new PopupMenu();
+        keyUpColorMenu.addComponent(new ColorSelector(keyUpColor, Vector2D.OFFSCREEN, color -> keyUpColor = color));
+        PopupMenu keyDownColorMenu = new PopupMenu();
+        keyDownColorMenu.addComponent(new ColorSelector(keyDownColor, Vector2D.OFFSCREEN, color -> keyDownColor = color));
+       /* PopupMenu selectedColorMenu = new PopupMenu();
+        keyUpColorMenu.addComponent(new ColorSelector(selectedColor, Vector2D.OFFSCREEN, color -> selectedColor = color));*/
+
+        menu.addSubMenu(new Button("Up Color", Vector2D.OFFSCREEN, new Vector2D(64, 11)), keyUpColorMenu);
+        menu.addSubMenu(new Button("Down Color", Vector2D.OFFSCREEN, new Vector2D(64, 11)), keyDownColorMenu);
+        return menu;
     }
 }

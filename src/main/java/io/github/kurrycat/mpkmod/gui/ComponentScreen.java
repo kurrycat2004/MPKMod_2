@@ -108,8 +108,8 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                 if (menu != null) {
                     Vector2D windowSize = Renderer2D.getScaledSize();
                     menu.pos = new Vector2D(
-                            clicked.getDisplayPos().getX() + clicked.getSize().getX() + menu.getSize().getX() < windowSize.getX() ?
-                                    clicked.getDisplayPos().getX() + clicked.getSize().getX() : clicked.getDisplayPos().getX() - menu.getSize().getX(),
+                            clicked.getDisplayPos().getX() + clicked.getSize().getX() + menu.getSize().getX() + 1 < windowSize.getX() ?
+                                    clicked.getDisplayPos().getX() + clicked.getSize().getX() + 1 : clicked.getDisplayPos().getX() - menu.getSize().getX() - 1,
                             clicked.getDisplayPos().getY()
                     );
                     openPane(menu);

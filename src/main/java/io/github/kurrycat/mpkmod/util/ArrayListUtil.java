@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -16,13 +17,13 @@ public class ArrayListUtil {
      * @param <T>             any type
      * @return true if <code>elementSupplier</code> returned true for any element or else false
      */
-    public static <T> boolean orMap(ArrayList<T> list, ListElementSupplier<T> elementSupplier) {
+    public static <T> boolean orMap(List<T> list, ListElementSupplier<T> elementSupplier) {
         for (T e : list)
             if (elementSupplier.apply(e)) return true;
         return false;
     }
 
-    public static <T> boolean orMapAll(ArrayList<T> list, ListElementSupplier<T> elementSupplier) {
+    public static <T> boolean orMapAll(List<T> list, ListElementSupplier<T> elementSupplier) {
         boolean b = false;
         for (T e : list)
             if (elementSupplier.apply(e)) b = true;
