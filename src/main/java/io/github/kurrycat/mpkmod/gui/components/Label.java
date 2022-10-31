@@ -32,6 +32,7 @@ public class Label extends Component {
             Renderer2D.drawRect(getDisplayPos(), getSize(), selectedColor);
             Renderer2D.drawHollowRect(getDisplayPos(), getSize(), 1, Color.BLACK);
         }
+        if (highlighted) Renderer2D.drawDottedRect(getDisplayPos(), getSize(), 1, 1, 1, Color.BLACK);
     }
 
     @JsonProperty

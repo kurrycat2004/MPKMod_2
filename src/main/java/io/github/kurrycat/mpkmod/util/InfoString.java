@@ -76,6 +76,9 @@ public class InfoString {
 
     public static StringProvider getValueFromString(String fullMatch, String input, int decimals, boolean keepZeros) {
         String[] splitVars = input.split("\\.");
+        if(splitVars.length < 1) {
+            return () -> null;
+        }
         String objectIdentifier = splitVars[0];
         String[] subVars = Arrays.copyOfRange(splitVars, 1, splitVars.length);
 
@@ -95,6 +98,9 @@ public class InfoString {
     }
 
     public static ObjectProvider getValueOfObject(String[] splitVars, ObjectProvider objectProvider) {
+        if(splitVars.length < 1) {
+            return () -> null;
+        }
         String objectIdentifier = splitVars[0];
         String[] subVars = Arrays.copyOfRange(splitVars, 1, splitVars.length);
         return () -> {

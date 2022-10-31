@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
@@ -42,7 +43,7 @@ public class KeyBindingLabel extends ResizableComponent {
         String displayName = this.displayName;
         boolean keyDown = keyBinding != null && keyBinding.isKeyDown();
         Color c = selected ? selectedColor : keyDown ? keyDownColor : keyUpColor;
-
+        if (highlighted) Renderer2D.drawDottedRect(getDisplayPos(), getSize(), 1, 1, 1, Color.BLACK);
         Renderer2D.drawRect(getDisplayPos(), getSize(), c);
 
         FontRenderer.drawCenteredString(
@@ -72,6 +73,12 @@ public class KeyBindingLabel extends ResizableComponent {
 
         menu.addSubMenu(new Button("Up Color", Vector2D.OFFSCREEN, new Vector2D(64, 11)), keyUpColorMenu);
         menu.addSubMenu(new Button("Down Color", Vector2D.OFFSCREEN, new Vector2D(64, 11)), keyDownColorMenu);
+        menu.addComponent(new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(64, 11), mouseButton -> {
+            if (Mouse.Button.LEFT.equals(mouseButton)) {
+                menu.parent.removeComponent(this);
+                menu.parent.closePane(menu);
+            }
+        }));
         return menu;
     }
 }

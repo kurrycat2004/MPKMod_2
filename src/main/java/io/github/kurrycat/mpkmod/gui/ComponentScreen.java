@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.gui;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.PopupMenu;
 import io.github.kurrycat.mpkmod.gui.components.*;
@@ -22,6 +23,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
     public ArrayList<Component> movableComponents = new ArrayList<>();
     public Set<Component> selected = new HashSet<>();
     public Set<Component> holding = new HashSet<>();
+    public Set<Component> highlighted = new HashSet<>();
 
     private Vector2D lastClickedPos = null;
     private Component lastClicked = null;
@@ -39,6 +41,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         components.clear();
         selected.clear();
         holding.clear();
+        highlighted.clear();
         lastClicked = null;
         lastClickedPos = null;
         holdingSetPosOffset = null;
@@ -47,8 +50,10 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
     public void onGuiClosed() {
         super.onGuiClosed();
         movableComponents.forEach(c -> c.setSelected(false));
+        movableComponents.forEach(c -> c.setHighlighted(false));
         selected.clear();
         holding.clear();
+        highlighted.clear();
     }
 
     public void onKeyEvent(char keyCode, String key, boolean pressed) {
@@ -87,6 +92,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         if (movableComponents.isEmpty()) return;
 
         if (Mouse.Button.LEFT.equals(mouseButton)) {
+            highlighted.clear();
             lastClickedPos = mouse;
 
             Component clicked = findFirstContainPos(lastClickedPos);
@@ -100,10 +106,13 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                 holding.add(clicked);
             }
         } else if (Mouse.Button.RIGHT.equals(mouseButton)) {
-            if (lastClickedPos != null && lastClicked == null)
+            highlighted.clear();
+            if (lastClickedPos != null && lastClicked == null) {
                 lastClickedPos = null;
+            }
             Component clicked = findFirstContainPos(mouse);
-            if (clicked != null) {
+            if (selected.size() <= 1 && clicked != null) {
+                highlighted.add(clicked);
                 PopupMenu menu = clicked.getPopupMenu();
                 if (menu != null) {
                     Vector2D windowSize = Renderer2D.getScaledSize();
@@ -114,6 +123,34 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                     );
                     openPane(menu);
                 }
+            } else if (selected.size() > 0) {
+                highlighted.addAll(selected);
+                selected.clear();
+                PopupMenu menu = new PopupMenu();
+                menu.addComponent(
+                        new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mButton -> {
+                            if (Mouse.Button.LEFT.equals(mButton)) {
+                                for (Component c : highlighted) {
+                                    menu.parent.removeComponent(c);
+                                }
+                                menu.parent.closePane(menu);
+                            }
+                        })
+                );
+                menu.pos = mouse;
+                openPane(menu);
+            } else {
+                highlighted.clear();
+                PopupMenu menu = new PopupMenu();
+                menu.addComponent(
+                        new Button("Add Label", mouse, new Vector2D(42, 11), mButton -> {
+                            if (Mouse.Button.LEFT.equals(mButton)) {
+                                menu.parent.closePane(menu);
+                            }
+                        })
+                );
+                menu.pos = mouse;
+                openPane(menu);
             }
         }
     }
@@ -143,7 +180,9 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
             }
 
             for (Component c : holding) {
-                c.setPos(c.getPos().add(holdingSetPosOffset));
+                if (holdingSetPosOffset != null) {
+                    c.setPos(c.getPos().add(holdingSetPosOffset));
+                }
             }
             holding.clear();
             holdingSetPosOffset = null;
@@ -178,7 +217,14 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
     public void closePane(Pane p) {
         openPanes.remove(p);
+        if (openPanes.isEmpty()) {
+            highlighted.clear();
+        }
         p.setLoaded(false);
+    }
+
+    public void removeComponent(Component c) {
+        components.remove(c);
     }
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
@@ -260,6 +306,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         Vector2D hoverMousePos = openPanes.isEmpty() ? mouse : Vector2D.OFFSCREEN;
 
         movableComponents.forEach(c -> c.setSelected(selected.contains(c)));
+        movableComponents.forEach(c -> c.setHighlighted(highlighted.contains(c)));
 
         for (Component component : movableComponents) {
             if (!holding.contains(component))

@@ -76,6 +76,12 @@ public class MainGuiScreen extends ComponentScreen {
     }
 
     @Override
+    public void removeComponent(Component c) {
+        cachedElements.remove(c);
+        movableComponents = new ArrayList<>(cachedElements);
+    }
+
+    @Override
     public void onGuiClosed() {
         super.onGuiClosed();
         mapOverviewPane.close();

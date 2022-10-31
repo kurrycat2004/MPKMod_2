@@ -6,6 +6,7 @@ import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.util.ColorUtil;
 import io.github.kurrycat.mpkmod.util.MathUtil;
+import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
@@ -45,6 +46,7 @@ public class MessageQueue extends ResizableComponent {
     public void render(Vector2D mouse) {
         Renderer2D.drawRectWithEdge(getDisplayPos(), getSize(), 1, selected ? selectedColor : backgroundColor, edgeColor);
         //Renderer2D.drawRect(getDisplayPos(), getSize(), backgroundColor);
+        if (highlighted) Renderer2D.drawDottedRect(getDisplayPos(), getSize(), 1, 1, 1, Color.BLACK);
 
         messages = messages.stream().filter(Message::isAlive).collect(Collectors.toCollection(ArrayList::new));
 
@@ -67,6 +69,19 @@ public class MessageQueue extends ResizableComponent {
         return this.name;
     }
 
+    @Override
+    public PopupMenu getPopupMenu() {
+        PopupMenu menu = new PopupMenu();
+        menu.addComponent(
+                new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
+                    if(Mouse.Button.LEFT.equals(mouseButton)) {
+                        menu.parent.removeComponent(this);
+                        menu.parent.closePane(menu);
+                    }
+                })
+        );
+        return menu;
+    }
 
     public static class Message {
         public String content;
