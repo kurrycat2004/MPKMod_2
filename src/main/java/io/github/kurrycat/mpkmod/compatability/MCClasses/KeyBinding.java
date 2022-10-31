@@ -26,6 +26,10 @@ public class KeyBinding {
         return keyMap.get(name);
     }
 
+    public static HashMap<String, KeyBinding> getKeyMap() {
+        return keyMap;
+    }
+
     public String getDisplayName() {
         return displayName.get();
     }
