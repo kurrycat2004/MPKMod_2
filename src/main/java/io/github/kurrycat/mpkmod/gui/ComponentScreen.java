@@ -142,9 +142,16 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
             } else {
                 highlighted.clear();
                 PopupMenu menu = new PopupMenu();
+                Vector2D windowSize = Renderer2D.getScaledSize();
+                NewLabelPane newLabelPane = new NewLabelPane(
+                        new Vector2D(windowSize.getX() * 0.35, windowSize.getY() * 0.5 - 20),
+                        new Vector2D(windowSize.getX() * 0.3, 48)
+                );
+                newLabelPane.setCreationPos(mouse);
                 menu.addComponent(
                         new Button("Add Label", mouse, new Vector2D(42, 11), mButton -> {
                             if (Mouse.Button.LEFT.equals(mButton)) {
+                                menu.parent.openPane(newLabelPane);
                                 menu.parent.closePane(menu);
                             }
                         })
@@ -225,6 +232,10 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
     public void removeComponent(Component c) {
         components.remove(c);
+    }
+
+    public void addComponent(Component c) {
+        components.add(c);
     }
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {

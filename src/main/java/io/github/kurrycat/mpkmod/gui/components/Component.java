@@ -9,11 +9,6 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 public abstract class Component {
     @JsonProperty
     public Vector2D pos;
-    public enum state {
-        DEFAULT,
-        SELECTED,
-        HIGHLIGHTED
-    }
     public boolean selected = false;
     public boolean highlighted = false;
     protected Vector2D size;

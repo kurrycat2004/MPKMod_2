@@ -80,6 +80,12 @@ public class MainGuiScreen extends ComponentScreen {
         cachedElements.remove(c);
         movableComponents = new ArrayList<>(cachedElements);
     }
+    
+    @Override
+    public void addComponent(Component c) {
+        cachedElements.add(c);
+        movableComponents = new ArrayList<>(cachedElements);
+    }
 
     @Override
     public void onGuiClosed() {
