@@ -5,21 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.WorldInteraction;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiOverlayDebug;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.WorldType;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 
 import java.awt.*;
 
 public class BarrierDisplayComponent extends ResizableComponent {
-    public Minecraft mc = Minecraft.getMinecraft();
-
     @JsonProperty("fullscreen")
     boolean fullscreen = false;
 
@@ -38,15 +31,8 @@ public class BarrierDisplayComponent extends ResizableComponent {
         if (API.mainGUI.isOpen()) {
             color = new Color(255, 255, 255, 255);
         }
-        if (this.mc.objectMouseOver != null && this.mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.mc.objectMouseOver.getBlockPos() != null && !(this.mc.thePlayer.hasReducedDebug() || this.mc.gameSettings.reducedDebugInfo)) {
-            BlockPos blockpos = this.mc.objectMouseOver.getBlockPos();
-            IBlockState iblockstate = this.mc.theWorld.getBlockState(blockpos);
-            if (this.mc.theWorld.getWorldType() != WorldType.DEBUG_WORLD) {
-                iblockstate = iblockstate.getBlock().getActualState(iblockstate, this.mc.theWorld, blockpos);
-            }
-            if (String.valueOf(Block.blockRegistry.getNameForObject(iblockstate.getBlock())).equals("minecraft:barrier")) {
-                color = new Color(227, 0, 0);
-            }
+        if (WorldInteraction.getLookingAtBlock().equals("minecraft:barrier")) {
+            color = new Color(227, 0, 0);
         }
         if (selected) {
             color = new Color(255, 170, 0, 100);

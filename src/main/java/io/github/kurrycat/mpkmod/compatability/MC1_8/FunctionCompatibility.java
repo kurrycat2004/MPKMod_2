@@ -5,6 +5,7 @@ import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -18,8 +19,10 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldType;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -65,6 +68,22 @@ public class FunctionCompatibility implements FunctionHolder,
         BlockPos blockPos = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
         if (blockPos == null) return null;
         return new Vector3D(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+    }
+
+    /**
+     * Is called in {@link io.github.kurrycat.mpkmod.compatability.MCClasses.WorldInteraction.Interface WorldInteraction.Interface}
+     */
+    public String getLookingAtBlock() {
+        String blockName = "";
+        if (Minecraft.getMinecraft().objectMouseOver != null && Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && Minecraft.getMinecraft().objectMouseOver.getBlockPos() != null && !(Minecraft.getMinecraft().thePlayer.hasReducedDebug() || Minecraft.getMinecraft().gameSettings.reducedDebugInfo)) {
+            BlockPos blockpos = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
+            IBlockState iblockstate = Minecraft.getMinecraft().theWorld.getBlockState(blockpos);
+            if (Minecraft.getMinecraft().theWorld.getWorldType() != WorldType.DEBUG_WORLD) {
+                iblockstate = iblockstate.getBlock().getActualState(iblockstate, Minecraft.getMinecraft().theWorld, blockpos);
+            }
+            blockName = String.valueOf(Block.blockRegistry.getNameForObject(iblockstate.getBlock()));
+        }
+        return blockName;
     }
 
     /**
