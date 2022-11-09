@@ -9,6 +9,7 @@ public class NewLabelPane extends Pane {
     private final Button addLabelButton;
     private final Button addKeyButton;
     private final Button addMessageButton;
+    private final Button addBarrierDisplayButton;
 
     public NewLabelPane(Vector2D pos, Vector2D size) {
         super(pos, size);
@@ -31,9 +32,15 @@ public class NewLabelPane extends Pane {
             this.parent.addComponent(messageQueue);
             close();
         });
+        this.addBarrierDisplayButton = new Button("Add BarrierDisplay", Vector2D.OFFSCREEN, new Vector2D(getSize().getX() - 2, 11), mouseButton -> {
+            BarrierDisplayComponent barrierDisplay = new BarrierDisplayComponent(new Vector2D(-35, -35), new Vector2D(30, 30));
+            this.parent.addComponent(barrierDisplay);
+            close();
+        });
         this.components.add(addLabelButton);
         this.components.add(addKeyButton);
         this.components.add(addMessageButton);
+        this.components.add(addBarrierDisplayButton);
     }
 
     @Override
@@ -49,6 +56,10 @@ public class NewLabelPane extends Pane {
         this.addMessageButton.pos = new Vector2D(
                 getDisplayPos().getX() + getSize().getX() / 2 - this.addMessageButton.getSize().getX() / 2,
                 this.addKeyButton.getPos().getY() + this.addKeyButton.getSize().getY() + 1
+        );
+        this.addBarrierDisplayButton.pos = new Vector2D(
+                getDisplayPos().getX() + getSize().getX() / 2 - this.addBarrierDisplayButton.getSize().getX() / 2,
+                this.addMessageButton.getPos().getY() + this.addMessageButton.getSize().getY() + 1
         );
         super.render(mousePos);
     }

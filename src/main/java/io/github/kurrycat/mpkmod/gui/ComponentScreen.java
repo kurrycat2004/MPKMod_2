@@ -145,7 +145,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                 Vector2D windowSize = Renderer2D.getScaledSize();
                 NewLabelPane newLabelPane = new NewLabelPane(
                         new Vector2D(windowSize.getX() * 0.35, windowSize.getY() * 0.5 - 20),
-                        new Vector2D(windowSize.getX() * 0.3, 48)
+                        new Vector2D(windowSize.getX() * 0.3, 60)
                 );
                 newLabelPane.setCreationPos(mouse);
                 menu.addComponent(
