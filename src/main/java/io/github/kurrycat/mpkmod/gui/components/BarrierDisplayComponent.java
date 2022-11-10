@@ -8,7 +8,6 @@ import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.WorldInteraction;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 
 import java.awt.*;
 
@@ -47,16 +46,16 @@ public class BarrierDisplayComponent extends ResizableComponent {
             } else {
                 FontRenderer.drawCenteredString(
                         "!",
-                        getDisplayPos().add(getSize().div(2)).add(new Vector2D(0, 1)),
+                        getDisplayedPos().add(getDisplayedSize().div(2)).add(new Vector2D(0, 1)),
                         color,
                         false
                 );
-                Renderer2D.drawRect(getDisplayPos().add(1, 0), new Vector2D(getSize().getX() - 2, lineThickness), color);
-                Renderer2D.drawRect(getDisplayPos().add(0, 1), new Vector2D(lineThickness, getSize().getY() - 2), color);
-                Renderer2D.drawRect(getDisplayPos().add(1, getSize().getY() - lineThickness), new Vector2D(getSize().getX() - 2, lineThickness), color);
-                Renderer2D.drawRect(getDisplayPos().add(getSize().getX() - lineThickness, 1), new Vector2D(lineThickness, getSize().getY() - 2), color);
+                Renderer2D.drawRect(getDisplayedPos().add(1, 0), new Vector2D(getDisplayedSize().getX() - 2, lineThickness), color);
+                Renderer2D.drawRect(getDisplayedPos().add(0, 1), new Vector2D(lineThickness, getDisplayedSize().getY() - 2), color);
+                Renderer2D.drawRect(getDisplayedPos().add(1, getDisplayedSize().getY() - lineThickness), new Vector2D(getDisplayedSize().getX() - 2, lineThickness), color);
+                Renderer2D.drawRect(getDisplayedPos().add(getDisplayedSize().getX() - lineThickness, 1), new Vector2D(lineThickness, getDisplayedSize().getY() - 2), color);
             }
-            if (highlighted) Renderer2D.drawDottedRect(getDisplayPos(), getSize(), 1, 1, 1, Color.BLACK);
+            if (highlighted) Renderer2D.drawDottedRect(getDisplayedPos(), getDisplayedSize(), 1, 1, 1, Color.BLACK);
         }
         renderHoverEdges(mouse);
     }
@@ -70,15 +69,15 @@ public class BarrierDisplayComponent extends ResizableComponent {
                 })
         );
         menu.addComponent(
-                new NumberSlider(1, Math.floor(Math.min(getSize().getX(), getSize().getY()) / 2), 1, lineThickness, Vector2D.OFFSCREEN, new Vector2D(56, 11), sliderValue -> {
+                new NumberSlider(1, Math.floor(Math.min(getDisplayedSize().getX() / 2, getDisplayedSize().getY()) / 2), 1, lineThickness, Vector2D.OFFSCREEN, new Vector2D(56, 11), sliderValue -> {
                     lineThickness = (int) sliderValue;
                 })
         );
         menu.addComponent(
                 new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(56, 11), mouseButton -> {
                     if (Mouse.Button.LEFT.equals(mouseButton)) {
-                        menu.parent.removeComponent(this);
-                        menu.parent.closePane(menu);
+                        menu.paneHolder.removeComponent(this);
+                        menu.paneHolder.closePane(menu);
                     }
                 })
         );

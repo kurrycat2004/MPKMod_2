@@ -44,17 +44,17 @@ public class MessageQueue extends ResizableComponent {
     }
 
     public void render(Vector2D mouse) {
-        Renderer2D.drawRectWithEdge(getDisplayPos(), getSize(), 1, selected ? selectedColor : backgroundColor, edgeColor);
-        //Renderer2D.drawRect(getDisplayPos(), getSize(), backgroundColor);
-        if (highlighted) Renderer2D.drawDottedRect(getDisplayPos(), getSize(), 1, 1, 1, Color.BLACK);
+        Renderer2D.drawRectWithEdge(getDisplayedPos(), getDisplayedSize(), 1, selected ? selectedColor : backgroundColor, edgeColor);
+        //Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), backgroundColor);
+        if (highlighted) Renderer2D.drawDottedRect(getDisplayedPos(), getDisplayedSize(), 1, 1, 1, Color.BLACK);
 
         messages = messages.stream().filter(Message::isAlive).collect(Collectors.toCollection(ArrayList::new));
 
         double lineHeight = 10;
-        for (int i = 0; i < messages.size() && (i + 1) * lineHeight <= size.getY() - 2; i++) {
+        for (int i = 0; i < messages.size() && (i + 1) * lineHeight <= getDisplayedSize().getY() - 2; i++) {
             messages.get(i).render(
-                    new Vector2D(getDisplayPos().getX() + 1, getDisplayPos().getY() + getSize().getY() - (i + 1) * lineHeight - 1),
-                    new Vector2D(getSize().getX() - 2, lineHeight)
+                    new Vector2D(getDisplayedPos().getX() + 1, getDisplayedPos().getY() + getDisplayedSize().getY() - (i + 1) * lineHeight - 1),
+                    new Vector2D(getDisplayedSize().getX() - 2, lineHeight)
             );
         }
         renderHoverEdges(mouse);
@@ -75,8 +75,8 @@ public class MessageQueue extends ResizableComponent {
         menu.addComponent(
                 new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
                     if(Mouse.Button.LEFT.equals(mouseButton)) {
-                        menu.parent.removeComponent(this);
-                        menu.parent.closePane(menu);
+                        menu.paneHolder.removeComponent(this);
+                        menu.paneHolder.closePane(menu);
                     }
                 })
         );

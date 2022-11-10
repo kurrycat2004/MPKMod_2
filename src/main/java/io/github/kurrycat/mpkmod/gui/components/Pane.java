@@ -6,13 +6,11 @@ import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 public class Pane extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener {
-    public ArrayList<Component> components = new ArrayList<>();
     public Color backgroundColor = new Color(255, 255, 255, 255);
 
-    public PaneHolder parent = null;
+    public PaneHolder paneHolder = null;
 
     private boolean loaded;
 
@@ -21,12 +19,11 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
         this.setSize(size);
         this.loaded = false;
 
-        this.components.add(createCloseButton());
+        this.addChild(createCloseButton(), false, false, Anchor.TOP_RIGHT);
     }
 
-    @Override
     public void render(Vector2D mousePos) {
-        Renderer2D.drawRect(getDisplayPos(), getSize(), backgroundColor);
+        Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), backgroundColor);
 
         components.forEach(c -> c.render(mousePos));
     }
@@ -52,8 +49,8 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
     }
 
     public void close() {
-        if (parent == null) return;
-        parent.closePane(this);
+        if (paneHolder == null) return;
+        paneHolder.closePane(this);
     }
 
     public boolean isLoaded() {
@@ -64,14 +61,14 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
         this.loaded = loaded;
     }
 
-    public void setParent(PaneHolder p) {
-        this.parent = p;
+    public void setPaneHolder(PaneHolder p) {
+        this.paneHolder = p;
     }
 
     public Button createCloseButton() {
         return new Button(
                 "x",
-                new Vector2D(this.getPos().getX() + this.getSize().getX() - 10, this.getPos().getY()),
+                new Vector2D(1, 1),
                 new Vector2D(10, 10),
                 mouseButton -> {
                     close();

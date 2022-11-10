@@ -22,6 +22,7 @@ public class Button extends Component implements MouseInputListener {
 
     public Button(String text, Vector2D pos, Vector2D size, ButtonCallback buttonCallback) {
         super(pos);
+        this.setPos(pos);
         this.text = text;
         this.buttonCallback = buttonCallback;
         this.setSize(size);
@@ -58,12 +59,12 @@ public class Button extends Component implements MouseInputListener {
 
     public void render(Vector2D mouse) {
         Color bg = isBeingPressed ? pressedColor : contains(mouse) ? hoverColor : normalColor;
-        Renderer2D.drawRect(getDisplayPos(), getSize(), bg);
+        Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), bg);
 
         FontRenderer.drawCenteredString(
                 this.getText(),
-                getDisplayPos()
-                        .add(getSize().div(2))
+                getDisplayedPos()
+                        .add(getDisplayedSize().div(2))
                         .add(new Vector2D(0.5, this.getText().toLowerCase().equals(this.getText()) ? 0 : 1))
                         .add(textOffset),
                 isBeingPressed ? pressedTextColor : textColor,

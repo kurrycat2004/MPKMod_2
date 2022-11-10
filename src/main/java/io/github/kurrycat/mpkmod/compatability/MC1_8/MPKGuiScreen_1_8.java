@@ -1,10 +1,11 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
-import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Profiler;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.Vector2D;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -28,7 +29,13 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
         Keyboard.enableRepeatEvents(true);
         super.initGui();
         if (!eventReceiver.isInitialized() || eventReceiver.resetOnOpen())
-            eventReceiver.onGuiInit();
+            eventReceiver.onInit();
+    }
+
+    @Override
+    public void onResize(Minecraft mcIn, int width, int height) {
+        super.onResize(mcIn, width, height);
+        eventReceiver.onResize(width, height);
     }
 
     @Override
@@ -83,8 +90,16 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
 
-        if (Mouse.getEventDWheel() != 0)
-            eventReceiver.onMouseScroll(new Vector2D(Mouse.getEventX(), Mouse.getEventY()), Mouse.getEventDWheel() / 40);
+        if (Mouse.getEventDWheel() != 0) {
+            ScaledResolution scaledresolution = new ScaledResolution(this.mc);
+            eventReceiver.onMouseScroll(
+                    new Vector2D(
+                            (double) (Mouse.getX() * scaledresolution.getScaledWidth() / this.mc.displayWidth),
+                            (double) (scaledresolution.getScaledHeight() - Mouse.getY() * scaledresolution.getScaledHeight() / this.mc.displayHeight - 1)
+                    ),
+                    Mouse.getEventDWheel() / 40
+            );
+        }
     }
 
     @Override

@@ -6,12 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public class Vector2D {
-    public static Vector2D ZERO = new Vector2D(0, 0);
-    public static Vector2D OFFSCREEN = new Vector2D(-1, -1);
-    public static Vector2D LEFT = new Vector2D(-1, 0);
-    public static Vector2D RIGHT = new Vector2D(1, 0);
-    public static Vector2D UP = new Vector2D(0, -1);
-    public static Vector2D DOWN = new Vector2D(0, 1);
+    public static final Vector2D ONE = new Vector2D(1, 1);
+    public static final Vector2D ZERO = new Vector2D(0, 0);
+    public static final Vector2D OFFSCREEN = null;
+    public static final Vector2D LEFT = new Vector2D(-1, 0);
+    public static final Vector2D RIGHT = new Vector2D(1, 0);
+    public static final Vector2D UP = new Vector2D(0, -1);
+    public static final Vector2D DOWN = new Vector2D(0, 1);
     private double x, y;
 
     @JsonCreator
@@ -209,5 +210,9 @@ public class Vector2D {
 
     public Vector2D round() {
         return new Vector2D(Math.round(this.x), Math.round(this.y));
+    }
+
+    public Vector2D abs() {
+        return new Vector2D(Math.abs(this.x), Math.abs(this.y));
     }
 }

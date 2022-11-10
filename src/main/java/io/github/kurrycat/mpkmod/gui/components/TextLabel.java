@@ -17,12 +17,12 @@ public class TextLabel extends Label {
     @Override
     public void render(Vector2D mouse) {
         drawBackground();
-        FontRenderer.drawString(text, getDisplayPos(), color, true);
+        FontRenderer.drawString(text, getDisplayedPos(), color, true);
     }
 
     public void drawBackground() {
-        Renderer2D.drawRect(getDisplayPos(), getSize(), backgroundColor);
-        Renderer2D.drawHollowRect(getDisplayPos(), getSize(), 1, borderColor);
+        Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), backgroundColor);
+        Renderer2D.drawHollowRect(getDisplayedPos(), getDisplayedSize(), 1, borderColor);
     }
 
     public void setBackgroundColor(Color backgroundColor) {

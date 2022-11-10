@@ -36,7 +36,7 @@ public class InfoLabel extends Label {
 
     public void render(Vector2D mouse) {
         drawDefaultSelectedBackground();
-        FontRenderer.drawString(getFormattedText(), getDisplayPos(), color, true);
+        FontRenderer.drawString(getFormattedText(), getDisplayedPos(), color, true);
     }
 
     @JsonIgnore
@@ -57,16 +57,16 @@ public class InfoLabel extends Label {
         menu.addComponent(
                 new Button("Edit", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
                     if(Mouse.Button.LEFT.equals(mouseButton)) {
-                        menu.parent.openPane(editPane);
-                        menu.parent.closePane(menu);
+                        menu.paneHolder.openPane(editPane);
+                        menu.paneHolder.closePane(menu);
                     }
                 })
         );
         menu.addComponent(
                 new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
                     if(Mouse.Button.LEFT.equals(mouseButton)) {
-                        menu.parent.removeComponent(this);
-                        menu.parent.closePane(menu);
+                        menu.paneHolder.removeComponent(this);
+                        menu.paneHolder.closePane(menu);
                     }
                 })
         );
@@ -96,7 +96,7 @@ public class InfoLabel extends Label {
             this.backgroundColor = new Color(31, 31, 31, 50);
             this.label = new Label("", Vector2D.OFFSCREEN);
             this.components.add(label);
-            this.inputField = new InputField(text, Vector2D.OFFSCREEN, getSize().getX())
+            this.inputField = new InputField(text, Vector2D.OFFSCREEN, getDisplayedSize().getX())
                     .setOnContentChange(content -> {
                         text = content.getContent();
                         infoString.input = text;
@@ -109,8 +109,8 @@ public class InfoLabel extends Label {
             for(Colors c : Colors.values()) {
                 ColorLabel l = new ColorLabel(c, new Vector2D(3, currY));
                 this.components.add(l);
-                currY += l.getSize().getY() + 1;
-                maxWidth = Math.max(maxWidth, l.getSize().getX());
+                currY += l.getDisplayedSize().getY() + 1;
+                maxWidth = Math.max(maxWidth, l.getDisplayedSize().getX());
             }
 
             this.components.add(0, new Rectangle(new Vector2D(2, 2), new Vector2D(maxWidth + 2, currY - 2), new Color(31, 31, 31, 150)));
@@ -120,12 +120,12 @@ public class InfoLabel extends Label {
         public void render(Vector2D mousePos) {
             this.label.setText(getFormattedText());
             this.label.pos = new Vector2D(
-                    getDisplayPos().getX() + getSize().getX() / 2 - this.label.getSize().getX() / 2,
-                    getDisplayPos().getY() + 3
+                    getDisplayedPos().getX() + getDisplayedSize().getX() / 2 - this.label.getDisplayedSize().getX() / 2,
+                    getDisplayedPos().getY() + 3
             );
             this.inputField.pos = new Vector2D(
-                    getDisplayPos().getX() + getSize().getX() / 2 - this.inputField.getSize().getX() / 2,
-                    getDisplayPos().getY() + getSize().getY() - this.inputField.getSize().getY() - 1
+                    getDisplayedPos().getX() + getDisplayedSize().getX() / 2 - this.inputField.getDisplayedSize().getX() / 2,
+                    getDisplayedPos().getY() + getDisplayedSize().getY() - this.inputField.getDisplayedSize().getY() - 1
             );
             super.render(mousePos);
         }

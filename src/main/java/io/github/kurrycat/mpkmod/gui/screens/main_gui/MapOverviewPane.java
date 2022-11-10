@@ -23,11 +23,11 @@ public class MapOverviewPane extends Pane {
     private void initComponents() {
         int padding = 10;
 
-        components.add(new TextLabel("Test Label", this.getDisplayPos().add(50)));
+        components.add(new TextLabel("Test Label", this.getDisplayedPos().add(50)));
         components.add(
                 new Button(
                         "TEST",
-                        getDisplayPos().add(50, 100),
+                        getDisplayedPos().add(50, 100),
                         new Vector2D(50, 20),
                         mouseButton -> {
 
@@ -37,7 +37,7 @@ public class MapOverviewPane extends Pane {
 
         components.add(
                 new CheckButton(
-                        getDisplayPos().add(110, 100),
+                        getDisplayedPos().add(110, 100),
                         System.out::println
                 )
         );
@@ -45,17 +45,17 @@ public class MapOverviewPane extends Pane {
         components.add(
                 new NumberSlider(
                         0, 5, 1, 3,
-                        getDisplayPos().add(50, 150),
+                        getDisplayedPos().add(50, 150),
                         new Vector2D(100, 20),
                         System.out::println
                 )
         );
 
-        double sizeX = getSize().getX() - getSize().getX() / 2 - padding * 2;
-        double sizeY = getSize().getY() - padding * 2;
+        double sizeX = getDisplayedSize().getX() - getDisplayedSize().getX() / 2 - padding * 2;
+        double sizeY = getDisplayedSize().getY() - padding * 2;
 
         ScrollableList<MapItem> mapItemList = new ScrollableList<>(
-                getDisplayPos().add(getSize().getX() - sizeX - padding, padding),
+                getDisplayedPos().add(getDisplayedSize().getX() - sizeX - padding, padding),
                 new Vector2D(sizeX, sizeY)
         );
 

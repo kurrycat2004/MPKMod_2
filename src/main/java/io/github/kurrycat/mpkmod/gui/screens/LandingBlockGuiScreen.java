@@ -6,6 +6,7 @@ import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.WorldInteraction;
 import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.components.Button;
+import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.util.*;
@@ -37,23 +38,21 @@ public class LandingBlockGuiScreen extends ComponentScreen {
     public void onGuiInit() {
         super.onGuiInit();
 
-        Vector2D windowSize = Renderer2D.getScaledSize();
         lbList = new LBList(
-                new Vector2D(windowSize.getX() / 5D, 16).round(),
-                new Vector2D(windowSize.getX() / 5D * 3D, windowSize.getY() - 40).round()
+                new Vector2D(0.5, 16),
+                new Vector2D(3 / 5D, -40)
         );
-        components.add(lbList);
-        components.add(
+        addChild(lbList, true, false, true, false, Component.Anchor.TOP_LEFT);
+        lbList.addChild(
                 new Button(
                         "x",
-                        new Vector2D(
-                                lbList.getDisplayPos().getX() + lbList.getSize().getX() - lbList.getDisplayPos().getY() / 2 - 6,
-                                lbList.getDisplayPos().getY() / 2 - 5.5
-                        ).round(),
+                        new Vector2D(3, -13),
                         new Vector2D(11, 11),
                         mouseButton -> close()
-                )
+                ),
+                false, false, false, false, Component.Anchor.TOP_RIGHT
         );
+
 
         /*components.add(
                 new Button(
@@ -88,7 +87,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         public LBList(Vector2D pos, Vector2D size) {
             super(pos, size);
             updateList();
-            this.addLB = new Button("Add LB", Vector2D.OFFSCREEN, new Vector2D(40, 20), mouseButton -> {
+            this.addLB = new Button("Add LB", new Vector2D(0.5, -22), new Vector2D(40, 20), mouseButton -> {
                 if (Mouse.Button.LEFT.equals(mouseButton)) {
                     Vector3D lookingAt = WorldInteraction.getLookingAt();
                     if (lookingAt != null) {
@@ -101,6 +100,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                     items.add(new LBListItem(this, lbs.get(lbs.size() - 1)));
                 }
             });
+            addChild(addLB, true, false, false, false, Anchor.BOTTOM_LEFT);
         }
 
         public void updateList() {
@@ -116,11 +116,13 @@ public class LandingBlockGuiScreen extends ComponentScreen {
             Pair<LBListItem, Vector2D> p = getItemAndRelMousePosUnderMouse(mouse);
             if (p != null)
                 p.first.landingBlock.highlight = true;
+
+            components.forEach(c -> c.render(mouse));
         }
 
         @Override
         public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-            return super.handleMouseInput(state, mousePos, button) || this.addLB.handleMouseInput(state, mousePos, button);
+            return super.handleMouseInput(state, mousePos, button);
         }
 
         @Override
@@ -132,8 +134,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         @Override
         public void drawBottomCover(Vector2D mouse, Vector2D pos, Vector2D size) {
             super.drawBottomCover(mouse, pos, size);
-            this.addLB.pos = pos.add(size.div(2)).sub(this.addLB.getSize().div(2));
-            this.addLB.render(mouse);
+            //this.addLB.render(mouse);
         }
     }
 
@@ -238,13 +239,13 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                 for (int i = 0; i < fields.length; i++) {
                     fields[i].pos = pos.add(
                             size.getX() / 12 + size.getX() / 5 * 2 * (((int) (i / 3))),
-                            size.getY() / 4 * (1 + (i % 3)) - fields[i].getSize().getY() / 2
+                            size.getY() / 4 * (1 + (i % 3)) - fields[i].getDisplayedSize().getY() / 2
                     );
                     fields[i].setWidth(size.getX() / 3);
                     fields[i].render(mouse);
                 }
 
-            enabled.pos = pos.add(size.getX() / 16 - enabled.getSize().getX(), size.getY() / 2 - 5.5).round();
+            enabled.pos = pos.add(size.getX() / 16 - enabled.getDisplayedSize().getX(), size.getY() / 2 - 5.5).round();
             enabled.render(mouse);
 
             collapseButton.setText(collapsed ? "v" : "^");
@@ -256,7 +257,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
             deleteButton.render(mouse);
 
             landingModeButton.pos = pos.add(size.getX() - size.getX() / 8, size.getY() / 3 * 2 - 5.5).round();
-            landingModeButton.setSize(new Vector2D(size.getX() / 16 + collapseButton.getSize().getX(), 11));
+            landingModeButton.setSize(new Vector2D(size.getX() / 16 + collapseButton.getDisplayedSize().getX(), 11));
             landingModeButton.enabled = !collapsed;
             landingModeButton.setText(landingBlock.landingMode.toString());
             if (!collapsed) landingModeButton.render(mouse);
@@ -264,13 +265,14 @@ public class LandingBlockGuiScreen extends ComponentScreen {
 
         public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
             return ArrayListUtil.orMapAll(
-                    ArrayListUtil.getAllOfType(MouseInputListener.class, minX, minY, minZ, maxX, maxY, maxZ, enabled, collapseButton, deleteButton, landingModeButton),
+                    collapsed ? ArrayListUtil.getAllOfType(MouseInputListener.class, enabled, collapseButton, deleteButton, landingModeButton) :
+                            ArrayListUtil.getAllOfType(MouseInputListener.class, minX, minY, minZ, maxX, maxY, maxZ, enabled, collapseButton, deleteButton, landingModeButton),
                     ele -> ele.handleMouseInput(state, mousePos, button)
             );
         }
 
         public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
-            return ArrayListUtil.orMapAll(
+            return !collapsed && ArrayListUtil.orMapAll(
                     ArrayListUtil.getAllOfType(KeyInputListener.class, minX, minY, minZ, maxX, maxY, maxZ),
                     ele -> ele.handleKeyInput(keyCode, key, pressed)
             );

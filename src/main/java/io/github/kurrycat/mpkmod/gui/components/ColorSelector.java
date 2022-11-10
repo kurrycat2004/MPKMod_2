@@ -24,38 +24,52 @@ public class ColorSelector extends Component implements KeyInputListener, MouseI
 
         double width = 62;
 
+        double currY = 1;
         this.red = new NumberSlider(0, 255, 1, value.getRed(),
-                Vector2D.OFFSCREEN,
+                new Vector2D(1, currY),
                 new Vector2D(width, 11),
                 newValue -> sliderValueChanged(new Color((int) newValue, this.value.getGreen(), this.value.getBlue(), this.value.getAlpha()))
         );
+        currY += this.red.getDisplayedSize().getY() + 1;
+        this.red.setParent(this);
+
         this.green = new NumberSlider(0, 255, 1, value.getGreen(),
-                Vector2D.OFFSCREEN,
+                new Vector2D(1, currY),
                 new Vector2D(width, 11),
                 newValue -> sliderValueChanged(new Color(this.value.getRed(), (int) newValue, this.value.getBlue(), this.value.getAlpha()))
         );
+        currY += this.green.getDisplayedSize().getY() + 1;
+        this.green.setParent(this);
+
         this.blue = new NumberSlider(0, 255, 1, value.getBlue(),
-                Vector2D.OFFSCREEN,
+                new Vector2D(1, currY),
                 new Vector2D(width, 11),
                 newValue -> sliderValueChanged(new Color(this.value.getRed(), this.value.getGreen(), (int) newValue, this.value.getAlpha()))
         );
+        currY += this.blue.getDisplayedSize().getY() + 1;
+        this.blue.setParent(this);
+
         this.alpha = new NumberSlider(0, 255, 1, value.getAlpha(),
-                Vector2D.OFFSCREEN,
+                new Vector2D(1, currY),
                 new Vector2D(width, 11),
                 newValue -> sliderValueChanged(new Color(this.value.getRed(), this.value.getGreen(), this.value.getBlue(), (int) newValue))
         );
-        this.color = new InputField(ColorUtil.colorToHex(this.value), Vector2D.OFFSCREEN, width)
+        currY += this.alpha.getDisplayedSize().getY() + 1;
+        this.alpha.setParent(this);
+
+        this.color = new InputField(ColorUtil.colorToHex(this.value), new Vector2D(1, currY + 3), width)
                 .setOnContentChange(content -> inputValueChanged(content.getContent()))
                 .setFilter(InputField.FILTER_HEX);
+        this.color.setParent(this);
 
         this.setSize(
                 new Vector2D(
-                        this.color.getSize().getX() + 2,
-                        1 + this.red.getSize().getY() + 1 +
-                                this.green.getSize().getY() + 1 +
-                                this.blue.getSize().getY() + 1 +
-                                this.alpha.getSize().getY() + 4 +
-                                this.color.getSize().getY() + 1
+                        this.color.getDisplayedSize().getX() + 2,
+                        1 + this.red.getDisplayedSize().getY() + 1 +
+                                this.green.getDisplayedSize().getY() + 1 +
+                                this.blue.getDisplayedSize().getY() + 1 +
+                                this.alpha.getDisplayedSize().getY() + 4 +
+                                this.color.getDisplayedSize().getY() + 1
                 )
         );
     }
@@ -80,16 +94,7 @@ public class ColorSelector extends Component implements KeyInputListener, MouseI
 
     @Override
     public void render(Vector2D mouse) {
-        Renderer2D.drawRectWithEdge(getDisplayPos(), getSize(), 1, backgroundColor, backgroundColor);
-
-        double currX = getDisplayPos().getX() + 1;
-        double currY = getDisplayPos().getY() + 1;
-        for (NumberSlider s : Arrays.asList(this.red, this.green, this.blue, this.alpha)) {
-            s.pos = new Vector2D(currX, currY);
-            currY += s.getSize().getY() + 1;
-        }
-        currY += 3;
-        this.color.pos = new Vector2D(currX, currY);
+        Renderer2D.drawRectWithEdge(getDisplayedPos(), getDisplayedSize(), 1, backgroundColor, backgroundColor);
 
         this.red.render(mouse);
         this.green.render(mouse);

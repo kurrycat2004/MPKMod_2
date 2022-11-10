@@ -23,16 +23,16 @@ public class Label extends Component {
 
     public void render(Vector2D mouse) {
         drawDefaultSelectedBackground();
-        if (backgroundColor != null) Renderer2D.drawRect(getDisplayPos(), getSize(), backgroundColor);
-        FontRenderer.drawString(text, getDisplayPos(), color, true);
+        if (backgroundColor != null) Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), backgroundColor);
+        FontRenderer.drawString(text, getDisplayedPos(), color, true);
     }
 
     public void drawDefaultSelectedBackground() {
         if (selected) {
-            Renderer2D.drawRect(getDisplayPos(), getSize(), selectedColor);
-            Renderer2D.drawHollowRect(getDisplayPos(), getSize(), 1, Color.BLACK);
+            Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), selectedColor);
+            Renderer2D.drawHollowRect(getDisplayedPos(), getDisplayedSize(), 1, Color.BLACK);
         }
-        if (highlighted) Renderer2D.drawDottedRect(getDisplayPos(), getSize(), 1, 1, 1, Color.BLACK);
+        if (highlighted) Renderer2D.drawDottedRect(getDisplayedPos(), getDisplayedSize(), 1, 1, 1, Color.BLACK);
     }
 
     @JsonProperty
@@ -44,12 +44,6 @@ public class Label extends Component {
     @JsonProperty
     public Label setColor(Color color) {
         this.color = color;
-        return this;
-    }
-
-    @JsonProperty
-    public Label setPos(Vector2D pos) {
-        super.setPos(pos);
         return this;
     }
 

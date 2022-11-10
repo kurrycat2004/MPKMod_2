@@ -30,29 +30,30 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
         this.setSize(size);
 
         this.button = new Button("",
-                getDisplayPos().add(getRelativeXPosFromValue(), 1),
+                new Vector2D(getRelativeXPosFromValue(), 1),
                 new Vector2D(
                         getSliderWidth(),
-                        getSize().getY() - 2
+                        -2
                 )
         );
+        this.button.setParent(this);
         this.button.hoverColor = buttonHoverColor;
         this.button.normalColor = buttonColor;
         this.button.pressedColor = buttonPressedColor;
     }
 
     private double getSliderWidth() {
-        return Math.max(5, (step / (to - from)) * getSize().getX() - 2);
+        return Math.max(5, (step / (to - from)) * getDisplayedSize().getX() - 2);
     }
 
     private double getRelativeXPosFromValue() {
-        return MathUtil.map(value, from, to, 1, getSize().getX() - 1 - getSliderWidth());
+        return MathUtil.map(value, from, to, 1, getDisplayedSize().getX() - 1 - getSliderWidth());
     }
 
     private double getValueFromPos(Vector2D pos) {
         double v = MathUtil.strictMap(
-                pos.getX() - getDisplayPos().getX(),
-                1 + getSliderWidth() / 2, getSize().getX() - 1 - getSliderWidth() / 2,
+                pos.getX() - getDisplayedPos().getX(),
+                1 + getSliderWidth() / 2, getDisplayedSize().getX() - 1 - getSliderWidth() / 2,
                 from, to
         );
         if (step != 0) {
@@ -67,16 +68,16 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
 
     public NumberSlider setValue(double value) {
         this.value = value;
-        this.button.pos = getDisplayPos().add(getRelativeXPosFromValue(), 1);
+        this.button.pos.setX(getRelativeXPosFromValue());
         return this;
     }
 
     public void render(Vector2D mouse) {
-        Renderer2D.drawRect(getDisplayPos(), getSize(), backgroundColor);
+        Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), backgroundColor);
 
         FontRenderer.drawCenteredString(
                 MathUtil.formatDecimals(value, 5, false),
-                getDisplayPos().add(getSize().div(2)).add(new Vector2D(0, 1)),
+                getDisplayedPos().add(getDisplayedSize().div(2)).add(new Vector2D(0, 1)),
                 Color.WHITE,
                 false
         );
@@ -100,7 +101,7 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
                 if (beforeValue != this.value)
                     sliderCallback.apply(value);
 
-                this.button.pos = getDisplayPos().add(getRelativeXPosFromValue(), 1);
+                this.button.pos.setX(getRelativeXPosFromValue());
                 return true;
             }
         }
@@ -116,7 +117,7 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
                     if (beforeValue != this.value)
                         sliderCallback.apply(value);
 
-                    this.button.pos = getDisplayPos().add(getRelativeXPosFromValue(), 1);
+                    this.button.pos.setX(getRelativeXPosFromValue());
                     return true;
                 }
                 return false;
@@ -126,8 +127,9 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
 
     @Override
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
-        if(contains(mousePos)) {
+        if (contains(mousePos)) {
             setValue(this.value - (delta * step / 3));
+            sliderCallback.apply(this.value);
             return true;
         }
         return false;

@@ -28,6 +28,8 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
     private int highlightEnd = 0;
     private String customFilter = null;
 
+    public static final double HEIGHT = 11;
+
     public InputField(Vector2D pos, double width) {
         this("", pos, width, false);
     }
@@ -38,7 +40,7 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
 
     public InputField(String content, Vector2D pos, double width, boolean numbersOnly) {
         super(pos);
-        this.setSize(new Vector2D(width, 11));
+        this.setSize(new Vector2D(width, HEIGHT));
         this.content = content;
         this.numbersOnly = numbersOnly;
     }
@@ -68,13 +70,13 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
     @Override
     public void render(Vector2D mouse) {
         Vector2D nameSize = name == null ? Vector2D.ZERO : FontRenderer.getStringSize(name);
-        Vector2D rectPos = getDisplayPos().add(nameSize.getX(), 0);
-        Vector2D rectSize = getSize().sub(nameSize.getX(), 0);
+        Vector2D rectPos = getDisplayedPos().add(nameSize.getX(), 0);
+        Vector2D rectSize = getDisplayedSize().sub(nameSize.getX(), 0);
 
         if (name != null) {
             FontRenderer.drawCenteredString(
                     name,
-                    getDisplayPos().add(nameSize.getX() / 2D, getSize().getY() / 2D + 1),
+                    getDisplayedPos().add(nameSize.getX() / 2D, getDisplayedSize().getY() / 2D + 1),
                     Color.WHITE,
                     false
             );
@@ -195,7 +197,7 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
 
     private int getCursorPosFromMousePos(Vector2D mouse) {
         Vector2D nameSize = name == null ? Vector2D.ZERO : FontRenderer.getStringSize(name);
-        Vector2D rectPos = getDisplayPos().add(nameSize.getX(), 0);
+        Vector2D rectPos = getDisplayedPos().add(nameSize.getX(), 0);
 
         double x = mouse.getX() - rectPos.getX() - 2;
         if (x < 0)

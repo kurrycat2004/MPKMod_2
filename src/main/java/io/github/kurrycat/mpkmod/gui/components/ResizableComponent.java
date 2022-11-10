@@ -1,10 +1,7 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
-import io.github.kurrycat.mpkmod.util.BoundingBox2D;
-import io.github.kurrycat.mpkmod.util.Line2D;
-import io.github.kurrycat.mpkmod.util.Mouse;
-import io.github.kurrycat.mpkmod.util.Vector2D;
+import io.github.kurrycat.mpkmod.util.*;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -69,14 +66,20 @@ public abstract class ResizableComponent extends Component implements MouseInput
     public void resizeAccordingToSavedEdges(Vector2D pos) {
         if (areBeingResized == null) return;
 
-        ArrayList<BoundingBox2D.Edge> beingResized = new ArrayList<>(Arrays.asList(areBeingResized));
+        ArrayList<BoundingBox2D.Edge> beingResized = new ArrayList<>();
+        for(BoundingBox2D.Edge e : areBeingResized) {
+            beingResized.add(BoundingBox2D.Edge.byDir(e.dir.mult(getParentAnchor().multiplier)));
+        }
 
-        Vector2D topLeftRelativePos = pos.sub(getDisplayPos());
+        pos = getParentAnchor().getAnchorPointPos(Vector2D.ZERO, Renderer2D.getScaledSize()).sub(pos).abs();
+
+        Vector2D topLeftRelativePos = pos.sub(getPos());
         topLeftRelativePos = new Vector2D(
                 Math.min(topLeftRelativePos.getX(), this.size.getX() - minSize.getX()),
                 Math.min(topLeftRelativePos.getY(), this.size.getY() - minSize.getY())
         );
-        Vector2D bottomRightRelativePos = pos.sub(getDisplayPos().add(getSize()));
+
+        Vector2D bottomRightRelativePos = pos.sub(getPos().add(getDisplayedSize()));
         bottomRightRelativePos = new Vector2D(
                 Math.max(bottomRightRelativePos.getX(), -this.size.getX() + minSize.getX()),
                 Math.max(bottomRightRelativePos.getY(), -this.size.getY() + minSize.getY())
@@ -99,7 +102,7 @@ public abstract class ResizableComponent extends Component implements MouseInput
     }
 
     public BoundingBox2D getComponentBoundingBox() {
-        return BoundingBox2D.fromPosSize(this.getDisplayPos(), this.getSize());
+        return BoundingBox2D.fromPosSize(this.getDisplayedPos(), this.getDisplayedSize());
     }
 
 }

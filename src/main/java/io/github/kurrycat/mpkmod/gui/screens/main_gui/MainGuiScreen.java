@@ -141,13 +141,13 @@ public class MainGuiScreen extends ComponentScreen {
         initComponents.add(new InfoLabel("{gold}Last Landing: {white}[{player.lastLanding.x,5}, {player.lastLanding.y,5}, {player.lastLanding.z,5}]", new Vector2D(5, i++ * 10)));
         initComponents.add(new InfoLabel("{gold}FPS: {white}{mc.FPS}", new Vector2D(5, i++ * 10 + 5)));
 
-        initComponents.add(new KeyBindingLabel(new Vector2D(-48.0, 89.0), new Vector2D(20, 20), "key.forward", "W"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-71.0, 112.0), new Vector2D(20, 20), "key.left", "A"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-48.0, 112.0), new Vector2D(20, 20), "key.back", "S"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-25.0, 112.0), new Vector2D(20, 20), "key.right", "D"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-71.0, 135.0), new Vector2D(32, 20), "key.sneak", "Shift"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-37.0, 135.0), new Vector2D(32, 20), "key.sprint", "Ctrl"));
-        initComponents.add(new KeyBindingLabel(new Vector2D(-71.0, 158.0), new Vector2D(66, 20), "key.jump", "Space"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-28.0, 91.0), new Vector2D(21, 21), "key.forward", "W"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-51.0, 114.0), new Vector2D(21, 21), "key.left", "A"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-28.0, 114.0), new Vector2D(21, 21), "key.back", "S"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-5.0, 114.0), new Vector2D(21, 21), "key.right", "D"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-5.0, 138.0), new Vector2D(32, 21), "key.sneak", "Shift"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-40.0, 138.0), new Vector2D(32, 21), "key.sprint", "Ctrl"));
+        initComponents.add(new KeyBindingLabel(new Vector2D(-5.0, 162.0), new Vector2D(67, 21), "key.jump", "Space"));
 
         initComponents.add(new MessageQueue(new Vector2D(-35, 10), new Vector2D(30, 22), "Offsets"));
 

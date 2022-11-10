@@ -28,12 +28,13 @@ public class PopupMenu extends Pane {
     }
 
     public void addComponent(Component c) {
-        c.pos = new Vector2D(-1, getDisplayPos().getY() + getSize().getY());
+        c.pos = new Vector2D(1, getDisplayedSize().getY());
+        c.setParent(this, false, false, false, false);
         this.components.add(c);
         this.setSize(
                 new Vector2D(
-                        Math.max(c.getSize().getX() + 2, this.getSize().getX()),
-                        getSize().getY() + c.getSize().getY() + 1
+                        Math.max(c.getDisplayedSize().getX() + 2, this.getDisplayedSize().getX()),
+                        getDisplayedSize().getY() + c.getDisplayedSize().getY() + 1
                 )
         );
     }
@@ -41,15 +42,17 @@ public class PopupMenu extends Pane {
     @Override
     public void render(Vector2D mousePos) {
         if (currentlyActive == null) {
-            int currY = getDisplayPos().getYI() + 1;
+            int currY = 1;
             for (Component c : components) {
-                c.pos.setX(getDisplayPos().getX() + getSize().getX() / 2 - c.getSize().getX() / 2);
-                c.pos.setY(currY);
-                currY += c.getSize().getY() + 1;
+                c.pos = new Vector2D(
+                        1,
+                        currY
+                );
+                currY += c.getDisplayedSize().getY() + 1;
             }
             super.render(mousePos);
         } else {
-            currentlyActive.pos = this.getDisplayPos();
+            currentlyActive.pos = this.getDisplayedPos();
             currentlyActive.render(mousePos);
         }
     }

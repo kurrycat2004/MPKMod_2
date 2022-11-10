@@ -16,6 +16,6 @@ public class Rectangle extends Component {
 
     @Override
     public void render(Vector2D mouse) {
-        Renderer2D.drawRect(getDisplayPos(), getSize(), color);
+        Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), color);
     }
 }

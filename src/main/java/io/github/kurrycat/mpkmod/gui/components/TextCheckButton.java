@@ -17,16 +17,16 @@ public class TextCheckButton extends CheckButton {
     }
 
     public void render(Vector2D mouse) {
-        Renderer2D.drawRectWithEdge(getDisplayPos(), checkboxSize, 1, normalColor, normalColor);
+        Renderer2D.drawRectWithEdge(getDisplayedPos(), checkboxSize, 1, normalColor, normalColor);
 
         if (isChecked())
             FontRenderer.drawString(
                     "x",
-                    getDisplayPos().add(new Vector2D(3, 1)),
+                    getDisplayedPos().add(new Vector2D(3, 1)),
                     Color.WHITE,
                     false
             );
-        FontRenderer.drawString(text, getDisplayPos().add(checkboxSize.getX() + 1, 2), color, true);
+        FontRenderer.drawString(text, getDisplayedPos().add(checkboxSize.getX() + 1, 2), color, true);
     }
 
     public Vector2D getSize() {

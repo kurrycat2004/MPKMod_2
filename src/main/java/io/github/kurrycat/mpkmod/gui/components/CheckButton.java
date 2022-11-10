@@ -15,13 +15,13 @@ public class CheckButton extends Component implements MouseInputListener {
     private boolean isChecked = false;
 
     public CheckButton(Vector2D pos, CheckButtonCallback checkButtonCallback) {
-        super(pos.round());
+        super(pos);
         this.checkButtonCallback = checkButtonCallback;
         this.setSize(new Vector2D(11, 11));
     }
 
     public CheckButton(Vector2D pos, boolean checked, CheckButtonCallback checkButtonCallback) {
-        super(pos.round());
+        super(pos);
         this.isChecked = checked;
         this.checkButtonCallback = checkButtonCallback;
         this.setSize(new Vector2D(11, 11));
@@ -40,25 +40,25 @@ public class CheckButton extends Component implements MouseInputListener {
     }
 
     public void render(Vector2D mouse) {
-        Renderer2D.drawRectWithEdge(getDisplayPos(), getSize(), 1, normalColor, normalColor);
+        Renderer2D.drawRectWithEdge(getDisplayedPos(), getDisplayedSize(), 1, normalColor, normalColor);
 
         if (isChecked())
             FontRenderer.drawString(
                     "x",
-                    getDisplayPos().add(new Vector2D(3, 1)),
+                    getDisplayedPos().add(new Vector2D(3, 1)),
                     Color.WHITE,
                     false
             );
     }
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-        if (contains(mousePos)) {
-            if (state == Mouse.State.DOWN) {
+        if (state == Mouse.State.DOWN) {
+            if (contains(mousePos)) {
                 isChecked = !isChecked;
                 SoundManager.playButtonSound();
                 checkButtonCallback.apply(isChecked);
+                return true;
             }
-            return true;
         }
         return false;
     }
