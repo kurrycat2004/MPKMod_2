@@ -62,6 +62,14 @@ public class InfoLabel extends Label {
                     }
                 })
         );
+        menu.addComponent(
+                new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
+                    if(Mouse.Button.LEFT.equals(mouseButton)) {
+                        menu.parent.removeComponent(this);
+                        menu.parent.closePane(menu);
+                    }
+                })
+        );
         return menu;
     }
 

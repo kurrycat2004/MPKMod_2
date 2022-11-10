@@ -25,6 +25,13 @@ public class WorldInteraction {
     }
 
     /**
+     * @return the block name that the player is looking at
+     */
+    public static String getLookingAtBlock() {
+        return Interface.get().map(Interface::getLookingAtBlock).orElse(null);
+    }
+
+    /**
      * @return the result of {@link #getCollisionBoundingBoxes(Vector3D) getCollisionBoundingBoxes}({@link #getLookingAt()})
      */
     public static List<BoundingBox3D> getLookingAtCollisionBoundingBoxes() {
@@ -41,5 +48,7 @@ public class WorldInteraction {
         List<BoundingBox3D> getCollisionBoundingBoxes(Vector3D blockPosVec);
 
         Vector3D getLookingAt();
+
+        String getLookingAtBlock();
     }
 }

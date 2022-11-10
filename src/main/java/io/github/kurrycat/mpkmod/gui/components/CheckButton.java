@@ -20,6 +20,13 @@ public class CheckButton extends Component implements MouseInputListener {
         this.setSize(new Vector2D(11, 11));
     }
 
+    public CheckButton(Vector2D pos, boolean checked, CheckButtonCallback checkButtonCallback) {
+        super(pos.round());
+        this.isChecked = checked;
+        this.checkButtonCallback = checkButtonCallback;
+        this.setSize(new Vector2D(11, 11));
+    }
+
     public CheckButton(Vector2D pos) {
         this(pos, null);
     }
@@ -35,7 +42,7 @@ public class CheckButton extends Component implements MouseInputListener {
     public void render(Vector2D mouse) {
         Renderer2D.drawRectWithEdge(getDisplayPos(), getSize(), 1, normalColor, normalColor);
 
-        if (isChecked)
+        if (isChecked())
             FontRenderer.drawString(
                     "x",
                     getDisplayPos().add(new Vector2D(3, 1)),

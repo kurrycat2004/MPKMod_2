@@ -25,11 +25,11 @@ public class Renderer2D {
     }
 
     /**
-     * @param pos top left corner of the rectangle
-     * @param size size of the rectangle (edge is contained within)
+     * @param pos           top left corner of the rectangle
+     * @param size          size of the rectangle (edge is contained within)
      * @param edgeThickness thickness of the edge
-     * @param fillColor fill color of the rectangle
-     * @param edgeColor edge color of the rectangle
+     * @param fillColor     fill color of the rectangle
+     * @param edgeColor     edge color of the rectangle
      */
     public static void drawRectWithEdge(Vector2D pos, Vector2D size, double edgeThickness, Color fillColor, Color edgeColor) {
         drawRect(pos, size, fillColor);
@@ -39,6 +39,31 @@ public class Renderer2D {
     public static void drawRect(Vector2D pos, Vector2D size, Color color) {
         Optional<Interface> renderer = Interface.get();
         renderer.ifPresent(renderer2DInterface -> renderer2DInterface.drawRect(pos, size, color));
+    }
+
+    /**
+     * @param pos           top left corner of the rectangle
+     * @param size          size of the rectangle (edge goes over size)
+     * @param spacing       spacing in between the dashes
+     * @param dashLength    length of a dash (put same as edgeThickness for dots)
+     * @param edgeThickness thickness of the edge
+     * @param color         edge color of the rectangle
+     */
+    public static void drawDottedRect(Vector2D pos, Vector2D size, double spacing, double dashLength, double edgeThickness, Color color) {
+        Vector2D hDot = new Vector2D(dashLength, edgeThickness);
+        Vector2D vDot = new Vector2D(edgeThickness, dashLength);
+        for (double i = pos.getX() - edgeThickness; i <= pos.getX() + size.getX() + edgeThickness - dashLength; i += spacing + dashLength) {
+            drawRect(new Vector2D(i, pos.getY() - edgeThickness), hDot, color);
+        }
+        for (double i = pos.getY() - edgeThickness; i <= pos.getY() + size.getY() + edgeThickness - dashLength; i += spacing + dashLength) {
+            drawRect(new Vector2D(pos.getX() + size.getX(), i), vDot, color);
+        }
+        for (double i = pos.getX() + size.getX(); i >= pos.getX(); i -= spacing + dashLength) {
+            drawRect(new Vector2D(i, pos.getY() + size.getY()), hDot, color);
+        }
+        for (double i = pos.getY() + size.getY(); i >= pos.getY(); i -= spacing + dashLength) {
+            drawRect(new Vector2D(pos.getX() - edgeThickness, i), vDot, color);
+        }
     }
 
     public static Vector2D getScaledSize() {

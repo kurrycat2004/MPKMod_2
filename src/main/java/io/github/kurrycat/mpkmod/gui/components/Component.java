@@ -10,6 +10,7 @@ public abstract class Component {
     @JsonProperty
     public Vector2D pos;
     public boolean selected = false;
+    public boolean highlighted = false;
     protected Vector2D size;
 
     @JsonCreator
@@ -67,6 +68,7 @@ public abstract class Component {
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
+    public void setHighlighted(boolean highlighted) {this.highlighted = highlighted;}
 
     public enum Anchor {
         TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT;

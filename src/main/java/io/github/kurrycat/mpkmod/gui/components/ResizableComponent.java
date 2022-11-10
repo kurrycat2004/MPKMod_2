@@ -101,4 +101,5 @@ public abstract class ResizableComponent extends Component implements MouseInput
     public BoundingBox2D getComponentBoundingBox() {
         return BoundingBox2D.fromPosSize(this.getDisplayPos(), this.getSize());
     }
+
 }

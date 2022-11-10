@@ -15,6 +15,7 @@ import java.util.Arrays;
 public class MainGuiScreen extends ComponentScreen {
     public MapOverviewPane mapOverviewPane = null;
     private ArrayList<Component> cachedElements;
+    private boolean isOpen = false;
 
     @Override
     public boolean shouldCreateKeyBind() {
@@ -27,6 +28,8 @@ public class MainGuiScreen extends ComponentScreen {
         if (cachedElements == null) {
             ArrayList<Component> jsonElements = loadJSONComponents();
             cachedElements = jsonElements != null ? jsonElements : initComponents();
+        } else {
+            isOpen = true;
         }
         movableComponents = new ArrayList<>(cachedElements);
 
@@ -76,10 +79,27 @@ public class MainGuiScreen extends ComponentScreen {
     }
 
     @Override
+    public void removeComponent(Component c) {
+        cachedElements.remove(c);
+        movableComponents = new ArrayList<>(cachedElements);
+    }
+
+    @Override
+    public void addComponent(Component c) {
+        cachedElements.add(c);
+        movableComponents = new ArrayList<>(cachedElements);
+    }
+
+    @Override
     public void onGuiClosed() {
+        isOpen = false;
         super.onGuiClosed();
         mapOverviewPane.close();
         Serializer.serialize(JSONConfig.configFile, movableComponents);
+    }
+
+    public boolean isOpen() {
+        return isOpen;
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
@@ -130,6 +150,8 @@ public class MainGuiScreen extends ComponentScreen {
         initComponents.add(new KeyBindingLabel(new Vector2D(-71.0, 158.0), new Vector2D(66, 20), "key.jump", "Space"));
 
         initComponents.add(new MessageQueue(new Vector2D(-35, 10), new Vector2D(30, 22), "Offsets"));
+
+        initComponents.add(new BarrierDisplayComponent(new Vector2D(-35, -35), new Vector2D(30, 30)));
         return initComponents;
     }
 }
