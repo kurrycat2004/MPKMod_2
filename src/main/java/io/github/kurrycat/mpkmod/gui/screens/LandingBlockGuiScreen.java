@@ -225,6 +225,14 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
             Renderer2D.drawRectWithEdge(pos, size, 1, lbListColorBg, lbListColorItemEdge);
 
+            for (int i = 0; i < fields.length; i++) {
+                fields[i].pos = pos.add(
+                        size.getX() / 12 + size.getX() / 5 * 2 * (((int) (i / 3))),
+                        size.getY() / 4 * (1 + (i % 3)) - fields[i].getDisplayedSize().getY() / 2
+                );
+                fields[i].setWidth(size.getX() / 3);
+            }
+
             if (collapsed)
                 FontRenderer.drawString(
                         landingBlock.boundingBox.getMin() + " - " + landingBlock.boundingBox.getMax(),

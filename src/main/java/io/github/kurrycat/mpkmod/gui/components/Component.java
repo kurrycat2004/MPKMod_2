@@ -104,8 +104,9 @@ public abstract class Component extends ComponentHolder {
     public Vector2D getDisplayedPos() {
         if (parent == null)
             if (parentAnchor != null) {
+                if (getPos() == null) return null;
                 return parentAnchor.offsetChild(getPos(), getDisplayedSize(), Vector2D.ZERO, Renderer2D.getScaledSize());
-            } else return this.pos;//.asInRange(new Vector2D(0, 0), Renderer2D.getScaledSize());
+            } else return getPos();//this.pos;//.asInRange(new Vector2D(0, 0), Renderer2D.getScaledSize());
         else {
             Vector2D parentPos = parent.getDisplayedPos();
             Vector2D parentSize = parent.getDisplayedSize();
@@ -153,6 +154,8 @@ public abstract class Component extends ComponentHolder {
     }
 
     public boolean contains(Vector2D testPos) {
+        if (testPos == null) return false;
+        if (getDisplayedPos() == null) return false;
         return testPos.isInRectBetween(getDisplayedPos(), getDisplayedPos().add(getDisplayedSize()));
     }
 
