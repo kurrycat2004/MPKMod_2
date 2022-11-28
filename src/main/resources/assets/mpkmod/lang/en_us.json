@@ -1,4 +1,6 @@
 {
-  "mpkmod.gui.title": "MPK Mod GUI",
-  "mpkmod.key.gui.desc": "Open MPK Mod GUI"
+  "mpkmod.main_gui.title": "MPK Mod GUI",
+  "mpkmod.key.main_gui.desc": "Open MPK Mod GUI",
+  "mpkmod.lb_gui.title": "Landing Block GUI",
+  "mpkmod.key.lb_gui.desc": "Open Landing Block GUI"
 }

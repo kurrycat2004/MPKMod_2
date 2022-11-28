@@ -11,15 +11,18 @@ import java.io.File;
 public class DiscordRPC {
     public static final long CLIENT_ID = 773933401296076800L;
     public static Core core = null;
+    public static boolean LIBRARY_LOADED = false;
 
     public static void init() {
         File discordLibrary = DiscordNativeLibrary.getNativeLibrary();
         if (discordLibrary == null) {
-            System.out.println("Discord library not found.");
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, "Discord library not found.");
             return;
         }
         // Initialize the Core
         Core.init(discordLibrary);
+        API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC Core initialized.");
+        LIBRARY_LOADED = true;
 
         // Set parameters for the Core
         try (CreateParams params = new CreateParams()) {
@@ -32,9 +35,11 @@ public class DiscordRPC {
         updateWorldAndPlayState();
 
         startCallbackThread();
+        API.LOGGER.info(API.DISCORD_RPC_MARKER, "Started DiscordRPC callback thread");
     }
 
     public static void updateActivity(String details, String state) {
+        if(!LIBRARY_LOADED) return;
         try (Activity activity = new Activity()) {
             activity.setDetails(details);
             if (state != null)
@@ -67,7 +72,7 @@ public class DiscordRPC {
         Thread t = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    if (core.isOpen()) core.runCallbacks();
+                    if (core != null && core.isOpen()) core.runCallbacks();
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     core.close();
