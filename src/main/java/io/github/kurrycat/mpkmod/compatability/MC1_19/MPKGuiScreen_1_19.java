@@ -3,6 +3,7 @@ package io.github.kurrycat.mpkmod.compatability.MC1_19;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.kurrycat.mpkmod.compatability.API;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Profiler;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.Minecraft;
@@ -23,10 +24,21 @@ public class MPKGuiScreen_1_19 extends Screen {
         eventReceiver.onGuiInit();
     }
 
+    @Override
+    public void resize(@NotNull Minecraft minecraft, int width, int height) {
+        super.resize(minecraft, width, height);
+        eventReceiver.onResize(width, height);
+    }
+
     public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(poseStack);
-        if (eventReceiver != null)
+        Profiler.startSection(eventReceiver.getID() == null ? "mpk_gui" : eventReceiver.getID());
+        try {
             eventReceiver.drawScreen(new Vector2D(mouseX, mouseY), partialTicks);
+        } catch (Exception e) {
+            System.err.println("Error in drawScreen with id: " + eventReceiver.getID());
+            e.printStackTrace();
+        }
+        Profiler.endSection();
     }
 
     public void onClose() {
@@ -54,12 +66,27 @@ public class MPKGuiScreen_1_19 extends Screen {
     }
 
     public boolean keyPressed(int key, int scanCode, int modifiers) {
-        eventReceiver.onKeyEvent(key, InputConstants.getKey(key, scanCode).getName(), true);
+        eventReceiver.onKeyEvent((char) InputConstants.getKey(key, scanCode).getValue(), InputConstants.getKey(key, scanCode).getName(), true);
         return super.keyPressed(key, scanCode, modifiers);
     }
 
+    @Override
+    public boolean charTyped(char key, int p_94684_) {
+        eventReceiver.onKeyEvent(key, "KEY_" + key, true);
+        return super.charTyped(key, p_94684_);
+    }
+
     public boolean keyReleased(int key, int scanCode, int modifiers) {
-        eventReceiver.onKeyEvent(key, InputConstants.getKey(key, scanCode).getName(), true);
+        eventReceiver.onKeyEvent((char) InputConstants.getKey(key, scanCode).getValue(), InputConstants.getKey(key, scanCode).getName(), false);
         return super.keyReleased(key, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        eventReceiver.onMouseScroll(
+                new Vector2D(mouseX, mouseY),
+                (int) (delta / 40)
+        );
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 }

@@ -130,4 +130,8 @@ public class BoundingBox3D {
     public boolean equals(Object obj) {
         return obj instanceof BoundingBox3D && this.min.equals(((BoundingBox3D) obj).min) && this.max.equals(((BoundingBox3D) obj).max);
     }
+
+    public BoundingBox3D move(double x, double y, double z) {
+        return new BoundingBox3D(getMin().add(x, y, z), getMax().add(x, y, z));
+    }
 }
