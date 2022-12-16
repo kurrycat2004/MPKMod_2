@@ -80,7 +80,12 @@ public class API {
         EventAPI.init();
 
         API.LOGGER.info(API.DISCORD_RPC_MARKER, "Starting DiscordRPC...");
-        DiscordRPC.init();
+        try {
+            DiscordRPC.init();
+        } catch (Exception e) {
+            API.LOGGER.error(API.DISCORD_RPC_MARKER, "Unexpected exception while initializing DiscordRPC:");
+            e.printStackTrace();
+        }
 
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(
@@ -91,7 +96,7 @@ public class API {
                                     try {
                                         c.render(new Vector2D(-1, -1));
                                     } catch (ClassCastException err) {
-                                        if(c instanceof InfoLabel) {
+                                        if (c instanceof InfoLabel) {
                                             ((InfoLabel) c).infoString.updateProviders();
                                         }
                                     }

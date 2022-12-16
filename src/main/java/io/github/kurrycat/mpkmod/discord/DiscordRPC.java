@@ -29,7 +29,9 @@ public class DiscordRPC {
             params.setClientID(CLIENT_ID);
             params.setFlags(CreateParams.getDefaultFlags());
 
-            core = new Core(params);
+            try(Core c = new Core(params)) {
+                core = c;
+            }
         }
         // Create the Activity
         updateWorldAndPlayState();
@@ -39,7 +41,7 @@ public class DiscordRPC {
     }
 
     public static void updateActivity(String details, String state) {
-        if(!LIBRARY_LOADED) return;
+        if (!LIBRARY_LOADED) return;
         try (Activity activity = new Activity()) {
             activity.setDetails(details);
             if (state != null)
@@ -48,7 +50,8 @@ public class DiscordRPC {
             activity.timestamps().setStart(API.gameStartedInstant);
 
             activity.assets().setLargeImage("mpkmod_logo");
-            core.activityManager().updateActivity(activity);
+            if (core != null)
+                core.activityManager().updateActivity(activity);
         }
     }
 
@@ -75,11 +78,13 @@ public class DiscordRPC {
                     if (core != null && core.isOpen()) core.runCallbacks();
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    core.close();
+                    if (core != null)
+                        core.close();
                     break;
                 }
             }
-            core.close();
+            if (core != null)
+                core.close();
         }, "Discord_RPC_Callback_Handler");
         t.start();
     }
