@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.discord;
 
 import de.jcm.discordgamesdk.Core;
 import de.jcm.discordgamesdk.CreateParams;
+import de.jcm.discordgamesdk.GameSDKException;
 import de.jcm.discordgamesdk.activity.Activity;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
@@ -29,8 +30,11 @@ public class DiscordRPC {
             params.setClientID(CLIENT_ID);
             params.setFlags(CreateParams.getDefaultFlags());
 
-            try(Core c = new Core(params)) {
-                core = c;
+            try {
+                core = new Core(params);
+            } catch (GameSDKException e) {
+                API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC Core creation failed: ");
+                e.printStackTrace();
             }
         }
         // Create the Activity
