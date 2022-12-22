@@ -54,7 +54,7 @@ public class DiscordRPC {
             activity.timestamps().setStart(API.gameStartedInstant);
 
             activity.assets().setLargeImage("mpkmod_logo");
-            if (core != null)
+            if (core != null && core.isOpen())
                 core.activityManager().updateActivity(activity);
         }
     }

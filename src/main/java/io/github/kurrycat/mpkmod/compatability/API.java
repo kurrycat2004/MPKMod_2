@@ -41,6 +41,7 @@ public class API {
     public static MainGuiScreen mainGUI;
     public static Map<String, MPKGuiScreen> guiScreenMap = new HashMap<>();
     public static Map<String, Procedure> keyBindingMap = new HashMap<>();
+    public static boolean discordRpcInitialized = false;
     private static FunctionHolder functionHolder;
 
     /**
@@ -82,9 +83,11 @@ public class API {
         API.LOGGER.info(API.DISCORD_RPC_MARKER, "Starting DiscordRPC...");
         try {
             DiscordRPC.init();
+            discordRpcInitialized = true;
         } catch (Exception e) {
             API.LOGGER.error(API.DISCORD_RPC_MARKER, "Unexpected exception while initializing DiscordRPC:");
             e.printStackTrace();
+            discordRpcInitialized = false;
         }
 
         EventAPI.addListener(
@@ -222,12 +225,12 @@ public class API {
 
         public static void onServerConnect(boolean isLocal) {
             Minecraft.updateWorldState(Event.EventType.SERVER_CONNECT, isLocal);
-            DiscordRPC.updateWorldAndPlayState();
+            if (discordRpcInitialized) DiscordRPC.updateWorldAndPlayState();
         }
 
         public static void onServerDisconnect() {
             Minecraft.updateWorldState(Event.EventType.SERVER_DISCONNECT, false);
-            DiscordRPC.updateWorldAndPlayState();
+            if (discordRpcInitialized) DiscordRPC.updateWorldAndPlayState();
         }
 
         public static void onKeyInput(int keyCode, String key, boolean pressed) {
