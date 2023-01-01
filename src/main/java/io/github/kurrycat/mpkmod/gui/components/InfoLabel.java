@@ -37,6 +37,7 @@ public class InfoLabel extends Label {
     public void render(Vector2D mouse) {
         drawDefaultSelectedBackground();
         FontRenderer.drawString(getFormattedText(), getDisplayedPos(), color, true);
+        //CUSTOM FONT - FontManager.testArialFont.drawStringWithShadow(getFormattedText(), getDisplayedPos().getX(), getDisplayedPos().getY(), color.getRGB());
     }
 
     @JsonIgnore
