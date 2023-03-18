@@ -30,7 +30,6 @@ public class FontRenderer {
      */
     public static void drawCenteredString(String text, Vector2D pos, Color color, boolean shadow) {
         drawString(text, pos.sub(getStringSize(text).div(2)), color, shadow);
-
     }
 
     /**
