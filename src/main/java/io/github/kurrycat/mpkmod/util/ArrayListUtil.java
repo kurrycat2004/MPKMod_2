@@ -39,6 +39,7 @@ public class ArrayListUtil {
     @SuppressWarnings("unchecked")
     public static <T> ArrayList<T> getAllOfType(Class<T> tClass, ArrayList<?> list) {
         return list.stream()
+                .filter(Objects::nonNull)
                 .filter(tClass::isInstance)
                 .map(c -> (T) c).collect(Collectors.toCollection(ArrayList<T>::new));
     }

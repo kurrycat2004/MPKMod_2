@@ -9,6 +9,7 @@ import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
+import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
@@ -63,6 +64,8 @@ public class API {
                     });
                 }
         );
+
+        registerGUIScreen("options_gui", new OptionsGuiScreen());
     }
 
     /**
@@ -75,7 +78,7 @@ public class API {
 
         gameStartedInstant = Instant.now();
 
-        JSONConfig.setupFile();
+        JSONConfig.setupFiles();
         Serializer.registerSerializer();
 
         EventAPI.init();

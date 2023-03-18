@@ -35,9 +35,19 @@ public class Serializer {
                 .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
     }
 
-    public static <T> void serialize(File configFile, T infoLabel) {
+    public static <T> void serialize(File configFile, T value) {
         try {
-            mapper.writeValue(configFile, infoLabel);
+            mapper.writeValue(configFile, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static <T> void serializeWithoutTyping(File configFile, T value) {
+        try {
+            mapper.disableDefaultTyping();
+            mapper.writeValue(configFile, value);
+            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
         } catch (Exception e) {
             e.printStackTrace();
         }
