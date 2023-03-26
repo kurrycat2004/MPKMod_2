@@ -32,7 +32,7 @@ public class CheckButton extends Component implements MouseInputListener {
     }
 
     public CheckButton(Vector2D pos) {
-        this(pos, null);
+        this(pos, checked -> {});
     }
 
     public boolean isChecked() {

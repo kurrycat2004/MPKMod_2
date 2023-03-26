@@ -6,6 +6,7 @@ import de.jcm.discordgamesdk.GameSDKException;
 import de.jcm.discordgamesdk.activity.Activity;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
+import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 
 import java.io.File;
 
@@ -13,6 +14,9 @@ public class DiscordRPC {
     public static final long CLIENT_ID = 773933401296076800L;
     public static Core core = null;
     public static boolean LIBRARY_LOADED = false;
+
+    @Option.Field
+    public static boolean discordRPCEnabled = true;
 
     public static void init() {
         File discordLibrary = DiscordNativeLibrary.getNativeLibrary();
@@ -25,7 +29,13 @@ public class DiscordRPC {
         API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC Core initialized.");
         LIBRARY_LOADED = true;
 
-        // Set parameters for the Core
+        onEnabledStatusChanged();
+
+        startCallbackThread();
+        API.LOGGER.info(API.DISCORD_RPC_MARKER, "Started DiscordRPC callback thread");
+    }
+
+    public static void createCore() {
         try (CreateParams params = new CreateParams()) {
             params.setClientID(CLIENT_ID);
             params.setFlags(CreateParams.getDefaultFlags());
@@ -37,15 +47,32 @@ public class DiscordRPC {
                 e.printStackTrace();
             }
         }
-        // Create the Activity
-        updateWorldAndPlayState();
+    }
 
-        startCallbackThread();
-        API.LOGGER.info(API.DISCORD_RPC_MARKER, "Started DiscordRPC callback thread");
+    @Option.ChangeListener(field = "discordRPCEnabled")
+    public static void onEnabledStatusChanged() {
+        if (!LIBRARY_LOADED) {
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC library not loaded correctly, unable to update rich presence");
+            return;
+        }
+
+        if (discordRPCEnabled) {
+            createCore();
+            updateWorldAndPlayState();
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC started");
+        } else {
+            if (core != null)
+                core.close();
+            core = null;
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC disabled in options, turn on to activate");
+        }
     }
 
     public static void updateActivity(String details, String state) {
         if (!LIBRARY_LOADED) return;
+        if (!API.discordRpcInitialized) return;
+        if (!discordRPCEnabled) return;
+
         try (Activity activity = new Activity()) {
             activity.setDetails(details);
             if (state != null)
@@ -57,6 +84,7 @@ public class DiscordRPC {
             if (core != null && core.isOpen())
                 core.activityManager().updateActivity(activity);
         }
+
     }
 
     public static void updateWorldAndPlayState() {

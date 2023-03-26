@@ -9,6 +9,7 @@ import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
+import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
@@ -34,22 +35,34 @@ public class API {
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static final Marker DISCORD_RPC_MARKER = MarkerManager.getMarker("DISCORD_RPC");
     public static final Marker COMPATIBILITY_MARKER = MarkerManager.getMarker("COMPATIBILITY");
+    public static final Marker CONFIG_MARKER = MarkerManager.getMarker("CONFIG");
 
     public static final String NAME = "MPK Mod";
     public static final String VERSION = "2.0";
     public static final String KEYBINDING_CATEGORY = NAME;
+    public static final String packageName = "io.github.kurrycat.mpkmod";
     public static Instant gameStartedInstant;
+
     public static MainGuiScreen mainGUI;
     public static Map<String, MPKGuiScreen> guiScreenMap = new HashMap<>();
     public static Map<String, Procedure> keyBindingMap = new HashMap<>();
+
     public static boolean discordRpcInitialized = false;
     private static FunctionHolder functionHolder;
+
+    public static HashMap<String, Option> optionsMap;
 
     /**
      * Gets called at the beginning of mod init<br>
      * Register GUIs here using {@link #registerGUIScreen(String, MPKGuiScreen) registerGuiScreen}
      */
     public static void preInit() {
+        JSONConfig.setupFiles();
+        Serializer.registerSerializer();
+
+        optionsMap = Option.createOptionMap();
+        Option.updateOptionMapFromJSON(true);
+
         mainGUI = new MainGuiScreen();
         registerGUIScreen("main_gui", mainGUI);
 
@@ -77,9 +90,6 @@ public class API {
         Minecraft.version = mcVersion;
 
         gameStartedInstant = Instant.now();
-
-        JSONConfig.setupFiles();
-        Serializer.registerSerializer();
 
         EventAPI.init();
 

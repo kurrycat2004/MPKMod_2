@@ -1,16 +1,17 @@
 package io.github.kurrycat.mpkmod.test;
 
-import io.github.kurrycat.mpkmod.util.ColorUtil;
 import org.junit.jupiter.api.Test;
 
-import java.awt.*;
+import java.lang.reflect.Field;
 
 
 public class CodeTesting {
+    public static boolean test = false;
+
     @Test
-    public void testAdd() {
-        System.out.println(ColorUtil.hexToColor("#ffffffff"));
-        System.out.println(ColorUtil.colorToHex(new Color(31, 31, 31, 150)));
+    public void testAdd() throws NoSuchFieldException {
+        Field f = CodeTesting.class.getField("test");
+        System.out.println(f.getType() == boolean.class);
     }
 
 }
