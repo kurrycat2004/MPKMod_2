@@ -225,7 +225,7 @@ public class CustomFontRenderer extends CustomFont {
     }
 
     public List<String> wrapWords(String text, double width) {
-        List<String> finalWords = new ArrayList<String>();
+        List<String> finalWords = new ArrayList<>();
 
         if (getStringWidth(text) > width) {
             String[] words = text.split(" ");

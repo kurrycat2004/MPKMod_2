@@ -5,7 +5,6 @@ import io.github.kurrycat.mpkmod.util.*;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public abstract class ResizableComponent extends Component implements MouseInputListener {
     private Vector2D minSize = new Vector2D(5, 5);

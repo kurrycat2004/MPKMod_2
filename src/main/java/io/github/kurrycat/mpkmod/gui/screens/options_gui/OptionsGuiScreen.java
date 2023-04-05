@@ -79,10 +79,6 @@ public class OptionsGuiScreen extends ComponentScreen {
         super.drawScreen(mouse, partialTicks);
     }
 
-    private ArrayList<Option> initOptions() {
-        return new ArrayList<>(API.optionsMap.values());
-    }
-
     public static class OptionList extends ScrollableList<OptionListItem> {
         private final ArrayList<Option> options;
 
