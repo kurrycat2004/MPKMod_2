@@ -64,15 +64,15 @@ dependencies {
 
 
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.8'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.8'
+    //compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.8'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.8'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.8'
+    //compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.8'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.8'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.8'
+    //compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.8'
 
     /*compileOnly 'com.github.JnCrMx:discord-game-sdk4j:v0.5.5'*/
     implementation 'com.github.JnCrMx:discord-game-sdk4j:v0.5.5'
-    compile 'com.github.JnCrMx:discord-game-sdk4j:v0.5.5'
+    //compile 'com.github.JnCrMx:discord-game-sdk4j:v0.5.5'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
@@ -88,6 +88,14 @@ dependencies {
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+}
+
+minecraft.runs {
+    client { // Creates a new run configuration with the name 'client'
+        mods {
+            mpkmod { source sourceSets.main } // Adds the sourceSet 'main' as the sources for the mod 'mymod'
+        }
+    }
 }
 
 // Example for how to get properties into the manifest for reading at runtime.
@@ -106,7 +114,7 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from {
        //configurations.runtimeClasspath.collect { it.name.contains("discord-game-sdk4j") || it.name.contains("jackson") ? zipTree(it) : null}
-       configurations.compile.collect { it.isDirectory() ? it : zipTree(it)}
+       configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it)}
     }
 }
 
