@@ -25,6 +25,10 @@ public class Vector3D {
         return this;
     }
 
+    public int getXI() {
+        return (int) x;
+    }
+
     public double getY() {
         return y;
     }
@@ -34,6 +38,10 @@ public class Vector3D {
         return this;
     }
 
+    public int getYI() {
+        return (int) y;
+    }
+
     public double getZ() {
         return z;
     }
@@ -41,6 +49,10 @@ public class Vector3D {
     public Vector3D setZ(double z) {
         this.z = z;
         return this;
+    }
+
+    public int getZI() {
+        return (int) z;
     }
 
     public Vector3D add(Vector3D v) {
@@ -82,6 +94,18 @@ public class Vector3D {
 
     public Vector3D copy() {
         return new Vector3D(this.x, this.y, this.z);
+    }
+
+    public Vector3D round() {
+        return new Vector3D(Math.round(this.x), Math.round(this.y), Math.round(this.z));
+    }
+
+    public Vector3D floor() {
+        return new Vector3D(Math.floor(this.x), Math.floor(this.y), Math.floor(this.z));
+    }
+
+    public Vector3D toInts() {
+        return new Vector3D((int)this.x, (int)this.y, (int)this.z);
     }
 
     public double lengthXZSqr() {

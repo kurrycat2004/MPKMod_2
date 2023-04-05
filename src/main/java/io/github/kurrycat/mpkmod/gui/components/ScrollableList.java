@@ -230,7 +230,9 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         }
 
         public int getScrollButtonHeight() {
-            return Math.min(MathUtil.sqr(getDisplayedSize().getYI() - 2) / parentList.totalHeight(), getDisplayedSize().getYI() - 2);
+            int totalHeight = parentList.totalHeight();
+            if (totalHeight == 0) totalHeight++;
+            return Math.min(MathUtil.sqr(getDisplayedSize().getYI() - 2) / totalHeight, getDisplayedSize().getYI() - 2);
         }
 
         public void constrainScrollAmountToScreen() {

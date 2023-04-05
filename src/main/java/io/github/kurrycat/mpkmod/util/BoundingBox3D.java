@@ -16,6 +16,13 @@ public class BoundingBox3D {
         );
     }
 
+    public static BoundingBox3D asBlockPos(Vector3D pos) {
+        return new BoundingBox3D(
+                pos.floor(),
+                pos.floor().add(1)
+        );
+    }
+
     public Vector3D getMin() {
         return min;
     }
@@ -129,5 +136,13 @@ public class BoundingBox3D {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof BoundingBox3D && this.min.equals(((BoundingBox3D) obj).min) && this.max.equals(((BoundingBox3D) obj).max);
+    }
+
+    public BoundingBox3D move(double x, double y, double z) {
+        return new BoundingBox3D(getMin().add(x, y, z), getMax().add(x, y, z));
+    }
+
+    public BoundingBox3D move(Vector3D v) {
+        return move(v.getX(), v.getY(), v.getZ());
     }
 }

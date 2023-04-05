@@ -30,7 +30,8 @@ public class BarrierDisplayComponent extends ResizableComponent {
         if (API.mainGUI.isCached()) {
             color = new Color(255, 255, 255, 255);
         }
-        if (WorldInteraction.getLookingAtBlock().equals("minecraft:barrier")) {
+        String lookingAtBlock = WorldInteraction.getLookingAtBlock();
+        if (lookingAtBlock != null && lookingAtBlock.equals("minecraft:barrier")) {
             color = new Color(227, 0, 0);
         }
         if (selected) {

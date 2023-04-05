@@ -1,6 +1,5 @@
 package io.github.kurrycat.mpkmod.gui.screens.main_gui;
 
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.save.Serializer;
@@ -33,7 +32,7 @@ public class MainGuiScreen extends ComponentScreen {
         }
         movableComponents = new ArrayList<>(cachedElements);
 
-        Vector2D windowSize = Renderer2D.getScaledSize();
+        Vector2D windowSize = getScreenSize();
 
         components.add(new Button(
                 "Reload From File",

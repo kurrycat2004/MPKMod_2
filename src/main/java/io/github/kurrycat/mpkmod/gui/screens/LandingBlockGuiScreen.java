@@ -88,7 +88,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                     if (lookingAt != null) {
                         lbs.add(new LandingBlock(new BoundingBox3D(lookingAt, lookingAt.add(1))));
                     } else if (Player.getLatest() != null) {
-                        lbs.add(new LandingBlock(new BoundingBox3D(Player.getLatest().getPos(), Player.getLatest().getPos()).expand(0.5)));
+                        lbs.add(new LandingBlock(BoundingBox3D.asBlockPos(Player.getLatest().getPos())));
                     } else {
                         lbs.add(new LandingBlock(new BoundingBox3D(new Vector3D(0, 0, 0), new Vector3D(0, 0, 0))));
                     }
