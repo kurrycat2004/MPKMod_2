@@ -52,7 +52,7 @@ public class EventListener {
                     .setPos(new Vector3D(mcPlayer.getX(), mcPlayer.getY(), mcPlayer.getZ()))
                     .setLastPos(new Vector3D(mcPlayer.xOld, mcPlayer.yOld, mcPlayer.zOld))
                     .setMotion(new Vector3D(mcPlayer.getDeltaMovement().x, mcPlayer.getDeltaMovement().y, mcPlayer.getDeltaMovement().z))
-                    .setRotation(mcPlayer.getXRot(), mcPlayer.getYRot())
+                    .setRotation(mcPlayer.getYRot(), mcPlayer.getXRot())
                     .setOnGround(mcPlayer.isOnGround())
                     .constructKeyInput()
                     .buildAndSave();
@@ -66,8 +66,9 @@ public class EventListener {
 
     @SubscribeEvent
     public void onRenderWorld(RenderLevelStageEvent e) {
-        if (e.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES)
+        if (e.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER)
             API.Events.onRenderWorldOverlay(e.getPartialTick());
+
     }
 
 

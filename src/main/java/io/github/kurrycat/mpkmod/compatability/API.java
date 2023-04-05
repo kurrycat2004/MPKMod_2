@@ -13,10 +13,7 @@ import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
-import io.github.kurrycat.mpkmod.util.JSONConfig;
-import io.github.kurrycat.mpkmod.util.MathUtil;
-import io.github.kurrycat.mpkmod.util.Procedure;
-import io.github.kurrycat.mpkmod.util.Vector2D;
+import io.github.kurrycat.mpkmod.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -48,9 +45,10 @@ public class API {
     public static Map<String, Procedure> keyBindingMap = new HashMap<>();
 
     public static boolean discordRpcInitialized = false;
+    public static HashMap<String, Option> optionsMap;
     private static FunctionHolder functionHolder;
 
-    public static HashMap<String, Option> optionsMap;
+    /* public static int metronome = 0;*/
 
     /**
      * Gets called at the beginning of mod init<br>
@@ -69,7 +67,8 @@ public class API {
         registerGUIScreen("lb_gui", new LandingBlockGuiScreen());
         registerKeyBinding("lb_set",
                 () -> {
-                    List<LandingBlock> lbs = LandingBlock.asLandingBlocks(WorldInteraction.getLookingAtCollisionBoundingBoxes());
+                    List<BoundingBox3D> boundingBox3DList = WorldInteraction.getLookingAtCollisionBoundingBoxes();
+                    List<LandingBlock> lbs = LandingBlock.asLandingBlocks(boundingBox3DList);
                     lbs.forEach(lb -> {
                         if (LandingBlockGuiScreen.lbs.contains(lb))
                             LandingBlockGuiScreen.lbs.remove(lb);
@@ -159,6 +158,19 @@ public class API {
                                 })
                 )
         );
+
+        /*EventAPI.addListener(
+                EventAPI.EventListener.onTickStart(
+                        e -> {
+                            if (metronome == 0)
+                                SoundManager.playButtonSound();
+
+                            if (metronome == 11) {
+                                metronome = 0;
+                            } else metronome++;
+                        }
+                )
+        );*/
 
         /*EventAPI.addListener(
                 new EventAPI.EventListener<OnKeyInputEvent>(

@@ -5,8 +5,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Profiler;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +23,7 @@ public class MPKGuiScreen_1_19 extends Screen {
 
     public void init() {
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
-        eventReceiver.onGuiInit();
+        eventReceiver.onInit();
     }
 
     @Override
@@ -60,9 +62,9 @@ public class MPKGuiScreen_1_19 extends Screen {
         return super.mouseReleased(mouseX, mouseY, state);
     }
 
-    public boolean mouseDragged(double p_mouseDragged_1_, double p_mouseDragged_3_, int clickedMouseButton, double mouseX, double mouseY) {
+    public boolean mouseDragged(double mouseX, double mouseY, int clickedMouseButton, double moveX, double moveY) {
         eventReceiver.onMouseClickMove(new Vector2D(mouseX, mouseY), clickedMouseButton, 0);
-        return super.mouseDragged(p_mouseDragged_1_, p_mouseDragged_3_, clickedMouseButton, mouseX, mouseY);
+        return super.mouseDragged(mouseX, mouseY, clickedMouseButton, moveX, moveY);
     }
 
     public boolean keyPressed(int key, int scanCode, int modifiers) {

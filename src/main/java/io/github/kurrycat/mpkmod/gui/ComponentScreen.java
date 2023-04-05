@@ -77,7 +77,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                     break;
             }
             BoundingBox2D containingSelected = boundingBoxContainingAll(new ArrayList<>(selected));
-            Vector2D toMove = arrowKeyMove.constrain(Vector2D.ZERO.sub(containingSelected.getMin()), Renderer2D.getScaledSize().sub(containingSelected.getMax()));
+            Vector2D toMove = arrowKeyMove.constrain(Vector2D.ZERO.sub(containingSelected.getMin()), getScreenSize().sub(containingSelected.getMax()));
 
             selected.forEach(c -> c.setPos(c.getPos().add(c.getParentAnchor().translateMovement(toMove))));
         }
@@ -114,7 +114,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                 highlighted.add(clicked);
                 PopupMenu menu = clicked.getPopupMenu();
                 if (menu != null) {
-                    Vector2D windowSize = Renderer2D.getScaledSize();
+                    Vector2D windowSize = getScreenSize();
                     menu.pos = new Vector2D(
                             clicked.getDisplayedPos().getX() + clicked.getDisplayedSize().getX() + menu.getDisplayedSize().getX() + 1 < windowSize.getX() ?
                                     clicked.getDisplayedPos().getX() + clicked.getDisplayedSize().getX() + 1 : clicked.getDisplayedPos().getX() - menu.getDisplayedSize().getX() - 1,
@@ -141,7 +141,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
             } else {
                 highlighted.clear();
                 PopupMenu menu = new PopupMenu();
-                Vector2D windowSize = Renderer2D.getScaledSize();
+                Vector2D windowSize = getScreenSize();
                 NewLabelPane newLabelPane = new NewLabelPane(
                         new Vector2D(windowSize.getX() * 0.35, windowSize.getY() * 0.5 - 20),
                         new Vector2D(windowSize.getX() * 0.3, 60)
@@ -329,7 +329,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
             BoundingBox2D containingHolding = boundingBoxContainingAll(new ArrayList<>(holding));
 
             Vector2D toMove = mouse.sub(lastClickedPos);
-            toMove = toMove.constrain(Vector2D.ZERO.sub(containingHolding.getMin()), Renderer2D.getScaledSize().sub(containingHolding.getMax()));
+            toMove = toMove.constrain(Vector2D.ZERO.sub(containingHolding.getMin()), getScreenSize().sub(containingHolding.getMax()));
             holdingSetPosOffset = toMove;
             for (Component component : holding) {
                 Vector2D p = component.getPos();

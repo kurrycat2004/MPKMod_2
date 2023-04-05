@@ -15,10 +15,10 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -48,13 +48,19 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link WorldInteraction.Interface}
      */
-    public List<BoundingBox3D> getCollisionBoundingBoxes(Vector3D blockPosVec) {
+    public List<BoundingBox3D> getCollisionBoundingBoxes(Vector3D blockPosVector) {
+        final Vector3D blockPosVec = blockPosVector.copy();
         BlockPos blockPos = new BlockPos(blockPosVec.getX(), blockPosVec.getY(), blockPosVec.getZ());
         if (Minecraft.getInstance().level == null) return null;
         ArrayList<BoundingBox3D> boundingBoxes = new ArrayList<>();
-        Minecraft.getInstance().level.getBlockState(blockPos).getCollisionShape(Minecraft.getInstance().level, blockPos).forAllBoxes(
-                (minX, minY, minZ, maxX, maxY, maxZ) -> boundingBoxes.add(new BoundingBox3D(new Vector3D(minX, minY, minZ), new Vector3D(maxX, maxY, maxZ)))
+        BlockState state = Minecraft.getInstance().level.getBlockState(blockPos);
+
+        state.getCollisionShape(Minecraft.getInstance().level, blockPos).optimize().forAllBoxes(
+                (minX, minY, minZ, maxX, maxY, maxZ) -> boundingBoxes.add(
+                        new BoundingBox3D(new Vector3D(minX, minY, minZ), new Vector3D(maxX, maxY, maxZ)).move(blockPosVec)
+                )
         );
+
         return boundingBoxes;
     }
 
@@ -64,8 +70,9 @@ public class FunctionCompatibility implements FunctionHolder,
     public Vector3D getLookingAt() {
         if (Minecraft.getInstance().getCameraEntity() == null) return null;
         HitResult hitResult = Minecraft.getInstance().getCameraEntity().pick(20, 0, false);
-        if (hitResult.getType() == HitResult.Type.BLOCK) {
-            return new Vector3D(hitResult.getLocation().x, hitResult.getLocation().y, hitResult.getLocation().z);
+        if (hitResult instanceof BlockHitResult) {
+            BlockPos blockPos = ((BlockHitResult) hitResult).getBlockPos();
+            return new Vector3D(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         }
         return null;
     }
@@ -88,24 +95,23 @@ public class FunctionCompatibility implements FunctionHolder,
     public void drawBox(BoundingBox3D bb, Color color, float partialTicks) {
         int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
 
-        RenderSystem.disableTexture();
-        RenderSystem.enableBlend();
-        GL11.glLineWidth(2.0F);
-        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        RenderSystem.applyModelViewMatrix();
 
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-        //WorldRenderer bb = bb.getWorldRenderer();
+        RenderSystem.enableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
-        Vec3 pos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        bb = bb.move(pos.x, pos.y, pos.z);
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder builder = tesselator.getBuilder();
 
-        /*double entityX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) partialTicks;
-        double entityY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double) partialTicks;
-        double entityZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) partialTicks;*/
+        RenderSystem.disableTexture();
+        RenderSystem.enableBlend();
+
+        RenderSystem.lineWidth(1.0F);
+
+        Vec3 pos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        bb = bb.move(-pos.x, -pos.y, -pos.z);
 
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        //bb.(-entityX, -entityY, -entityZ);
 
         builder.vertex(bb.minX(), bb.maxY(), bb.minZ()).color(r, g, b, a).endVertex();
         builder.vertex(bb.maxX(), bb.maxY(), bb.minZ()).color(r, g, b, a).endVertex();
@@ -137,14 +143,10 @@ public class FunctionCompatibility implements FunctionHolder,
         builder.vertex(bb.maxX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).endVertex();
         builder.vertex(bb.maxX(), bb.minY(), bb.maxZ()).color(r, g, b, a).endVertex();
 
-        //bb.setTranslation(0, 0, 0);
+        tesselator.end();
 
-        //bb.draw();
-        BufferUploader.drawWithShader(builder.end());
-
+        RenderSystem.enableBlend();
         RenderSystem.enableTexture();
-        RenderSystem.disableBlend();
-        GL11.glDisable(GL11.GL_LINE_SMOOTH);
     }
 
     /**

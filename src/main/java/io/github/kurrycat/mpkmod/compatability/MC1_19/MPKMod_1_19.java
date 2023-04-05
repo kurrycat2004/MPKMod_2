@@ -30,8 +30,14 @@ public class MPKMod_1_19 {
     public MPKMod_1_19() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerMCKeyBinding);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerParticleProviders);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerOverlay);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::loadComplete);
+    }
+
+    public void registerParticleProviders(RegisterParticleProvidersEvent e) {
+        //Have to call it here because it's the only forge hook before registerKeyBinding gets called and API.keyBindingMap is filled in preInit
+        API.preInit();
     }
 
     public void registerMCKeyBinding(RegisterKeyMappingsEvent e) {
@@ -64,8 +70,6 @@ public class MPKMod_1_19 {
     }
 
     public void init(FMLCommonSetupEvent event) {
-        API.preInit();
-
         API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering compatibility functions...");
         API.registerFunctionHolder(new FunctionCompatibility());
         API.LOGGER.info(API.COMPATIBILITY_MARKER, "Done");
