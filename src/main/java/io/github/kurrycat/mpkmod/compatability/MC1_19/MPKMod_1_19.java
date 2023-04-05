@@ -30,7 +30,6 @@ public class MPKMod_1_19 {
     public MPKMod_1_19() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerMCKeyBinding);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerParticleProvider);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerOverlay);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::loadComplete);
     }
@@ -64,12 +63,9 @@ public class MPKMod_1_19 {
         keyBindingMap.put(id, keyBinding);
     }
 
-    //XD
-    public void registerParticleProvider(RegisterParticleProvidersEvent event) {
-        API.preInit();
-    }
-
     public void init(FMLCommonSetupEvent event) {
+        API.preInit();
+
         API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering compatibility functions...");
         API.registerFunctionHolder(new FunctionCompatibility());
         API.LOGGER.info(API.COMPATIBILITY_MARKER, "Done");
