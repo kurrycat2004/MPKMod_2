@@ -9,16 +9,18 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 
 public class Button extends Component implements MouseInputListener {
-    private ButtonCallback buttonCallback;
     public Color pressedColor = new Color(255, 255, 255, 95);
     public Color normalColor = new Color(31, 31, 31, 150);
     public Color hoverColor = new Color(70, 70, 70, 150);
     public Color textColor = Color.WHITE;
+    public Color disabledColor = new Color(11, 11, 11, 150);
+    public Color disabledTextColor = new Color(70, 70, 70, 150);
     public Color pressedTextColor = Color.BLACK;
-    private String text;
-    private boolean isBeingPressed = false;
     public Vector2D textOffset = Vector2D.ZERO;
     public boolean enabled = true;
+    private ButtonCallback buttonCallback;
+    private String text;
+    private boolean isBeingPressed = false;
 
     public Button(String text, Vector2D pos, Vector2D size, ButtonCallback buttonCallback) {
         super(pos);
@@ -28,16 +30,16 @@ public class Button extends Component implements MouseInputListener {
         this.setSize(size);
     }
 
-    public Button setButtonCallback(ButtonCallback buttonCallback) {
-        this.buttonCallback = buttonCallback;
-        return this;
-    }
-
     public Button(String text, Vector2D pos, Vector2D size) {
         super(pos);
         this.text = text;
         this.buttonCallback = null;
         this.setSize(size);
+    }
+
+    public Button setButtonCallback(ButtonCallback buttonCallback) {
+        this.buttonCallback = buttonCallback;
+        return this;
     }
 
     public String getText() {
@@ -58,7 +60,9 @@ public class Button extends Component implements MouseInputListener {
     }
 
     public void render(Vector2D mouse) {
-        Color bg = isBeingPressed ? pressedColor : contains(mouse) ? hoverColor : normalColor;
+        Color bg = !enabled ? disabledColor :
+                isBeingPressed ? pressedColor :
+                        contains(mouse) ? hoverColor : normalColor;
         Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), bg);
 
         FontRenderer.drawCenteredString(
@@ -67,13 +71,15 @@ public class Button extends Component implements MouseInputListener {
                         .add(getDisplayedSize().div(2))
                         .add(new Vector2D(0.5, this.getText().toLowerCase().equals(this.getText()) ? 0 : 1))
                         .add(textOffset),
-                isBeingPressed ? pressedTextColor : textColor,
+                !enabled ? disabledTextColor :
+                        isBeingPressed ? pressedTextColor :
+                                textColor,
                 false
         );
     }
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-        if(!enabled) return false;
+        if (!enabled) return false;
         if (contains(mousePos)) {
             switch (state) {
                 case DOWN:

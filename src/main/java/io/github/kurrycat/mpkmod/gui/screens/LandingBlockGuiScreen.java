@@ -30,11 +30,6 @@ public class LandingBlockGuiScreen extends ComponentScreen {
     }
 
     @Override
-    public boolean resetOnOpen() {
-        return true;
-    }
-
-    @Override
     public void onGuiInit() {
         super.onGuiInit();
 

@@ -27,7 +27,7 @@ public class BarrierDisplayComponent extends ResizableComponent {
     @Override
     public void render(Vector2D mouse) {
         Color color = null;
-        if (API.mainGUI.isOpen()) {
+        if (API.mainGUI.isCached()) {
             color = new Color(255, 255, 255, 255);
         }
         if (WorldInteraction.getLookingAtBlock().equals("minecraft:barrier")) {
@@ -37,7 +37,7 @@ public class BarrierDisplayComponent extends ResizableComponent {
             color = new Color(255, 170, 0, 100);
         }
         if (color != null) {
-            if (fullscreen && !API.mainGUI.isOpen()) {
+            if (fullscreen && !API.mainGUI.isCached()) {
                 Vector2D windowSize = Renderer2D.getScaledSize();
                 Renderer2D.drawRect(Vector2D.ZERO, new Vector2D(windowSize.getX(), lineThickness), color);
                 Renderer2D.drawRect(Vector2D.ZERO, new Vector2D(lineThickness, windowSize.getY()), color);

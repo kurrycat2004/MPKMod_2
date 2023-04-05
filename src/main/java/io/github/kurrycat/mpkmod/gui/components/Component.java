@@ -75,7 +75,6 @@ public abstract class Component extends ComponentHolder {
 
     @JsonSetter("pos")
     public void setPosFromJson(Vector2D pos) {
-        System.out.println("called");
         this.setParentAnchor(Anchor.fromPos(pos));
         this.pos = pos.abs();
     }

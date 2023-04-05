@@ -9,6 +9,8 @@ import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
+import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
+import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
@@ -33,21 +35,34 @@ public class API {
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static final Marker DISCORD_RPC_MARKER = MarkerManager.getMarker("DISCORD_RPC");
     public static final Marker COMPATIBILITY_MARKER = MarkerManager.getMarker("COMPATIBILITY");
+    public static final Marker CONFIG_MARKER = MarkerManager.getMarker("CONFIG");
 
     public static final String NAME = "MPK Mod";
     public static final String VERSION = "2.0";
     public static final String KEYBINDING_CATEGORY = NAME;
+    public static final String packageName = "io.github.kurrycat.mpkmod";
     public static Instant gameStartedInstant;
+
     public static MainGuiScreen mainGUI;
     public static Map<String, MPKGuiScreen> guiScreenMap = new HashMap<>();
     public static Map<String, Procedure> keyBindingMap = new HashMap<>();
+
+    public static boolean discordRpcInitialized = false;
     private static FunctionHolder functionHolder;
+
+    public static HashMap<String, Option> optionsMap;
 
     /**
      * Gets called at the beginning of mod init<br>
      * Register GUIs here using {@link #registerGUIScreen(String, MPKGuiScreen) registerGuiScreen}
      */
     public static void preInit() {
+        JSONConfig.setupFiles();
+        Serializer.registerSerializer();
+
+        optionsMap = Option.createOptionMap();
+        Option.updateOptionMapFromJSON(true);
+
         mainGUI = new MainGuiScreen();
         registerGUIScreen("main_gui", mainGUI);
 
@@ -62,6 +77,8 @@ public class API {
                     });
                 }
         );
+
+        registerGUIScreen("options_gui", new OptionsGuiScreen());
     }
 
     /**
@@ -74,13 +91,17 @@ public class API {
 
         gameStartedInstant = Instant.now();
 
-        JSONConfig.setupFile();
-        Serializer.registerSerializer();
-
         EventAPI.init();
 
         API.LOGGER.info(API.DISCORD_RPC_MARKER, "Starting DiscordRPC...");
-        DiscordRPC.init();
+        try {
+            DiscordRPC.init();
+            discordRpcInitialized = true;
+        } catch (Exception e) {
+            API.LOGGER.error(API.DISCORD_RPC_MARKER, "Unexpected exception while initializing DiscordRPC:");
+            e.printStackTrace();
+            discordRpcInitialized = false;
+        }
 
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(
@@ -91,7 +112,7 @@ public class API {
                                     try {
                                         c.render(new Vector2D(-1, -1));
                                     } catch (ClassCastException err) {
-                                        if(c instanceof InfoLabel) {
+                                        if (c instanceof InfoLabel) {
                                             ((InfoLabel) c).infoString.updateProviders();
                                         }
                                     }
@@ -217,12 +238,12 @@ public class API {
 
         public static void onServerConnect(boolean isLocal) {
             Minecraft.updateWorldState(Event.EventType.SERVER_CONNECT, isLocal);
-            DiscordRPC.updateWorldAndPlayState();
+            if (discordRpcInitialized) DiscordRPC.updateWorldAndPlayState();
         }
 
         public static void onServerDisconnect() {
             Minecraft.updateWorldState(Event.EventType.SERVER_DISCONNECT, false);
-            DiscordRPC.updateWorldAndPlayState();
+            if (discordRpcInitialized) DiscordRPC.updateWorldAndPlayState();
         }
 
         public static void onKeyInput(int keyCode, String key, boolean pressed) {

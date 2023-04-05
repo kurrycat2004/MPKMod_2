@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class MainGuiScreen extends ComponentScreen {
     public MapOverviewPane mapOverviewPane = null;
     private ArrayList<Component> cachedElements;
-    private boolean isOpen = false;
+    private boolean isCached = false;
 
     @Override
     public boolean shouldCreateKeyBind() {
@@ -29,7 +29,7 @@ public class MainGuiScreen extends ComponentScreen {
             ArrayList<Component> jsonElements = loadJSONComponents();
             cachedElements = jsonElements != null ? jsonElements : initComponents();
         } else {
-            isOpen = true;
+            isCached = true;
         }
         movableComponents = new ArrayList<>(cachedElements);
 
@@ -92,14 +92,14 @@ public class MainGuiScreen extends ComponentScreen {
 
     @Override
     public void onGuiClosed() {
-        isOpen = false;
+        isCached = false;
         super.onGuiClosed();
         mapOverviewPane.close();
         Serializer.serialize(JSONConfig.configFile, movableComponents);
     }
 
-    public boolean isOpen() {
-        return isOpen;
+    public boolean isCached() {
+        return isCached;
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
