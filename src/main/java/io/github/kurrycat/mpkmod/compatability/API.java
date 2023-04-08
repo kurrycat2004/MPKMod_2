@@ -45,10 +45,13 @@ public class API {
     public static Map<String, Procedure> keyBindingMap = new HashMap<>();
 
     public static boolean discordRpcInitialized = false;
-    public static HashMap<String, Option> optionsMap;
     private static FunctionHolder functionHolder;
+    public static HashMap<String, Option> optionsMap;
+    /*@Option.Field
+    public static String testOption = "String Option";*/
 
     /* public static int metronome = 0;*/
+
 
     /**
      * Gets called at the beginning of mod init<br>
@@ -148,17 +151,28 @@ public class API {
                                 .filter(LandingBlock::isTryingToLandOn)
                                 .filter(lb -> lb.landingMode.getPlayerBB() != null)
                                 .map(lb -> lb.boundingBox.distanceTo(lb.landingMode.getPlayerBB()).mult(-1D))
-                                .filter(vec -> vec.getX() > -0.3 && vec.getZ() > -0.3)
+                                .filter(vec -> vec.getX() > -0.3F && vec.getZ() > -0.3F)
                                 .forEach(offset -> {
                                     if (mainGUI != null)
                                         mainGUI.postMessage(
                                                 "offset",
                                                 MathUtil.formatDecimals(offset.getX(), 5, false) +
-                                                        ", " + MathUtil.formatDecimals(offset.getZ(), 5, false)
+                                                        ", " + MathUtil.formatDecimals(offset.getZ(), 5, false),
+                                                offset.getX() > 0 && offset.getZ() > 0
                                         );
                                 })
                 )
         );
+
+        /*EventAPI.addListener(
+                EventAPI.EventListener.onTickEnd(
+                        e -> {
+                            Player p = Player.getLatest();
+                            if (p != null)
+                                System.out.println(p.tickInput);
+                        }
+                )
+        );*/
 
         /*EventAPI.addListener(
                 EventAPI.EventListener.onTickStart(

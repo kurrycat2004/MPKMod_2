@@ -1,6 +1,6 @@
 package io.github.kurrycat.mpkmod.gui;
 
-import com.mojang.blaze3d.platform.InputConstants;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.InputConstants;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
@@ -10,7 +10,6 @@ import io.github.kurrycat.mpkmod.util.ArrayListUtil;
 import io.github.kurrycat.mpkmod.util.BoundingBox2D;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
-import net.minecraft.world.level.block.Block;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -30,10 +29,10 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
     private Component lastClicked = null;
     private Vector2D holdingSetPosOffset = null;
 
-    public void postMessage(String receiverID, String content) {
+    public void postMessage(String receiverID, String content, boolean highlighted) {
         MessageQueue q = MessageQueue.getReceiverFor(receiverID, ArrayListUtil.getAllOfType(MessageQueue.class, movableComponents));
         if (q != null)
-            q.postMessage(content);
+            q.postMessage(content, highlighted);
     }
 
     public void onGuiInit() {
