@@ -76,11 +76,8 @@ public class OptionsGuiScreen extends ComponentScreen {
     }
 
     public static class OptionList extends ScrollableList<OptionListItem> {
-        private final ArrayList<Option> options;
-
         public OptionList(Vector2D pos, Vector2D size, ArrayList<Option> options) {
             super(pos, size);
-            this.options = options;
             items.clear();
             for (Option option : options) {
                 OptionListItem item;

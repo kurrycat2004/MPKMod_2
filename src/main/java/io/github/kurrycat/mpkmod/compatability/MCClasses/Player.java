@@ -233,8 +233,9 @@ public class Player {
 
             jumpTick = !onGround && prev.onGround && keyInput.jump;
 
-            if (prev.jumpTick && !prev.keyInput.movingSideways() && keyInput.movingSideways())
-                last45 = deltaYaw;
+            if (prev.jumpTick && !prev.keyInput.movingSideways() && keyInput.movingSideways()) {
+                last45 = prev.deltaYaw;
+            }
         }
         Player.updateDisplayInstance();
         return this;

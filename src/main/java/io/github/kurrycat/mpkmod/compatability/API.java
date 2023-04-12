@@ -48,6 +48,9 @@ public class API {
     public static HashMap<String, Option> optionsMap;
     private static FunctionHolder functionHolder;
 
+    /*@Option.Field
+    public static String testOption = "String Option";*/
+
     /* public static int metronome = 0;*/
 
     /**
@@ -147,13 +150,14 @@ public class API {
                                 .filter(LandingBlock::isTryingToLandOn)
                                 .filter(lb -> lb.landingMode.getPlayerBB() != null)
                                 .map(lb -> lb.boundingBox.distanceTo(lb.landingMode.getPlayerBB()).mult(-1D))
-                                .filter(vec -> vec.getX() > -0.3 && vec.getZ() > -0.3)
+                                .filter(vec -> vec.getX() > -0.3F && vec.getZ() > -0.3F)
                                 .forEach(offset -> {
                                     if (mainGUI != null)
                                         mainGUI.postMessage(
                                                 "offset",
                                                 MathUtil.formatDecimals(offset.getX(), 5, false) +
-                                                        ", " + MathUtil.formatDecimals(offset.getZ(), 5, false)
+                                                        ", " + MathUtil.formatDecimals(offset.getZ(), 5, false),
+                                                offset.getX() > 0 && offset.getZ() > 0
                                         );
                                 })
                 )

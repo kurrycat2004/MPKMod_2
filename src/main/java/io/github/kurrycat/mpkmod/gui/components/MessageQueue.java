@@ -25,6 +25,8 @@ public class MessageQueue extends ResizableComponent {
     @JsonProperty
     public Color messageBackgroundColor = new Color(31, 31, 31, 47);
     @JsonProperty
+    public Color messageHighlightBackgroundColor = new Color(98, 255, 74, 157);
+    @JsonProperty
     public Color messageColor = new Color(255, 255, 255, 255);
     @JsonProperty
     public Color edgeColor = new Color(100, 100, 100, 50);
@@ -60,8 +62,10 @@ public class MessageQueue extends ResizableComponent {
         renderHoverEdges(mouse);
     }
 
-    public void postMessage(String content) {
-        messages.add(0, new Message(this, content));
+    public void postMessage(String content, boolean highlighted) {
+        Message message = new Message(this, content);
+        if (highlighted) message.highlight();
+        messages.add(0, message);
     }
 
     @JsonProperty("name")
@@ -74,7 +78,7 @@ public class MessageQueue extends ResizableComponent {
         PopupMenu menu = new PopupMenu();
         menu.addComponent(
                 new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
-                    if(Mouse.Button.LEFT.equals(mouseButton)) {
+                    if (Mouse.Button.LEFT.equals(mouseButton)) {
                         menu.paneHolder.removeComponent(this);
                         menu.paneHolder.closePane(menu);
                     }
@@ -87,6 +91,7 @@ public class MessageQueue extends ResizableComponent {
         public String content;
         public Instant created;
         public MessageQueue parent;
+        public boolean highlighted = false;
 
         /**
          * max age in ms
@@ -107,10 +112,16 @@ public class MessageQueue extends ResizableComponent {
             long age = getAge();
             double fadeOutAlpha = age < maxAge - fadeOutTime ? 255 : MathUtil.map(maxAge - Math.min(age, maxAge), fadeOutTime, 0, 255, 0);
 
-            Renderer2D.drawRect(pos, size, ColorUtil.withAlpha(parent.messageBackgroundColor, Math.min(fadeOutAlpha, parent.messageBackgroundColor.getAlpha())));
-            //FontRenderer.drawCenteredString(this.content, pos.add(size.div(2)), new Color(255, 255, 255, 4), false);
-            FontRenderer.drawCenteredString(this.content, pos.add(size.div(2)).add(0, 1), ColorUtil.withAlpha(parent.messageColor, fadeOutAlpha), false);
-            //System.out.println(ColorUtil.fadeColor(parent.messageColor, fadeOutAlpha).getAlpha());
+            Color backgroundColor = highlighted ? parent.messageHighlightBackgroundColor : parent.messageBackgroundColor;
+
+            Renderer2D.drawRect(pos, size,
+                    ColorUtil.withAlpha(
+                            backgroundColor,
+                            Math.min(fadeOutAlpha, backgroundColor.getAlpha())
+                    )
+            );
+            FontRenderer.drawCenteredString(this.content, pos.add(size.div(2)).add(0, 1),
+                    ColorUtil.withAlpha(parent.messageColor, fadeOutAlpha), false);
         }
 
         public boolean isAlive() {
@@ -119,6 +130,10 @@ public class MessageQueue extends ResizableComponent {
 
         public long getAge() {
             return ChronoUnit.MILLIS.between(created, Instant.now());
+        }
+
+        public void highlight() {
+            this.highlighted = true;
         }
     }
 }

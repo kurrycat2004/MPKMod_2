@@ -23,7 +23,13 @@ public class OptionListItemString extends OptionListItem {
     }
 
     protected void renderTypeSpecific(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
-        inputField.pos = pos.add(size.getX() - 40 - inputField.getDisplayedSize().getX(), size.getY() / 2 - 5);
+        inputField.setSize(
+                new Vector2D(
+                        size.getX() / 2.1,
+                        inputField.getDisplayedSize().getY()
+                )
+        );
+        inputField.pos = pos.add(size.getX() - 40 - inputField.getDisplayedSize().getX(), size.getY() / 2 - 6);
         inputField.render(mouse);
     }
 }
