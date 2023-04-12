@@ -2,7 +2,6 @@ package io.github.kurrycat.mpkmod.gui.screens.options_gui;
 
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
-import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
@@ -15,9 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class OptionsGuiScreen extends ComponentScreen {
-    public static Color optionListColorItemEdge = new Color(255, 255, 255, 95);
-    public static Color optionListColorBg = new Color(31, 31, 31, 150);
-
     private OptionList optionList;
 
     @Override
@@ -87,7 +83,21 @@ public class OptionsGuiScreen extends ComponentScreen {
             this.options = options;
             items.clear();
             for (Option option : options) {
-                items.add(new OptionListItem(this, option));
+                OptionListItem item;
+                switch (option.getType()) {
+                    case BOOLEAN:
+                        item = new OptionListItemBoolean(this, option);
+                        break;
+                    case STRING:
+                        item = new OptionListItemString(this, option);
+                        break;
+                    case INTEGER:
+                        item = new OptionListItemInteger(this, option);
+                        break;
+                    default:
+                        item = new OptionListItemDefault(this, option);
+                }
+                items.add(item);
             }
             this.scrollBar.constrainScrollAmountToScreen();
         }
@@ -105,8 +115,8 @@ public class OptionsGuiScreen extends ComponentScreen {
         }
 
         public void resetAllToDefault() {
-            for (Option o : options) {
-                o.setValue(o.getDefaultValue());
+            for (OptionListItem item : items) {
+                item.loadDefaultValue();
             }
         }
 
@@ -114,93 +124,6 @@ public class OptionsGuiScreen extends ComponentScreen {
             for (OptionListItem item : items) {
                 item.update();
             }
-        }
-    }
-
-    public static class OptionListItem extends ScrollableListItem<OptionListItem> {
-        private final Button resetButton;
-        private final CheckButton checkButton;
-        private final ArrayList<Component> updateComponents = new ArrayList<>();
-        public Option option;
-        private String value;
-
-        public OptionListItem(ScrollableList<OptionListItem> parent, Option option) {
-            super(parent);
-            this.option = option;
-            this.value = option.getValue();
-
-            resetButton = new Button("Reset", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
-                if (mouseButton == Mouse.Button.LEFT) {
-                    value = option.getDefaultValue();
-                    updateEditComponent();
-                }
-            });
-            updateComponents.add(resetButton);
-
-            checkButton = new CheckButton(Vector2D.OFFSCREEN, checked -> value = String.valueOf(checked));
-            checkButton.enabled = option.getType() == Option.ValueType.BOOLEAN;
-            if (checkButton.enabled) {
-                checkButton.setChecked(option.getBoolean());
-                updateComponents.add(checkButton);
-            }
-        }
-
-        private void updateEditComponent() {
-            if(checkButton.enabled) {
-                checkButton.setChecked(Boolean.parseBoolean(value));
-            }
-        }
-
-        public void update() {
-            option.setValue(value);
-        }
-
-        @Override
-        public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
-            Renderer2D.drawRectWithEdge(pos, size, 1, optionListColorBg, optionListColorItemEdge);
-
-            FontRenderer.drawLeftCenteredString(
-                    option.getName(),
-                    pos.add(5, size.getY() / 2),
-                    Color.WHITE,
-                    false
-            );
-
-            switch (option.getType()) {
-                case BOOLEAN:
-                    checkButton.pos = pos.add(size.getX() - 40 - checkButton.getDisplayedSize().getX(), size.getY() / 2 - 5);
-                    checkButton.render(mouse);
-                    break;
-                default:
-                    FontRenderer.drawRightCenteredString(
-                            value,
-                            pos.add(size.getX() - 40, size.getY() / 2),
-                            Color.WHITE,
-                            false
-                    );
-            }
-
-            resetButton.enabled = !option.getDefaultValue().equals(value);
-            resetButton.pos = pos.add(size.getX() - 35, size.getY() / 2 - 5);
-            resetButton.render(mouse);
-        }
-
-        public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-            return ArrayListUtil.orMapAll(
-                    ArrayListUtil.getAllOfType(MouseInputListener.class, updateComponents),
-                    ele -> ele.handleMouseInput(state, mousePos, button)
-            );
-        }
-
-        public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
-            return ArrayListUtil.orMapAll(
-                    ArrayListUtil.getAllOfType(KeyInputListener.class, updateComponents),
-                    ele -> ele.handleKeyInput(keyCode, key, pressed)
-            );
-        }
-
-        public int getHeight() {
-            return 21;
         }
     }
 }

@@ -44,7 +44,7 @@ public class ClassUtil {
         final String pkgPath = pkgName.replace('.', '/');
         URI pkg;
         try {
-            pkg = Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource(pkgPath)).toURI();
+            pkg = Objects.requireNonNull(ClassUtil.class.getClassLoader().getResource(pkgPath)).toURI();
         } catch (URISyntaxException ignored) {
             return null;
         }
