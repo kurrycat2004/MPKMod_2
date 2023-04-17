@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.compatability.MC1_8;
 
+import io.github.kurrycat.mpkmod.compatability.MCClasses.InputConstants;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Profiler;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -21,6 +22,14 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
     public MPKGuiScreen_1_8(MPKGuiScreen screen) {
         super();
         eventReceiver = screen;
+    }
+
+    public static int createModifiers() {
+        int i = 0;
+        if (GuiScreen.isShiftKeyDown()) i |= 1;
+        if (GuiScreen.isCtrlKeyDown()) i |= 2;
+        if (GuiScreen.isAltKeyDown()) i |= 4;
+        return i;
     }
 
     @Override
@@ -58,14 +67,13 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
     }
 
     @Override
-    public void handleKeyboardInput() throws IOException {
-        char keyCode = Keyboard.getEventCharacter();
-        String key = Keyboard.getKeyName(Keyboard.getEventKey());
-        boolean pressed = Keyboard.getEventKeyState();
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        super.keyTyped(typedChar, keyCode);
+        char c = Keyboard.getEventCharacter();
 
-        eventReceiver.onKeyEvent(keyCode, key, pressed);
-
-        super.handleKeyboardInput();
+        eventReceiver.onKeyEvent(InputConstants.convert(Keyboard.getEventKey()), 0, createModifiers(), false);
+        if (c >= 32 && c != 127)
+            eventReceiver.onKeyEvent(c, 0, createModifiers(), true);
     }
 
     @Override

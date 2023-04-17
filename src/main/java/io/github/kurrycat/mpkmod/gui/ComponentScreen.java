@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.gui;
 
+import io.github.kurrycat.mpkmod.compatability.MCClasses.InputConstants;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
@@ -55,24 +56,24 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         highlighted.clear();
     }
 
-    public void onKeyEvent(char keyCode, String key, boolean pressed) {
-        super.onKeyEvent(keyCode, key, pressed);
+    public void onKeyEvent(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
+        super.onKeyEvent(keyCode, keyCode, modifiers, isCharTyped);
 
-        if (handleKeyInput(keyCode, key, pressed)) return;
+        if (handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)) return;
 
-        if (pressed && !selected.isEmpty()) {
+        if (!isCharTyped && !selected.isEmpty()) {
             Vector2D arrowKeyMove = Vector2D.ZERO;
-            switch (key) {
-                case "LEFT":
+            switch (keyCode) {
+                case InputConstants.KEY_LEFT:
                     arrowKeyMove = Vector2D.LEFT;
                     break;
-                case "RIGHT":
+                case InputConstants.KEY_RIGHT:
                     arrowKeyMove = Vector2D.RIGHT;
                     break;
-                case "UP":
+                case InputConstants.KEY_UP:
                     arrowKeyMove = Vector2D.UP;
                     break;
-                case "DOWN":
+                case InputConstants.KEY_DOWN:
                     arrowKeyMove = Vector2D.DOWN;
                     break;
             }
@@ -257,12 +258,12 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         );
     }
 
-    public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
+    public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
         if (!openPanes.isEmpty())
-            openPanes.get(openPanes.size() - 1).handleKeyInput(keyCode, key, pressed);
+            openPanes.get(openPanes.size() - 1).handleKeyInput(keyCode, scanCode, modifiers, isCharTyped);
         return ArrayListUtil.orMap(
                 ArrayListUtil.getAllOfType(KeyInputListener.class, components, movableComponents),
-                b -> b.handleKeyInput(keyCode, key, pressed)
+                b -> b.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
         );
     }
 

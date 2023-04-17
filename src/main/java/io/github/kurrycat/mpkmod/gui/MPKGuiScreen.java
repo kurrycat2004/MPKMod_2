@@ -57,7 +57,7 @@ public abstract class MPKGuiScreen extends ComponentHolder {
     public void onGuiResized(Vector2D screenSize) {
     }
 
-    public void onKeyEvent(char keyCode, String key, boolean pressed) {
+    public void onKeyEvent(int keyCode, int scanCode, int modifiers, boolean pressed) {
     }
 
     public void onMouseClicked(Vector2D mouse, int mouseButton) {

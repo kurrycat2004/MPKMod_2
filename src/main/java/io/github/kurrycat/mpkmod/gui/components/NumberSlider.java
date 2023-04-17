@@ -128,7 +128,7 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
     @Override
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
         if (contains(mousePos)) {
-            setValue(this.value - (delta * step / 3));
+            setValue(this.value - (delta < 0 ? -1 : 1 * step));
             sliderCallback.apply(this.value);
             return true;
         }

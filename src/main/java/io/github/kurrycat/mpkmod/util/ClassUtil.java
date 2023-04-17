@@ -45,7 +45,7 @@ public class ClassUtil {
         URI pkg;
         try {
             pkg = Objects.requireNonNull(ClassUtil.class.getClassLoader().getResource(pkgPath)).toURI();
-        } catch (URISyntaxException ignored) {
+        } catch (URISyntaxException | NullPointerException ignored) {
             return null;
         }
 

@@ -105,8 +105,8 @@ public class ColorSelector extends Component implements KeyInputListener, MouseI
     }
 
     @Override
-    public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
-        return this.color.handleKeyInput(keyCode, key, pressed);
+    public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
+        return this.color.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped);
     }
 
     @Override

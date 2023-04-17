@@ -73,10 +73,10 @@ public abstract class OptionListItem extends ScrollableListItem<OptionListItem> 
         );
     }
 
-    public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
+    public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
         return ArrayListUtil.orMapAll(
                 ArrayListUtil.getAllOfType(KeyInputListener.class, updateComponents),
-                ele -> ele.handleKeyInput(keyCode, key, pressed)
+                ele -> ele.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
         );
     }
 
