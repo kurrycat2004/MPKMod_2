@@ -14,7 +14,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -80,7 +79,7 @@ public class Option {
             Option option = new Option(name, value, value, type).setCategory(category).link(f);
             optionMap.put(name, option);
 
-            API.LOGGER.info("Option added to map: {} with default value: {}", name, value);
+            API.LOGGER.info("Option of type {} added to map: {} with default value: {}", type, name, value);
         }
 
         List<Tuple<ChangeListener, Method>> listeners = ClassUtil.getMethodAnnotations(classes, ChangeListener.class);
