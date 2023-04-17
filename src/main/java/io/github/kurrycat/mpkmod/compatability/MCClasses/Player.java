@@ -3,7 +3,6 @@ package io.github.kurrycat.mpkmod.compatability.MCClasses;
 import io.github.kurrycat.mpkmod.ticks.TickInput;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
-import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

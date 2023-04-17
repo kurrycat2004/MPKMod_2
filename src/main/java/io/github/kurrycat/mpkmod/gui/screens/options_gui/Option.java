@@ -7,7 +7,7 @@ import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.ClassUtil;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
-import net.minecraft.util.Tuple;
+import io.github.kurrycat.mpkmod.util.Tuple;
 
 import java.awt.*;
 import java.lang.annotation.ElementType;

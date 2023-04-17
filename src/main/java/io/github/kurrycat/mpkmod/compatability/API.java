@@ -18,7 +18,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import sun.reflect.Reflection;
 
 import java.awt.*;
 import java.time.Instant;
@@ -46,13 +45,13 @@ public class API {
     public static Map<String, Procedure> keyBindingMap = new HashMap<>();
 
     public static boolean discordRpcInitialized = false;
-    public static HashMap<String, Option> optionsMap;
     private static FunctionHolder functionHolder;
-
+    public static HashMap<String, Option> optionsMap;
     /*@Option.Field
     public static String testOption = "String Option";*/
 
     /* public static int metronome = 0;*/
+
 
     /**
      * Gets called at the beginning of mod init<br>
