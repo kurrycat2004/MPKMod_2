@@ -1,5 +1,7 @@
 package io.github.kurrycat.mpkmod.util;
 
+import io.github.kurrycat.mpkmod.compatability.MC1_19.MPKMod_1_19;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -42,8 +44,8 @@ public class ClassUtil {
         final String pkgPath = pkgName.replace('.', '/');
         URI pkg;
         try {
-            pkg = Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource(pkgPath)).toURI();
-        } catch (URISyntaxException ignored) {
+            pkg = Objects.requireNonNull(MPKMod_1_19.class.getClassLoader().getResource(pkgPath)).toURI();
+        } catch (URISyntaxException | NullPointerException ignored) {
             return null;
         }
 

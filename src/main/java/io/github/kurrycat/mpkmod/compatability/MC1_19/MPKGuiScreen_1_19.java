@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Profiler;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.util.MathUtil;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.Minecraft;
@@ -67,27 +68,22 @@ public class MPKGuiScreen_1_19 extends Screen {
         return super.mouseDragged(mouseX, mouseY, clickedMouseButton, moveX, moveY);
     }
 
-    public boolean keyPressed(int key, int scanCode, int modifiers) {
-        eventReceiver.onKeyEvent((char) InputConstants.getKey(key, scanCode).getValue(), InputConstants.getKey(key, scanCode).getName(), true);
-        return super.keyPressed(key, scanCode, modifiers);
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        eventReceiver.onKeyEvent(keyCode, scanCode, modifiers, false);
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
-    public boolean charTyped(char key, int p_94684_) {
-        eventReceiver.onKeyEvent(key, "KEY_" + key, true);
-        return super.charTyped(key, p_94684_);
-    }
-
-    public boolean keyReleased(int key, int scanCode, int modifiers) {
-        eventReceiver.onKeyEvent((char) InputConstants.getKey(key, scanCode).getValue(), InputConstants.getKey(key, scanCode).getName(), false);
-        return super.keyReleased(key, scanCode, modifiers);
+    public boolean charTyped(char c, int modifiers) {
+        eventReceiver.onKeyEvent(c, 0, modifiers, true);
+        return super.charTyped(c, modifiers);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         eventReceiver.onMouseScroll(
                 new Vector2D(mouseX, mouseY),
-                (int) (delta / 40)
+                (int) (MathUtil.constrain(delta, -1, 1) * 7)
         );
         return super.mouseScrolled(mouseX, mouseY, delta);
     }

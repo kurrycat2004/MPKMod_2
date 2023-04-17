@@ -274,10 +274,10 @@ public class LandingBlockGuiScreen extends ComponentScreen {
             );
         }
 
-        public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
+        public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
             return !collapsed && ArrayListUtil.orMapAll(
                     ArrayListUtil.getAllOfType(KeyInputListener.class, minX, minY, minZ, maxX, maxY, maxZ),
-                    ele -> ele.handleKeyInput(keyCode, key, pressed)
+                    ele -> ele.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
             );
         }
 

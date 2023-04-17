@@ -146,7 +146,7 @@ public class OptionsGuiScreen extends ComponentScreen {
         }
 
         private void updateEditComponent() {
-            if(checkButton.enabled) {
+            if (checkButton.enabled) {
                 checkButton.setChecked(Boolean.parseBoolean(value));
             }
         }
@@ -192,10 +192,10 @@ public class OptionsGuiScreen extends ComponentScreen {
             );
         }
 
-        public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
+        public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
             return ArrayListUtil.orMapAll(
                     ArrayListUtil.getAllOfType(KeyInputListener.class, updateComponents),
-                    ele -> ele.handleKeyInput(keyCode, key, pressed)
+                    ele -> ele.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
             );
         }
 

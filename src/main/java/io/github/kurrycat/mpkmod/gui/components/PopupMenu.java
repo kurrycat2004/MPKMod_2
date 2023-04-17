@@ -78,10 +78,10 @@ public class PopupMenu extends Pane {
     }
 
     @Override
-    public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
+    public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
         if (currentlyActive != null)
-            return currentlyActive.handleKeyInput(keyCode, key, pressed);
-        return super.handleKeyInput(keyCode, key, pressed);
+            return currentlyActive.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped);
+        return super.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped);
     }
 
     @Override

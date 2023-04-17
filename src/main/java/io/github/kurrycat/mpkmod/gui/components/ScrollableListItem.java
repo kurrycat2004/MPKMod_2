@@ -27,7 +27,7 @@ public abstract class ScrollableListItem<I extends ScrollableListItem<I>> implem
         return false;
     }
 
-    public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
+    public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
         return false;
     }
 }

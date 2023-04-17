@@ -76,11 +76,11 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
         );
     }
 
-    public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
+    public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
         if (this.loaded) {
             return ArrayListUtil.orMapAll(
                     ArrayListUtil.getAllOfType(KeyInputListener.class, components),
-                    b -> b.handleKeyInput(keyCode, key, pressed)
+                    b -> b.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
             );
         }
         return false;

@@ -126,10 +126,10 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         return contains(mousePos);
     }
 
-    public boolean handleKeyInput(char keyCode, String key, boolean pressed) {
+    public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
         return ArrayListUtil.orMapAll(
                 getItems(),
-                e -> e.handleKeyInput(keyCode, key, pressed)
+                e -> e.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
         );
     }
 
