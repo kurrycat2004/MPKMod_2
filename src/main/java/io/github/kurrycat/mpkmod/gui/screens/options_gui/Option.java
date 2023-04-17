@@ -163,6 +163,10 @@ public class Option {
         switch (this.type) {
             case BOOLEAN:
                 return getBoolean();
+            case INTEGER:
+                return getInteger();
+            case DOUBLE:
+                return getDouble();
             default:
                 return getValue();
         }
@@ -178,6 +182,18 @@ public class Option {
         if (ValueType.BOOLEAN.equals(this.type))
             this.setValue(value.toString());
         return this;
+    }
+
+    public Integer getInteger() {
+        if(this.type == ValueType.INTEGER)
+            return Integer.parseInt(this.value);
+        return 0;
+    }
+
+    public Double getDouble() {
+        if(this.type == ValueType.DOUBLE)
+            return Double.parseDouble(this.value);
+        return 0.0;
     }
 
     public String getCategory() {
@@ -239,6 +255,9 @@ public class Option {
         COLOR;
     }
 
+    /**
+     * Marks a field as an MPK-Option. The field has to be public.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface Field {
