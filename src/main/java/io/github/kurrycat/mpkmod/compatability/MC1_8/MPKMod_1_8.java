@@ -40,7 +40,7 @@ public class MPKMod_1_8 {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        API.preInit();
+        API.preInit(getClass());
 
         API.guiScreenMap.forEach((id, guiScreen) -> {
             if (guiScreen.shouldCreateKeyBind())

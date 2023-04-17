@@ -18,6 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import sun.reflect.Reflection;
 
 import java.awt.*;
 import java.time.Instant;
@@ -57,9 +58,10 @@ public class API {
      * Gets called at the beginning of mod init<br>
      * Register GUIs here using {@link #registerGUIScreen(String, MPKGuiScreen) registerGuiScreen}
      */
-    public static void preInit() {
+    public static void preInit(Class<?> callerClass) {
         JSONConfig.setupFiles();
         Serializer.registerSerializer();
+        ClassUtil.setModClass(callerClass);
 
         optionsMap = Option.createOptionMap();
         Option.updateOptionMapFromJSON(true);
@@ -205,7 +207,7 @@ public class API {
     }
 
     /**
-     * Should be called in {@link #preInit()}
+     * Should be called in {@link #preInit(Class)}
      *
      * @param guiID  ID used to display the GUI and localize the GUI key bind ({@link API#MODID} + ".key." + guiID + ".desc")
      * @param screen {@link MPKGuiScreen} instance to be registered
@@ -216,7 +218,7 @@ public class API {
     }
 
     /**
-     * Should be called in {@link #preInit()}
+     * Should be called in {@link #preInit(Class)}
      *
      * @param id        ID used to localize the key bind ({@link API#MODID} + ".key." + guiID + ".desc")
      * @param procedure procedure to be called when key event is received
