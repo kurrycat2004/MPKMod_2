@@ -1,6 +1,6 @@
 package io.github.kurrycat.mpkmod.util;
 
-import io.github.kurrycat.mpkmod.compatability.MC1_19.MPKMod_1_19;
+import net.minecraft.util.Tuple;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -16,6 +16,8 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ClassUtil {
+    public static Class<?> ModClass = null;
+
     public static <A extends Annotation> List<Tuple<A, Field>> getFieldAnnotations(List<Class<?>> classes, Class<A> annotationClass) {
         List<Tuple<A, Field>> annotations = new ArrayList<>();
         for (Class<?> c : classes) {
@@ -44,7 +46,7 @@ public class ClassUtil {
         final String pkgPath = pkgName.replace('.', '/');
         URI pkg;
         try {
-            pkg = Objects.requireNonNull(MPKMod_1_19.class.getClassLoader().getResource(pkgPath)).toURI();
+            pkg = Objects.requireNonNull(ModClass.getClassLoader().getResource(pkgPath)).toURI();
         } catch (URISyntaxException | NullPointerException ignored) {
             return null;
         }
@@ -82,5 +84,9 @@ public class ClassUtil {
             return null;
         }
         return allClasses;
+    }
+
+    public static void setModClass(Class<?> callerClass) {
+        ModClass = callerClass;
     }
 }
