@@ -1,7 +1,5 @@
 package io.github.kurrycat.mpkmod.util;
 
-import net.minecraft.util.Tuple;
-
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

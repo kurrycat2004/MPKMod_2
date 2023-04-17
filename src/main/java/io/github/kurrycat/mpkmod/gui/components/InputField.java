@@ -117,8 +117,6 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         if (!isFocused) return false;
         boolean inputPerformed = true;
 
-        System.out.println(modifiers);
-
         if (isCharTyped) {
             replaceSelectionWithChar(Character.toString((char) keyCode));
             cursorPos = highlightStart + 1;

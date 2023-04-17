@@ -37,7 +37,7 @@ public class MPKMod_1_19 {
 
     public void registerParticleProviders(RegisterParticleProvidersEvent e) {
         //Have to call it here because it's the only forge hook before registerKeyBinding gets called and API.keyBindingMap is filled in preInit
-        API.preInit();
+        API.preInit(getClass());
     }
 
     public void registerMCKeyBinding(RegisterKeyMappingsEvent e) {
