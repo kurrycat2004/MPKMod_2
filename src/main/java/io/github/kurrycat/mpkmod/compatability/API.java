@@ -164,6 +164,16 @@ public class API {
         );
 
         /*EventAPI.addListener(
+                EventAPI.EventListener.onTickEnd(
+                        e -> {
+                            Player p = Player.getLatest();
+                            if (p != null)
+                                System.out.println(p.tickInput);
+                        }
+                )
+        );*/
+
+        /*EventAPI.addListener(
                 EventAPI.EventListener.onTickStart(
                         e -> {
                             if (metronome == 0)

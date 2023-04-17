@@ -1,7 +1,9 @@
 package io.github.kurrycat.mpkmod.compatability.MCClasses;
 
+import io.github.kurrycat.mpkmod.ticks.TickInput;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
+import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -13,7 +15,7 @@ public class Player {
     public static ArrayList<Player> tickHistory = new ArrayList<>();
     public static int maxSavedTicks = 20;
     public static Player displayInstance = new Player();
-    public KeyInput keyInput = null;
+    public TickInput tickInput = null;
     private Vector3D pos = null;
     private Vector3D lastPos = null;
     private Float trueYaw = null;
@@ -43,7 +45,7 @@ public class Player {
                 if (o instanceof Float && (Float) o == 0F) continue;
 
                 if (o instanceof Vector3D) f.set(displayInstance, ((Vector3D) o).copy());
-                else if (o instanceof KeyInput) f.set(displayInstance, ((KeyInput) o).copy());
+                else if (o instanceof TickInput) f.set(displayInstance, ((TickInput) o).copy());
                 else f.set(displayInstance, o);
             }
         } catch (IllegalAccessException ignored) {
@@ -102,7 +104,7 @@ public class Player {
     }
 
     public Player constructKeyInput() {
-        keyInput = KeyInput.construct();
+        tickInput = new TickInput(KeyInput.construct());
         return this;
     }
 
@@ -231,9 +233,9 @@ public class Player {
             deltaYaw = trueYaw - prev.trueYaw;
             deltaPitch = truePitch - prev.truePitch;
 
-            jumpTick = !onGround && prev.onGround && keyInput.jump;
+            jumpTick = !onGround && prev.onGround && tickInput.getJump();
 
-            if (prev.jumpTick && !prev.keyInput.movingSideways() && keyInput.movingSideways()) {
+            if (prev.jumpTick && !prev.tickInput.isMovingSideways() && tickInput.isMovingSideways()) {
                 last45 = prev.deltaYaw;
             }
         }
@@ -261,13 +263,13 @@ public class Player {
     }
 
     public static class KeyInput {
-        boolean forward = false;
-        boolean back = false;
-        boolean left = false;
-        boolean right = false;
-        boolean sneak = false;
-        boolean sprint = false;
-        boolean jump = false;
+        public boolean forward = false;
+        public boolean left = false;
+        public boolean back = false;
+        public boolean right = false;
+        public boolean sprint = false;
+        public boolean sneak = false;
+        public boolean jump = false;
 
         public static KeyInput construct() {
             KeyInput k = new KeyInput();
@@ -280,22 +282,6 @@ public class Player {
                 }
             }
             return k;
-        }
-
-        public KeyInput copy() {
-            KeyInput k = new KeyInput();
-            k.forward = this.forward;
-            k.back = this.back;
-            k.left = this.left;
-            k.right = this.right;
-            k.sneak = this.sneak;
-            k.sprint = this.sprint;
-            k.jump = this.jump;
-            return k;
-        }
-
-        public boolean movingSideways() {
-            return left ^ right;
         }
 
         public String toString() {
