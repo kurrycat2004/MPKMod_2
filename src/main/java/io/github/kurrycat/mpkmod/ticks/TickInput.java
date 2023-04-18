@@ -6,6 +6,7 @@ import java.util.Objects;
 
 public class TickInput {
     public int value = 0;
+    public int excludingOppositesValue = 0;
 
     public TickInput() {
 
@@ -13,10 +14,12 @@ public class TickInput {
 
     public TickInput(int value) {
         this.value = value;
+        calcExcludingOpposites();
     }
 
     public TickInput(boolean W, boolean A, boolean S, boolean D, boolean P, boolean N, boolean J) {
         value |= bit(W) | bit(A) << 1 | bit(S) << 2 | bit(D) << 3 | bit(P) << 4 | bit(N) << 5 | bit(J) << 6;
+        calcExcludingOpposites();
     }
 
     public TickInput(Player.KeyInput k) {
@@ -33,6 +36,21 @@ public class TickInput {
                 value,
                 getW(), getA(), getS(), getD(),
                 getSprint(), getSneak(), getJump());
+    }
+
+    public String hex() {
+        return String.format("%02x", excludingOppositesValue);
+    }
+
+    private void calcExcludingOpposites() {
+        excludingOppositesValue |=
+                bit(getW() && !getS()) |
+                        bit(getA() && !getD()) << 1 |
+                        bit(getS() && !getW()) << 2 |
+                        bit(getD() && !getA()) << 3 |
+                        bit(getSprint()) << 4 |
+                        bit(getSneak()) << 5 |
+                        bit(getJump()) << 6;
     }
 
     public boolean getW() {

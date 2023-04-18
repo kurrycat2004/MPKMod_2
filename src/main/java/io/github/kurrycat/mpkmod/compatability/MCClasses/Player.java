@@ -8,6 +8,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class Player {
@@ -72,8 +74,20 @@ public class Player {
         return tickHistory.get(tickHistory.size() - 1);
     }
 
+    public static String getHexHistory() {
+        StringBuilder sb = new StringBuilder();
+        for (Player p : tickHistory) {
+            sb.append(p.tickInput.hex());
+        }
+        return sb.toString();
+    }
+
+    public static List<TickInput> getInputHistory() {
+        return tickHistory.stream().map(p -> p.tickInput).collect(Collectors.toList());
+    }
+
     public static Player getBeforeLatest() {
-        if(tickHistory.size() < 2) return null;
+        if (tickHistory.size() < 2) return null;
         return tickHistory.get(tickHistory.size() - 2);
     }
 

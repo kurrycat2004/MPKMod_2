@@ -6,6 +6,7 @@ import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -19,7 +20,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
@@ -28,7 +28,9 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FunctionCompatibility implements FunctionHolder,
@@ -73,17 +75,30 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link io.github.kurrycat.mpkmod.compatability.MCClasses.WorldInteraction.Interface WorldInteraction.Interface}
      */
-    public String getLookingAtBlock() {
+    public String getBlockName(Vector3D blockPos) {
         String blockName = "";
-        if (Minecraft.getMinecraft().objectMouseOver != null && Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && Minecraft.getMinecraft().objectMouseOver.getBlockPos() != null && !(Minecraft.getMinecraft().thePlayer.hasReducedDebug() || Minecraft.getMinecraft().gameSettings.reducedDebugInfo)) {
-            BlockPos blockpos = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
-            IBlockState iblockstate = Minecraft.getMinecraft().theWorld.getBlockState(blockpos);
-            if (Minecraft.getMinecraft().theWorld.getWorldType() != WorldType.DEBUG_WORLD) {
-                iblockstate = iblockstate.getBlock().getActualState(iblockstate, Minecraft.getMinecraft().theWorld, blockpos);
-            }
-            blockName = String.valueOf(Block.blockRegistry.getNameForObject(iblockstate.getBlock()));
+        //if (Minecraft.getMinecraft().objectMouseOver != null && Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && Minecraft.getMinecraft().objectMouseOver.getBlockPos() != null && !(Minecraft.getMinecraft().thePlayer.hasReducedDebug() || Minecraft.getMinecraft().gameSettings.reducedDebugInfo)) {
+        BlockPos blockpos = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        IBlockState iblockstate = Minecraft.getMinecraft().theWorld.getBlockState(blockpos);
+        if (Minecraft.getMinecraft().theWorld.getWorldType() != WorldType.DEBUG_WORLD) {
+            iblockstate = iblockstate.getBlock().getActualState(iblockstate, Minecraft.getMinecraft().theWorld, blockpos);
         }
+        blockName = String.valueOf(Block.blockRegistry.getNameForObject(iblockstate.getBlock()));
+        //}
         return blockName;
+    }
+
+    public HashMap<String, String> getBlockProperties(Vector3D blockPos) {
+        HashMap<String, String> properties = new HashMap<>();
+        BlockPos blockpos = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        IBlockState iblockstate = Minecraft.getMinecraft().theWorld.getBlockState(blockpos);
+        if (Minecraft.getMinecraft().theWorld.getWorldType() != WorldType.DEBUG_WORLD) {
+            iblockstate = iblockstate.getBlock().getActualState(iblockstate, Minecraft.getMinecraft().theWorld, blockpos);
+        }
+        for (Map.Entry<IProperty, Comparable> e : iblockstate.getProperties().entrySet()) {
+            properties.put(e.getKey().getName(), e.getValue().toString());
+        }
+        return properties;
     }
 
     /**
