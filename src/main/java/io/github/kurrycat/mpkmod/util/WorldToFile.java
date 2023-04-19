@@ -41,12 +41,12 @@ public class WorldToFile {
                         if (blockName.startsWith("minecraft:")) blockName = blockName.substring(10);
                         String wood = "0xc8961eff";
                         String darkIron = "0x272727ff";
-                        String stone = "0x696969ff";
+                        String stone = "0x999999ff";
                         String plant = "0x6fd77eff";
 
                         if (blockName.equals("air")) continue;
                         else if (blockName.contains("anvil")) applyValues("Anvil", darkIron);
-                        else if (blockName.contains("bed")) applyValues("Bed", "0xff6a6aff");
+                        else if (blockName.contains("bed") && !blockName.contains("bedrock")) applyValues("Bed", "0xff6a6aff");
                         else if (blockName.contains("brewing")) applyValues("BrewingStand", "0xfff39aff");
                         else if (blockName.contains("cactus")) applyValues("Cactus", "0x008323ff");
                         else if (blockName.contains("cake")) applyValues("Cake", "0xffc4c4ff");
@@ -75,14 +75,17 @@ public class WorldToFile {
                         else if (blockName.equals("web")) applyValues("Cobweb", "0xaaaaaa55");
                         else if (blockName.equals("flower_pot")) applyValues("Flowerpot", "0xd24a00ff");
                         else if (blockName.contains("trapdoor")) applyValues("Trapdoor", wood);
-                        else if (blockName.contains("fence")) applyValues("Fence", wood);
-                        else if (blockName.contains("slab")) applyValues("Stair", stone);
+                        else if (blockName.contains("fence")) {
+                            if (blockName.contains("fence_gate")) blockName = "FenceGate";
+                            else applyValues("Fence", wood);
+                        } else if (blockName.contains("slab")) applyValues("Stair", stone);
                         else applyValues("StandardBlock", stone);
 
                         int tier = 0;
                         if (properties.containsKey("age")) tier = MathUtil.parseInt(properties.get("age"), 0);
-                        else if(properties.containsKey("bites")) tier = MathUtil.parseInt(properties.get("bites"), 0);
-                        else if(properties.containsKey("layers")) tier = MathUtil.parseInt(properties.get("layers"), 0);
+                        else if (properties.containsKey("bites")) tier = MathUtil.parseInt(properties.get("bites"), 0);
+                        else if (properties.containsKey("layers"))
+                            tier = MathUtil.parseInt(properties.get("layers"), 0);
 
                         boolean top = (!blockName.equals("Trapdoor") && properties.containsKey("half") && properties.get("half").equals("top")) ||
                                 properties.containsKey("facing") && properties.get("facing").equals("up");
@@ -105,6 +108,16 @@ public class WorldToFile {
                                 top = true;
                                 bottom = false;
                             }
+                        }
+
+                        if (blockName.equals("FenceGate") && (north || south)) {
+                            west = east = true;
+                            north = south = false;
+                            applyValues("Fence", wood);
+                        } else if (blockName.equals("FenceGate") && (west || east)) {
+                            north = south = true;
+                            west = east = false;
+                            applyValues("Fence", wood);
                         }
 
                         pw.println(
