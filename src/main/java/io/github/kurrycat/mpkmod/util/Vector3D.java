@@ -7,7 +7,7 @@ package io.github.kurrycat.mpkmod.util;
  * Every manipulation method that does not have <code>set</code> in its name, does not change the original vector but returns a new instance instead
  */
 @SuppressWarnings("unused")
-public class Vector3D {
+public class Vector3D implements Copyable<Vector3D> {
     private double x, y, z;
 
     public Vector3D(double x, double y, double z) {
@@ -105,7 +105,7 @@ public class Vector3D {
     }
 
     public Vector3D toInts() {
-        return new Vector3D((int)this.x, (int)this.y, (int)this.z);
+        return new Vector3D((int) this.x, (int) this.y, (int) this.z);
     }
 
     public double lengthXZSqr() {

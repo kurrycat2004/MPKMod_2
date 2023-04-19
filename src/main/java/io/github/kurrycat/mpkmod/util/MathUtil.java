@@ -18,7 +18,7 @@ public class MathUtil {
     public static int parseInt(String value, int defaultValue) {
         try {
             return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | NullPointerException e) {
             return defaultValue;
         }
     }

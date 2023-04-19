@@ -1,8 +1,10 @@
 package io.github.kurrycat.mpkmod.test;
 
+import io.github.kurrycat.mpkmod.ticks.InputPattern;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 
 public class CodeTesting {
@@ -10,8 +12,7 @@ public class CodeTesting {
 
     @Test
     public void testAdd() throws NoSuchFieldException {
-        Field f = CodeTesting.class.getField("test");
-        System.out.println(f.getType() == boolean.class);
+
     }
 
 }

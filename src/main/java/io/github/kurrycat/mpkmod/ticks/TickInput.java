@@ -1,15 +1,20 @@
 package io.github.kurrycat.mpkmod.ticks;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
+import io.github.kurrycat.mpkmod.util.Copyable;
 
 import java.util.Objects;
 
-public class TickInput {
+public class TickInput implements Copyable<TickInput> {
     public int value = 0;
     public int excludingOppositesValue = 0;
 
     public TickInput() {
 
+    }
+
+    public TickInput(String input) {
+        this(input.contains("W"), input.contains("A"), input.contains("S"), input.contains("D"), input.contains("P"), input.contains("N"), input.contains("J"));
     }
 
     public TickInput(int value) {
@@ -83,6 +88,12 @@ public class TickInput {
 
     public boolean isMovingSideways() {
         return getA() ^ getD();
+    }
+
+    public TickInput mirror() {
+        //set second and fourth bit to 0, then set to input with OR
+        int mirrorValue = (value & ~(1 << 1) & ~(1 << 3)) | bit(getD()) << 1 | bit(getA()) << 3;
+        return new TickInput(mirrorValue);
     }
 
     @Override

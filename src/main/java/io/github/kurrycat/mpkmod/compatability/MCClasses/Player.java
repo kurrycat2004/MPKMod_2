@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.compatability.MCClasses;
 
+import io.github.kurrycat.mpkmod.ticks.InputPatternStorage;
 import io.github.kurrycat.mpkmod.ticks.TickInput;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
@@ -29,6 +30,7 @@ public class Player {
     private Float last45 = 0F;
     private boolean jumpTick = false;
     private Vector3D lastLanding = new Vector3D(0, 0, 0);
+    private String lastTiming = "None";
 
     public static void savePlayerState(Player player) {
         tickHistory.add(player);
@@ -42,6 +44,7 @@ public class Player {
                 if (Modifier.isStatic(f.getModifiers())) continue;
                 f.setAccessible(true);
                 Object o = f.get(getLatest());
+                if (o == null) continue;
                 if (o instanceof Integer && (Integer) o == 0) continue;
                 if (o instanceof Float && (Float) o == 0F) continue;
 
@@ -252,6 +255,9 @@ public class Player {
                 last45 = prev.deltaYaw;
             }
         }
+
+        lastTiming = InputPatternStorage.match(getInputHistory());
+
         Player.updateDisplayInstance();
         return this;
     }
