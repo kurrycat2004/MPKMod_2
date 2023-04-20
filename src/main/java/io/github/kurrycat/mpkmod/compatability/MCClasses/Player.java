@@ -3,6 +3,7 @@ package io.github.kurrycat.mpkmod.compatability.MCClasses;
 import io.github.kurrycat.mpkmod.ticks.InputPatternStorage;
 import io.github.kurrycat.mpkmod.ticks.TickInput;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
+import io.github.kurrycat.mpkmod.util.Tuple;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 
 import java.lang.reflect.Field;
@@ -18,6 +19,7 @@ public class Player {
     public static int maxSavedTicks = 20;
     public static Player displayInstance = new Player();
     public TickInput tickInput = null;
+    public KeyInput keyInput = null;
     private Vector3D pos = null;
     private Vector3D lastPos = null;
     private Float trueYaw = null;
@@ -89,6 +91,21 @@ public class Player {
         return tickHistory.stream().map(p -> p.tickInput).collect(Collectors.toList());
     }
 
+    public static List<String> getInputList() {
+        ArrayList<Tuple<TickInput, Integer>> inputList = new ArrayList<>();
+        for (TickInput p : getInputHistory()) {
+            if (inputList.isEmpty())
+                inputList.add(new Tuple<>(p, 1));
+
+            Tuple<TickInput, Integer> last = inputList.get(inputList.size() - 1);
+            if (last.getFirst().equals(p))
+                last.setSecond(last.getSecond() + 1);
+            else inputList.add(new Tuple<>(p, 1));
+        }
+
+        return inputList.stream().map(t -> t.getSecond() + "*" + t.getFirst().toString()).collect(Collectors.toList());
+    }
+
     public static Player getBeforeLatest() {
         if (tickHistory.size() < 2) return null;
         return tickHistory.get(tickHistory.size() - 2);
@@ -120,6 +137,7 @@ public class Player {
     }
 
     public Player constructKeyInput() {
+        keyInput = KeyInput.construct();
         tickInput = new TickInput(KeyInput.construct());
         return this;
     }
@@ -249,7 +267,9 @@ public class Player {
             deltaYaw = trueYaw - prev.trueYaw;
             deltaPitch = truePitch - prev.truePitch;
 
-            jumpTick = !onGround && prev.onGround && tickInput.getJump();
+            jumpTick = !onGround && prev.onGround && keyInput.jump;
+
+            tickInput.updateWithJumpTick(jumpTick);
 
             if (prev.jumpTick && !prev.tickInput.isMovingSideways() && tickInput.isMovingSideways()) {
                 last45 = prev.deltaYaw;

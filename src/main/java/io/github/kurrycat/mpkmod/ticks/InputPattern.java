@@ -71,52 +71,70 @@ public class InputPattern {
         List<Tuple<TickInput, TickCount>> pattern = patternCopy();
         Map<String, Integer> varNames = createVarMap();
 
-        int start = -1;
+        int firstTickMatch = -1;
         int i, j = 0;
 
         inputList:
-        for (i = 0; i < inputList.size(); i++) {
-            if (!inputList.get(i).equals(pattern.get(0).getFirst())) continue;
-            start = i;
-            for (j = 0; i + j < inputList.size() && j < pattern.size(); ) {
-                TickInput input = inputList.get(i + j);
+        for (i = 1; i < inputList.size(); i++) {
+            //check for stop tick
+            if (inputList.get(i - 1).isMoving()) continue;
 
+            //skip if first tick is not equals
+            if (!inputList.get(i).equals(pattern.get(0).getFirst())) continue;
+
+            firstTickMatch = i;
+            for (j = 0; j < pattern.size(); ) {
                 TickInput pInput = pattern.get(j).getFirst();
                 TickCount pCount = pattern.get(j).getSecond();
 
-                if (pCount.count != null && pCount.count == 0) {
-                    j++;
-                    continue;
+                //reached end of input list using last pattern tick which is variable -> match
+                if (i + j == inputList.size() && j == pattern.size() - 1 && pCount.isVariable) {
+                    break;
                 }
 
+                //pattern is longer than rest of input list -> will not find match
+                if (i + j >= inputList.size()) {
+                    System.out.println("Too long");
+                    System.out.println(inputList);
+                    System.out.println(pattern);
+                    return null;
+                }
+
+                TickInput input = inputList.get(i + j);
+
                 if (input.equals(pInput)) {
-                    if (pCount.count != null)
+                    if (pCount.count != null) {
+                        System.out.println(pInput + ": " + pCount.count);
                         pCount.count--;
-                    else {
-                        if (varNames.get(pCount.varName) == null) varNames.put(pCount.varName, 0);
+                        if (pCount.count == 0) j++;
+                        else i++;
+                    } else {
+                        if (varNames.get(pCount.varName) == null) varNames.put(pCount.varName, 1);
                         else varNames.put(pCount.varName, varNames.get(pCount.varName) + 1);
+                        i++;
                     }
-                    i++;
                 }
                 //no current match but current pattern tick is variable -> test next tick
-                else if (pCount.count == null) {
+                else if (pCount.isVariable) {
+                    varNames.putIfAbsent(pCount.varName, 0);
                     j++;
+                    i--;
                 }
                 //pattern failed to match -> try testing from next tick in inputList again
                 else {
                     pattern = patternCopy();
                     varNames = createVarMap();
-                    i = start;
-                    start = -1;
+                    i = firstTickMatch;
+                    firstTickMatch = -1;
                     continue inputList;
                 }
             }
             break;
         }
-        if (start == -1) {
+        if (firstTickMatch == -1) {
             return null;
         }
-        return new Match(start, inputList.size() - 1 - (i + j), varNames);
+        return new Match(firstTickMatch, inputList.size() - 1 - (i + j), varNames);
     }
 
     @Override
@@ -130,6 +148,8 @@ public class InputPattern {
         public final int start;
         public final int endOffset;
         public final Map<String, Integer> varNames;
+
+        public String displayString = "null";
 
         private Match(int start, int endOffset, Map<String, Integer> varNames) {
             this.start = start;
@@ -150,6 +170,11 @@ public class InputPattern {
         public int compareTo(Match o) {
             return Integer.compare(this.endOffset, o.endOffset);
         }
+
+        public Match setDisplayString(String displayString) {
+            this.displayString = displayString;
+            return this;
+        }
     }
 
     public static class TickCount implements Copyable<TickCount> {
@@ -158,7 +183,7 @@ public class InputPattern {
 
         public Integer count = null;
         public String varName = null;
-
+        public boolean isVariable;
 
         /**
          * @param countString count in the format "[0-9]+|[a-zA-Z]+",
@@ -171,11 +196,13 @@ public class InputPattern {
                     count = MathUtil.parseInt(matcher.group("count"), 0);
                 }
             }
+            isVariable = count == null;
         }
 
         public TickCount(Integer count, String varName) {
             this.count = count;
             this.varName = varName;
+            isVariable = count == null;
         }
 
         public TickCount copy() {

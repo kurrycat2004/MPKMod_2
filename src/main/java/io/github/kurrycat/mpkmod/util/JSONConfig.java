@@ -3,7 +3,6 @@ package io.github.kurrycat.mpkmod.util;
 import java.io.File;
 
 public class JSONConfig {
-
     public static final String configFileName = "mpk-config.json";
     public static final String optionsFileName = "mpk-options.json";
     public static final String configFolderPath = "config/mpk/config/";
@@ -17,5 +16,4 @@ public class JSONConfig {
         configFile = new File(configFolderPath + configFileName);
         optionsFile = new File(configFolderPath + optionsFileName);
     }
-
 }

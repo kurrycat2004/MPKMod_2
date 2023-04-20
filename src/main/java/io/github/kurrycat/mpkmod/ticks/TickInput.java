@@ -35,12 +35,16 @@ public class TickInput implements Copyable<TickInput> {
         return v ? 1 : 0;
     }
 
-    @Override
     public String toString() {
-        return String.format("%d: [W:%b,A:%b,S:%b,D:%b,P:%b,N:%b,J:%b]",
-                value,
-                getW(), getA(), getS(), getD(),
-                getSprint(), getSneak(), getJump());
+        String res = "";
+        if (getW()) res += "W";
+        if (getA()) res += "A";
+        if (getS()) res += "S";
+        if (getD()) res += "D";
+        if (getSprint()) res += "P";
+        if (getSneak()) res += "N";
+        if (getJump()) res += "J";
+        return res;
     }
 
     public String hex() {
@@ -90,6 +94,10 @@ public class TickInput implements Copyable<TickInput> {
         return getA() ^ getD();
     }
 
+    public void updateWithJumpTick(boolean isJumpTick) {
+        value = (value & ~(1 << 6)) | bit(getJump() && isJumpTick) << 6;
+    }
+
     public TickInput mirror() {
         //set second and fourth bit to 0, then set to input with OR
         int mirrorValue = (value & ~(1 << 1) & ~(1 << 3)) | bit(getD()) << 1 | bit(getA()) << 3;
@@ -102,6 +110,10 @@ public class TickInput implements Copyable<TickInput> {
         if (o == null || getClass() != o.getClass()) return false;
         TickInput tickInput = (TickInput) o;
         return value == tickInput.value;
+    }
+
+    public boolean isMoving() {
+        return (getW() ^ getS()) || (getA() ^ getD()) || getJump();
     }
 
     @Override

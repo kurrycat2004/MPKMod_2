@@ -13,6 +13,7 @@ import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
+import io.github.kurrycat.mpkmod.ticks.InputPatternStorage;
 import io.github.kurrycat.mpkmod.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,13 +46,12 @@ public class API {
     public static Map<String, Procedure> keyBindingMap = new HashMap<>();
 
     public static boolean discordRpcInitialized = false;
-    private static FunctionHolder functionHolder;
     public static HashMap<String, Option> optionsMap;
+    private static FunctionHolder functionHolder;
     /*@Option.Field
     public static String testOption = "String Option";*/
 
-    /* public static int metronome = 0;*/
-
+    /*public static int metronome = 0;*/
 
     /**
      * Gets called at the beginning of mod init<br>
@@ -64,6 +64,8 @@ public class API {
 
         optionsMap = Option.createOptionMap();
         Option.updateOptionMapFromJSON(true);
+
+        InputPatternStorage.init();
 
         mainGUI = new MainGuiScreen();
         registerGUIScreen("main_gui", mainGUI);

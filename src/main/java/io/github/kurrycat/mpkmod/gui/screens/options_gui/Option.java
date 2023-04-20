@@ -3,6 +3,7 @@ package io.github.kurrycat.mpkmod.gui.screens.options_gui;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.ClassUtil;
@@ -107,7 +108,7 @@ public class Option {
     }
 
     public static void updateOptionMapFromJSON(boolean suppressChangeListener) {
-        HashMap<String, String> deserializedInfo = Serializer.deserializeRaw(JSONConfig.optionsFile);
+        HashMap<String, String> deserializedInfo = Serializer.deserializeAny(JSONConfig.optionsFile, new TypeReference<HashMap<String, String>>() {});
         if (deserializedInfo == null) return;
 
         for (String key : deserializedInfo.keySet()) {
@@ -185,13 +186,13 @@ public class Option {
     }
 
     public Integer getInteger() {
-        if(this.type == ValueType.INTEGER)
+        if (this.type == ValueType.INTEGER)
             return Integer.parseInt(this.value);
         return 0;
     }
 
     public Double getDouble() {
-        if(this.type == ValueType.DOUBLE)
+        if (this.type == ValueType.DOUBLE)
             return Double.parseDouble(this.value);
         return 0.0;
     }
