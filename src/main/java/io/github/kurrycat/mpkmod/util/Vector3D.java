@@ -88,6 +88,10 @@ public class Vector3D implements Copyable<Vector3D> {
         return Math.sqrt(lengthSqr());
     }
 
+    public double lengthXZ() {
+        return Math.sqrt(lengthXZSqr());
+    }
+
     @Override
     public String toString() {
         return "[" + x + ", " + y + ", " + z + "]";

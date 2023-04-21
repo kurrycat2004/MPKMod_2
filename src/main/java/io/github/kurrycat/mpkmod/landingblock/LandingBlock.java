@@ -45,6 +45,21 @@ public class LandingBlock {
             return playerBB.minY() < boundingBox.maxY() && playerBB.minY() >= boundingBox.minY() && playerBB.minY() < lastPlayerBB.minY();
     }
 
+    private double calculateOffsetDist(Vector3D offset) {
+        double xSign = Math.signum(offset.getX());
+        double zSign = Math.signum(offset.getZ());
+
+        if(xSign <= 0 && zSign >= 0) {
+            return offset.getX();
+        } else if(xSign >= 0 && zSign <= 0) {
+            return offset.getZ();
+        } else if(xSign <= 0 && zSign <= 0) {
+            return -offset.lengthXZ();
+        } else {
+            return offset.lengthXZ();
+        }
+    }
+
     public Vector3D saveOffsetIfInRange() {
         if (!isTryingToLandOn()) return null;
         BoundingBox3D playerBB = landingMode.getPlayerBB();
@@ -58,23 +73,8 @@ public class LandingBlock {
             offsets.remove(0);
 
         if (pb == null) pb = offset;
-        else {
-            //TODO: find a way to tell which offset is better than another
-
-
-            //not working
-            Vector3D diff = Vector3D.ZERO;
-            Vector3D testVec = Math.signum(pb.getX()) != Math.signum(offset.getX()) && Math.signum(pb.getZ()) != Math.signum(offset.getZ())
-                    ? pb.mult(-1) : pb;
-            if (testVec.signXZ() > 0 && offset.signXZ() > 0)
-                diff = offset.sub(testVec);
-            else if (Math.signum(offset.getZ()) == Math.signum(testVec.getZ()))
-                diff = new Vector3D(offset.getX() - testVec.getX(), 0, 0);
-            else if (Math.signum(offset.getX()) == Math.signum(testVec.getX()))
-                diff = new Vector3D(0, 0, offset.getZ() - testVec.getZ());
-
-            if (diff.getX() + diff.getZ() > 0)
-                pb = offset;
+        else if(calculateOffsetDist(offset) > calculateOffsetDist(pb)){
+            pb = offset;
         }
         if (pbX == null || offset.getX() > pbX.getX()) pbX = offset;
         if (pbZ == null || offset.getZ() > pbZ.getZ()) pbZ = offset;
