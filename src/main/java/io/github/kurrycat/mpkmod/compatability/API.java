@@ -40,6 +40,10 @@ public class API {
     public static final String KEYBINDING_CATEGORY = NAME;
     public static final String packageName = "io.github.kurrycat.mpkmod";
     public static Instant gameStartedInstant;
+    /**
+     * Ticks passed since {@link #init(String)}
+     */
+    public static long tickTime = 0;
 
     public static MainGuiScreen mainGUI;
     public static Map<String, MPKGuiScreen> guiScreenMap = new HashMap<>();
@@ -108,6 +112,8 @@ public class API {
             discordRpcInitialized = false;
         }
 
+        EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> tickTime++));
+
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(
                         e -> {
@@ -148,21 +154,18 @@ public class API {
 
         EventAPI.addListener(
                 EventAPI.EventListener.onTickEnd(
-                        e -> LandingBlockGuiScreen.lbs.stream()
-                                .filter(lb -> lb.enabled)
-                                .filter(LandingBlock::isTryingToLandOn)
-                                .filter(lb -> lb.landingMode.getPlayerBB() != null)
-                                .map(lb -> lb.boundingBox.distanceTo(lb.landingMode.getPlayerBB()).mult(-1D))
-                                .filter(vec -> vec.getX() > -0.3F && vec.getZ() > -0.3F)
-                                .forEach(offset -> {
-                                    if (mainGUI != null)
-                                        mainGUI.postMessage(
-                                                "offset",
-                                                MathUtil.formatDecimals(offset.getX(), 5, false) +
-                                                        ", " + MathUtil.formatDecimals(offset.getZ(), 5, false),
-                                                offset.getX() > 0 && offset.getZ() > 0
-                                        );
-                                })
+                        e -> {
+                            LandingBlockGuiScreen.calculateLBOffsets()
+                                    .forEach(offset -> {
+                                        if (mainGUI != null)
+                                            mainGUI.postMessage(
+                                                    "offset",
+                                                    MathUtil.formatDecimals(offset.getX(), 5, false) +
+                                                            ", " + MathUtil.formatDecimals(offset.getZ(), 5, false),
+                                                    offset.getX() > 0 && offset.getZ() > 0
+                                            );
+                                    });
+                        }
                 )
         );
 

@@ -8,6 +8,7 @@ package io.github.kurrycat.mpkmod.util;
  */
 @SuppressWarnings("unused")
 public class Vector3D implements Copyable<Vector3D> {
+    public static final Vector3D ZERO = new Vector3D(0, 0, 0);
     private double x, y, z;
 
     public Vector3D(double x, double y, double z) {
@@ -112,6 +113,12 @@ public class Vector3D implements Copyable<Vector3D> {
         return this.x * this.x + this.z * this.z;
     }
 
+    public int signXZ() {
+        if (x > 0 && z > 0)
+            return 1;
+        return -1;
+    }
+
     @Override
     public int hashCode() {
         return Double.hashCode(this.x) + Double.hashCode(this.y) + Double.hashCode(this.z);
@@ -120,5 +127,9 @@ public class Vector3D implements Copyable<Vector3D> {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Vector3D && this.x == ((Vector3D) obj).x && this.y == ((Vector3D) obj).y && this.z == ((Vector3D) obj).z;
+    }
+
+    public Vector3D abs() {
+        return new Vector3D(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z));
     }
 }

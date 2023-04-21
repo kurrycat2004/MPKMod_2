@@ -94,9 +94,6 @@ public class InputPattern {
 
                 //pattern is longer than rest of input list -> will not find match
                 if (i + j >= inputList.size()) {
-                    System.out.println("Too long");
-                    System.out.println(inputList);
-                    System.out.println(pattern);
                     return null;
                 }
 
@@ -104,7 +101,6 @@ public class InputPattern {
 
                 if (input.equals(pInput)) {
                     if (pCount.count != null) {
-                        System.out.println(pInput + ": " + pCount.count);
                         pCount.count--;
                         if (pCount.count == 0) j++;
                         else i++;

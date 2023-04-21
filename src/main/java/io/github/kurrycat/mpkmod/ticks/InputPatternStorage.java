@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.ticks;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.FileUtil;
 
@@ -36,7 +37,7 @@ public class InputPatternStorage {
             InputPatternStorage.patterns.put(entry.getKey(), InputPattern.fromString(entry.getValue()));
         }
 
-        System.out.println(InputPatternStorage.patterns);
+        API.LOGGER.info(API.CONFIG_MARKER, "Timings loaded from {}", stratFile);
     }
 
     public static String match(List<TickInput> inputList) {

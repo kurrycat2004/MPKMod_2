@@ -82,4 +82,8 @@ public class MathUtil {
     public static double roundToStep(double value, double step) {
         return Math.round(value / step) * step;
     }
+
+    public static double distance(double v1, double v2) {
+        return Math.abs(v1 - v2);
+    }
 }

@@ -66,36 +66,66 @@ public class TickInput implements Copyable<TickInput> {
         return (value & 1) != 0;
     }
 
+    private void setW(boolean v) {
+        value = (value & ~(1)) | bit(v);
+    }
+
     public boolean getA() {
         return (value & 1 << 1) != 0;
+    }
+
+    private void setA(boolean v) {
+        value = (value & ~(1 << 1)) | bit(v) << 1;
     }
 
     public boolean getS() {
         return (value & 1 << 2) != 0;
     }
 
+    private void setS(boolean v) {
+        value = (value & ~(1 << 2)) | bit(v) << 2;
+    }
+
     public boolean getD() {
         return (value & 1 << 3) != 0;
+    }
+
+    private void setD(boolean v) {
+        value = (value & ~(1 << 3)) | bit(v) << 3;
     }
 
     public boolean getSprint() {
         return (value & 1 << 4) != 0;
     }
 
+    private void setSprint(boolean v) {
+        value = (value & ~(1 << 4)) | bit(v) << 4;
+    }
+
     public boolean getSneak() {
         return (value & 1 << 5) != 0;
+    }
+
+    private void setSneak(boolean v) {
+        value = (value & ~(1 << 5)) | bit(v) << 5;
     }
 
     public boolean getJump() {
         return (value & 1 << 6) != 0;
     }
 
+    private void setJump(boolean v) {
+        value = (value & ~(1 << 6)) | bit(v) << 6;
+    }
+
     public boolean isMovingSideways() {
         return getA() ^ getD();
     }
 
-    public void updateWithJumpTick(boolean isJumpTick) {
-        value = (value & ~(1 << 6)) | bit(getJump() && isJumpTick) << 6;
+    public void updateToMovement(boolean isJumpTick) {
+        setJump(getJump() && isJumpTick);
+        setSneak(getSneak() && isMovingHorizontally());
+        setSprint(getSprint() && isMovingHorizontally());
     }
 
     public TickInput mirror() {
@@ -114,6 +144,10 @@ public class TickInput implements Copyable<TickInput> {
 
     public boolean isMoving() {
         return (getW() ^ getS()) || (getA() ^ getD()) || getJump();
+    }
+
+    public boolean isMovingHorizontally() {
+        return (getW() ^ getS()) || (getA() ^ getD());
     }
 
     @Override

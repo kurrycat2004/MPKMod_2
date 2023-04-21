@@ -1,5 +1,7 @@
 package io.github.kurrycat.mpkmod.compatability.MCClasses;
 
+import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
+import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.ticks.InputPatternStorage;
 import io.github.kurrycat.mpkmod.ticks.TickInput;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
@@ -10,6 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +34,10 @@ public class Player {
     private int airtime = 0;
     private Float last45 = 0F;
     private boolean jumpTick = false;
+    private boolean landTick = false;
     private Vector3D lastLanding = new Vector3D(0, 0, 0);
+    private Vector3D lastHit = new Vector3D(0, 0, 0);
+    private Vector3D lastJump = new Vector3D(0, 0, 0);
     private String lastTiming = "None";
 
     public static void savePlayerState(Player player) {
@@ -72,6 +78,13 @@ public class Player {
             if (f.apply(tickHistory.get(i))) return tickHistory.get(i);
         }
         return null;
+    }
+
+    public static LandingBlock getLatestLB() {
+        return LandingBlockGuiScreen.lbs.stream()
+                .filter(lb -> lb.pb != null)
+                .min(Comparator.comparing(o -> o.lastTimeOffsetSaved))
+                .orElse(new LandingBlock(BoundingBox3D.ZERO));
     }
 
     public static Player getLatest() {
@@ -138,7 +151,7 @@ public class Player {
 
     public Player constructKeyInput() {
         keyInput = KeyInput.construct();
-        tickInput = new TickInput(KeyInput.construct());
+        tickInput = new TickInput(keyInput);
         return this;
     }
 
@@ -262,14 +275,17 @@ public class Player {
             else airtime = prev.airtime + 1;
             if (prev.onGround && !onGround) airtime = 1;
 
-            lastLanding = (!prev.onGround && onGround) ? pos : prev.lastLanding;
+            landTick = (!prev.onGround && onGround);
+            jumpTick = !onGround && prev.onGround && keyInput.jump;
+
+            lastLanding = landTick ? pos : prev.lastLanding;
+            lastHit = prev.landTick ? pos : prev.lastHit;
+            lastJump = jumpTick ? pos : prev.lastJump;
 
             deltaYaw = trueYaw - prev.trueYaw;
             deltaPitch = truePitch - prev.truePitch;
 
-            jumpTick = !onGround && prev.onGround && keyInput.jump;
-
-            tickInput.updateWithJumpTick(jumpTick);
+            tickInput.updateToMovement(jumpTick);
 
             if (prev.jumpTick && !prev.tickInput.isMovingSideways() && tickInput.isMovingSideways()) {
                 last45 = prev.deltaYaw;

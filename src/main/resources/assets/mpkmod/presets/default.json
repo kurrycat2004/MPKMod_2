@@ -1,0 +1,258 @@
+[ {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "IP: {white}{mc.IP}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 15.0
+  },
+  "color" : "#FFFFAA00",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}X: {white}{player.pos.x,5}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 49.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Y: {white}{player.pos.y,5}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 58.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Z: {white}{player.pos.z,5}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 67.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Yaw: {white}{player.yaw,5!} {gold}{player.facing}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 80.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Pitch: {white}{player.pitch,5}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 90.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Time: {white}{mc.time}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 25.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Date: {white}{mc.date}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 35.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Tier: {white}{player.tier}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 103.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Last 45: {white}{player.last45,5}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 113.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}FPS: {white}{mc.FPS}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 5.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel",
+  "pos" : {
+    "x" : -41.0,
+    "y" : 78.0
+  },
+  "size" : {
+    "x" : 21.0,
+    "y" : 21.0
+  },
+  "name" : "key.forward",
+  "displayName" : "W",
+  "keyDownColor" : "#5FFFFFFF",
+  "keyUpColor" : "#2F1F1F1F",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel",
+  "pos" : {
+    "x" : -64.0,
+    "y" : 101.0
+  },
+  "size" : {
+    "x" : 21.0,
+    "y" : 21.0
+  },
+  "name" : "key.left",
+  "displayName" : "A",
+  "keyDownColor" : "#5FFFFFFF",
+  "keyUpColor" : "#2F1F1F1F",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel",
+  "pos" : {
+    "x" : -41.0,
+    "y" : 101.0
+  },
+  "size" : {
+    "x" : 21.0,
+    "y" : 21.0
+  },
+  "name" : "key.back",
+  "displayName" : "S",
+  "keyDownColor" : "#5FFFFFFF",
+  "keyUpColor" : "#2F1F1F1F",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel",
+  "pos" : {
+    "x" : -18.0,
+    "y" : 101.0
+  },
+  "size" : {
+    "x" : 21.0,
+    "y" : 21.0
+  },
+  "name" : "key.right",
+  "displayName" : "D",
+  "keyDownColor" : "#5FFFFFFF",
+  "keyUpColor" : "#2F1F1F1F",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel",
+  "pos" : {
+    "x" : -18.0,
+    "y" : 125.0
+  },
+  "size" : {
+    "x" : 31.0,
+    "y" : 21.0
+  },
+  "name" : "key.sneak",
+  "displayName" : "Shift",
+  "keyDownColor" : "#5FFFFFFF",
+  "keyUpColor" : "#2F1F1F1F",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel",
+  "pos" : {
+    "x" : -53.0,
+    "y" : 125.0
+  },
+  "size" : {
+    "x" : 32.0,
+    "y" : 21.0
+  },
+  "name" : "key.sprint",
+  "displayName" : "Ctrl",
+  "keyDownColor" : "#5FFFFFFF",
+  "keyUpColor" : "#2F1F1F1F",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.KeyBindingLabel",
+  "pos" : {
+    "x" : -18.0,
+    "y" : 149.0
+  },
+  "size" : {
+    "x" : 67.0,
+    "y" : 21.0
+  },
+  "name" : "key.jump",
+  "displayName" : "Space",
+  "keyDownColor" : "#5FFFFFFF",
+  "keyUpColor" : "#2F1F1F1F",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.MessageQueue",
+  "pos" : {
+    "x" : 517.0,
+    "y" : 4.0
+  },
+  "size" : {
+    "x" : 120.0,
+    "y" : 62.0
+  },
+  "displayName" : "Offsets",
+  "messageReceiverID" : "offset",
+  "backgroundColor" : "#28646464",
+  "messageBackgroundColor" : "#2F1F1F1F",
+  "messageHighlightBackgroundColor" : "#9D62FF4A",
+  "messageColor" : "#FFFFFFFF",
+  "edgeColor" : "#32646464"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Last Timing:{reset} {player.lastTiming}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 123.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Last Land X: {reset}{player.lastLanding.x,5}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 138.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Last Land Y: {reset}{player.lastLanding.y,5}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 148.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+}, {
+  "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
+  "text" : "{gold}Last Land Z: {reset}{player.lastLanding.z,5}",
+  "pos" : {
+    "x" : 5.0,
+    "y" : 158.0
+  },
+  "color" : "#FFFFFFFF",
+  "selectedColor" : "#64FFAA00"
+} ]
