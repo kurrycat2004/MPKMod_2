@@ -1,35 +1,115 @@
 {
   "fmm": {
     "format": {
-      "a+b==10": "3bc ",
-      "a==0": "Max ",
+      "a==1": "Max ",
       "default": "FMM",
-      "a!=0": " {a}t"
+      "a!=1": " {a}t"
     },
     "timingEntries": [
-      "WJ",
+      "a{1,1}:WJ",
       "a:W!G",
-      "b:WP!G",
-      "b{1,1}:WPG",
-      "WPJ"
+      "WP!G"
     ]
   },
   "c4.5": {
     "format": {
-      "a+b==10": "3bc ",
-      "a==0": "Max ",
+      "a==1": "Max ",
       "default": "c4.5",
-      "a!=0&&a!=3": " {a}t",
+      "a!=1&&a!=4": " {a}t",
       "r!=1": " Run {r}t"
     },
     "timingEntries": [
-      "WJ",
+      "a{1,1}:WJ",
       "a:W!G",
       "b:WP!G",
-      "b{1,1}:WPG",
+      "WPG",
       "r{1,}:WPG",
       "WPJ"
     ]
+  },
+  "pessi": {
+    "format": {
+      "a==1": "Max ",
+      "default": "Pessi",
+      "a!=1": " -{a}t"
+    },
+    "timingEntries": [
+      "a{1,1}:J",
+      "a:!G",
+      "WP!G"
+    ]
+  },
+  "a7hh": {
+    "format": {
+      "default": "A7HH"
+    },
+    "timingEntries": [
+      "a{1,1}:J",
+      "a:!G",
+      "WPG"
+    ]
+  },
+  "panefmm": {
+    "format": {
+      "a==1": "Max ",
+      "default": "Pane FMM",
+      "a!=1&&a!=4": " {a}t",
+      "r!=1": " Run {r}t"
+    },
+    "timingEntries": [
+      "a{1,1}:J",
+      "a:",
+      "b:WP!G",
+      "WPG",
+      "r{1,6}:WPG",
+      "WPJ"
+    ]
+  },
+  "jam": {
+    "format": {
+      "default": "Jam"
+    },
+    "timingEntries": [
+      "WPJ"
+    ]
+  },
+  "hh": {
+    "format": {
+      "default": "HH",
+      "x!=1": " {x}t"
+    },
+    "timingEntries": [
+      "x{1,}:WP",
+      "WPJ"
+    ]
+  },
+  "3bcbwmm": {
+    "format": {
+      "default": "3bc BWMM",
+      "w!=1": " Walk {w}t"
+    },
+    "timingEntries": [
+      "SJ",
+      "a:S!G",
+      "SG",
+      "w{1,}:SG",
+      "WPJ"
+    ]
+  },
+  "rexbwmm": {
+    "format": {
+      "default": "Rex BWMM",
+      "w!=1": " Walk {w}t",
+      "s!=1": " Strafe {s}t"
+    },
+    "timingEntries": [
+      "SJ",
+      "a:S!G",
+      "SG",
+      "w{1,}:SG",
+      "s{1,1}:WAPJ",
+      "s:WAP!G",
+      "WP!G"
+    ]
   }
 }
-

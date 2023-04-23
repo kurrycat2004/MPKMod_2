@@ -25,7 +25,7 @@ public class TimingEntry {
     @JsonCreator
     public TimingEntry(String timingEntry) {
         this.timingEntry = timingEntry;
-        String[] split = timingEntry.split(":");
+        String[] split = timingEntry.split(":", -1);
         if (split.length == 1) {
             number = 1;
             varName = null;
