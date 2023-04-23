@@ -40,6 +40,7 @@ public class Player {
     private Vector3D lastHit = new Vector3D(0, 0, 0);
     private Vector3D lastJump = new Vector3D(0, 0, 0);
     private String lastTiming = "None";
+    private boolean sprinting = false;
 
     public static void savePlayerState(Player player) {
         tickHistory.add(player);
@@ -259,6 +260,15 @@ public class Player {
         return lastLanding;
     }
 
+    public boolean isSprinting() {
+        return sprinting;
+    }
+
+    public Player setSprinting(boolean sprinting) {
+        this.sprinting = sprinting;
+        return this;
+    }
+
     public Player buildAndSave() {
         Player.savePlayerState(this);
         Player prev = getPrevious();
@@ -283,7 +293,7 @@ public class Player {
                     keyInput.left,
                     keyInput.back,
                     keyInput.right,
-                    keyInput.sprint,
+                    sprinting,
                     keyInput.sneak,
                     jumpTick,
                     onGround

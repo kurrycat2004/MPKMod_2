@@ -58,6 +58,7 @@ public class EventListener {
                     .setRotation(mcPlayer.rotationYaw, mcPlayer.rotationPitch)
                     .setOnGround(mcPlayer.onGround)
                     .constructKeyInput()
+                    .setSprinting(mcPlayer.isSprinting())
                     .buildAndSave();
         }
         if (e.phase == TickEvent.Phase.START) {
