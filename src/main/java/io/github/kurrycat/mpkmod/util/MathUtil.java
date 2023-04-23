@@ -15,7 +15,7 @@ public class MathUtil {
         return new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.US)).format(value);
     }
 
-    public static int parseInt(String value, int defaultValue) {
+    public static Integer parseInt(String value, Integer defaultValue) {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException | NullPointerException e) {

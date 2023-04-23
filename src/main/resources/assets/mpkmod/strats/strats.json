@@ -1,22 +1,35 @@
 {
-  "FMM {x}t": [
-    "WJ",
-    "x*W",
-    "y*WP"
-  ],
-  "c4.5": [
-    "WJ",
-    "3*W",
-    "9*WP",
-    "WPJ"
-  ],
-  "HH {x}t": [
-    "x*WP",
-    "WPJ"
-  ],
-  "Pessi {x}t": [
-    "J",
-    "x*",
-    "WP"
-  ]
+  "fmm": {
+    "format": {
+      "a+b==10": "3bc ",
+      "a==0": "Max ",
+      "default": "FMM",
+      "a!=0": " {a}t"
+    },
+    "timingEntries": [
+      "WJ",
+      "a:W!G",
+      "b:WP!G",
+      "b{1,1}:WPG",
+      "WPJ"
+    ]
+  },
+  "c4.5": {
+    "format": {
+      "a+b==10": "3bc ",
+      "a==0": "Max ",
+      "default": "c4.5",
+      "a!=0&&a!=3": " {a}t",
+      "r!=1": " Run {r}t"
+    },
+    "timingEntries": [
+      "WJ",
+      "a:W!G",
+      "b:WP!G",
+      "b{1,1}:WPG",
+      "r{1,}:WPG",
+      "WPJ"
+    ]
+  }
 }
+

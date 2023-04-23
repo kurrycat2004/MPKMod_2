@@ -13,7 +13,7 @@ import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
-import io.github.kurrycat.mpkmod.ticks.InputPatternStorage;
+import io.github.kurrycat.mpkmod.ticks.TimingStorage;
 import io.github.kurrycat.mpkmod.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,7 +69,8 @@ public class API {
         optionsMap = Option.createOptionMap();
         Option.updateOptionMapFromJSON(true);
 
-        InputPatternStorage.init();
+        //InputPatternStorage.init();
+        TimingStorage.init();
 
         mainGUI = new MainGuiScreen();
         registerGUIScreen("main_gui", mainGUI);

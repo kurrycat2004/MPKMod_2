@@ -2,9 +2,10 @@ package io.github.kurrycat.mpkmod.compatability.MCClasses;
 
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
-import io.github.kurrycat.mpkmod.ticks.InputPatternStorage;
-import io.github.kurrycat.mpkmod.ticks.TickInput;
+import io.github.kurrycat.mpkmod.ticks.TimingInput;
+import io.github.kurrycat.mpkmod.ticks.TimingStorage;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
+import io.github.kurrycat.mpkmod.util.Copyable;
 import io.github.kurrycat.mpkmod.util.Tuple;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 
@@ -21,7 +22,7 @@ public class Player {
     public static ArrayList<Player> tickHistory = new ArrayList<>();
     public static int maxSavedTicks = 20;
     public static Player displayInstance = new Player();
-    public TickInput tickInput = null;
+    public TimingInput timingInput = new TimingInput("");
     public KeyInput keyInput = null;
     private Vector3D pos = null;
     private Vector3D lastPos = null;
@@ -57,7 +58,7 @@ public class Player {
                 if (o instanceof Float && (Float) o == 0F) continue;
 
                 if (o instanceof Vector3D) f.set(displayInstance, ((Vector3D) o).copy());
-                else if (o instanceof TickInput) f.set(displayInstance, ((TickInput) o).copy());
+                else if (o instanceof Copyable) f.set(displayInstance, ((Copyable<?>) o).copy());
                 else f.set(displayInstance, o);
             }
         } catch (IllegalAccessException ignored) {
@@ -92,25 +93,17 @@ public class Player {
         return tickHistory.get(tickHistory.size() - 1);
     }
 
-    public static String getHexHistory() {
-        StringBuilder sb = new StringBuilder();
-        for (Player p : tickHistory) {
-            sb.append(p.tickInput.hex());
-        }
-        return sb.toString();
-    }
-
-    public static List<TickInput> getInputHistory() {
-        return tickHistory.stream().map(p -> p.tickInput).collect(Collectors.toList());
+    public static List<TimingInput> getInputHistory() {
+        return tickHistory.stream().map(p -> p.timingInput).collect(Collectors.toList());
     }
 
     public static List<String> getInputList() {
-        ArrayList<Tuple<TickInput, Integer>> inputList = new ArrayList<>();
-        for (TickInput p : getInputHistory()) {
+        ArrayList<Tuple<TimingInput, Integer>> inputList = new ArrayList<>();
+        for (TimingInput p : getInputHistory()) {
             if (inputList.isEmpty())
                 inputList.add(new Tuple<>(p, 1));
 
-            Tuple<TickInput, Integer> last = inputList.get(inputList.size() - 1);
+            Tuple<TimingInput, Integer> last = inputList.get(inputList.size() - 1);
             if (last.getFirst().equals(p))
                 last.setSecond(last.getSecond() + 1);
             else inputList.add(new Tuple<>(p, 1));
@@ -151,7 +144,6 @@ public class Player {
 
     public Player constructKeyInput() {
         keyInput = KeyInput.construct();
-        tickInput = new TickInput(keyInput);
         return this;
     }
 
@@ -285,14 +277,26 @@ public class Player {
             deltaYaw = trueYaw - prev.trueYaw;
             deltaPitch = truePitch - prev.truePitch;
 
-            tickInput.updateToMovement(jumpTick);
+            //TODO: use mc inputs instead of keys (e.g. player not being able to sprint because of hunger but it still saving sprint when button is pressed)
+            timingInput = new TimingInput(
+                    keyInput.forward,
+                    keyInput.left,
+                    keyInput.back,
+                    keyInput.right,
+                    keyInput.sprint,
+                    keyInput.sneak,
+                    jumpTick,
+                    onGround
+            );
 
-            if (prev.jumpTick && !prev.tickInput.isMovingSideways() && tickInput.isMovingSideways()) {
+            if (prev.jumpTick && !prev.keyInput.isMovingSideways() && keyInput.isMovingSideways()) {
                 last45 = prev.deltaYaw;
             }
+
+            lastTiming = TimingStorage.match(getInputHistory());
         }
 
-        lastTiming = InputPatternStorage.match(getInputHistory());
+        //lastTiming = InputPatternStorage.match(getInputHistory());
 
         Player.updateDisplayInstance();
         return this;
@@ -341,6 +345,10 @@ public class Player {
 
         public String toString() {
             return "{W:" + forward + ", A:" + left + ", S:" + back + ", D:" + right + ", N:" + sneak + ", P:" + sprint + ", J:" + jump + "}";
+        }
+
+        public boolean isMovingSideways() {
+            return left ^ right;
         }
     }
 }
