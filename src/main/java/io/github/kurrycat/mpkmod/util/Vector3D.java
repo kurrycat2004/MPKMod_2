@@ -7,7 +7,7 @@ package io.github.kurrycat.mpkmod.util;
  * Every manipulation method that does not have <code>set</code> in its name, does not change the original vector but returns a new instance instead
  */
 @SuppressWarnings("unused")
-public class Vector3D implements Copyable<Vector3D> {
+public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
     public static final Vector3D ZERO = new Vector3D(0, 0, 0);
     private double x, y, z;
 
@@ -135,5 +135,11 @@ public class Vector3D implements Copyable<Vector3D> {
 
     public Vector3D abs() {
         return new Vector3D(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z));
+    }
+
+    public String formatDecimals(int decimals, boolean keepZeros) {
+        return "[" + MathUtil.formatDecimals(this.x, decimals, keepZeros) + "," +
+                MathUtil.formatDecimals(this.y, decimals, keepZeros) + "," +
+                MathUtil.formatDecimals(this.z, decimals, keepZeros) + "]";
     }
 }

@@ -2,15 +2,16 @@ package io.github.kurrycat.mpkmod.gui.components;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.util.ArrayListUtil;
+import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
 
-public class Pane extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener {
+public class Pane<T extends PaneHolder> extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener {
     public Color backgroundColor = new Color(255, 255, 255, 255);
 
-    public PaneHolder paneHolder = null;
+    public T paneHolder = null;
 
     private boolean loaded;
 
@@ -61,7 +62,7 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
         this.loaded = loaded;
     }
 
-    public void setPaneHolder(PaneHolder p) {
+    public void setPaneHolder(T p) {
         this.paneHolder = p;
     }
 
@@ -70,10 +71,19 @@ public class Pane extends Component implements MouseInputListener, MouseScrollLi
                 "x",
                 new Vector2D(1, 1),
                 new Vector2D(10, 10),
-                mouseButton -> {
-                    close();
-                }
+                mouseButton -> close()
         );
+    }
+
+    public void addTitle(String title) {
+        TextRectangle titleRect = new TextRectangle(
+                new Vector2D(0.5, 1),
+                new Vector2D(1, 20),
+                Colors.UNDERLINE.getCode() + title,
+                new Color(0, 0, 0, 0),
+                Color.WHITE
+        );
+        addChild(titleRect, true, false, true, false, Anchor.TOP_LEFT);
     }
 
     public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {

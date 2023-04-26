@@ -1,12 +1,13 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
+import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
 import java.util.ArrayList;
 
-public class PopupMenu extends Pane {
+public class PopupMenu extends Pane<MainGuiScreen> {
     public ArrayList<PopupMenu> subMenus = new ArrayList<>();
     private PopupMenu currentlyActive = null;
 

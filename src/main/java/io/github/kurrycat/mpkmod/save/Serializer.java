@@ -67,11 +67,21 @@ public class Serializer {
         }
     }
 
+    public static <T> T deserialize(URL configFile, Class<T> c) {
+        try {
+            return mapper.readValue(configFile, c);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static <T> T deserializeAny(File configFile, TypeReference<T> typeReference) {
         if (!configFile.exists()) return null;
         try {
             return mapper.readValue(configFile, typeReference);
         } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
     }

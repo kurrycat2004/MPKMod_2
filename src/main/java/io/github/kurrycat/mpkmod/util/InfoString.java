@@ -76,7 +76,7 @@ public class InfoString {
 
     public static StringProvider getValueFromString(String fullMatch, String input, int decimals, boolean keepZeros) {
         String[] splitVars = input.split("\\.");
-        if(splitVars.length < 1) {
+        if (splitVars.length < 1) {
             return () -> null;
         }
         String objectIdentifier = splitVars[0];
@@ -87,24 +87,26 @@ public class InfoString {
         if (currObj == null) return () -> fullMatch;
 
         return () -> {
-            ObjectProvider finalCurrObj = getValueOfObject(subVars, currObj);
-            if (finalCurrObj.getObj() == null) return fullMatch;
-            if (finalCurrObj.getObj() instanceof Double)
-                return MathUtil.formatDecimals((Double) finalCurrObj.getObj(), decimals, keepZeros);
-            if (finalCurrObj.getObj() instanceof Float)
-                return MathUtil.formatDecimals((Float) finalCurrObj.getObj(), decimals, keepZeros);
-            return finalCurrObj.getObj().toString();
+            Object finalCurrObj = getValueOfObject(subVars, currObj).getObj();
+            if (finalCurrObj == null) return fullMatch;
+            if (finalCurrObj instanceof Double)
+                return MathUtil.formatDecimals((Double) finalCurrObj, decimals, keepZeros);
+            if (finalCurrObj instanceof Float)
+                return MathUtil.formatDecimals((Float) finalCurrObj, decimals, keepZeros);
+            if (finalCurrObj instanceof FormatDecimals)
+                return ((FormatDecimals) finalCurrObj).formatDecimals(decimals, keepZeros);
+            return finalCurrObj.toString();
         };
     }
 
     public static ObjectProvider getValueOfObject(String[] splitVars, ObjectProvider objectProvider) {
-        if(splitVars.length < 1) {
+        if (splitVars.length < 1) {
             return () -> null;
         }
         String objectIdentifier = splitVars[0];
         String[] subVars = Arrays.copyOfRange(splitVars, 1, splitVars.length);
         return () -> {
-            if(objectProvider == null) return null;
+            if (objectProvider == null) return null;
             Object obj = objectProvider.getObj();
             if (obj == null) return null;
             Class<?> objClass = obj instanceof Class ? (Class<?>) obj : obj.getClass();
@@ -112,13 +114,13 @@ public class InfoString {
                 Field f = objClass.getDeclaredField(objectIdentifier);
                 if (!f.isAccessible()) f.setAccessible(true);
                 Object returnObj = f.get(obj);
-                if(splitVars.length == 1) return returnObj;
+                if (splitVars.length == 1) return returnObj;
                 else return getValueOfObject(subVars, () -> returnObj).getObj();
             } catch (NoSuchFieldException e) {
                 try {
                     Method m = objClass.getDeclaredMethod("get" + StringUtil.capitalize(objectIdentifier));
                     Object returnObj = m.invoke(obj);
-                    if(splitVars.length == 1) return returnObj;
+                    if (splitVars.length == 1) return returnObj;
                     else return getValueOfObject(subVars, () -> returnObj).getObj();
                 } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException ex) {
                     return null;

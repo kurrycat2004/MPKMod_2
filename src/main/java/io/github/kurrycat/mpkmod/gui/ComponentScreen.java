@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder, MouseInputListener, MouseScrollListener, KeyInputListener, MessageReceiver {
-    public ArrayList<Pane> openPanes = new ArrayList<>();
+    public ArrayList<Pane<?>> openPanes = new ArrayList<>();
 
     public ArrayList<Component> movableComponents = new ArrayList<>();
     public Set<Component> selected = new HashSet<>();
@@ -210,9 +210,9 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         handleMouseScroll(mousePos, delta);
     }
 
-    public void openPane(Pane p) {
+    public <T extends PaneHolder> void openPane(Pane<T> p) {
         openPanes.add(p);
-        p.setPaneHolder(this);
+        p.setPaneHolder((T)this);
         p.setLoaded(true);
 
         selected.clear();
@@ -222,7 +222,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         holdingSetPosOffset = null;
     }
 
-    public void closePane(Pane p) {
+    public <T extends PaneHolder> void closePane(Pane<T> p) {
         openPanes.remove(p);
         if (openPanes.isEmpty()) {
             highlighted.clear();
@@ -348,7 +348,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         }
 
         if (!openPanes.isEmpty()) {
-            Pane last = openPanes.get(openPanes.size() - 1);
+            Pane<?> last = openPanes.get(openPanes.size() - 1);
             if (!(last instanceof PopupMenu))
                 drawDefaultBackground();
             for (int i = 0; i < openPanes.size() - 1; i++) {

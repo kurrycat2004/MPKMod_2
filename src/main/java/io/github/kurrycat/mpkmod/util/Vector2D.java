@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
-public class Vector2D implements Copyable<Vector2D> {
+public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
     public static final Vector2D ONE = new Vector2D(1, 1);
     public static final Vector2D ZERO = new Vector2D(0, 0);
     public static final Vector2D OFFSCREEN = null;
@@ -212,5 +212,10 @@ public class Vector2D implements Copyable<Vector2D> {
 
     public Vector2D abs() {
         return new Vector2D(Math.abs(this.x), Math.abs(this.y));
+    }
+
+    public String formatDecimals(int decimals, boolean keepZeros) {
+        return "[" + MathUtil.formatDecimals(this.x, decimals, keepZeros) + "," +
+                MathUtil.formatDecimals(this.y, decimals, keepZeros) + "]";
     }
 }

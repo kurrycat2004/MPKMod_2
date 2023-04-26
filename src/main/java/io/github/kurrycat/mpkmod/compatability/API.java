@@ -62,9 +62,10 @@ public class API {
      * Register GUIs here using {@link #registerGUIScreen(String, MPKGuiScreen) registerGuiScreen}
      */
     public static void preInit(Class<?> callerClass) {
+        ClassUtil.setModClass(callerClass);
+
         JSONConfig.setupFiles();
         Serializer.registerSerializer();
-        ClassUtil.setModClass(callerClass);
 
         optionsMap = Option.createOptionMap();
         Option.updateOptionMapFromJSON(true);

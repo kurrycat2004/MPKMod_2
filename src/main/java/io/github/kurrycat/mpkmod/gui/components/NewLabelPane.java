@@ -1,10 +1,11 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
+import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
 
-public class NewLabelPane extends Pane {
+public class NewLabelPane extends Pane<MainGuiScreen> {
     private Vector2D creationPos = Vector2D.ZERO;
     private final Button addLabelButton;
     private final Button addKeyButton;

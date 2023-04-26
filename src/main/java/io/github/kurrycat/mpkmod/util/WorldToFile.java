@@ -10,14 +10,15 @@ import java.util.HashMap;
 import java.util.List;
 
 public class WorldToFile {
+    public static final String WORLD_DIR = "config/mpk/pkc/";
 
     private static String blockName;
     private static String blockColor;
 
-    public static void parseWorld() {
-        File dir = new File("config/mpk/test/");
+    public static void parseWorld(int radius) {
+        File dir = new File(WORLD_DIR);
         if (!dir.exists()) dir.mkdir();
-        File csvOutputFile = new File("config/mpk/test/test.bcsv");
+        File csvOutputFile = new File(WORLD_DIR + "test.bcsv");
 
         Player player = Player.getLatest();
         if (player == null) return;
@@ -26,9 +27,9 @@ public class WorldToFile {
 
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
             pw.println("X,Y,Z,TYPE,TIER,COLOR,TOP,BOTTOM,NORTH,EAST,SOUTH,WEST");
-            for (int i = -5; i <= 5; i++) {
-                for (int j = -5; j <= 5; j++) {
-                    for (int k = -5; k <= 5; k++) {
+            for (int i = -radius; i <= radius; i++) {
+                for (int j = -radius; j <= radius; j++) {
+                    for (int k = -radius; k <= radius; k++) {
                         blockName = WorldInteraction.getBlockName(playerPos.add(i, j, k));
                         if (blockName == null) continue;
 
@@ -46,7 +47,8 @@ public class WorldToFile {
 
                         if (blockName.equals("air")) continue;
                         else if (blockName.contains("anvil")) applyValues("Anvil", darkIron);
-                        else if (blockName.contains("bed") && !blockName.contains("bedrock")) applyValues("Bed", "0xff6a6aff");
+                        else if (blockName.contains("bed") && !blockName.contains("bedrock"))
+                            applyValues("Bed", "0xff6a6aff");
                         else if (blockName.contains("brewing")) applyValues("BrewingStand", "0xfff39aff");
                         else if (blockName.contains("cactus")) applyValues("Cactus", "0x008323ff");
                         else if (blockName.contains("cake")) applyValues("Cake", "0xffc4c4ff");
