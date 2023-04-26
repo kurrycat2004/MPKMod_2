@@ -137,6 +137,7 @@ public class API {
         EventAPI.addListener(
                 new EventAPI.EventListener<OnRenderWorldOverlayEvent>(
                         e -> {
+                            Profiler.startSection("renderLBOverlays");
                             LandingBlockGuiScreen.lbs.forEach(lb -> {
                                         if (lb.enabled || lb.highlight && lb.boundingBox != null)
                                             Renderer3D.drawBox(
@@ -148,6 +149,7 @@ public class API {
                                             );
                                     }
                             );
+                            Profiler.endSection();
                         },
                         Event.EventType.RENDER_WORLD_OVERLAY
                 )
@@ -156,6 +158,7 @@ public class API {
         EventAPI.addListener(
                 EventAPI.EventListener.onTickEnd(
                         e -> {
+                            Profiler.startSection("calculateLBOffsets");
                             LandingBlockGuiScreen.calculateLBOffsets()
                                     .forEach(offset -> {
                                         if (mainGUI != null)
@@ -166,6 +169,7 @@ public class API {
                                                     offset.getX() > 0 && offset.getZ() > 0
                                             );
                                     });
+                            Profiler.endSection();
                         }
                 )
         );

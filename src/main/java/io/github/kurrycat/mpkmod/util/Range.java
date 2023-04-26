@@ -13,7 +13,7 @@ public class Range {
         if (upper == null && lower == null) return true;
         else if (upper == null) return v >= lower;
         else if (lower == null) return v <= upper;
-        else return v >= upper && v <= lower;
+        else return v >= lower && v <= upper;
     }
 
     public int constrain(int v) {

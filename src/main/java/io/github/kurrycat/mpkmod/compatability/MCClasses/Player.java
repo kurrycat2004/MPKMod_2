@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class Player {
     public static ArrayList<Player> tickHistory = new ArrayList<>();
-    public static int maxSavedTicks = 20;
+    public static int maxSavedTicks = 100;
     public static Player displayInstance = new Player();
     public TimingInput timingInput = new TimingInput("");
     public KeyInput keyInput = null;

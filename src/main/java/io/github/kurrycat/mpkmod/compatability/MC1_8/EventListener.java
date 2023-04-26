@@ -57,8 +57,8 @@ public class EventListener {
                     .setMotion(new Vector3D(mcPlayer.motionX, mcPlayer.motionY, mcPlayer.motionZ))
                     .setRotation(mcPlayer.rotationYaw, mcPlayer.rotationPitch)
                     .setOnGround(mcPlayer.onGround)
-                    .constructKeyInput()
                     .setSprinting(mcPlayer.isSprinting())
+                    .constructKeyInput()
                     .buildAndSave();
         }
         if (e.phase == TickEvent.Phase.START) {

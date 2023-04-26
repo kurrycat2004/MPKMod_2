@@ -19,8 +19,7 @@ public class TimingStorage {
         URL stratFile = FileUtil.getResource(stratFileName);
         if (stratFile == null) return;
 
-        patterns = Serializer.deserializeAny(stratFile, new TypeReference<HashMap<String, Timing>>() {
-        });
+        patterns = Serializer.deserializeAny(stratFile, new TypeReference<HashMap<String, Timing>>() {});
         if (patterns == null) return;
 
         API.LOGGER.info(API.CONFIG_MARKER, "Timings loaded from {}", stratFile);

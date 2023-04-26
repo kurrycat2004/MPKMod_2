@@ -2,7 +2,6 @@ package io.github.kurrycat.mpkmod.ticks;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import io.github.kurrycat.mpkmod.util.MathUtil;
 
 import java.util.ArrayList;
@@ -89,10 +88,8 @@ public class Timing {
         OR condition;
         boolean isDefault = false;
 
-        private String formatCondition;
-
+        @JsonCreator
         public FormatCondition(String formatCondition) {
-            this.formatCondition = formatCondition;
             if (formatCondition.equals("default")) {
                 isDefault = true;
             } else {
@@ -102,15 +99,6 @@ public class Timing {
                     e.printStackTrace();
                 }
             }
-        }
-
-        public static FormatCondition fromString(String formatCondition) {
-            return new FormatCondition(formatCondition);
-        }
-
-        @JsonValue
-        public String getFormatCondition() {
-            return formatCondition;
         }
 
         public boolean check(HashMap<String, Integer> vars) {

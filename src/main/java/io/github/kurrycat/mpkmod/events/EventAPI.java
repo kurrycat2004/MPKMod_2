@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.events;
 
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Profiler;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -65,6 +66,7 @@ public class EventAPI {
         }
 
         public void postEvent(Event event) {
+            Profiler.startSection("event_" + event.getType().name());
             get(event.getType()).forEach(listener -> {
                 try {
                     listener.run(event);
@@ -73,6 +75,7 @@ public class EventAPI {
                     e.printStackTrace();
                 }
             });
+            Profiler.endSection();
         }
     }
 
