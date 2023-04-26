@@ -3,6 +3,7 @@ package io.github.kurrycat.mpkmod.landingblock;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
+import io.github.kurrycat.mpkmod.util.InfoString;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@InfoString.DataClass
 public class LandingBlock {
     public static final int MAX_OFFSETS_SAVED = 500;
     public LandingMode landingMode = LandingMode.LAND;
@@ -18,8 +20,11 @@ public class LandingBlock {
     public boolean highlight = false;
 
     public List<Vector3D> offsets = new ArrayList<>();
+    @InfoString.Field
     public Vector3D pb = null;
+    @InfoString.Field
     public Vector3D pbX = null;
+    @InfoString.Field
     public Vector3D pbZ = null;
 
     public long lastTimeOffsetSaved = 0;

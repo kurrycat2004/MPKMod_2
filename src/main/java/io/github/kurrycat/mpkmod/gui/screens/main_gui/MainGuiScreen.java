@@ -35,10 +35,7 @@ public class MainGuiScreen extends ComponentScreen {
         addChild(
                 new Button(
                         "Options",
-                        new Vector2D(
-                                5,
-                                5
-                        ),
+                        new Vector2D(5, 5),
                         new Vector2D(50, 20),
                         mouseButton -> openPane(optionsPane)
                 ),

@@ -4,10 +4,7 @@ import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.ticks.TimingInput;
 import io.github.kurrycat.mpkmod.ticks.TimingStorage;
-import io.github.kurrycat.mpkmod.util.BoundingBox3D;
-import io.github.kurrycat.mpkmod.util.Copyable;
-import io.github.kurrycat.mpkmod.util.Tuple;
-import io.github.kurrycat.mpkmod.util.Vector3D;
+import io.github.kurrycat.mpkmod.util.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -21,6 +18,7 @@ import java.util.stream.Collectors;
 public class Player {
     public static ArrayList<Player> tickHistory = new ArrayList<>();
     public static int maxSavedTicks = 100;
+    @InfoString.AccessInstance
     public static Player displayInstance = new Player();
     public TimingInput timingInput = new TimingInput("");
     public KeyInput keyInput = null;
@@ -36,9 +34,12 @@ public class Player {
     private Float last45 = 0F;
     private boolean jumpTick = false;
     private boolean landTick = false;
-    private Vector3D lastLanding = new Vector3D(0, 0, 0);
-    private Vector3D lastHit = new Vector3D(0, 0, 0);
-    private Vector3D lastJump = new Vector3D(0, 0, 0);
+    @InfoString.Field
+    public Vector3D lastLanding = new Vector3D(0, 0, 0);
+    @InfoString.Field
+    public Vector3D lastHit = new Vector3D(0, 0, 0);
+    @InfoString.Field
+    public Vector3D lastJump = new Vector3D(0, 0, 0);
     private String lastTiming = "None";
     private boolean sprinting = false;
 
@@ -82,6 +83,7 @@ public class Player {
         return null;
     }
 
+    @InfoString.Getter
     public static LandingBlock getLatestLB() {
         return LandingBlockGuiScreen.lbs.stream()
                 .filter(lb -> lb.pb != null)
@@ -132,6 +134,7 @@ public class Player {
         return value;
     }
 
+    @InfoString.Getter
     public Float getLast45() {
         return last45;
     }
@@ -148,6 +151,7 @@ public class Player {
         return this;
     }
 
+    @InfoString.Getter
     public boolean isOnGround() {
         return onGround;
     }
@@ -157,12 +161,14 @@ public class Player {
         return this;
     }
 
+    @InfoString.Getter
     public String getFacing() {
         double yaw = getYaw();
         int xz = (int) Math.floor(Math.abs(yaw / 45));
         return Arrays.asList(0, 3, 4).contains(xz) ? "Z" : "X";
     }
 
+    @InfoString.Getter
     public Vector3D getPos() {
         return pos;
     }
@@ -172,6 +178,7 @@ public class Player {
         return this;
     }
 
+    @InfoString.Getter
     public Vector3D getLastPos() {
         return lastPos;
     }
@@ -181,6 +188,7 @@ public class Player {
         return this;
     }
 
+    @InfoString.Getter
     public Float getTrueYaw() {
         return trueYaw;
     }
@@ -190,11 +198,13 @@ public class Player {
         return this;
     }
 
+    @InfoString.Getter
     public Float getYaw() {
         if (trueYaw == null) return null;
         else return wrapDegrees(trueYaw);
     }
 
+    @InfoString.Getter
     public Float getTruePitch() {
         return truePitch;
     }
@@ -204,6 +214,7 @@ public class Player {
         return this;
     }
 
+    @InfoString.Getter
     public Float getPitch() {
         if (truePitch == null) return null;
         else return wrapDegrees(truePitch);
@@ -227,14 +238,17 @@ public class Player {
         else return wrapDegrees(prev.truePitch);
     }
 
+    @InfoString.Getter
     public Float getDeltaYaw() {
         return deltaYaw;
     }
 
+    @InfoString.Getter
     public Float getDeltaPitch() {
         return deltaPitch;
     }
 
+    @InfoString.Getter
     public Vector3D getMotion() {
         return motion;
     }
@@ -244,22 +258,22 @@ public class Player {
         return this;
     }
 
+    @InfoString.Getter
     public Vector3D getSpeed() {
         return pos.sub(lastPos);
     }
 
+    @InfoString.Getter
     public int getAirtime() {
         return airtime;
     }
 
+    @InfoString.Getter
     public int getTier() {
         return -(airtime - 12);
     }
 
-    public Vector3D getLastLanding() {
-        return lastLanding;
-    }
-
+    @InfoString.Getter
     public boolean isSprinting() {
         return sprinting;
     }
@@ -267,6 +281,11 @@ public class Player {
     public Player setSprinting(boolean sprinting) {
         this.sprinting = sprinting;
         return this;
+    }
+
+    @InfoString.Getter
+    public String getLastTiming() {
+        return lastTiming;
     }
 
     public Player buildAndSave() {

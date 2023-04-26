@@ -22,14 +22,15 @@ public class Timing {
     }
 
     public Match match(List<TimingInput> inputList) {
+        Match result = null;
         for (int i = 0; i < inputList.size() - 1; i++) {
             if (inputList.get(i).isStopTick() && !inputList.get(i + 1).isStopTick()) {
                 Match match = startsWithMatch(inputList.subList(i + 1, inputList.size()));
                 if (match != null)
-                    return match;
+                    result = match;
             }
         }
-        return null;
+        return result;
     }
 
     private Match startsWithMatch(List<TimingInput> inputList) {

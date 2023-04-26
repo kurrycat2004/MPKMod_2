@@ -6,7 +6,6 @@ import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
-import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
@@ -51,6 +50,7 @@ public class API {
 
     public static boolean discordRpcInitialized = false;
     public static HashMap<String, Option> optionsMap;
+    public static HashMap<String, InfoString.ObjectProvider> infoMap;
     private static FunctionHolder functionHolder;
     /*@Option.Field
     public static String testOption = "String Option";*/
@@ -69,6 +69,9 @@ public class API {
 
         optionsMap = Option.createOptionMap();
         Option.updateOptionMapFromJSON(true);
+
+        infoMap = InfoString.createInfoMap();
+        System.out.println(infoMap.keySet());
 
         //InputPatternStorage.init();
         TimingStorage.init();
@@ -119,16 +122,12 @@ public class API {
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(
                         e -> {
-                            Profiler.startSection("labels");
+                            Profiler.startSection("components");
                             if (mainGUI != null)
                                 for (Component c : mainGUI.movableComponents) {
-                                    try {
-                                        c.render(new Vector2D(-1, -1));
-                                    } catch (ClassCastException err) {
-                                        if (c instanceof InfoLabel) {
-                                            ((InfoLabel) c).infoString.updateProviders();
-                                        }
-                                    }
+                                    Profiler.startSection(c.getClass().getSimpleName());
+                                    c.render(new Vector2D(-1, -1));
+                                    Profiler.endSection();
                                 }
                             Profiler.endSection();
                         }

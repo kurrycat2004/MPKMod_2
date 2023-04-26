@@ -15,8 +15,6 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 
 public class InfoLabel extends Label {
-    public final InfoString infoString;
-
     /**
      * @param text the text to be displayed<br><br>
      *             <code>"{COLOR}"</code> with COLOR being any <code>{@link Colors}.name</code> will be replaced by that color's code<br><br>
@@ -27,11 +25,10 @@ public class InfoLabel extends Label {
     @JsonCreator
     public InfoLabel(@JsonProperty("text") String text, @JsonProperty("pos") Vector2D pos) {
         super(text, pos);
-        this.infoString = new InfoString(text);
     }
 
     public String getFormattedText() {
-        return infoString.getFormattedText(this.text);
+        return InfoString.getFormattedText(this.text);
     }
 
     public void render(Vector2D mouse) {
@@ -100,8 +97,6 @@ public class InfoLabel extends Label {
             this.inputField = new InputField(text, Vector2D.OFFSCREEN, getDisplayedSize().getX())
                     .setOnContentChange(content -> {
                         text = content.getContent();
-                        infoString.input = text;
-                        infoString.updateProviders();
                     });
             this.components.add(inputField);
 

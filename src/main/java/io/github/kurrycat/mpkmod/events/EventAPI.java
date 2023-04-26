@@ -66,7 +66,7 @@ public class EventAPI {
         }
 
         public void postEvent(Event event) {
-            Profiler.startSection("event_" + event.getType().name());
+            Profiler.startSection("mpk_event_" + event.getType().name());
             get(event.getType()).forEach(listener -> {
                 try {
                     listener.run(event);

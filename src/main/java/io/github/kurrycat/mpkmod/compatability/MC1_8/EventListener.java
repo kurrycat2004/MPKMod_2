@@ -70,7 +70,7 @@ public class EventListener {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onRender(RenderGameOverlayEvent e) {
-        if (e.type == RenderGameOverlayEvent.ElementType.TEXT)
+        if (e.type == RenderGameOverlayEvent.ElementType.TEXT && e instanceof RenderGameOverlayEvent.Text)
             API.Events.onRenderOverlay();
     }
 

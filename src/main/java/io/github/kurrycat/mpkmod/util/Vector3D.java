@@ -7,6 +7,7 @@ package io.github.kurrycat.mpkmod.util;
  * Every manipulation method that does not have <code>set</code> in its name, does not change the original vector but returns a new instance instead
  */
 @SuppressWarnings("unused")
+@InfoString.DataClass
 public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
     public static final Vector3D ZERO = new Vector3D(0, 0, 0);
     private double x, y, z;
@@ -17,6 +18,7 @@ public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
         this.z = z;
     }
 
+    @InfoString.Getter
     public double getX() {
         return x;
     }
@@ -26,10 +28,12 @@ public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
         return this;
     }
 
+    @InfoString.Getter
     public int getXI() {
         return (int) x;
     }
 
+    @InfoString.Getter
     public double getY() {
         return y;
     }
@@ -39,10 +43,12 @@ public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
         return this;
     }
 
+    @InfoString.Getter
     public int getYI() {
         return (int) y;
     }
 
+    @InfoString.Getter
     public double getZ() {
         return z;
     }
@@ -52,6 +58,7 @@ public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
         return this;
     }
 
+    @InfoString.Getter
     public int getZI() {
         return (int) z;
     }
@@ -115,12 +122,6 @@ public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
 
     public double lengthXZSqr() {
         return this.x * this.x + this.z * this.z;
-    }
-
-    public int signXZ() {
-        if (x > 0 && z > 0)
-            return 1;
-        return -1;
     }
 
     @Override

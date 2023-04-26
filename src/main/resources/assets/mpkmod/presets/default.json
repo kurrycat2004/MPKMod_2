@@ -1,6 +1,6 @@
 [ {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "IP: {white}{mc.IP}",
+  "text" : "IP: {white}{ip}",
   "pos" : {
     "x" : 5.0,
     "y" : 15.0
@@ -9,7 +9,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}X: {white}{player.pos.x,5}",
+  "text" : "{gold}X: {white}{pos.x,5}",
   "pos" : {
     "x" : 5.0,
     "y" : 49.0
@@ -18,7 +18,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Y: {white}{player.pos.y,5}",
+  "text" : "{gold}Y: {white}{pos.y,5}",
   "pos" : {
     "x" : 5.0,
     "y" : 58.0
@@ -27,7 +27,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Z: {white}{player.pos.z,5}",
+  "text" : "{gold}Z: {white}{pos.z,5}",
   "pos" : {
     "x" : 5.0,
     "y" : 67.0
@@ -36,7 +36,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Yaw: {white}{player.yaw,5!} {gold}{player.facing}",
+  "text" : "{gold}Yaw: {white}{yaw,5!} {gold}{facing}",
   "pos" : {
     "x" : 5.0,
     "y" : 80.0
@@ -45,7 +45,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Pitch: {white}{player.pitch,5}",
+  "text" : "{gold}Pitch: {white}{pitch,5}",
   "pos" : {
     "x" : 5.0,
     "y" : 90.0
@@ -54,7 +54,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Time: {white}{mc.time}",
+  "text" : "{gold}Time: {white}{time}",
   "pos" : {
     "x" : 5.0,
     "y" : 25.0
@@ -63,7 +63,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Date: {white}{mc.date}",
+  "text" : "{gold}Date: {white}{date}",
   "pos" : {
     "x" : 5.0,
     "y" : 35.0
@@ -72,7 +72,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Tier: {white}{player.tier}",
+  "text" : "{gold}Tier: {white}{tier}",
   "pos" : {
     "x" : 5.0,
     "y" : 103.0
@@ -81,7 +81,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Last 45: {white}{player.last45,5}",
+  "text" : "{gold}Last 45: {white}{last45,5}",
   "pos" : {
     "x" : 5.0,
     "y" : 113.0
@@ -90,7 +90,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}FPS: {white}{mc.FPS}",
+  "text" : "{gold}FPS: {white}{fps}",
   "pos" : {
     "x" : 5.0,
     "y" : 5.0
@@ -221,7 +221,7 @@
   "edgeColor" : "#32646464"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Last Timing:{reset} {player.lastTiming}",
+  "text" : "{gold}Last Timing:{reset} {lastTiming}",
   "pos" : {
     "x" : 5.0,
     "y" : 123.0
@@ -230,7 +230,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Last Land X: {reset}{player.lastLanding.x,5}",
+  "text" : "{gold}Last Land X: {reset}{lastLanding.x,5}",
   "pos" : {
     "x" : 5.0,
     "y" : 138.0
@@ -239,7 +239,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Last Land Y: {reset}{player.lastLanding.y,5}",
+  "text" : "{gold}Last Land Y: {reset}{lastLanding.y,5}",
   "pos" : {
     "x" : 5.0,
     "y" : 148.0
@@ -248,7 +248,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Last Land Z: {reset}{player.lastLanding.z,5}",
+  "text" : "{gold}Last Land Z: {reset}{lastLanding.z,5}",
   "pos" : {
     "x" : 5.0,
     "y" : 158.0

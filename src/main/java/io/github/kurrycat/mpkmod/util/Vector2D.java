@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
+@InfoString.DataClass
 public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
     public static final Vector2D ONE = new Vector2D(1, 1);
     public static final Vector2D ZERO = new Vector2D(0, 0);
@@ -26,6 +27,7 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
         this.y = vector2D.getY();
     }
 
+    @InfoString.Getter
     @JsonProperty("x")
     public double getX() {
         return x;
@@ -37,16 +39,19 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
         return this;
     }
 
+    @InfoString.Getter
     @JsonIgnore
     public float getXF() {
         return (float) x;
     }
 
+    @InfoString.Getter
     @JsonIgnore
     public int getXI() {
         return (int) x;
     }
 
+    @InfoString.Getter
     @JsonProperty("y")
     public double getY() {
         return y;
@@ -58,11 +63,13 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
         return this;
     }
 
+    @InfoString.Getter
     @JsonIgnore
     public float getYF() {
         return (float) y;
     }
 
+    @InfoString.Getter
     @JsonIgnore
     public int getYI() {
         return (int) y;
