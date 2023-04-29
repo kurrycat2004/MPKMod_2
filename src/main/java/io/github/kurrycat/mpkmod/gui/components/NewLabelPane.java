@@ -52,15 +52,15 @@ public class NewLabelPane extends Pane<MainGuiScreen> {
         );
         this.addKeyButton.pos = new Vector2D(
                 getDisplayedPos().getX() + getDisplayedSize().getX() / 2 - this.addKeyButton.getDisplayedSize().getX() / 2,
-                this.addLabelButton.getPos().getY() + this.addLabelButton.getDisplayedSize().getY() + 1
+                this.addLabelButton.getDisplayedPos().getY() + this.addLabelButton.getDisplayedSize().getY() + 1
         );
         this.addMessageButton.pos = new Vector2D(
                 getDisplayedPos().getX() + getDisplayedSize().getX() / 2 - this.addMessageButton.getDisplayedSize().getX() / 2,
-                this.addKeyButton.getPos().getY() + this.addKeyButton.getDisplayedSize().getY() + 1
+                this.addKeyButton.getDisplayedPos().getY() + this.addKeyButton.getDisplayedSize().getY() + 1
         );
         this.addBarrierDisplayButton.pos = new Vector2D(
                 getDisplayedPos().getX() + getDisplayedSize().getX() / 2 - this.addBarrierDisplayButton.getDisplayedSize().getX() / 2,
-                this.addMessageButton.getPos().getY() + this.addMessageButton.getDisplayedSize().getY() + 1
+                this.addMessageButton.getDisplayedPos().getY() + this.addMessageButton.getDisplayedSize().getY() + 1
         );
         super.render(mousePos);
     }

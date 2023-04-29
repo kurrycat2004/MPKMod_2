@@ -49,7 +49,7 @@ public class MPKGuiScreen_1_8 extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        Profiler.startSection(eventReceiver.getID() == null ? "mpk_gui" : eventReceiver.getID());
+        Profiler.startSection(eventReceiver.getID() == null ? "unknown" : eventReceiver.getID());
         try {
             eventReceiver.drawScreen(new Vector2D(mouseX, mouseY), partialTicks);
         } catch (Exception e) {

@@ -7,6 +7,7 @@ import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
+import io.github.kurrycat.mpkmod.gui.screens.main_gui.LabelConfiguration;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
@@ -66,14 +67,13 @@ public class API {
 
         JSONConfig.setupFiles();
         Serializer.registerSerializer();
+        LabelConfiguration.init();
 
         optionsMap = Option.createOptionMap();
         Option.updateOptionMapFromJSON(true);
 
         infoMap = InfoString.createInfoMap();
-        System.out.println(infoMap.keySet());
 
-        //InputPatternStorage.init();
         TimingStorage.init();
 
         mainGUI = new MainGuiScreen();

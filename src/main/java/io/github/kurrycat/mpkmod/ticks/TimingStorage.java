@@ -5,7 +5,7 @@ import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.FileUtil;
 
-import java.net.URL;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,13 +16,14 @@ public class TimingStorage {
     public static Map<String, Timing> patterns = new HashMap<>();
 
     public static void init() {
-        URL stratFile = FileUtil.getResource(stratFileName);
+        InputStream stratFile = FileUtil.getResource(stratFileName);
         if (stratFile == null) return;
 
-        patterns = Serializer.deserializeAny(stratFile, new TypeReference<HashMap<String, Timing>>() {});
+        patterns = Serializer.deserializeAny(stratFile, new TypeReference<HashMap<String, Timing>>() {
+        });
         if (patterns == null) return;
 
-        API.LOGGER.info(API.CONFIG_MARKER, "Timings loaded from {}", stratFile);
+        API.LOGGER.info(API.CONFIG_MARKER, "Timings loaded from {}", stratFileName);
     }
 
     public static String match(List<TimingInput> inputList) {

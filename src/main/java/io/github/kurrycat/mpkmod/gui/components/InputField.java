@@ -12,9 +12,10 @@ import java.awt.*;
 //TODO: Multiline InputField
 public class InputField extends Component implements KeyInputListener, MouseInputListener {
     public static final double HEIGHT = 11;
-    public static String FILTER_ALL = "[0-9a-zA-Z!?,.;\\-{} ]";
+    public static String FILTER_ALL = "[0-9a-zA-Z!?,.:;\\-{}()/&%$\"<>' ]";
     public static String FILTER_NUMBERS = "[0-9.,\\-!]";
     public static String FILTER_HEX = "[#0-9a-fA-F]";
+    public static String FILTER_FILENAME = "[^</*?\"\\\\>:|]";
     public boolean numbersOnly;
     public String content;
     public ContentProvider onContentChange = null;
@@ -117,7 +118,7 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         if (!isFocused) return false;
         boolean inputPerformed = true;
 
-        if (isCharTyped) {
+        if (isCharTyped && String.valueOf((char) keyCode).matches(getFilter())) {
             replaceSelectionWithChar(Character.toString((char) keyCode));
             cursorPos = highlightStart + 1;
         } else {
@@ -175,6 +176,14 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         this.content = content;
         if (onContentChange != null)
             onContentChange.apply(new Content(content));
+    }
+
+    public void clear() {
+        isFocused = false;
+        cursorPos = 0;
+        highlightStart = 0;
+        highlightEnd = 0;
+        content = "";
     }
 
     private double getCursorX() {

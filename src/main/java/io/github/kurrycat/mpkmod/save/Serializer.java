@@ -13,7 +13,7 @@ import io.github.kurrycat.mpkmod.save.serialize.ColorSerializer;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 
 public class Serializer {
     public static ObjectMapper mapper;
@@ -47,15 +47,14 @@ public class Serializer {
         }
     }
 
-    /*public static <T> void serializeWithoutTyping(File configFile, T value) {
+    public static String serializeAsString(Object value) {
         try {
-            mapper.disableDefaultTyping();
-            mapper.writeValue(configFile, value);
-            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
+            return mapper.writeValueAsString(value);
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-    }*/
+    }
 
     public static <T> T deserialize(File configFile, Class<T> c) {
         if (!configFile.exists()) return null;
@@ -67,7 +66,16 @@ public class Serializer {
         }
     }
 
-    public static <T> T deserialize(URL configFile, Class<T> c) {
+    public static <T> T deserializeString(String json, Class<T> c) {
+        try {
+            return mapper.readValue(json, c);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static <T> T deserialize(InputStream configFile, Class<T> c) {
         try {
             return mapper.readValue(configFile, c);
         } catch (IOException e) {
@@ -86,7 +94,7 @@ public class Serializer {
         }
     }
 
-    public static <T> T deserializeAny(URL configFile, TypeReference<T> typeReference) {
+    public static <T> T deserializeAny(InputStream configFile, TypeReference<T> typeReference) {
         try {
             return mapper.readValue(configFile, typeReference);
         } catch (IOException e) {

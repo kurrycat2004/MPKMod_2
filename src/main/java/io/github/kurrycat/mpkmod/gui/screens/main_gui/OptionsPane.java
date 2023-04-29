@@ -1,13 +1,13 @@
 package io.github.kurrycat.mpkmod.gui.screens.main_gui;
 
 import io.github.kurrycat.mpkmod.gui.components.Button;
-import io.github.kurrycat.mpkmod.gui.components.Component;
-import io.github.kurrycat.mpkmod.gui.components.*;
+import io.github.kurrycat.mpkmod.gui.components.NumberSlider;
+import io.github.kurrycat.mpkmod.gui.components.Pane;
+import io.github.kurrycat.mpkmod.gui.components.TextRectangle;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.WorldToFile;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 public class OptionsPane extends Pane<MainGuiScreen> {
     public OptionsPane(Vector2D pos, Vector2D size) {
@@ -51,10 +51,7 @@ public class OptionsPane extends Pane<MainGuiScreen> {
                 new Button("Reload From File",
                         new Vector2D(20, 80),
                         new Vector2D(100, 20),
-                        mouseButton -> {
-                            paneHolder.cachedElements = paneHolder.loadJSONComponents();
-                            paneHolder.movableComponents = new ArrayList<>(paneHolder.cachedElements);
-                        }
+                        mouseButton -> paneHolder.reloadConfig()
                 ),
                 false, false, Anchor.TOP_LEFT
         );

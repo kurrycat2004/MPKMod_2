@@ -17,6 +17,7 @@ public abstract class Component extends ComponentHolder {
     private boolean usePercentPosY = false;
     private boolean usePercentSizeX = false;
     private boolean usePercentSizeY = false;
+    private boolean percentUsesEdge = false;
     private Anchor parentAnchor = Anchor.TOP_LEFT;
 
     public Component(Vector2D pos) {
@@ -79,23 +80,6 @@ public abstract class Component extends ComponentHolder {
         this.pos = pos.abs();
     }
 
-    /*public Component setWrapPos(Vector2D pos) {
-        Vector2D windowSize = Renderer2D.getScaledSize();
-        this.pos = new Vector2D(
-                MathUtil.constrain(
-                        pos.getX(),
-                        this.pos.getX() < 0 ? -windowSize.getX() : 0,
-                        this.pos.getX() < 0 ? -1 : windowSize.getX() - getSize().getX()
-                ),
-                MathUtil.constrain(
-                        pos.getY(),
-                        this.pos.getY() < 0 ? -windowSize.getY() : 0,
-                        this.pos.getY() < 0 ? -getSize().getY() : windowSize.getY() - getSize().getY()
-                )
-        );
-        return this;
-    }*/
-
     public PopupMenu getPopupMenu() {
         return null;
     }
@@ -105,7 +89,7 @@ public abstract class Component extends ComponentHolder {
             if (parentAnchor != null) {
                 if (getPos() == null) return null;
                 return parentAnchor.offsetChild(getPos(), getDisplayedSize(), Vector2D.ZERO, Renderer2D.getScaledSize());
-            } else return getPos();//this.pos;//.asInRange(new Vector2D(0, 0), Renderer2D.getScaledSize());
+            } else return getPos();
         else {
             Vector2D parentPos = parent.getDisplayedPos();
             Vector2D parentSize = parent.getDisplayedSize();
@@ -114,8 +98,10 @@ public abstract class Component extends ComponentHolder {
 
             return parentAnchor.offsetChild(
                     new Vector2D(
-                            usePercentPosX ? MathUtil.map(percentPos.getX(), 0, 1, 0, parentSize.getX() - displayedSize.getX()) : this.pos.getX(),
-                            usePercentPosY ? MathUtil.map(percentPos.getY(), 0, 1, 0, parentSize.getY() - displayedSize.getY()) : this.pos.getY()
+                            usePercentPosX ? MathUtil.map(percentPos.getX(), 0, 1,
+                                    0, parentSize.getX() - (percentUsesEdge ? 0 : displayedSize.getX())) : this.pos.getX(),
+                            usePercentPosY ? MathUtil.map(percentPos.getY(), 0, 1,
+                                    0, parentSize.getY() - (percentUsesEdge ? 0 : displayedSize.getY())) : this.pos.getY()
                     ),
                     displayedSize,
                     parentPos, parentSize
@@ -164,6 +150,10 @@ public abstract class Component extends ComponentHolder {
 
     public void setHighlighted(boolean highlighted) {
         this.highlighted = highlighted;
+    }
+
+    public void setPercentUsesEdge(boolean percentPosUsesEdge) {
+        this.percentUsesEdge = percentPosUsesEdge;
     }
 
     public enum Anchor {

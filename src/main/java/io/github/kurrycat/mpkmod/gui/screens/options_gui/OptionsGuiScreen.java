@@ -97,18 +97,13 @@ public class OptionsGuiScreen extends ComponentScreen {
                 items.add(item);
             }
             this.scrollBar.constrainScrollAmountToScreen();
+            this.title = "Options";
         }
 
         @Override
         public void render(Vector2D mouse) {
             super.render(mouse);
             components.forEach(c -> c.render(mouse));
-        }
-
-        @Override
-        public void drawTopCover(Vector2D mouse, Vector2D pos, Vector2D size) {
-            super.drawTopCover(mouse, pos, size);
-            FontRenderer.drawCenteredString(Colors.UNDERLINE + "Options", pos.add(size.div(2)).add(0, 1), Color.WHITE, false);
         }
 
         public void resetAllToDefault() {

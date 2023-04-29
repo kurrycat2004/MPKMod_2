@@ -11,6 +11,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.GlStateManager;
@@ -232,6 +233,20 @@ public class FunctionCompatibility implements FunctionHolder,
      */
     public void displayGuiScreen(MPKGuiScreen screen) {
         Minecraft.getMinecraft().displayGuiScreen(screen == null ? null : new MPKGuiScreen_1_8(screen));
+    }
+
+    /**
+     * Is called in {@link io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft.Interface Minecraft.Interface}
+     */
+    public String getCurrentGuiScreen() {
+        GuiScreen curr = Minecraft.getMinecraft().currentScreen;
+        if(curr == null) return null;
+        else if(curr instanceof MPKGuiScreen_1_8) {
+            String id = ((MPKGuiScreen_1_8) curr).eventReceiver.getID();
+            if(id == null) id = "unknown";
+            return id;
+        }
+        return curr.getClass().getSimpleName();
     }
 
 

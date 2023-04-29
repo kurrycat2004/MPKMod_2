@@ -5,7 +5,7 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 
 public abstract class ScrollableListItem<I extends ScrollableListItem<I>> implements MouseInputListener, KeyInputListener, MouseScrollListener {
     protected int height;
-    private ScrollableList<I> parent;
+    protected ScrollableList<I> parent;
 
     public ScrollableListItem(ScrollableList<I> parent) {
         this.parent = parent;

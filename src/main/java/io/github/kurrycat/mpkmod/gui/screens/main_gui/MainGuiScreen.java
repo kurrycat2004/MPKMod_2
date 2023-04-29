@@ -3,17 +3,14 @@ package io.github.kurrycat.mpkmod.gui.screens.main_gui;
 import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
-import io.github.kurrycat.mpkmod.save.Serializer;
-import io.github.kurrycat.mpkmod.util.JSONConfig;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class MainGuiScreen extends ComponentScreen {
     public OptionsPane optionsPane = null;
-    public ArrayList<Component> cachedElements;
-    private boolean isCached = false;
+    public LoadConfigPane loadConfigPane = null;
+    public SaveConfigPane saveConfigPane = null;
 
     @Override
     public boolean shouldCreateKeyBind() {
@@ -23,67 +20,75 @@ public class MainGuiScreen extends ComponentScreen {
     @Override
     public void onGuiInit() {
         super.onGuiInit();
-        if (cachedElements == null) {
-            cachedElements = loadJSONComponents();
-        } else {
-            isCached = true;
-        }
-        movableComponents = new ArrayList<>(cachedElements);
 
-        Vector2D windowSize = getScreenSize();
+        reloadConfig();
+
+        addChild(
+                new Button(
+                        "Save",
+                        new Vector2D(115, 5),
+                        new Vector2D(50, 20),
+                        mouseButton -> MainGuiScreen.this.openPane(saveConfigPane)
+                ),
+                false, false, Component.Anchor.BOTTOM_RIGHT
+        );
+
+        addChild(
+                new Button(
+                        "Load File",
+                        new Vector2D(60, 5),
+                        new Vector2D(50, 20),
+                        mouseButton -> MainGuiScreen.this.openPane(loadConfigPane)
+                ),
+                false, false, Component.Anchor.BOTTOM_RIGHT
+        );
 
         addChild(
                 new Button(
                         "Options",
                         new Vector2D(5, 5),
                         new Vector2D(50, 20),
-                        mouseButton -> openPane(optionsPane)
+                        mouseButton -> MainGuiScreen.this.openPane(optionsPane)
                 ),
                 false, false, Component.Anchor.BOTTOM_RIGHT
         );
 
-        optionsPane = new OptionsPane(
-                new Vector2D(windowSize.getX() / 5, windowSize.getY() / 5),
-                new Vector2D(windowSize.getX() / 5 * 3, windowSize.getY() / 5 * 3)
-        );
+        optionsPane = new OptionsPane(new Vector2D(0.5D, 0.5D), new Vector2D(3 / 5D, 3 / 5D));
+        optionsPane.setParent(this, true, true, true, true);
+
+        loadConfigPane = new LoadConfigPane(new Vector2D(0.5D, 0.5D), new Vector2D(3 / 5D, 1));
+        loadConfigPane.setParent(this, true, true, true, true);
+
+        saveConfigPane = new SaveConfigPane(new Vector2D(0.5D, 0.5D), new Vector2D(3 / 5D, 1));
+        saveConfigPane.setParent(this, true, true, true, true);
     }
 
     @Override
     public void removeComponent(Component c) {
-        cachedElements.remove(c);
-        movableComponents = new ArrayList<>(cachedElements);
+        LabelConfiguration.currentConfig.components.remove(c);
+        reloadConfig();
     }
 
     @Override
     public void addComponent(Component c) {
-        cachedElements.add(c);
-        movableComponents = new ArrayList<>(cachedElements);
+        LabelConfiguration.currentConfig.components.add(c);
+        reloadConfig();
     }
 
     @Override
     public void onGuiClosed() {
-        isCached = false;
         super.onGuiClosed();
         optionsPane.close();
-        Serializer.serialize(JSONConfig.configFile, movableComponents);
+        loadConfigPane.close();
+        saveConfigPane.close();
+        LabelConfiguration.currentConfig.saveInCustom();
     }
 
-    public boolean isCached() {
-        return isCached;
+    public void reloadConfig() {
+        movableComponents = new ArrayList<>(LabelConfiguration.currentConfig.components);
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
         super.drawScreen(mouse, partialTicks);
-    }
-
-    public ArrayList<Component> loadJSONComponents() {
-        Component[] deserializedInfo = Serializer.deserialize(JSONConfig.configFile, Component[].class);
-
-        if (deserializedInfo == null)
-            deserializedInfo = Serializer.deserialize(JSONConfig.defaultConfigURL, Component[].class);
-
-        if (deserializedInfo == null) return new ArrayList<>();
-
-        return new ArrayList<>(Arrays.asList(deserializedInfo));
     }
 }

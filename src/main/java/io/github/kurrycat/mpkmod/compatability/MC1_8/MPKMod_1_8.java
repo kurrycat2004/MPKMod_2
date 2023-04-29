@@ -64,7 +64,8 @@ public class MPKMod_1_8 {
                     k::isKeyDown
             );
         }
-        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Done");
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registered {} Keybindings",
+                io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding.getKeyMap().size());
 
         API.init(Minecraft.getSessionInfo().get("X-Minecraft-Version"));
     }

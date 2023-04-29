@@ -33,6 +33,13 @@ public class Minecraft {
         });
     }
 
+    public static String getCurrentGuiScreen() {
+        return Interface.get().map(Interface::getCurrentGuiScreen).orElseGet(() -> {
+            API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get current screen name, are you playing on an unsupported minecraft version?");
+            return "Error";
+        });
+    }
+
     @InfoString.Getter
     public static String getTime() {
         return new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
@@ -81,5 +88,7 @@ public class Minecraft {
         String getFPS();
 
         void displayGuiScreen(MPKGuiScreen screen);
+
+        String getCurrentGuiScreen();
     }
 }

@@ -202,12 +202,7 @@ public class KeyBindingLabel extends ResizableComponent {
         private class KeySetList extends ScrollableList<KeySetListItem> {
             public KeySetList(Vector2D pos, Vector2D size) {
                 super(pos, size);
-            }
-
-            @Override
-            public void drawTopCover(Vector2D mouse, Vector2D pos, Vector2D size) {
-                super.drawTopCover(mouse, pos, size);
-                FontRenderer.drawCenteredString(Colors.UNDERLINE + "Keybinding Names", pos.add(size.div(2)), Color.WHITE, false);
+                this.title = "Keybinding Names";
             }
         }
 
