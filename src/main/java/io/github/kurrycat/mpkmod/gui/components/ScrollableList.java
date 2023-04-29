@@ -1,15 +1,18 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
+import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.util.*;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ScrollableList<I extends ScrollableListItem<I>> extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener {
     public Color backgroundColor = Color.DARK_GRAY;
     public ScrollBar<I> scrollBar;
-    public ArrayList<I> items = new ArrayList<>();
+    public List<I> items = new ArrayList<>();
+    public String title = null;
 
     public ScrollableList(Vector2D pos, Vector2D size) {
         super(pos);
@@ -33,6 +36,12 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         return this.items.size();
     }
 
+    /**
+     * Override this method for lists, where you can't save your items inside {@link #items}
+     *
+     * @param index item index
+     * @return the item at the given index
+     */
     public I getItem(int index) {
         return items.get(index);
     }
@@ -91,6 +100,8 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
 
     public void drawTopCover(Vector2D mouse, Vector2D pos, Vector2D size) {
         Renderer2D.drawRectWithEdge(pos, size.add(0, 1), 1, Color.DARK_GRAY, Color.BLACK);
+        if (title != null)
+            FontRenderer.drawCenteredString(Colors.UNDERLINE + title, pos.add(size.div(2)).add(0, 1), Color.WHITE, false);
     }
 
     public void drawBottomCover(Vector2D mouse, Vector2D pos, Vector2D size) {

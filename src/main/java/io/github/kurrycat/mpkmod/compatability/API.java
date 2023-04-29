@@ -6,13 +6,14 @@ import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.components.Component;
-import io.github.kurrycat.mpkmod.gui.components.InfoLabel;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
+import io.github.kurrycat.mpkmod.gui.screens.main_gui.LabelConfiguration;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.save.Serializer;
+import io.github.kurrycat.mpkmod.ticks.TimingStorage;
 import io.github.kurrycat.mpkmod.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,31 +40,41 @@ public class API {
     public static final String KEYBINDING_CATEGORY = NAME;
     public static final String packageName = "io.github.kurrycat.mpkmod";
     public static Instant gameStartedInstant;
+    /**
+     * Ticks passed since {@link #init(String)}
+     */
+    public static long tickTime = 0;
 
     public static MainGuiScreen mainGUI;
     public static Map<String, MPKGuiScreen> guiScreenMap = new HashMap<>();
     public static Map<String, Procedure> keyBindingMap = new HashMap<>();
 
     public static boolean discordRpcInitialized = false;
-    private static FunctionHolder functionHolder;
     public static HashMap<String, Option> optionsMap;
+    public static HashMap<String, InfoString.ObjectProvider> infoMap;
+    private static FunctionHolder functionHolder;
     /*@Option.Field
     public static String testOption = "String Option";*/
 
-    /* public static int metronome = 0;*/
-
+    /*public static int metronome = 0;*/
 
     /**
      * Gets called at the beginning of mod init<br>
      * Register GUIs here using {@link #registerGUIScreen(String, MPKGuiScreen) registerGuiScreen}
      */
     public static void preInit(Class<?> callerClass) {
+        ClassUtil.setModClass(callerClass);
+
         JSONConfig.setupFiles();
         Serializer.registerSerializer();
-        ClassUtil.setModClass(callerClass);
+        LabelConfiguration.init();
 
         optionsMap = Option.createOptionMap();
         Option.updateOptionMapFromJSON(true);
+
+        infoMap = InfoString.createInfoMap();
+
+        TimingStorage.init();
 
         mainGUI = new MainGuiScreen();
         registerGUIScreen("main_gui", mainGUI);
@@ -106,19 +117,17 @@ public class API {
             discordRpcInitialized = false;
         }
 
+        EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> tickTime++));
+
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(
                         e -> {
-                            Profiler.startSection("labels");
+                            Profiler.startSection("components");
                             if (mainGUI != null)
                                 for (Component c : mainGUI.movableComponents) {
-                                    try {
-                                        c.render(new Vector2D(-1, -1));
-                                    } catch (ClassCastException err) {
-                                        if (c instanceof InfoLabel) {
-                                            ((InfoLabel) c).infoString.updateProviders();
-                                        }
-                                    }
+                                    Profiler.startSection(c.getClass().getSimpleName());
+                                    c.render(new Vector2D(-1, -1));
+                                    Profiler.endSection();
                                 }
                             Profiler.endSection();
                         }
@@ -128,6 +137,7 @@ public class API {
         EventAPI.addListener(
                 new EventAPI.EventListener<OnRenderWorldOverlayEvent>(
                         e -> {
+                            Profiler.startSection("renderLBOverlays");
                             LandingBlockGuiScreen.lbs.forEach(lb -> {
                                         if (lb.enabled || lb.highlight && lb.boundingBox != null)
                                             Renderer3D.drawBox(
@@ -139,6 +149,7 @@ public class API {
                                             );
                                     }
                             );
+                            Profiler.endSection();
                         },
                         Event.EventType.RENDER_WORLD_OVERLAY
                 )
@@ -146,21 +157,20 @@ public class API {
 
         EventAPI.addListener(
                 EventAPI.EventListener.onTickEnd(
-                        e -> LandingBlockGuiScreen.lbs.stream()
-                                .filter(lb -> lb.enabled)
-                                .filter(LandingBlock::isTryingToLandOn)
-                                .filter(lb -> lb.landingMode.getPlayerBB() != null)
-                                .map(lb -> lb.boundingBox.distanceTo(lb.landingMode.getPlayerBB()).mult(-1D))
-                                .filter(vec -> vec.getX() > -0.3F && vec.getZ() > -0.3F)
-                                .forEach(offset -> {
-                                    if (mainGUI != null)
-                                        mainGUI.postMessage(
-                                                "offset",
-                                                MathUtil.formatDecimals(offset.getX(), 5, false) +
-                                                        ", " + MathUtil.formatDecimals(offset.getZ(), 5, false),
-                                                offset.getX() > 0 && offset.getZ() > 0
-                                        );
-                                })
+                        e -> {
+                            Profiler.startSection("calculateLBOffsets");
+                            LandingBlockGuiScreen.calculateLBOffsets()
+                                    .forEach(offset -> {
+                                        if (mainGUI != null)
+                                            mainGUI.postMessage(
+                                                    "offset",
+                                                    MathUtil.formatDecimals(offset.getX(), 5, false) +
+                                                            ", " + MathUtil.formatDecimals(offset.getZ(), 5, false),
+                                                    offset.getX() > 0 && offset.getZ() > 0
+                                            );
+                                    });
+                            Profiler.endSection();
+                        }
                 )
         );
 

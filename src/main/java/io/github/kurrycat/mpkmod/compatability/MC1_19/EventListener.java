@@ -47,13 +47,14 @@ public class EventListener {
         if (e.type != TickEvent.Type.CLIENT) return;
         if (e.side != LogicalSide.CLIENT) return;
 
-        if (mcPlayer != null && e.phase == TickEvent.Phase.START) {
+        if (mcPlayer != null && e.phase == TickEvent.Phase.END) {
             new Player()
                     .setPos(new Vector3D(mcPlayer.getX(), mcPlayer.getY(), mcPlayer.getZ()))
                     .setLastPos(new Vector3D(mcPlayer.xOld, mcPlayer.yOld, mcPlayer.zOld))
                     .setMotion(new Vector3D(mcPlayer.getDeltaMovement().x, mcPlayer.getDeltaMovement().y, mcPlayer.getDeltaMovement().z))
                     .setRotation(mcPlayer.getYRot(), mcPlayer.getXRot())
                     .setOnGround(mcPlayer.isOnGround())
+                    .setSprinting(mcPlayer.isSprinting())
                     .constructKeyInput()
                     .buildAndSave();
         }

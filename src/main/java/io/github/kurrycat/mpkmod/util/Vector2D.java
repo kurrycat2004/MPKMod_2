@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
-public class Vector2D {
+@InfoString.DataClass
+public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
     public static final Vector2D ONE = new Vector2D(1, 1);
     public static final Vector2D ZERO = new Vector2D(0, 0);
     public static final Vector2D OFFSCREEN = null;
@@ -26,6 +27,7 @@ public class Vector2D {
         this.y = vector2D.getY();
     }
 
+    @InfoString.Getter
     @JsonProperty("x")
     public double getX() {
         return x;
@@ -37,16 +39,19 @@ public class Vector2D {
         return this;
     }
 
+    @InfoString.Getter
     @JsonIgnore
     public float getXF() {
         return (float) x;
     }
 
+    @InfoString.Getter
     @JsonIgnore
     public int getXI() {
         return (int) x;
     }
 
+    @InfoString.Getter
     @JsonProperty("y")
     public double getY() {
         return y;
@@ -58,11 +63,13 @@ public class Vector2D {
         return this;
     }
 
+    @InfoString.Getter
     @JsonIgnore
     public float getYF() {
         return (float) y;
     }
 
+    @InfoString.Getter
     @JsonIgnore
     public int getYI() {
         return (int) y;
@@ -140,7 +147,7 @@ public class Vector2D {
 
     /**
      * @param from top left corner
-     * @param to botton right corner
+     * @param to   botton right corner
      * @return a new {@link Vector2D}, being a <code>this</code>, but looped to the other end of the input rectangle if outside it
      */
     public Vector2D asInRange(Vector2D from, Vector2D to) {
@@ -179,14 +186,12 @@ public class Vector2D {
      * @return whether <code>this</code> is inside the input rectangle
      */
     public boolean isInRectBetween(Vector2D pos1, Vector2D pos2) {
-        return this.x > pos1.x && this.x < pos2.x
-                && this.y > pos1.y && this.y < pos2.y;
+        return this.x > pos1.x && this.x < pos2.x && this.y > pos1.y && this.y < pos2.y;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Vector2D
-                && ((Vector2D) obj).equals(this);
+        return obj instanceof Vector2D && ((Vector2D) obj).equals(this);
     }
 
     @Override
@@ -214,5 +219,10 @@ public class Vector2D {
 
     public Vector2D abs() {
         return new Vector2D(Math.abs(this.x), Math.abs(this.y));
+    }
+
+    public String formatDecimals(int decimals, boolean keepZeros) {
+        return "[" + MathUtil.formatDecimals(this.x, decimals, keepZeros) + "," +
+                MathUtil.formatDecimals(this.y, decimals, keepZeros) + "]";
     }
 }

@@ -16,6 +16,16 @@ import java.util.stream.Stream;
 public class ClassUtil {
     public static Class<?> ModClass = null;
 
+    public static <A extends Annotation> List<Tuple<A, Class<?>>> getClassAnnotations(List<Class<?>> classes, Class<A> annotationClass) {
+        List<Tuple<A, Class<?>>> annotations = new ArrayList<>();
+        for (Class<?> c : classes) {
+            if (c.isAnnotationPresent(annotationClass)) {
+                annotations.add(new Tuple<>(c.getAnnotation(annotationClass), c));
+            }
+        }
+        return annotations;
+    }
+
     public static <A extends Annotation> List<Tuple<A, Field>> getFieldAnnotations(List<Class<?>> classes, Class<A> annotationClass) {
         List<Tuple<A, Field>> annotations = new ArrayList<>();
         for (Class<?> c : classes) {

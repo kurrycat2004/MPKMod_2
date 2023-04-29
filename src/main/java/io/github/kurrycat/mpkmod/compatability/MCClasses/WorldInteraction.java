@@ -5,6 +5,7 @@ import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +29,15 @@ public class WorldInteraction {
      * @return the block name that the player is looking at
      */
     public static String getLookingAtBlock() {
-        return Interface.get().map(Interface::getLookingAtBlock).orElse(null);
+        return Optional.ofNullable(getLookingAt()).map(WorldInteraction::getBlockName).orElse(null);
+    }
+
+    public static String getBlockName(Vector3D blockPos) {
+        return Interface.get().map(w -> w.getBlockName(blockPos)).orElse(null);
+    }
+
+    public static HashMap<String, String> getBlockProperties(Vector3D blockPos) {
+        return Interface.get().map(w -> w.getBlockProperties(blockPos)).orElse(null);
     }
 
     /**
@@ -49,6 +58,8 @@ public class WorldInteraction {
 
         Vector3D getLookingAt();
 
-        String getLookingAtBlock();
+        String getBlockName(Vector3D blockPos);
+
+        HashMap<String, String> getBlockProperties(Vector3D blockPos);
     }
 }

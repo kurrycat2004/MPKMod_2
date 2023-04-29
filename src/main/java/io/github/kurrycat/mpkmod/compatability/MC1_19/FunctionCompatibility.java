@@ -7,7 +7,9 @@ import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.DebugScreenOverlay;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.GameRenderer;
@@ -21,10 +23,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 public class FunctionCompatibility implements FunctionHolder,
         SoundManager.Interface,
@@ -74,6 +74,27 @@ public class FunctionCompatibility implements FunctionHolder,
             BlockPos blockPos = ((BlockHitResult) hitResult).getBlockPos();
             return new Vector3D(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         }
+        return null;
+    }
+
+    @Override
+    public String getBlockName(Vector3D blockPos) {
+        BlockPos blockpos = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        if(Minecraft.getInstance().level == null) return null;
+        return Registry.BLOCK.getKey(
+                Minecraft.getInstance().level.getBlockState(blockpos).getBlock()
+        ).toString();
+    }
+
+    @Override
+    public HashMap<String, String> getBlockProperties(Vector3D blockPos) {
+        HashMap<String, String> properties = new HashMap<>();
+        if(Minecraft.getInstance().level == null) return properties;
+        BlockPos blockpos = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        BlockState blockState = Minecraft.getInstance().level.getBlockState(blockpos);
+        blockState.getValues().forEach((key, value) ->
+                properties.put(key.getName(), Util.getPropertyName(key, value))
+        );
         return null;
     }
 
@@ -217,6 +238,20 @@ public class FunctionCompatibility implements FunctionHolder,
      */
     public void displayGuiScreen(MPKGuiScreen screen) {
         Minecraft.getInstance().setScreen(screen == null ? null : new MPKGuiScreen_1_19(screen));
+    }
+
+    /**
+     * Is called in {@link io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft.Interface Minecraft.Interface}
+     */
+    public String getCurrentGuiScreen() {
+        Screen curr = Minecraft.getInstance().screen;
+        if(curr == null) return null;
+        else if(curr instanceof MPKGuiScreen_1_19) {
+            String id = ((MPKGuiScreen_1_19)curr).eventReceiver.getID();
+            if(id == null) id = "unknown";
+            return id;
+        }
+        return curr.getClass().getSimpleName();
     }
 
 

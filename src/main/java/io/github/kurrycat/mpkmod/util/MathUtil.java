@@ -15,10 +15,10 @@ public class MathUtil {
         return new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.US)).format(value);
     }
 
-    public static int parseInt(String value, int defaultValue) {
+    public static Integer parseInt(String value, Integer defaultValue) {
         try {
             return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | NullPointerException e) {
             return defaultValue;
         }
     }
@@ -81,5 +81,9 @@ public class MathUtil {
 
     public static double roundToStep(double value, double step) {
         return Math.round(value / step) * step;
+    }
+
+    public static double distance(double v1, double v2) {
+        return Math.abs(v1 - v2);
     }
 }

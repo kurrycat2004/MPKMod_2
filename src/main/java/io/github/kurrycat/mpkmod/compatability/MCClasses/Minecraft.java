@@ -3,18 +3,21 @@ package io.github.kurrycat.mpkmod.compatability.MCClasses;
 import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.util.InfoString;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
+@InfoString.AccessInstance
 public class Minecraft {
     public static String version;
     public static WorldState worldState = WorldState.MENU;
     public static PlayState playState = PlayState.ACTIVE;
 
-    public static String getIP() {
+    @InfoString.Getter
+    public static String getIp() {
         if (isSingleplayer()) return "Singleplayer";
         return Interface.get().map(Interface::getIP).orElseGet(() -> {
             API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get IP, are you playing on an unsupported minecraft version?");
@@ -22,21 +25,32 @@ public class Minecraft {
         });
     }
 
-    public static String getFPS() {
+    @InfoString.Getter
+    public static String getFps() {
         return Interface.get().map(Interface::getFPS).orElseGet(() -> {
             API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get FPS, are you playing on an unsupported minecraft version?");
             return "Error";
         });
     }
 
+    public static String getCurrentGuiScreen() {
+        return Interface.get().map(Interface::getCurrentGuiScreen).orElseGet(() -> {
+            API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get current screen name, are you playing on an unsupported minecraft version?");
+            return "Error";
+        });
+    }
+
+    @InfoString.Getter
     public static String getTime() {
         return new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
     }
 
+    @InfoString.Getter
     public static String getDate() {
         return new SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().getTime());
     }
 
+    @InfoString.Getter
     public static boolean isSingleplayer() {
         return worldState == WorldState.SINGLE_PLAYER;
     }
@@ -74,5 +88,7 @@ public class Minecraft {
         String getFPS();
 
         void displayGuiScreen(MPKGuiScreen screen);
+
+        String getCurrentGuiScreen();
     }
 }

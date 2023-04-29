@@ -36,6 +36,17 @@ public class MPKMod_1_19 {
     }
 
     public void registerParticleProviders(RegisterParticleProvidersEvent e) {
+        //Has to be called before preInit, because LabelConfig / keybinding labels get loaded there
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering Keybindings...");
+        for (KeyMapping k : Minecraft.getInstance().options.keyMappings) {
+            new KeyBinding(
+                    () -> k.getKey().getDisplayName().getString(),
+                    k.getName(),
+                    k::isDown
+            );
+        }
+
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registered {} Keybindings", KeyBinding.getKeyMap().size());
         //Have to call it here because it's the only forge hook before registerKeyBinding gets called and API.keyBindingMap is filled in preInit
         API.preInit(getClass());
     }
@@ -77,16 +88,6 @@ public class MPKMod_1_19 {
         MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(this);
 
-        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering Keybindings...");
-        for (KeyMapping k : Minecraft.getInstance().options.keyMappings) {
-            new KeyBinding(
-                    () -> k.getKey().getDisplayName().getString(),
-                    k.getName(),
-                    k::isDown
-            );
-        }
-
-        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Done");
         API.init(SharedConstants.getCurrentVersion().getName());
     }
 

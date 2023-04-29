@@ -7,7 +7,9 @@ package io.github.kurrycat.mpkmod.util;
  * Every manipulation method that does not have <code>set</code> in its name, does not change the original vector but returns a new instance instead
  */
 @SuppressWarnings("unused")
-public class Vector3D {
+@InfoString.DataClass
+public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
+    public static final Vector3D ZERO = new Vector3D(0, 0, 0);
     private double x, y, z;
 
     public Vector3D(double x, double y, double z) {
@@ -16,6 +18,7 @@ public class Vector3D {
         this.z = z;
     }
 
+    @InfoString.Getter
     public double getX() {
         return x;
     }
@@ -25,10 +28,12 @@ public class Vector3D {
         return this;
     }
 
+    @InfoString.Getter
     public int getXI() {
         return (int) x;
     }
 
+    @InfoString.Getter
     public double getY() {
         return y;
     }
@@ -38,10 +43,12 @@ public class Vector3D {
         return this;
     }
 
+    @InfoString.Getter
     public int getYI() {
         return (int) y;
     }
 
+    @InfoString.Getter
     public double getZ() {
         return z;
     }
@@ -51,6 +58,7 @@ public class Vector3D {
         return this;
     }
 
+    @InfoString.Getter
     public int getZI() {
         return (int) z;
     }
@@ -87,6 +95,10 @@ public class Vector3D {
         return Math.sqrt(lengthSqr());
     }
 
+    public double lengthXZ() {
+        return Math.sqrt(lengthXZSqr());
+    }
+
     @Override
     public String toString() {
         return "[" + x + ", " + y + ", " + z + "]";
@@ -105,7 +117,7 @@ public class Vector3D {
     }
 
     public Vector3D toInts() {
-        return new Vector3D((int)this.x, (int)this.y, (int)this.z);
+        return new Vector3D((int) this.x, (int) this.y, (int) this.z);
     }
 
     public double lengthXZSqr() {
@@ -120,5 +132,15 @@ public class Vector3D {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Vector3D && this.x == ((Vector3D) obj).x && this.y == ((Vector3D) obj).y && this.z == ((Vector3D) obj).z;
+    }
+
+    public Vector3D abs() {
+        return new Vector3D(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z));
+    }
+
+    public String formatDecimals(int decimals, boolean keepZeros) {
+        return "[" + MathUtil.formatDecimals(this.x, decimals, keepZeros) + "," +
+                MathUtil.formatDecimals(this.y, decimals, keepZeros) + "," +
+                MathUtil.formatDecimals(this.z, decimals, keepZeros) + "]";
     }
 }

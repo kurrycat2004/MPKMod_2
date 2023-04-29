@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
@@ -16,7 +17,6 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class MessageQueue extends ResizableComponent {
-    @JsonProperty("displayName")
     private final String name;
     @JsonProperty
     private final String messageReceiverID = "offset";
@@ -35,7 +35,7 @@ public class MessageQueue extends ResizableComponent {
 
 
     @JsonCreator
-    public MessageQueue(@JsonProperty("pos") Vector2D pos, @JsonProperty("size") Vector2D size, @JsonProperty("name") String name) {
+    public MessageQueue(@JsonProperty("pos") Vector2D pos, @JsonProperty("size") Vector2D size, @JsonProperty("displayName") String name) {
         super(pos, size);
         this.name = name;
         this.setMinSize(new Vector2D(40, 22));
@@ -68,7 +68,7 @@ public class MessageQueue extends ResizableComponent {
         messages.add(0, message);
     }
 
-    @JsonProperty("name")
+    @JsonGetter("displayName")
     public String getName() {
         return this.name;
     }

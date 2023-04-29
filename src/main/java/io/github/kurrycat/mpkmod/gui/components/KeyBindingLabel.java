@@ -9,6 +9,7 @@ import io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.Mouse;
+import io.github.kurrycat.mpkmod.util.StringUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
@@ -33,8 +34,12 @@ public class KeyBindingLabel extends ResizableComponent {
     public KeyBindingLabel(Vector2D pos, Vector2D size, String name) {
         super(pos, size);
         this.name = name;
+        updateKeyBinding();
+    }
+
+    private void updateKeyBinding() {
         this.keyBinding = KeyBinding.getByName(name);
-        this.displayName = keyBinding == null ? name : keyBinding.getDisplayName();
+        this.displayName = keyBinding == null ? name : StringUtil.capitalize(keyBinding.getDisplayName());
     }
 
     @JsonCreator
@@ -202,12 +207,7 @@ public class KeyBindingLabel extends ResizableComponent {
         private class KeySetList extends ScrollableList<KeySetListItem> {
             public KeySetList(Vector2D pos, Vector2D size) {
                 super(pos, size);
-            }
-
-            @Override
-            public void drawTopCover(Vector2D mouse, Vector2D pos, Vector2D size) {
-                super.drawTopCover(mouse, pos, size);
-                FontRenderer.drawCenteredString(Colors.UNDERLINE + "Keybinding Names", pos.add(size.div(2)), Color.WHITE, false);
+                this.title = "Keybinding Names";
             }
         }
 

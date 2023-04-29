@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.util;
 
 public class BoundingBox3D {
+    public static final BoundingBox3D ZERO = new BoundingBox3D(Vector3D.ZERO, Vector3D.ZERO);
     private Vector3D min, max;
 
     public BoundingBox3D(Vector3D corner1, Vector3D corner2) {

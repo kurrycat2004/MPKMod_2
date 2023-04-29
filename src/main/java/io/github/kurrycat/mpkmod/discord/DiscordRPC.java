@@ -97,7 +97,7 @@ public class DiscordRPC {
         } else if (Minecraft.worldState == Minecraft.WorldState.SINGLE_PLAYER) {
             state = Minecraft.playState == Minecraft.PlayState.AFK ? "AFK in Singleplayer" : "Playing Singleplayer";
         } else if (Minecraft.worldState == Minecraft.WorldState.MULTI_PLAYER) {
-            state = (Minecraft.playState == Minecraft.PlayState.AFK ? "AFK on " : "Playing on ") + Minecraft.getIP();
+            state = (Minecraft.playState == Minecraft.PlayState.AFK ? "AFK on " : "Playing on ") + Minecraft.getIp();
         }
 
         updateActivity(details, state);
