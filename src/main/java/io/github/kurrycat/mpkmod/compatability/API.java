@@ -22,10 +22,8 @@ import org.apache.logging.log4j.MarkerManager;
 
 import java.awt.*;
 import java.time.Instant;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public class API {
     public static final String MODID = "mpkmod";
@@ -52,6 +50,7 @@ public class API {
     public static boolean discordRpcInitialized = false;
     public static HashMap<String, Option> optionsMap;
     public static HashMap<String, InfoString.ObjectProvider> infoMap;
+    public static List<String> infoVars;
     private static FunctionHolder functionHolder;
     /*@Option.Field
     public static String testOption = "String Option";*/
@@ -73,6 +72,7 @@ public class API {
         Option.updateOptionMapFromJSON(true);
 
         infoMap = InfoString.createInfoMap();
+        infoVars = InfoString.getInfoVarsList();
 
         TimingStorage.init();
 

@@ -1,10 +1,15 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
+import io.github.kurrycat.mpkmod.compatability.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.util.ArrayListUtil;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
+import java.awt.*;
+
 public class Div extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener {
+    public Color backgroundColor = null;
+
     public Div(Vector2D pos, Vector2D size) {
         this.pos = pos;
         this.size = size;
@@ -12,6 +17,8 @@ public class Div extends Component implements MouseInputListener, MouseScrollLis
 
     @Override
     public void render(Vector2D mouse) {
+        if (backgroundColor != null)
+            Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), backgroundColor);
         components.forEach(c -> c.render(mouse));
     }
 

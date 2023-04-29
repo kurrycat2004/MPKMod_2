@@ -211,6 +211,10 @@ public class InfoString {
         }
     }
 
+    public static List<String> getInfoVarsList() {
+        return API.infoMap.keySet().stream().sorted().collect(Collectors.toList());
+    }
+
     /**
      * Variable name is field name
      */

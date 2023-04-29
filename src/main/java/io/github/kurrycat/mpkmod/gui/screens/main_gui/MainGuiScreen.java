@@ -78,9 +78,7 @@ public class MainGuiScreen extends ComponentScreen {
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
-        optionsPane.close();
-        loadConfigPane.close();
-        saveConfigPane.close();
+        closeAllPanes();
         LabelConfiguration.currentConfig.saveInCustom();
     }
 

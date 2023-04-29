@@ -21,7 +21,8 @@ public class TextRectangle extends Component {
 
     @Override
     public void render(Vector2D mouse) {
-        Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), color);
+        if (color != null)
+            Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), color);
 
         FontRenderer.drawCenteredString(
                 text,

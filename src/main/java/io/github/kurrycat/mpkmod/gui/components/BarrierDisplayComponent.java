@@ -27,22 +27,21 @@ public class BarrierDisplayComponent extends ResizableComponent {
     @Override
     public void render(Vector2D mouse) {
         String lookingAtBlock = WorldInteraction.getLookingAtBlock();
-        Color color = new Color(255, 255, 255, 255);
-        if (lookingAtBlock != null && lookingAtBlock.equals("minecraft:barrier")) {
-            color = new Color(227, 0, 0);
-        }
+        boolean lookingAtBarrier = lookingAtBlock != null && lookingAtBlock.equals("minecraft:barrier");
 
+        Color color = lookingAtBarrier ? new Color(227, 0, 0) : Color.WHITE;
         if (selected) color = new Color(255, 170, 0, 100);
 
         String currentGui = Minecraft.getCurrentGuiScreen();
 
-        if (fullscreen && currentGui == null) {
+        if (lookingAtBarrier && fullscreen && currentGui == null) {
             Vector2D windowSize = Renderer2D.getScaledSize();
             Renderer2D.drawRect(Vector2D.ZERO, new Vector2D(windowSize.getX(), lineThickness), color);
             Renderer2D.drawRect(Vector2D.ZERO, new Vector2D(lineThickness, windowSize.getY()), color);
             Renderer2D.drawRect(Vector2D.ZERO.add(0, windowSize.getY() - lineThickness), new Vector2D(windowSize.getX(), lineThickness), color);
             Renderer2D.drawRect(Vector2D.ZERO.add(windowSize.getX() - lineThickness, 0), new Vector2D(lineThickness, windowSize.getY()), color);
-        } else if (currentGui.equals("main_gui")) {
+        }
+        if (lookingAtBarrier || (currentGui != null && currentGui.equals("main_gui"))) {
             FontRenderer.drawCenteredString(
                     "!",
                     getDisplayedPos().add(getDisplayedSize().div(2)).add(new Vector2D(0, 1)),

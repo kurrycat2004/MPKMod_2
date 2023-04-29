@@ -3,6 +3,7 @@ package io.github.kurrycat.mpkmod.gui.components;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.kurrycat.mpkmod.compatability.API;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.compatability.MCClasses.Player;
@@ -13,6 +14,9 @@ import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class InfoLabel extends Label {
     /**
@@ -54,7 +58,7 @@ public class InfoLabel extends Label {
         PopupMenu menu = new PopupMenu();
         menu.addComponent(
                 new Button("Edit", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
-                    if(Mouse.Button.LEFT.equals(mouseButton)) {
+                    if (Mouse.Button.LEFT.equals(mouseButton)) {
                         menu.paneHolder.openPane(editPane);
                         menu.paneHolder.closePane(menu);
                     }
@@ -62,7 +66,7 @@ public class InfoLabel extends Label {
         );
         menu.addComponent(
                 new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
-                    if(Mouse.Button.LEFT.equals(mouseButton)) {
+                    if (Mouse.Button.LEFT.equals(mouseButton)) {
                         menu.paneHolder.removeComponent(this);
                         menu.paneHolder.closePane(menu);
                     }
@@ -71,12 +75,102 @@ public class InfoLabel extends Label {
         return menu;
     }
 
+    private static class InfoLabelVariableList extends ScrollableList<InfoLabelVariableListItem> {
+        private final List<InfoLabelVariableListItem> allItems;
+
+        public InfoLabelVariableList(Vector2D pos, Vector2D size) {
+            super(pos, size);
+            allItems = API.infoVars.stream().map(s -> new InfoLabelVariableListItem(this, s)).collect(Collectors.toList());
+            updateSearchFilter("");
+        }
+
+        public void updateSearchFilter(String searchString) {
+            items = allItems.stream().filter(i -> i.varName.toLowerCase().contains(searchString.toLowerCase())).collect(Collectors.toList());
+        }
+    }
+
+    private static class InfoLabelVariableListItem extends ScrollableListItem<InfoLabelVariableListItem> {
+        private final String varName;
+
+        public InfoLabelVariableListItem(ScrollableList<InfoLabelVariableListItem> parent, String varName) {
+            super(parent);
+            this.varName = varName;
+            height = 18;
+        }
+
+        @Override
+        public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
+            renderDefaultBorder(pos, size);
+            FontRenderer.drawLeftCenteredString(varName,
+                    new Vector2D(pos.getX() + 5, pos.getY() + size.getY() / 2D),
+                    Color.WHITE,
+                    false
+            );
+        }
+    }
+
     private class EditPane extends Pane {
         private final Label label;
-        private final InputField inputField;
+
+        public EditPane(Vector2D pos, Vector2D size) {
+            super(pos, size);
+            this.backgroundColor = new Color(31, 31, 31, 50);
+            this.label = new Label("", new Vector2D(0.5, 5));
+            addChild(this.label, true, false, false, false, Anchor.TOP_LEFT);
+            InputField inputField = new InputField(text, new Vector2D(0.5, 5), 1)
+                    .setOnContentChange(content -> {
+                        text = content.getContent();
+                    });
+            addChild(inputField, true, false, true, false, Anchor.BOTTOM_LEFT);
+
+            ArrayList<Component> colors = new ArrayList<>();
+            int currY = 3;
+            double maxWidth = 0;
+            for (Colors c : Colors.values()) {
+                ColorLabel l = new ColorLabel(c, new Vector2D(3, currY));
+                colors.add(l);
+                currY += l.getDisplayedSize().getY() + 1;
+                maxWidth = Math.max(maxWidth, l.getDisplayedSize().getX());
+            }
+            Div d = new Div(new Vector2D(2, 2), new Vector2D(maxWidth + 2, currY - 2));
+            colors.forEach(d::addChild);
+            d.backgroundColor = new Color(31, 31, 31, 150);
+            d.setAbsolute(true);
+            addChild(d);
+
+            InfoLabelVariableList vl = new InfoLabelVariableList(new Vector2D(5, 20), new Vector2D(1 / 5D, -50));
+            vl.title = "Variables";
+            vl.setAbsolute(true);
+            addChild(vl, false, false, true, false, Anchor.TOP_RIGHT);
+
+            Div searchFieldDiv = new Div(new Vector2D(5, 0), new Vector2D(1 / 5D, 30));
+
+            TextRectangle searchText = new TextRectangle(
+                    new Vector2D(0.5, 0),
+                    new Vector2D(1, 14),
+                    "Filter",
+                    null,
+                    Color.WHITE
+            );
+            searchFieldDiv.addChild(searchText, true, false, true, false, Anchor.TOP_LEFT);
+
+            InputField searchField = new InputField(new Vector2D(0.5D, 5), 0.9D);
+            searchField.setOnContentChange(c -> vl.updateSearchFilter(c.getContent()));
+            searchFieldDiv.addChild(searchField, true, false, true, false, Anchor.BOTTOM_LEFT);
+
+            searchFieldDiv.setAbsolute(true);
+            addChild(searchFieldDiv, false, false, true, false, Anchor.BOTTOM_RIGHT);
+        }
+
+        @Override
+        public void render(Vector2D mousePos) {
+            this.label.setText(getFormattedText());
+            super.render(mousePos);
+        }
 
         private class ColorLabel extends Label {
             private final Colors color;
+
             public ColorLabel(Colors color, Vector2D pos) {
                 super(color.getCode() + color.getName(), pos);
                 this.color = color;
@@ -87,43 +181,6 @@ public class InfoLabel extends Label {
                 this.text = contains(mouse) ? color.getName() : color.getCode() + color.getName();
                 super.render(mouse);
             }
-        }
-
-        public EditPane(Vector2D pos, Vector2D size) {
-            super(pos, size);
-            this.backgroundColor = new Color(31, 31, 31, 50);
-            this.label = new Label("", Vector2D.OFFSCREEN);
-            this.components.add(label);
-            this.inputField = new InputField(text, Vector2D.OFFSCREEN, getDisplayedSize().getX())
-                    .setOnContentChange(content -> {
-                        text = content.getContent();
-                    });
-            this.components.add(inputField);
-
-            int currY = 3;
-            double maxWidth = 0;
-            for(Colors c : Colors.values()) {
-                ColorLabel l = new ColorLabel(c, new Vector2D(3, currY));
-                this.components.add(l);
-                currY += l.getDisplayedSize().getY() + 1;
-                maxWidth = Math.max(maxWidth, l.getDisplayedSize().getX());
-            }
-
-            this.components.add(0, new Rectangle(new Vector2D(2, 2), new Vector2D(maxWidth + 2, currY - 2), new Color(31, 31, 31, 150)));
-        }
-
-        @Override
-        public void render(Vector2D mousePos) {
-            this.label.setText(getFormattedText());
-            this.label.pos = new Vector2D(
-                    getDisplayedPos().getX() + getDisplayedSize().getX() / 2 - this.label.getDisplayedSize().getX() / 2,
-                    getDisplayedPos().getY() + 3
-            );
-            this.inputField.pos = new Vector2D(
-                    getDisplayedPos().getX() + getDisplayedSize().getX() / 2 - this.inputField.getDisplayedSize().getX() / 2,
-                    getDisplayedPos().getY() + getDisplayedSize().getY() - this.inputField.getDisplayedSize().getY() - 1
-            );
-            super.render(mousePos);
         }
     }
 }

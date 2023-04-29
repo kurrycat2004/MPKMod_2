@@ -34,10 +34,12 @@ public class Minecraft {
     }
 
     public static String getCurrentGuiScreen() {
-        return Interface.get().map(Interface::getCurrentGuiScreen).orElseGet(() -> {
+        if(!Interface.get().isPresent()) {
             API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get current screen name, are you playing on an unsupported minecraft version?");
             return "Error";
-        });
+        } else {
+            return Interface.get().get().getCurrentGuiScreen();
+        }
     }
 
     @InfoString.Getter

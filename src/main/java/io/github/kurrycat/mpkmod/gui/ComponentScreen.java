@@ -231,6 +231,12 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         p.setLoaded(false);
     }
 
+    public final void closeAllPanes() {
+        for(int i = openPanes.size() - 1; i >= 0; i--) {
+            closePane(openPanes.get(i));
+        }
+    }
+
     public void removeComponent(Component c) {
         components.remove(c);
     }

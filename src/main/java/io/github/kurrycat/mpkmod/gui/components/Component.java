@@ -18,6 +18,7 @@ public abstract class Component extends ComponentHolder {
     private boolean usePercentSizeX = false;
     private boolean usePercentSizeY = false;
     private boolean percentUsesEdge = false;
+    private boolean absolutePosition = false;
     private Anchor parentAnchor = Anchor.TOP_LEFT;
 
     public Component(Vector2D pos) {
@@ -39,6 +40,11 @@ public abstract class Component extends ComponentHolder {
     public Component setParentAnchor(Anchor parentAnchor) {
         this.parentAnchor = parentAnchor;
         if (this.parentAnchor == null) this.parentAnchor = Anchor.TOP_LEFT;
+        return this;
+    }
+
+    public Component setAbsolute(boolean absolutePosition) {
+        this.absolutePosition = absolutePosition;
         return this;
     }
 
@@ -91,8 +97,8 @@ public abstract class Component extends ComponentHolder {
                 return parentAnchor.offsetChild(getPos(), getDisplayedSize(), Vector2D.ZERO, Renderer2D.getScaledSize());
             } else return getPos();
         else {
-            Vector2D parentPos = parent.getDisplayedPos();
-            Vector2D parentSize = parent.getDisplayedSize();
+            Vector2D parentPos = absolutePosition ? Vector2D.ZERO : parent.getDisplayedPos();
+            Vector2D parentSize = absolutePosition ? Renderer2D.getScaledSize() : parent.getDisplayedSize();
             Vector2D displayedSize = getDisplayedSize();
             Vector2D percentPos = this.pos.constrain(Vector2D.ZERO, Vector2D.ONE);
 
@@ -124,7 +130,7 @@ public abstract class Component extends ComponentHolder {
         if (parent == null)
             return getSize();
         else {
-            Vector2D parentSize = parent.getDisplayedSize();
+            Vector2D parentSize = absolutePosition ? Renderer2D.getScaledSize() : parent.getDisplayedSize();
             Vector2D rawSize = new Vector2D(
                     usePercentSizeX ? MathUtil.constrain(getSize().getX(), 0, 1) * parentSize.getX() : getSize().getX(),
                     usePercentSizeY ? MathUtil.constrain(getSize().getY(), 0, 1) * parentSize.getY() : getSize().getY()
