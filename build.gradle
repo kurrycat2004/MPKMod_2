@@ -12,11 +12,13 @@ buildscript {
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 allprojects {
     repositories {
-        maven { url 'https://jitpack.io' }
         mavenCentral()
+        maven { url 'https://jitpack.io' }
     }
     tasks.withType(JavaCompile) {
         sourceCompatibility = '1.8'
@@ -85,6 +87,27 @@ test {
     useJUnitPlatform()
 }
 
+configurations {
+    sourceArchives
+}
+
+task jitpackJar(type: Jar) {
+    baseName = 'mpkmod_common'
+    from("src/main/java") {
+        exclude("io/github/kurrycat/mpkmod/compatability/MC1_8/**")
+    }
+    from("src/main/resources") {
+        include("assets/mpkmod/**")
+        exclude("assets/mpkmod/lang/**")
+    }
+}
+
+artifacts {
+    sourceArchives jitpackJar
+}
+
+install.configuration = configurations.sourceArchives
+
 processResources
         {
             // this will ensure that this task is redone when the versions change.
@@ -104,5 +127,5 @@ processResources
                 exclude 'mcmod.info'
             }
 
-            from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+            from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
         }
