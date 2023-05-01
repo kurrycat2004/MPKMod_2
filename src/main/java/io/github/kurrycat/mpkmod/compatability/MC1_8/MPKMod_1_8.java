@@ -40,6 +40,18 @@ public class MPKMod_1_8 {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+        //Has to be called before preInit, because LabelConfig / keybinding labels get loaded there
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering Keybindings...");
+        for (KeyBinding k : Minecraft.getMinecraft().gameSettings.keyBindings) {
+            new io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding(
+                    () -> GameSettings.getKeyDisplayString(k.getKeyCode()),
+                    k.getKeyDescription(),
+                    k::isKeyDown
+            );
+        }
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registered {} Keybindings",
+                io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding.getKeyMap().size());
+
         API.preInit(getClass());
 
         API.guiScreenMap.forEach((id, guiScreen) -> {
@@ -55,17 +67,6 @@ public class MPKMod_1_8 {
 
         MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(this);
-
-        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering Keybindings...");
-        for (KeyBinding k : Minecraft.getMinecraft().gameSettings.keyBindings) {
-            new io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding(
-                    () -> GameSettings.getKeyDisplayString(k.getKeyCode()),
-                    k.getKeyDescription(),
-                    k::isKeyDown
-            );
-        }
-        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registered {} Keybindings",
-                io.github.kurrycat.mpkmod.compatability.MCClasses.KeyBinding.getKeyMap().size());
 
         API.init(Minecraft.getSessionInfo().get("X-Minecraft-Version"));
     }
