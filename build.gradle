@@ -88,12 +88,13 @@ test {
 }
 
 configurations {
-    sourceArchives
+    jitpackJar
 }
 
-task jitpackJar(type: Jar) {
+task createJitpackJar(type: Jar) {
+    dependsOn build
     baseName = 'mpkmod_common'
-    from("src/main/java") {
+    from("build/classes/java/main/") {
         exclude("io/github/kurrycat/mpkmod/compatability/MC1_8/**")
     }
     from("src/main/resources") {
@@ -103,10 +104,10 @@ task jitpackJar(type: Jar) {
 }
 
 artifacts {
-    sourceArchives jitpackJar
+    jitpackJar createJitpackJar
 }
 
-install.configuration = configurations.sourceArchives
+install.configuration = configurations.jitpackJar
 
 processResources
         {
