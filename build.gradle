@@ -101,6 +101,9 @@ task createJitpackJar(type: Jar) {
         include("assets/mpkmod/**")
         exclude("assets/mpkmod/lang/**")
     }
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    exclude("dummyThing")
 }
 
 artifacts {
