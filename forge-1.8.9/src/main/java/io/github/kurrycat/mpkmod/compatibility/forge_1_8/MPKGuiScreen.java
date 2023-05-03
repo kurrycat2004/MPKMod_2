@@ -1,8 +1,7 @@
-package io.github.kurrycat.mpkmod.compatibility.MC1_8;
+package io.github.kurrycat.mpkmod.compatibility.forge_1_8;
 
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.InputConstants;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Profiler;
-import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -15,11 +14,11 @@ import org.lwjgl.input.Mouse;
 import java.io.IOException;
 
 @SideOnly(Side.CLIENT)
-public class MPKGuiScreen_1_8 extends GuiScreen {
+public class MPKGuiScreen extends GuiScreen {
     public boolean repeatEventsEnabled;
-    public MPKGuiScreen eventReceiver;
+    public io.github.kurrycat.mpkmod.gui.MPKGuiScreen eventReceiver;
 
-    public MPKGuiScreen_1_8(MPKGuiScreen screen) {
+    public MPKGuiScreen(io.github.kurrycat.mpkmod.gui.MPKGuiScreen screen) {
         super();
         eventReceiver = screen;
     }

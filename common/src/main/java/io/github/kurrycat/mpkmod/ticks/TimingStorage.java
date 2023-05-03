@@ -23,7 +23,7 @@ public class TimingStorage {
         });
         if (patterns == null) return;
 
-        API.LOGGER.info(API.CONFIG_MARKER, "Timings loaded from {}", stratFileName);
+        API.LOGGER.info(API.CONFIG_MARKER, "{} Timings loaded from {}", patterns.size(), stratFileName);
     }
 
     public static String match(List<TimingInput> inputList) {

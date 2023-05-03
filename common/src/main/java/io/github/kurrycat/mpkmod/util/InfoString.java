@@ -91,7 +91,7 @@ public class InfoString {
 
         List<Class<?>> classes = ClassUtil.getClasses(API.packageName);
 
-        if (classes == null) {
+        if (classes == null || classes.size() == 0) {
             API.LOGGER.warn(API.CONFIG_MARKER, "Error loading package while initializing option map");
             return infoMap;
         }

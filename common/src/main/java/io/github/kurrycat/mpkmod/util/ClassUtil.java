@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -81,10 +82,13 @@ public class ClassUtil {
             try (final Stream<Path> allPaths = Files.walk(root)) {
                 allPaths.filter(Files::isRegularFile).forEach(file -> {
                     try {
-                        final String path = file.toString().replace('/', '.');
+
+                        final String path = file.toString().replace(file.getFileSystem().getSeparator(), ".");
+                        System.out.println(path);
                         final String name = path.substring(path.indexOf(pkgName), path.length() - extension.length());
                         allClasses.add(Class.forName(name));
                     } catch (final ClassNotFoundException | StringIndexOutOfBoundsException ignored) {
+                        ignored.printStackTrace();
                     }
                 });
             }

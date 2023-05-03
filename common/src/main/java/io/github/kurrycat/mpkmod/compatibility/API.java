@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.List;
 
 public class API {
-    public static final String MODID = "assets/mpkmod";
+    public static final String MODID = "mpkmod";
 
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static final Marker DISCORD_RPC_MARKER = MarkerManager.getMarker("DISCORD_RPC");
@@ -73,6 +73,7 @@ public class API {
 
         infoMap = InfoString.createInfoMap();
         infoVars = InfoString.getInfoVarsList();
+        API.LOGGER.info("Registered {} infoVars:\n{}", infoVars.size(), infoVars);
 
         TimingStorage.init();
 

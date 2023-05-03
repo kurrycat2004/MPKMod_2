@@ -1,0 +1,64 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+    }
+}
+apply plugin: 'net.minecraftforge.gradle'
+
+group = project(":common").$group
+version = project(":common").$version
+archivesBaseName = project(":common").$modBaseName
+
+minecraft {
+    mappings channel: 'snapshot', version: '20190719-1.14.3'
+    //makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+
+    runs {
+        client {
+            workingDirectory project.file('../run')
+
+            //property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            property 'forge.logging.console.level', 'info'
+
+            mods {
+                mpkmod {
+                    source sourceSets.main
+                    //TODO: add common project source files
+                    //source project(":common").main //- doesnt work
+                }
+            }
+        }
+    }
+}
+
+configurations {
+    library
+    compile.extendsFrom library
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.14.4-28.2.26'
+
+    library project(":common")
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : project(":common").$modBaseName,
+                "Specification-Vendor"    : project(":common").$vendor,
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : project(":common").$vendor,
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+
+    from { configurations.library.collect { it.isDirectory() ? it : zipTree(it) } }
+}
