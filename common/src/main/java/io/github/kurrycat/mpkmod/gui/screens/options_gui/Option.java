@@ -51,7 +51,7 @@ public class Option {
 
         List<Class<?>> classes = ClassUtil.getClasses(API.packageName);
 
-        if (classes == null || classes.size() == 0) {
+        if (classes.size() == 0) {
             API.LOGGER.warn(API.CONFIG_MARKER, "Error loading package while initializing option map");
             return optionMap;
         }
@@ -80,7 +80,7 @@ public class Option {
             Option option = new Option(name, value, value, type).setCategory(category).link(f);
             optionMap.put(name, option);
 
-            API.LOGGER.info("Option of type {} added to map: {} with default value: {}", type, name, value);
+            API.LOGGER.debug("Option of type {} added to map: {} with default value: {}", type, name, value);
         }
 
         List<Tuple<ChangeListener, Method>> listeners = ClassUtil.getMethodAnnotations(classes, ChangeListener.class);
@@ -101,8 +101,10 @@ public class Option {
                 }
             });
 
-            API.LOGGER.info("Option listener added for: {} ", fieldName);
+            API.LOGGER.debug("Option listener added for: {} ", fieldName);
         }
+
+        API.LOGGER.info("{} Options registered", optionMap.size());
 
         return optionMap;
     }

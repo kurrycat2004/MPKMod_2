@@ -1,32 +1,82 @@
-subprojects {
+/*subprojects {
     apply plugin: 'java'
+}*/
+
+configure(subprojects) {
+    apply plugin: 'java'
+
+    group = project(":common").$group
+    version = project(":common").$version
+    archivesBaseName = project(":common").$modBaseName
+
+    tasks.withType(JavaCompile) {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+        options.encoding = 'UTF-8'
+    }
+
+    configurations {
+        library
+        implementation.extendsFrom library
+    }
+
+    dependencies {
+        library 'com.github.JnCrMx:discord-game-sdk4j:v0.5.5'
+
+        library 'com.fasterxml.jackson.core:jackson-core:2.8.8'
+        library 'com.fasterxml.jackson.core:jackson-annotations:2.8.8'
+        //if changed to newer version gives IllegalArgumentException (no error message) idfk why
+        library 'com.fasterxml.jackson.core:jackson-databind:2.8.8'
+
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+    }
+
+    repositories {
+        mavenCentral()
+        maven { url = "https://jitpack.io" }
+        maven {
+            url 'https://maven.fabricmc.net/'
+            metadataSources {
+                artifact()
+            }
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    jar {
+        manifest {
+            attributes([
+                    "Specification-Title"     : project(":common").$modBaseName,
+                    "Specification-Vendor"    : project(":common").$vendor,
+                    "Specification-Version"   : "1", // We are version 1 of ourselves
+                    "Implementation-Title"    : project(":common").$modBaseName,
+                    "Implementation-Version"  : project(":common").$version,
+                    "Implementation-Vendor"   : project(":common").$vendor,
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            ])
+        }
+        if (project.properties.containsKey("\$mcVersion"))
+            archiveClassifier = "MC" + project.properties.get("\$mcVersion")
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from {
+            //configurations.runtimeClasspath.collect { it.name.contains("discord-game-sdk4j") || it.name.contains("jackson") ? zipTree(it) : null}
+            configurations.library.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+        from {
+            "../LICENSE"
+        }
+    }
 }
 
-allprojects {
-    if (plugins.hasPlugin('java')) {
-        tasks.withType(JavaCompile) {
-            sourceCompatibility = '1.8'
-            targetCompatibility = '1.8'
-        }
-        dependencies {
-            compile 'com.github.JnCrMx:discord-game-sdk4j:v0.5.5'
-
-            compile 'com.fasterxml.jackson.core:jackson-core:2.8.8'
-            compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.8'
-            //if changed to newer version gives IllegalArgumentException (no error message) idfk why
-            compile 'com.fasterxml.jackson.core:jackson-databind:2.8.8'
-
-            testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
-            testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
-        }
-
-        repositories {
-            mavenCentral()
-            maven { url = "https://jitpack.io" }
-        }
-
-        test {
-            useJUnitPlatform()
+subprojects {
+    if (project.name != "common") {
+        tasks.register("runClient_$project.name") {
+            dependsOn project.tasks.getByName("runClient")
+            group "runClient"
         }
     }
 }

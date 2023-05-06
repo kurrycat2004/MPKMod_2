@@ -1,18 +1,17 @@
 package io.github.kurrycat.mpkmod.util;
 
+import io.github.kurrycat.mpkmod.compatibility.API;
+
 import java.io.File;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 
 public class ClassUtil {
     public static Class<?> ModClass = null;
@@ -51,7 +50,57 @@ public class ClassUtil {
         return annotations;
     }
 
-    public static List<Class<?>> getClasses(final String pkgName) {
+    public static List<Class<?>> getClasses(String packageName) {
+        String path = packageName.replace(".", File.separator);
+        String path2 = packageName.replace(".", "/");
+        List<Class<?>> classes = new ArrayList<>();
+        String[] classPathEntries = System.getProperty("java.class.path").split(
+                System.getProperty("path.separator")
+        );
+
+        String name;
+        for (String classpathEntry : classPathEntries) {
+            if (classpathEntry.endsWith(".jar")) {
+                File jar = new File(classpathEntry);
+                try {
+                    JarInputStream is = new JarInputStream(Files.newInputStream(jar.toPath()));
+                    JarEntry entry;
+                    while ((entry = is.getNextJarEntry()) != null) {
+                        name = entry.getName();
+                        if (name.endsWith(".class")) {
+                            if (name.contains(path) || name.contains(path2)) {
+                                String classPath = name.substring(0, entry.getName().length() - 6);
+                                classPath = classPath.replaceAll("[|/]", ".");
+                                classes.add(Class.forName(classPath));
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    // Silence is gold
+                    API.LOGGER.debug("Exception during class loading: ", ex);
+                }
+            } else {
+                try {
+                    File base = new File(classpathEntry + File.separatorChar + path);
+                    if (!base.isDirectory()) continue;
+                    for (File file : Objects.requireNonNull(base.listFiles())) {
+                        name = file.getName();
+                        if (name.endsWith(".class")) {
+                            name = name.substring(0, name.length() - 6);
+                            classes.add(Class.forName(packageName + "." + name));
+                        }
+                    }
+                } catch (Exception ex) {
+                    // Silence is gold
+                    API.LOGGER.debug("Exception during class loading: ", ex);
+                }
+            }
+        }
+
+        return classes;
+    }
+
+    /*public static List<Class<?>> getClasses(final String pkgName) {
         final String pkgPath = pkgName.replace('.', '/');
         URI pkg;
         try {
@@ -96,7 +145,7 @@ public class ClassUtil {
             return null;
         }
         return allClasses;
-    }
+    }*/
 
     public static void setModClass(Class<?> callerClass) {
         ModClass = callerClass;

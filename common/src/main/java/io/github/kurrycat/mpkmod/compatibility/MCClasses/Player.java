@@ -22,6 +22,12 @@ public class Player {
     public static Player displayInstance = new Player();
     public TimingInput timingInput = new TimingInput("");
     public KeyInput keyInput = null;
+    @InfoString.Field
+    public Vector3D lastLanding = new Vector3D(0, 0, 0);
+    @InfoString.Field
+    public Vector3D lastHit = new Vector3D(0, 0, 0);
+    @InfoString.Field
+    public Vector3D lastJump = new Vector3D(0, 0, 0);
     private Vector3D pos = null;
     private Vector3D lastPos = null;
     private Float trueYaw = null;
@@ -34,12 +40,6 @@ public class Player {
     private Float last45 = 0F;
     private boolean jumpTick = false;
     private boolean landTick = false;
-    @InfoString.Field
-    public Vector3D lastLanding = new Vector3D(0, 0, 0);
-    @InfoString.Field
-    public Vector3D lastHit = new Vector3D(0, 0, 0);
-    @InfoString.Field
-    public Vector3D lastJump = new Vector3D(0, 0, 0);
     private String lastTiming = "None";
     private boolean sprinting = false;
 
@@ -98,6 +98,27 @@ public class Player {
 
     public static List<TimingInput> getInputHistory() {
         return tickHistory.stream().map(p -> p.timingInput).collect(Collectors.toList());
+    }
+
+    @InfoString.Getter
+    public static List<String> compressedInputHistory() {
+        return getInputHistory().stream()
+                .reduce(new ArrayList<Tuple<Integer, TimingInput>>(), (l, t) -> {
+                    if (l.size() == 0) {
+                        l.add(new Tuple<>(1, t));
+                        return l;
+                    }
+                    Tuple<Integer, TimingInput> last = l.get(l.size() - 1);
+                    if (last.getSecond().equals(t)) last.setFirst(last.getFirst() + 1);
+                    else l.add(new Tuple<>(1, t));
+                    return l;
+                }, (l1, l2) -> {
+                    ArrayList<Tuple<Integer, TimingInput>> list = new ArrayList<>(l1);
+                    list.addAll(l2);
+                    return list;
+                })
+                .stream().map(Object::toString).collect(Collectors.toList());
+
     }
 
     public static List<String> getInputList() {

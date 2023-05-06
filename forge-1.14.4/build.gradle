@@ -1,4 +1,83 @@
-buildscript {
+
+//TODO: broken: "Missing LaunchHandler fmluserdevclient, cannot continue"
+/*plugins {
+    id 'xyz.wagyourtail.unimined' version '0.4.10-SNAPSHOT'
+}
+
+group = project(":common").$group
+version = project(":common").$version
+archivesBaseName = project(":common").$modBaseName
+
+repositories {
+    mavenCentral()
+}
+
+unimined {
+    // debug, puts some things in build/unimined instead of ~/.gradle/caches/unimined
+    // I reccomend you leave this on until unimined is stable
+    useGlobalCache = false
+}
+
+project.evaluationDependsOn(":common")
+
+sourceSets {
+    // enable the client configuration when not using combined (or mc <= 1.2.5)
+    client
+}
+
+sourceSets.main.output
+
+configurations {
+    library
+    implementation.extendsFrom library
+}
+
+minecraft {
+    forge {
+        mcpChannel = 'snapshot'
+        mcpVersion = '20190719-1.14.3'
+        devFallbackNamespace = "mcp"
+    }
+
+    mcRemapper.tinyRemapperConf = {
+        ignoreFieldDesc(true)
+        ignoreConflicts(true)
+    }
+}
+
+
+dependencies {
+    minecraft 'net.minecraft:minecraft:1.14.4'
+
+    forge 'net.minecraftforge:forge:1.14.4-28.2.26'
+
+    library project(":common")
+    // mappings "mappinggroup:mappingname:version"
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : project(":common").$modBaseName,
+                "Specification-Vendor"    : project(":common").$vendor,
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : project(":common").$vendor,
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        //configurations.runtimeClasspath.collect { it.name.contains("discord-game-sdk4j") || it.name.contains("jackson") ? zipTree(it) : null}
+        configurations.library.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    from {
+        "../LICENSE"
+    }
+}*/
+
+/*buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
         mavenCentral()
@@ -28,8 +107,6 @@ minecraft {
             mods {
                 mpkmod {
                     source sourceSets.main
-                    //TODO: add common project source files
-                    //source project(":common").main //- doesnt work
                 }
             }
         }
@@ -59,6 +136,9 @@ jar {
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
-
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from { configurations.library.collect { it.isDirectory() ? it : zipTree(it) } }
-}
+    from {
+        "../LICENSE"
+    }
+}*/

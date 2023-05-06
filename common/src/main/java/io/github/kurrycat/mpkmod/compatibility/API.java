@@ -73,7 +73,7 @@ public class API {
 
         infoMap = InfoString.createInfoMap();
         infoVars = InfoString.getInfoVarsList();
-        API.LOGGER.info("Registered {} infoVars:\n{}", infoVars.size(), infoVars);
+        API.LOGGER.info("{} infoVars registered", infoVars.size());
 
         TimingStorage.init();
 

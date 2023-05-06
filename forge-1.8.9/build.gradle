@@ -1,57 +1,43 @@
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
+plugins {
+    id 'xyz.wagyourtail.unimined' version '0.4.10-SNAPSHOT'
+}
+
+unimined {
+    // debug, puts some things in build/unimined instead of ~/.gradle/caches/unimined
+    // I reccomend you leave this on until unimined is stable
+    useGlobalCache = false
+}
+
+minecraft {
+    clientWorkingDirectory = project.file('../run')
+    // current available options are: forge, jarMod, fabric
+    // if you don't include this, it will default to no mod loader transforms
+    forge {
+        // required for 1.7+ if you want to use mcp mappings
+        mcpVersion = '22-1.8.9'
+        mcpChannel = 'stable'
+
+        //accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+        //devFallbackNamespace = "searge" // you may need to change this to "intermediary" on multi-platform projects
     }
 
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+    mcRemapper.tinyRemapperConf = {
+        // most mcp mappings (except older format) dont include field desc
+        ignoreFieldDesc(true)
+        // this also fixes some issues with them, as it tells tiny remapper to try harder to resolve conflicts
+        ignoreConflicts(true)
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
-
-group = project(":common").$group
-version = project(":common").$version
-archivesBaseName = project(":common").$modBaseName
-
-minecraft {
-    version = "1.8.9-11.15.1.2318-1.8.9"
-    runDir = "../run"
-
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not allways work.
-    // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "stable_20"
-    makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+sourceSets {
+    // enable the client configuration when not using combined (or mc <= 1.2.5)
+    client
 }
 
 dependencies {
-    compile project(':common')
-}
+    minecraft 'net.minecraft:minecraft:1.8.9'
+    forge 'net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9'
 
-processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    //inputs.property "mcversion", project.minecraft.version
-
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-
-        // replace version and mcversion
-        expand 'version': project.version//, 'mcversion':project.minecraft.version
-    }
-
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    library project(":common")
+    // mappings "mappinggroup:mappingname:version"
 }

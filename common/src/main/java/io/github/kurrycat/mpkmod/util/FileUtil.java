@@ -7,7 +7,10 @@ import java.util.List;
 
 public class FileUtil {
     public static InputStream getResource(String path) {
-        return ClassUtil.ModClass.getResourceAsStream(path);
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+        if (is == null)
+            is = ClassUtil.ModClass.getResourceAsStream(path);
+        return is;
     }
 
     public static List<File> getJSONFiles(String folderPath) {
@@ -29,7 +32,7 @@ public class FileUtil {
 
     public static String getName(File file) {
         String n = file.getName();
-        if(n.indexOf('.') != -1)
+        if (n.indexOf('.') != -1)
             n = n.substring(0, n.lastIndexOf('.'));
         return n;
     }

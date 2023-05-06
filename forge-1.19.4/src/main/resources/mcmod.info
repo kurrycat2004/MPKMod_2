@@ -1,0 +1,16 @@
+[
+{
+  "modid": "mpkmod",
+  "name": "MPK Mod",
+  "description": "A Mod that adds some pk features to the game",
+  "version": "${version}",
+  "mcversion": "",
+  "url": "https://github.com/kurrycat2004/MpkMod",
+  "updateUrl": "",
+  "authorList": ["kurrycat"],
+  "credits": "",
+  "logoFile": "mpkmod_logo.png",
+  "screenshots": [],
+  "dependencies": []
+}
+]
