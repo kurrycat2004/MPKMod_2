@@ -1,0 +1,43 @@
+plugins {
+    id 'xyz.wagyourtail.unimined' version '0.4.10-SNAPSHOT'
+}
+
+unimined {
+    // debug, puts some things in build/unimined instead of ~/.gradle/caches/unimined
+    // I reccomend you leave this on until unimined is stable
+    useGlobalCache = false
+}
+
+minecraft {
+    clientWorkingDirectory = project.file('../run')
+    // current available options are: forge, jarMod, fabric
+    // if you don't include this, it will default to no mod loader transforms
+    forge {
+        // required for 1.7+ if you want to use mcp mappings
+        mcpVersion = '22-1.8.9'
+        mcpChannel = 'stable'
+
+        //accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+        //devFallbackNamespace = "searge" // you may need to change this to "intermediary" on multi-platform projects
+    }
+
+    mcRemapper.tinyRemapperConf = {
+        // most mcp mappings (except older format) dont include field desc
+        ignoreFieldDesc(true)
+        // this also fixes some issues with them, as it tells tiny remapper to try harder to resolve conflicts
+        ignoreConflicts(true)
+    }
+}
+
+sourceSets {
+    // enable the client configuration when not using combined (or mc <= 1.2.5)
+    client
+}
+
+dependencies {
+    minecraft 'net.minecraft:minecraft:1.8.9'
+    forge 'net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9'
+
+    library project(":common")
+    // mappings "mappinggroup:mappingname:version"
+}
