@@ -10,7 +10,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.KeyBinding;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,8 @@ public class MPKMod implements ModInitializer {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
 		LOGGER.info("Loading " + API.NAME + " " + API.VERSION);
+		API.preInit(getClass());
+		registerKeybindingsFromGUIs();
 
 		HudRenderCallback.EVENT.register(eventHandler::onInGameOverlayRender);
 		ClientTickEvents.START_CLIENT_TICK.register(eventHandler::onClientTickStart);
@@ -42,8 +43,6 @@ public class MPKMod implements ModInitializer {
 		API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registered compatibility functions.");
 
 		registerKeyBindings();
-		registerKeybindingsFromGUIs();
-		API.preInit(getClass());
 		API.init(SharedConstants.getGameVersion().getName());
 
 		API.Events.onLoadComplete();
