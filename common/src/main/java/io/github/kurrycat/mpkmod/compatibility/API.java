@@ -66,7 +66,6 @@ public class API {
 
         JSONConfig.setupFiles();
         Serializer.registerSerializer();
-        LabelConfiguration.init();
 
         optionsMap = Option.createOptionMap();
         Option.updateOptionMapFromJSON(true);
@@ -104,6 +103,7 @@ public class API {
     public static void init(String mcVersion) {
         Minecraft.version = mcVersion;
 
+        LabelConfiguration.init();
         gameStartedInstant = Instant.now();
 
         EventAPI.init();

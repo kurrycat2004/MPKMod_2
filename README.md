@@ -6,6 +6,7 @@ MPK Mod is a minecraft mod that adds some features for [minecraft parkour](https
 Supported versions: 
 - Forge 1.8.9
 - Forge 1.19.4
+- Fabric 1.19.4
 
 ## Content
 - [Installation](#installation)
