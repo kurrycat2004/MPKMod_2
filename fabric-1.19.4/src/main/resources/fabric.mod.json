@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "mpkmod",
+  "version": "${version}",
+
+  "name": "MPK Mod",
+  "description": "A Mod that adds some features that help parkour to the game.",
+  "authors": [
+    "kurrycat",
+    "CodeKid0 (Fabric port)",
+    "Contributors"
+  ],
+  "contact": {
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+
+  "license": "MIT",
+  "icon": "assets/mpkmod/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "io.github.kurrycat.mpkmod.compatibility.fabric_1_19_4.MPKMod"
+    ]
+  },
+  "mixins": [
+    "mpkmod.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.14.19",
+    "fabric-api": "*",
+    "minecraft": "~1.19.4",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
