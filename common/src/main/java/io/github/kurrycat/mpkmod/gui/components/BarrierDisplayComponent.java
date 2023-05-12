@@ -41,7 +41,7 @@ public class BarrierDisplayComponent extends ResizableComponent {
             Renderer2D.drawRect(Vector2D.ZERO.add(0, windowSize.getY() - lineThickness), new Vector2D(windowSize.getX(), lineThickness), color);
             Renderer2D.drawRect(Vector2D.ZERO.add(windowSize.getX() - lineThickness, 0), new Vector2D(lineThickness, windowSize.getY()), color);
         }
-        if (lookingAtBarrier || (currentGui != null && currentGui.equals("main_gui"))) {
+        if ((lookingAtBarrier && !fullscreen) || (currentGui != null && currentGui.equals("main_gui"))) {
             FontRenderer.drawCenteredString(
                     "!",
                     getDisplayedPos().add(getDisplayedSize().div(2)).add(new Vector2D(0, 1)),
