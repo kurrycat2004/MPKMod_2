@@ -19,6 +19,10 @@ public class DiscordRPC {
     public static boolean discordRPCEnabled = true;
 
     public static void init() {
+        new Thread(DiscordRPC::_init).start();
+    }
+
+    private static void _init() {
         File discordLibrary = DiscordNativeLibrary.getNativeLibrary();
         if (discordLibrary == null) {
             API.LOGGER.info(API.DISCORD_RPC_MARKER, "Discord library not found.");
@@ -35,7 +39,53 @@ public class DiscordRPC {
         API.LOGGER.info(API.DISCORD_RPC_MARKER, "Started DiscordRPC callback thread");
     }
 
-    public static void createCore() {
+    @Option.ChangeListener(field = "discordRPCEnabled")
+    public static void onEnabledStatusChanged() {
+        if (!LIBRARY_LOADED) {
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC library not loaded correctly, unable to update rich presence");
+            return;
+        }
+
+        if (discordRPCEnabled) enableRPC();
+        else disableRPC();
+    }
+
+    private static void startCallbackThread() {
+        Thread t = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    if (core != null && core.isOpen()) core.runCallbacks();
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    disableRPC();
+                    break;
+                }
+            }
+            disableRPC();
+        }, "Discord_RPC_Callback_Handler");
+        t.start();
+    }
+
+    private static void enableRPC() {
+        if (core != null) {
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC already enabled, restarting... ");
+            disableRPC();
+        }
+        new Thread(() -> {
+            createCore();
+            updateWorldAndPlayState();
+            API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC started");
+        }).start();
+    }
+
+    private static void disableRPC() {
+        if (core != null)
+            core.close();
+        core = null;
+        API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC disabled in options, turn on to activate");
+    }
+
+    private static void createCore() {
         try (CreateParams params = new CreateParams()) {
             params.setClientID(CLIENT_ID);
             params.setFlags(CreateParams.getDefaultFlags());
@@ -49,26 +99,24 @@ public class DiscordRPC {
         }
     }
 
-    @Option.ChangeListener(field = "discordRPCEnabled")
-    public static void onEnabledStatusChanged() {
-        if (!LIBRARY_LOADED) {
-            API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC library not loaded correctly, unable to update rich presence");
-            return;
+    public static void updateWorldAndPlayState() {
+        String details = "Minecraft " + Minecraft.version;
+        String state;
+
+        if (Minecraft.worldState == Minecraft.WorldState.MENU) {
+            state = Minecraft.playState == Minecraft.PlayState.AFK ? "AFK in Menu" : "In Menu";
+        } else if (Minecraft.worldState == Minecraft.WorldState.SINGLE_PLAYER) {
+            state = Minecraft.playState == Minecraft.PlayState.AFK ? "AFK in Singleplayer" : "Playing Singleplayer";
+        } else if (Minecraft.worldState == Minecraft.WorldState.MULTI_PLAYER) {
+            state = (Minecraft.playState == Minecraft.PlayState.AFK ? "AFK on " : "Playing on ") + Minecraft.getIp();
+        } else {
+            state = null;
         }
 
-        if (discordRPCEnabled) {
-            createCore();
-            updateWorldAndPlayState();
-            API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC started");
-        } else {
-            if (core != null)
-                core.close();
-            core = null;
-            API.LOGGER.info(API.DISCORD_RPC_MARKER, "DiscordRPC disabled in options, turn on to activate");
-        }
+        new Thread(() -> updateActivity(details, state)).start();
     }
 
-    public static void updateActivity(String details, String state) {
+    private static void updateActivity(String details, String state) {
         if (!LIBRARY_LOADED) return;
         if (!API.discordRpcInitialized) return;
         if (!discordRPCEnabled) return;
@@ -84,40 +132,5 @@ public class DiscordRPC {
             if (core != null && core.isOpen())
                 core.activityManager().updateActivity(activity);
         }
-
-    }
-
-    public static void updateWorldAndPlayState() {
-        String details = "Minecraft " + Minecraft.version;
-        String state = null;
-
-
-        if (Minecraft.worldState == Minecraft.WorldState.MENU) {
-            state = Minecraft.playState == Minecraft.PlayState.AFK ? "AFK in Menu" : "In Menu";
-        } else if (Minecraft.worldState == Minecraft.WorldState.SINGLE_PLAYER) {
-            state = Minecraft.playState == Minecraft.PlayState.AFK ? "AFK in Singleplayer" : "Playing Singleplayer";
-        } else if (Minecraft.worldState == Minecraft.WorldState.MULTI_PLAYER) {
-            state = (Minecraft.playState == Minecraft.PlayState.AFK ? "AFK on " : "Playing on ") + Minecraft.getIp();
-        }
-
-        updateActivity(details, state);
-    }
-
-    public static void startCallbackThread() {
-        Thread t = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    if (core != null && core.isOpen()) core.runCallbacks();
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    if (core != null)
-                        core.close();
-                    break;
-                }
-            }
-            if (core != null)
-                core.close();
-        }, "Discord_RPC_Callback_Handler");
-        t.start();
     }
 }

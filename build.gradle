@@ -74,9 +74,13 @@ configure(subprojects) {
 
 subprojects {
     if (project.name != "common") {
-        tasks.register("runClient_$project.name") {
-            dependsOn project.tasks.getByName("runClient")
-            group "runClient"
+        project.afterEvaluate {
+            project.tasks.matching { it.name == "runClient" }.all {Task task ->
+                tasks.register("runClient_$project.name") {
+                    dependsOn task
+                    group "runClient"
+                }
+            }
         }
     }
 }
