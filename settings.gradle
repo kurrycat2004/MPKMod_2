@@ -19,5 +19,5 @@ pluginManagement {
 
 include 'common'
 include 'forge-1.8.9'
-//include 'forge-1.14.4' // - not working
 include 'forge-1.19.4'
+include 'fabric-1.19.4'

@@ -9,12 +9,6 @@ subprojects {
     version = project(":common").$version
     archivesBaseName = project(":common").$modBaseName
 
-    tasks.withType(JavaCompile) {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
-        options.encoding = 'UTF-8'
-    }
-
     configurations {
         library
         implementation.extendsFrom library
@@ -63,13 +57,13 @@ subprojects {
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
             ])
         }
-        doFirst {
-            if (project.properties.containsKey("\$mcVersion"))
-                archiveClassifier = project.name
-        }
 
-        if (project.name != "common")
+        if (project.name != "common") {
             destinationDirectory = rootProject.buildDir
+            doFirst {
+                archiveClassifier = project.name
+            }
+        }
 
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         from {
@@ -80,6 +74,25 @@ subprojects {
         }
     }
 
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(project.properties.getOrDefault("jdkVersion", 17) as int)
+        }
+    }
+
+
+    tasks.withType(JavaCompile) {
+        int jdkVersion = project.properties.getOrDefault("jdkVersion", 17) as int
+
+        sourceCompatibility = jdkVersion
+        targetCompatibility = jdkVersion
+
+        if (jdkVersion >= 9)
+            options.release.set(jdkVersion)
+
+        options.encoding = 'UTF-8'
+    }
+
     if (project.name != "common") {
         project.afterEvaluate {
             project.tasks.matching { it.name == "runClient" }.all { Task task ->
@@ -87,6 +100,10 @@ subprojects {
                     dependsOn task
                     group "runClient"
                 }
+            }
+
+            tasks.withType(JavaExec) {
+                javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
             }
         }
     }
