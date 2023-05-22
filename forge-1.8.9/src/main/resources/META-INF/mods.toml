@@ -17,7 +17,7 @@ issueTrackerURL="http://my.issue.tracker/" #optional
 # The modid of the mod
 modId="mpkmod" #mandatory
 # The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-version="${file.jarVersion}" #mandatory
+version="${version}" #mandatory
 # A display name for the mod
 displayName="MPK Mod" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification <here>
@@ -25,15 +25,13 @@ displayName="MPK Mod" #mandatory
 # A URL for the "homepage" for this mod, displayed in the mod UI
 #displayURL="http://example.com/" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile= "../mpkmod_logo.png" #optional
+logoFile= "mpkmod_logo.png" #optional
 # A text field displayed in the mod UI
 credits="" #optional
 # A text field displayed in the mod UI
 authors="" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-
-
 A Mod that adds some pk features to the game
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.

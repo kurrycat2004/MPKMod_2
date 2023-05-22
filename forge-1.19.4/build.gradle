@@ -1,4 +1,75 @@
 plugins {
+    id 'xyz.wagyourtail.unimined' version '0.4.10-SNAPSHOT'
+}
+
+// somehow some ways of setting jdk dont work sometimes, but this works so ¯\_(ツ)_/¯
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+tasks.withType(JavaExec){
+    javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
+}
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    options.release.set(17)
+}
+
+
+
+
+
+unimined {
+    // debug, puts some things in build/unimined instead of ~/.gradle/caches/unimined
+    // I reccomend you leave this on until unimined is stable
+    useGlobalCache = false
+}
+
+minecraft {
+    clientWorkingDirectory = project.file('../run')
+    forge {
+        /*mcpVersion = '1.19.3'
+        mcpChannel = 'config'*/
+    }
+
+    mcRemapper.tinyRemapperConf = {
+        ignoreFieldDesc(true)
+        ignoreConflicts(true)
+    }
+
+    // THIS IS NEEDED TO ADD LIBRARIES TO DEV ENVIRONMENT CLASSPATH
+    client.extendsFrom configurations.library
+}
+
+sourceSets {
+    client
+}
+
+dependencies {
+    minecraft 'net.minecraft:minecraft:1.19.4'
+    forge 'net.minecraftforge:forge:1.19.4-45.0.64'
+
+    /*mappings "net.fabricmc:intermediary:${rootProject.minecraft_version}:v2"*/
+    mappings "net.minecraft:minecraft:1.19.4:client-mappings"
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+}
+
+/*
+plugins {
     id 'eclipse'
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
@@ -53,4 +124,4 @@ minecraft.runs.all {
     lazyToken('minecraft_classpath') {
         configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
     }
-}
+}*/

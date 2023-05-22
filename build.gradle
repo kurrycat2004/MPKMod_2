@@ -2,7 +2,7 @@
     apply plugin: 'java'
 }*/
 
-configure(subprojects) {
+subprojects {
     apply plugin: 'java'
 
     group = project(":common").$group
@@ -30,6 +30,10 @@ configure(subprojects) {
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+
+        if (project.name != "common") {
+            library project(":common")
+        }
     }
 
     repositories {
@@ -75,9 +79,7 @@ configure(subprojects) {
             "../LICENSE"
         }
     }
-}
 
-subprojects {
     if (project.name != "common") {
         project.afterEvaluate {
             project.tasks.matching { it.name == "runClient" }.all { Task task ->
