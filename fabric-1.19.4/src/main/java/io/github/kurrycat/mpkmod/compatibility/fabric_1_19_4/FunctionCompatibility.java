@@ -19,7 +19,6 @@ import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 
 import java.awt.*;
@@ -45,10 +44,7 @@ public class FunctionCompatibility implements FunctionHolder,
     public List<BoundingBox3D> getCollisionBoundingBoxes(Vector3D blockPosVector) {
         final Vector3D blockPosVec = blockPosVector.copy();
         BlockPos blockPos = new BlockPos(blockPosVec.getXI(), blockPosVec.getYI(), blockPosVec.getZI());
-
-        if (MinecraftClient.getInstance().world == null)
-            return null;
-
+        if (MinecraftClient.getInstance().world == null) return null;
         ArrayList<BoundingBox3D> boundingBoxes = new ArrayList<>();
         BlockState blockState = MinecraftClient.getInstance().world.getBlockState(blockPos);
 
@@ -128,11 +124,6 @@ public class FunctionCompatibility implements FunctionHolder,
         BufferBuilder builder = tessellator.getBuffer();
 
         RenderSystem.lineWidth(1.0F);
-
-        Vec3d pos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
-
-        MPKMod.INSTANCE.matrixStack.translate(-pos.x, -pos.y, -pos.z);
-        //bb = bb.move(-pos.x, -pos.y, -pos.z);
 
         Matrix4f posMat = MPKMod.INSTANCE.matrixStack.peek().getPositionMatrix();
 

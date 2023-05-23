@@ -49,14 +49,14 @@ public class Option {
     public static HashMap<String, Option> createOptionMap() {
         HashMap<String, Option> optionMap = new HashMap<>();
 
-        List<Class<?>> classes = ClassUtil.getClasses(API.packageName);
+        //List<Class<?>> classes = ClassUtil.getClasses(API.packageName);
 
-        if (classes.size() == 0) {
+        /*if (classes.size() == 0) {
             API.LOGGER.warn(API.CONFIG_MARKER, "Error loading package while initializing option map");
             return optionMap;
-        }
+        }*/
 
-        List<Tuple<Field, java.lang.reflect.Field>> annotations = ClassUtil.getFieldAnnotations(classes, Field.class);
+        List<Tuple<Field, java.lang.reflect.Field>> annotations = ClassUtil.getFieldAnnotations(Field.class);
         for (Tuple<Field, java.lang.reflect.Field> t : annotations) {
             Field a = t.getFirst();
             java.lang.reflect.Field f = t.getSecond();
@@ -83,7 +83,7 @@ public class Option {
             API.LOGGER.debug("Option of type {} added to map: {} with default value: {}", type, name, value);
         }
 
-        List<Tuple<ChangeListener, Method>> listeners = ClassUtil.getMethodAnnotations(classes, ChangeListener.class);
+        List<Tuple<ChangeListener, Method>> listeners = ClassUtil.getMethodAnnotations(ChangeListener.class);
         for (Tuple<ChangeListener, Method> l : listeners) {
             ChangeListener c = l.getFirst();
             Method m = l.getSecond();

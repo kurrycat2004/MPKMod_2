@@ -50,9 +50,26 @@ public class LoadConfigPane extends Pane<MainGuiScreen> {
         presets.title = "Presets";
         addChild(presets, true, true, Anchor.TOP_LEFT, true);
 
-        savedConfigs = new ConfigFileList(LabelConfiguration.savedConfigs, new Vector2D(0.2 / 3, 0.07), new Vector2D(4 / 10D, 0.9));
+        savedConfigs = new ConfigFileList(LabelConfiguration.savedConfigs, new Vector2D(0.2 / 3, 0.07), new Vector2D(4 / 10D, 0.83));
         savedConfigs.title = "Saved Configurations";
         addChild(savedConfigs, true, true, Anchor.TOP_RIGHT, true);
+
+        Button reloadCurrent = new Button(
+                "Reload from file",
+                new Vector2D(0.5, 0.5),
+                new Vector2D(0.8, 20),
+                b -> {
+                    if(b != Mouse.Button.LEFT) return;
+                    LabelConfiguration.currentConfig.reloadFromFile();
+                    paneHolder.reloadConfig();
+                }
+        );
+        Div reloadDiv = new Div(
+                new Vector2D(0.2 / 3, 0),
+                new Vector2D(4 / 10D, 0.1)
+        );
+        reloadDiv.addChild(reloadCurrent, true, true, true, false, Anchor.TOP_LEFT);
+        addChild(reloadDiv, true, true, true, true, Anchor.BOTTOM_RIGHT, true);
 
         TextRectangle r = new TextRectangle(
                 new Vector2D(0.5, 1/6D),
@@ -108,7 +125,7 @@ public class LoadConfigPane extends Pane<MainGuiScreen> {
             super(parent);
             load = new Button("Load", Vector2D.OFFSCREEN, new Vector2D(30, 20), (mouseButton) -> {
                 if (mouseButton != Mouse.Button.LEFT) return;
-                LabelConfiguration.currentConfig = configuration.copy();
+                configuration.selectAsCurrent();
                 paneHolder.reloadConfig();
                 close();
             });

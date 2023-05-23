@@ -322,7 +322,7 @@ public class Player {
 
             lastLanding = landTick ? pos : prev.lastLanding;
             lastHit = prev.landTick ? pos : prev.lastHit;
-            lastJump = jumpTick ? pos : prev.lastJump;
+            lastJump = jumpTick ? prev.pos : prev.lastJump;
 
             deltaYaw = trueYaw - prev.trueYaw;
             deltaPitch = truePitch - prev.truePitch;

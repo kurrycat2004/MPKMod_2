@@ -27,12 +27,19 @@ public class LabelConfiguration implements Copyable<LabelConfiguration> {
     public ArrayList<Component> components;
     public boolean isMutable = false;
 
-    public LabelConfiguration(ArrayList<Component> components) {
-        this.components = components;
-    }
+    private File saveFile;
 
     public LabelConfiguration() {
         this(new ArrayList<>());
+    }
+
+    public LabelConfiguration(ArrayList<Component> components) {
+        this(null, components);
+    }
+
+    public LabelConfiguration(File saveFile, ArrayList<Component> components) {
+        this.saveFile = saveFile;
+        this.components = components;
     }
 
     public static void init() {
@@ -50,23 +57,61 @@ public class LabelConfiguration implements Copyable<LabelConfiguration> {
         List<File> files = FileUtil.getJSONFiles(savedConfigsFolderName);
         if (files != null) {
             for (File file : files) {
-                Component[] components = Serializer.deserialize(file, Component[].class);
-                if (components == null) continue;
-                savedConfigs.put(FileUtil.getName(file), new LabelConfiguration(new ArrayList<>(Arrays.asList(components))));
+                LabelConfiguration c = LabelConfiguration.fromFile(file);
+                if (c == null) continue;
+                savedConfigs.put(FileUtil.getName(file), c);
             }
         }
 
         customConfigurationFile = new File(JSONConfig.configFolderPath + customConfigurationFileName);
-        Component[] components = Serializer.deserialize(customConfigurationFile, Component[].class);
-        if (components == null) currentConfig = presets.getOrDefault("default", new LabelConfiguration()).copy();
-        else currentConfig = new LabelConfiguration(new ArrayList<>(Arrays.asList(components)));
+        currentConfig = LabelConfiguration.fromFile(customConfigurationFile);
+        if (currentConfig == null) {
+            currentConfig = presets.getOrDefault("default", new LabelConfiguration()).copy();
+            currentConfig.saveFile = customConfigurationFile;
+        }
         currentConfig.isMutable = true;
+    }
+
+    public static LabelConfiguration fromFile(File file) {
+        ArrayList<Component> components = loadComponentsFromFile(file);
+        if (components == null) return null;
+        return new LabelConfiguration(file, components);
+    }
+
+    public LabelConfiguration copy() {
+        if (components.isEmpty()) return new LabelConfiguration();
+
+        String components = Serializer.serializeAsString(this.components);
+        Component[] copy = Serializer.deserializeString(components, Component[].class);
+        if (copy == null) return new LabelConfiguration();
+
+        return new LabelConfiguration(new ArrayList<>(Arrays.asList(copy)));
+    }
+
+    private static ArrayList<Component> loadComponentsFromFile(File file) {
+        Component[] components = Serializer.deserialize(file, Component[].class);
+        if (components == null) return null;
+        return new ArrayList<>(Arrays.asList(components));
+    }
+
+    public void selectAsCurrent() {
+        reloadFromFile();
+        currentConfig = copy();
+        currentConfig.saveFile = customConfigurationFile;
+    }
+
+    public LabelConfiguration reloadFromFile() {
+        if (saveFile == null) return this;
+        ArrayList<Component> components = loadComponentsFromFile(saveFile);
+        if (components == null) return this;
+        this.components = components;
+        return this;
     }
 
     public static void delete(String name) {
         File file = new File(savedConfigsFolderName + name + ".json");
-        if(!file.exists()) return;
-        if(file.delete()) {
+        if (!file.exists()) return;
+        if (file.delete()) {
             savedConfigs.remove(name);
         }
     }
@@ -90,17 +135,7 @@ public class LabelConfiguration implements Copyable<LabelConfiguration> {
     @Override
     public String toString() {
         return "LabelConfiguration{" +
-                "components=" + components +
-                '}';
-    }
-
-    public LabelConfiguration copy() {
-        if (components.isEmpty()) return new LabelConfiguration();
-
-        String components = Serializer.serializeAsString(this.components);
-        Component[] copy = Serializer.deserializeString(components, Component[].class);
-        if (copy == null) return new LabelConfiguration();
-
-        return new LabelConfiguration(new ArrayList<>(Arrays.asList(copy)));
+               "components=" + components +
+               '}';
     }
 }

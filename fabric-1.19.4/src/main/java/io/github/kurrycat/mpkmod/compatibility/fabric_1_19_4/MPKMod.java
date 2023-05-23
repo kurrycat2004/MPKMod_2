@@ -6,6 +6,7 @@ import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
@@ -35,6 +36,8 @@ public class MPKMod implements ModInitializer {
 		HudRenderCallback.EVENT.register(eventHandler::onInGameOverlayRender);
 		ClientTickEvents.START_CLIENT_TICK.register(eventHandler::onClientTickStart);
 		ClientTickEvents.END_CLIENT_TICK.register(eventHandler::onClientTickEnd);
+		ClientPlayConnectionEvents.JOIN.register(eventHandler::onServerConnect);
+		ClientPlayConnectionEvents.DISCONNECT.register(eventHandler::onServerDisconnect);
 	}
 
 	public void init() {

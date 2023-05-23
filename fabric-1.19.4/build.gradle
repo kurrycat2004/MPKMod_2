@@ -19,3 +19,10 @@ processResources {
 		expand "version": project.version
 	}
 }
+
+/*remapJar {
+	inputFile.set jar.archiveFile
+	destinationDirectory = rootProject.buildDir
+	dependsOn jar
+	archiveFileName = jar.archiveFileName
+}*/

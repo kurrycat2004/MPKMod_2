@@ -4,10 +4,14 @@ package io.github.kurrycat.mpkmod.compatibility.fabric_1_19_4;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
 import io.github.kurrycat.mpkmod.util.Vector3D;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3d;
 
 public class EventHandler {
     /**
@@ -46,6 +50,8 @@ public class EventHandler {
     public void onRenderWorldOverlay(MatrixStack matrixStack, float tickDelta) {
         MPKMod.INSTANCE.matrixStack = matrixStack;
         matrixStack.push();
+        Vec3d pos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+        MPKMod.INSTANCE.matrixStack.translate(-pos.x, -pos.y, -pos.z);
         API.Events.onRenderWorldOverlay(tickDelta);
         matrixStack.pop();
     }
@@ -70,5 +76,14 @@ public class EventHandler {
         }
 
         API.Events.onTickEnd();
+    }
+
+
+    public void onServerConnect(ClientPlayNetworkHandler clientPlayNetworkHandler, PacketSender packetSender, MinecraftClient minecraftClient) {
+        API.Events.onServerConnect(clientPlayNetworkHandler.getConnection().isLocal());
+    }
+
+    public void onServerDisconnect(ClientPlayNetworkHandler clientPlayNetworkHandler, MinecraftClient minecraftClient) {
+        API.Events.onServerDisconnect();
     }
 }

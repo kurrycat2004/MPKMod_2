@@ -205,8 +205,8 @@
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.MessageQueue",
   "pos" : {
-    "x" : 517.0,
-    "y" : 4.0
+    "x" : -5.0,
+    "y" : 5.0
   },
   "size" : {
     "x" : 120.0,

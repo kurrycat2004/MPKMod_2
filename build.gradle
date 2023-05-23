@@ -34,10 +34,12 @@ subprojects {
         mavenCentral()
         maven { url = "https://jitpack.io" }
         maven {
-            url 'https://maven.fabricmc.net/'
-            metadataSources {
-                artifact()
-            }
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        maven {
+            name = 'ParchmentMC'
+            url = 'https://maven.parchmentmc.org'
         }
     }
 
@@ -59,7 +61,7 @@ subprojects {
         }
 
         if (project.name != "common") {
-            destinationDirectory = rootProject.buildDir
+            //destinationDirectory = rootProject.buildDir
             doFirst {
                 archiveClassifier = project.name
             }
@@ -71,7 +73,22 @@ subprojects {
         }
         from {
             "../LICENSE"
+            "$buildDir/resources/classes.txt"
         }
+    }
+
+    compileJava.doLast {
+        var classFile = new File("$buildDir/resources/classes.txt")
+        classFile.text = fileTree("$buildDir/classes/java/main")
+                .filter { File file -> file.text.contains("@") }
+                .files
+                .collect {
+                    it.getAbsolutePath().substring(
+                            file("$buildDir/classes/java/main").getAbsolutePath().length() + 1,
+                            it.getAbsolutePath().length() - 6
+                    )
+                            .replaceAll("[/\\\\]", ".")
+                }.join(";")
     }
 
     java {
@@ -104,6 +121,13 @@ subprojects {
 
             tasks.withType(JavaExec) {
                 javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
+            }
+
+            remapJar {
+                inputFile.set project.jar.archiveFile
+                destinationDirectory = rootProject.buildDir
+                dependsOn project.jar
+                archiveFileName = project.jar.archiveFileName
             }
         }
     }

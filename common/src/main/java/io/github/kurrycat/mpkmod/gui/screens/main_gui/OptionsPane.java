@@ -46,14 +46,5 @@ public class OptionsPane extends Pane<MainGuiScreen> {
         );
         addChild(pkcFileRadiusLabel, false, false, Anchor.TOP_LEFT);
         addChild(pkcFileRadius, false, false, Anchor.TOP_LEFT);
-
-        addChild(
-                new Button("Reload From File",
-                        new Vector2D(20, 80),
-                        new Vector2D(100, 20),
-                        mouseButton -> paneHolder.reloadConfig()
-                ),
-                false, false, Anchor.TOP_LEFT
-        );
     }
 }

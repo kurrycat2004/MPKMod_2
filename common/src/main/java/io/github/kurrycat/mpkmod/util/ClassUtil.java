@@ -2,21 +2,25 @@ package io.github.kurrycat.mpkmod.util;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
 
-import java.io.File;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 public class ClassUtil {
     public static Class<?> ModClass = null;
 
-    public static <A extends Annotation> List<Tuple<A, Class<?>>> getClassAnnotations(List<Class<?>> classes, Class<A> annotationClass) {
+    private static Set<Class<?>> classes = null;
+
+    public static <A extends Annotation> List<Tuple<A, Class<?>>> getClassAnnotations(Class<A> annotationClass) {
+        return getClassAnnotations(classes(), annotationClass);
+    }
+
+    public static <A extends Annotation> List<Tuple<A, Class<?>>> getClassAnnotations(Collection<Class<?>> classes, Class<A> annotationClass) {
         List<Tuple<A, Class<?>>> annotations = new ArrayList<>();
         for (Class<?> c : classes) {
             if (c.isAnnotationPresent(annotationClass)) {
@@ -26,7 +30,27 @@ public class ClassUtil {
         return annotations;
     }
 
-    public static <A extends Annotation> List<Tuple<A, Field>> getFieldAnnotations(List<Class<?>> classes, Class<A> annotationClass) {
+    private static Set<Class<?>> classes() {
+        if (classes == null) {
+            InputStream in = FileUtil.getResource("classes.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            classes = new HashSet<>();
+            try {
+                String[] classList = reader.readLine().split(";");
+                for (String s : classList) {
+                    classes.add(Class.forName(s));
+                }
+            } catch (IOException | ClassNotFoundException ignored) {
+            }
+        }
+        return classes;
+    }
+
+    public static <A extends Annotation> List<Tuple<A, Field>> getFieldAnnotations(Class<A> annotationClass) {
+        return getFieldAnnotations(classes(), annotationClass);
+    }
+
+    public static <A extends Annotation> List<Tuple<A, Field>> getFieldAnnotations(Collection<Class<?>> classes, Class<A> annotationClass) {
         List<Tuple<A, Field>> annotations = new ArrayList<>();
         for (Class<?> c : classes) {
             for (Field f : c.getFields()) {
@@ -38,7 +62,11 @@ public class ClassUtil {
         return annotations;
     }
 
-    public static <A extends Annotation> List<Tuple<A, Method>> getMethodAnnotations(List<Class<?>> classes, Class<A> annotationClass) {
+    public static <A extends Annotation> List<Tuple<A, Method>> getMethodAnnotations(Class<A> annotationClass) {
+        return getMethodAnnotations(classes(), annotationClass);
+    }
+
+    public static <A extends Annotation> List<Tuple<A, Method>> getMethodAnnotations(Collection<Class<?>> classes, Class<A> annotationClass) {
         List<Tuple<A, Method>> annotations = new ArrayList<>();
         for (Class<?> c : classes) {
             for (Method m : c.getMethods()) {
@@ -47,16 +75,26 @@ public class ClassUtil {
                 }
             }
         }
+
         return annotations;
     }
 
-    public static List<Class<?>> getClasses(String packageName) {
+    public static List<Class<?>> classes(String packageName) {
         String path = packageName.replace(".", File.separator);
         String path2 = packageName.replace(".", "/");
         List<Class<?>> classes = new ArrayList<>();
-        String[] classPathEntries = System.getProperty("java.class.path").split(
-                System.getProperty("path.separator")
-        );
+
+        String classPaths = System.getProperty("java.class.path");
+        if (classPaths == null || !classPaths.contains(path) && !classPaths.contains(path2)) {
+            classPaths = System.getProperty("legacyClassPath");
+        }
+        if (classPaths == null) {
+            return classes;
+        }
+
+        String[] classPathEntries = classPaths.split(System.getProperty("path.separator"));
+
+        API.LOGGER.info(classPaths);
 
         String name;
         for (String classpathEntry : classPathEntries) {

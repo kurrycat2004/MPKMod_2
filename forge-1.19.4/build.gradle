@@ -1,3 +1,5 @@
+import xyz.wagyourtail.unimined.api.mappings.MappingNamespace
+
 plugins {
     id 'xyz.wagyourtail.unimined' version '0.4.10-SNAPSHOT'
 }
@@ -10,7 +12,8 @@ unimined {
 
 minecraft {
     clientWorkingDirectory = project.file('../run')
-    forge {}
+    forge {
+    }
 
     mcRemapper.tinyRemapperConf = {
         ignoreFieldDesc(true)
@@ -29,8 +32,10 @@ dependencies {
     minecraft 'net.minecraft:minecraft:1.19.4'
     forge 'net.minecraftforge:forge:1.19.4-45.0.64'
 
-    /*mappings "net.fabricmc:intermediary:${rootProject.minecraft_version}:v2"*/
+    /*mappings "net.fabricmc:intermediary:1.19.4:v2"*/
     mappings "net.minecraft:minecraft:1.19.4:client-mappings"
+    mappings "org.parchmentmc.data:parchment-1.19.3:2023.03.12@zip"
+    /*mappings "net.fabricmc:yarn:1.19.4+build.2:v2"*/
 }
 
 processResources {
@@ -40,3 +45,10 @@ processResources {
         expand "version": project.version
     }
 }
+
+/*remapJar {
+    dependsOn jar
+    inputFile = jar.archiveFile
+    destinationDirectory = rootProject.buildDir
+    archiveFileName = jar.archiveFileName
+}*/

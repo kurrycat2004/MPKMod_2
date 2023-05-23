@@ -89,32 +89,33 @@ public class InfoString {
     public static HashMap<String, ObjectProvider> createInfoMap() {
         HashMap<String, ObjectProvider> infoMap = new HashMap<>();
 
-        List<Class<?>> classes = ClassUtil.getClasses(API.packageName);
+        //List<Class<?>> classes = ClassUtil.getClasses(API.packageName);
 
-        if (classes == null || classes.size() == 0) {
+       /* if (classes == null || classes.size() == 0) {
             API.LOGGER.warn(API.CONFIG_MARKER, "Error loading package while initializing option map");
             return infoMap;
-        }
+        }*/
 
         HashMap<Class<?>, List<Object>> accessInstances = new HashMap<>();
-        List<Tuple<AccessInstance, java.lang.reflect.Field>> accessInstanceAnnotations = ClassUtil.getFieldAnnotations(classes, AccessInstance.class);
+        List<Tuple<AccessInstance, java.lang.reflect.Field>> accessInstanceAnnotations = ClassUtil.getFieldAnnotations(AccessInstance.class);
         for (Tuple<AccessInstance, java.lang.reflect.Field> a : accessInstanceAnnotations) {
             java.lang.reflect.Field field = a.getSecond();
             Class<?> accessClass = field.getDeclaringClass();
             accessInstances.put(accessClass, Arrays.asList(accessClass, field));
         }
-        List<Tuple<AccessInstance, Class<?>>> accessClassAnnotations = ClassUtil.getClassAnnotations(classes, AccessInstance.class);
+        List<Tuple<AccessInstance, Class<?>>> accessClassAnnotations = ClassUtil.getClassAnnotations(AccessInstance.class);
         for (Tuple<AccessInstance, Class<?>> a : accessClassAnnotations) {
             Class<?> clazz = a.getSecond();
             accessInstances.put(clazz, Collections.singletonList(clazz));
         }
 
-        List<Tuple<DataClass, Class<?>>> dataClassAnnotations = ClassUtil.getClassAnnotations(classes, DataClass.class);
+        List<Tuple<DataClass, Class<?>>> dataClassAnnotations = ClassUtil.getClassAnnotations(DataClass.class);
         List<Class<?>> dataClassList = dataClassAnnotations.stream().map(Tuple::getSecond).collect(Collectors.toList());
 
         List<Class<?>> accessClassList = new ArrayList<>(accessInstances.keySet());
 
         List<Tuple<Field, java.lang.reflect.Field>> fieldAnnotations = ClassUtil.getFieldAnnotations(accessClassList, Field.class);
+
         for (Tuple<Field, java.lang.reflect.Field> t : fieldAnnotations) {
             java.lang.reflect.Field f = t.getSecond();
             Class<?> clazz = f.getDeclaringClass();
