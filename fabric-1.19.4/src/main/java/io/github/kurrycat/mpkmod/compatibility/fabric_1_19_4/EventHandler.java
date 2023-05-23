@@ -11,9 +11,9 @@ import net.minecraft.client.util.math.MatrixStack;
 
 public class EventHandler {
     /**
-     * @param key The GLFW key code. See {@link net.minecraft.client.util.InputUtil}.
+     * @param key      The GLFW key code. See {@link net.minecraft.client.util.InputUtil}.
      * @param scanCode
-     * @param action The action, where 0 = unpressed, 1 = pressed, 2 = held.
+     * @param action   The action, where 0 = unpressed, 1 = pressed, 2 = held.
      */
     public void onKey(int key, int scanCode, int action) {
         if (action == 1) {
@@ -41,6 +41,13 @@ public class EventHandler {
     public void onInGameOverlayRender(MatrixStack matrices, float tickDelta) {
         MPKMod.INSTANCE.matrixStack = matrices;
         API.Events.onRenderOverlay();
+    }
+
+    public void onRenderWorldOverlay(MatrixStack matrixStack, float tickDelta) {
+        MPKMod.INSTANCE.matrixStack = matrixStack;
+        matrixStack.push();
+        API.Events.onRenderWorldOverlay(tickDelta);
+        matrixStack.pop();
     }
 
     public void onClientTickStart(MinecraftClient mc) {

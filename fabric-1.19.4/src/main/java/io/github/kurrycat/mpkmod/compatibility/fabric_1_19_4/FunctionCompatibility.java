@@ -20,10 +20,11 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Matrix4f;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class FunctionCompatibility implements FunctionHolder,
         SoundManager.Interface,
@@ -45,7 +46,7 @@ public class FunctionCompatibility implements FunctionHolder,
         final Vector3D blockPosVec = blockPosVector.copy();
         BlockPos blockPos = new BlockPos(blockPosVec.getXI(), blockPosVec.getYI(), blockPosVec.getZI());
 
-        if(MinecraftClient.getInstance().world == null)
+        if (MinecraftClient.getInstance().world == null)
             return null;
 
         ArrayList<BoundingBox3D> boundingBoxes = new ArrayList<>();
@@ -119,50 +120,60 @@ public class FunctionCompatibility implements FunctionHolder,
 
         RenderSystem.applyModelViewMatrix();
 
+        RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder builder = tessellator.getBuffer();
 
-        RenderSystem.enableBlend();
-
         RenderSystem.lineWidth(1.0F);
 
         Vec3d pos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
-        bb = bb.move(-pos.x, -pos.y, -pos.z);
+
+        MPKMod.INSTANCE.matrixStack.translate(-pos.x, -pos.y, -pos.z);
+        //bb = bb.move(-pos.x, -pos.y, -pos.z);
+
+        Matrix4f posMat = MPKMod.INSTANCE.matrixStack.peek().getPositionMatrix();
+
+        float minX = (float) bb.minX();
+        float minY = (float) bb.minY();
+        float minZ = (float) bb.minZ();
+        float maxX = (float) bb.maxX();
+        float maxY = (float) bb.maxY();
+        float maxZ = (float) bb.maxZ();
 
         builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
-        builder.vertex(bb.minX(), bb.maxY(), bb.minZ()).color(r, g, b, a).next();
-        builder.vertex(bb.maxX(), bb.maxY(), bb.minZ()).color(r, g, b, a).next();
-        builder.vertex(bb.maxX(), bb.minY(), bb.minZ()).color(r, g, b, a).next();
-        builder.vertex(bb.minX(), bb.minY(), bb.minZ()).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, maxY, minZ).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, maxY, minZ).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, minY, minZ).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, minY, minZ).color(r, g, b, a).next();
 
-        builder.vertex(bb.minX(), bb.minY(), bb.maxZ()).color(r, g, b, a).next();
-        builder.vertex(bb.maxX(), bb.minY(), bb.maxZ()).color(r, g, b, a).next();
-        builder.vertex(bb.maxX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).next();
-        builder.vertex(bb.minX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, minY, maxZ).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, minY, maxZ).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, maxY, maxZ).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, maxY, maxZ).color(r, g, b, a).next();
 
-        builder.vertex(bb.minX(), bb.minY(), bb.minZ()).color(r, g, b, a).next();
-        builder.vertex(bb.maxX(), bb.minY(), bb.minZ()).color(r, g, b, a).next();
-        builder.vertex(bb.maxX(), bb.minY(), bb.maxZ()).color(r, g, b, a).next();
-        builder.vertex(bb.minX(), bb.minY(), bb.maxZ()).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, minY, minZ).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, minY, minZ).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, minY, maxZ).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, minY, maxZ).color(r, g, b, a).next();
 
-        builder.vertex(bb.minX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).next();
-        builder.vertex(bb.maxX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).next();
-        builder.vertex(bb.maxX(), bb.maxY(), bb.minZ()).color(r, g, b, a).next();
-        builder.vertex(bb.minX(), bb.maxY(), bb.minZ()).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, maxY, maxZ).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, maxY, maxZ).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, maxY, minZ).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, maxY, minZ).color(r, g, b, a).next();
 
-        builder.vertex(bb.minX(), bb.minY(), bb.maxZ()).color(r, g, b, a).next();
-        builder.vertex(bb.minX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).next();
-        builder.vertex(bb.minX(), bb.maxY(), bb.minZ()).color(r, g, b, a).next();
-        builder.vertex(bb.minX(), bb.minY(), bb.minZ()).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, minY, maxZ).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, maxY, maxZ).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, maxY, minZ).color(r, g, b, a).next();
+        builder.vertex(posMat, minX, minY, minZ).color(r, g, b, a).next();
 
-        builder.vertex(bb.maxX(), bb.minY(), bb.minZ()).color(r, g, b, a).next();
-        builder.vertex(bb.maxX(), bb.maxY(), bb.minZ()).color(r, g, b, a).next();
-        builder.vertex(bb.maxX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).next();
-        builder.vertex(bb.maxX(), bb.minY(), bb.maxZ()).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, minY, minZ).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, maxY, minZ).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, maxY, maxZ).color(r, g, b, a).next();
+        builder.vertex(posMat, maxX, minY, maxZ).color(r, g, b, a).next();
 
         tessellator.draw();
 
@@ -174,19 +185,19 @@ public class FunctionCompatibility implements FunctionHolder,
      */
     public void drawRect(Vector2D pos, Vector2D size, Color color) {
         Screen.fill(
-            matrixStack,
-            pos.getXI(),
-            pos.getYI(),
-            pos.getXI() + size.getXI(),
-            pos.getYI() + size.getYI(),
-            color.getRGB()
+                matrixStack,
+                pos.getXI(),
+                pos.getYI(),
+                pos.getXI() + size.getXI(),
+                pos.getYI() + size.getYI(),
+                color.getRGB()
         );
     }
 
     public Vector2D getScaledSize() {
         return new Vector2D(
-            MinecraftClient.getInstance().getWindow().getScaledWidth(),
-            MinecraftClient.getInstance().getWindow().getScaledHeight()
+                MinecraftClient.getInstance().getWindow().getScaledWidth(),
+                MinecraftClient.getInstance().getWindow().getScaledHeight()
         );
     }
 
@@ -199,8 +210,8 @@ public class FunctionCompatibility implements FunctionHolder,
 
     public Vector2D getStringSize(String text) {
         return new Vector2D(
-            MinecraftClient.getInstance().textRenderer.getWidth(text),
-            MinecraftClient.getInstance().textRenderer.fontHeight
+                MinecraftClient.getInstance().textRenderer.getWidth(text),
+                MinecraftClient.getInstance().textRenderer.fontHeight
         );
     }
 
@@ -222,7 +233,7 @@ public class FunctionCompatibility implements FunctionHolder,
 
     public void displayGuiScreen(MPKGuiScreen screen) {
         MinecraftClient.getInstance().setScreen(
-            screen == null
+                screen == null
                 ? null
                 : new io.github.kurrycat.mpkmod.compatibility.fabric_1_19_4.MPKGuiScreen(screen));
     }
@@ -252,7 +263,7 @@ public class FunctionCompatibility implements FunctionHolder,
     }
 
     public void endStartSection(String name) {
-        MinecraftClient.getInstance().getProfiler().push(name);
+        MinecraftClient.getInstance().getProfiler().swap(name);
     }
 
     public void endSection() {
