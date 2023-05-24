@@ -78,7 +78,9 @@ subprojects {
     }
 
     compileJava.doLast {
-        var classFile = new File("$buildDir/resources/classes.txt")
+        var classFile = file("$buildDir/resources/classes.txt")
+        if(!classFile.exists())
+            classFile.createNewFile()
         classFile.text = fileTree("$buildDir/classes/java/main")
                 .filter { File file -> file.text.contains("@") }
                 .files
