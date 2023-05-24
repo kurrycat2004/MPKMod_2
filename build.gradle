@@ -73,7 +73,7 @@ subprojects {
         }
         from {
             "../LICENSE"
-            "${project(":common").buildDir}/resources/classes.txt"
+            "${project(":common").sourceSets.main.output.resourcesDir.toPath()}/classes.txt"
         }
     }
 
