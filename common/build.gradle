@@ -8,3 +8,20 @@ dependencies {
     compileOnly 'org.apache.logging.log4j:log4j-api:2.0-beta9'
     compileOnly 'org.apache.logging.log4j:log4j-core:2.0-beta9'
 }
+
+compileJava.doLast {
+    var classFile = file("$buildDir/resources/classes.txt")
+    if(!classFile.exists())
+        classFile.createNewFile()
+
+    classFile.text = sourceSets.main.output.classesDirs.asFileTree
+            .filter { File file -> file.text.contains("@") }
+            .files
+            .collect {
+                it.getAbsolutePath().substring(
+                        sourceSets.main.output.classesDirs.asPath.length() + 1,
+                        it.getAbsolutePath().length() - 6
+                )
+                        .replaceAll("[/\\\\]", ".")
+            }.join(";")
+}

@@ -73,24 +73,8 @@ subprojects {
         }
         from {
             "../LICENSE"
-            "$buildDir/resources/classes.txt"
+            "${project(":common").buildDir}/resources/classes.txt"
         }
-    }
-
-    compileJava.doLast {
-        var classFile = file("$buildDir/resources/classes.txt")
-        if(!classFile.exists())
-            classFile.createNewFile()
-        classFile.text = fileTree("$buildDir/classes/java/main")
-                .filter { File file -> file.text.contains("@") }
-                .files
-                .collect {
-                    it.getAbsolutePath().substring(
-                            file("$buildDir/classes/java/main").getAbsolutePath().length() + 1,
-                            it.getAbsolutePath().length() - 6
-                    )
-                            .replaceAll("[/\\\\]", ".")
-                }.join(";")
     }
 
     java {
