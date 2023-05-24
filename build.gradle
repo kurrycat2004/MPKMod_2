@@ -73,7 +73,7 @@ subprojects {
         }
         from {
             "../LICENSE"
-            "${project(":common").sourceSets.main.output.resourcesDir.toPath()}/classes.txt"
+            "${project(":common").compileJava.temporaryDir}${File.separator}classes.txt"
         }
     }
 

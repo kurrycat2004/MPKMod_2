@@ -10,7 +10,7 @@ dependencies {
 }
 
 compileJava.doLast {
-    var classFile = new File("${sourceSets.main.output.resourcesDir.toPath()}/classes.txt")
+    var classFile = new File("$temporaryDir${File.separator}classes.txt")
     if(!classFile.exists())
         classFile.createNewFile()
 
