@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.ticks;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.github.kurrycat.mpkmod.compatibility.API;
+import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.FileUtil;
 
@@ -14,6 +15,9 @@ import java.util.Map;
 public class TimingStorage {
     private final static String stratFileName = "/assets/mpkmod/strats/strats.json";
     public static Map<String, Timing> patterns = new HashMap<>();
+
+    @Option.Field
+    public static boolean renderLastTimingMS = false;
 
     public static void init() {
         InputStream stratFile = FileUtil.getResource(stratFileName);

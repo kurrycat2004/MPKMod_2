@@ -2,9 +2,12 @@ package io.github.kurrycat.mpkmod.compatibility.forge_1_8;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
+import io.github.kurrycat.mpkmod.ticks.ButtonMS;
+import io.github.kurrycat.mpkmod.ticks.ButtonMSList;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -16,13 +19,34 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
+import java.util.ArrayList;
+
 public class EventListener {
+    private static final ButtonMSList timeQueue = new ButtonMSList();
+
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public void onEvent(InputEvent.KeyInputEvent event) {
         int keyCode = Keyboard.getEventKey();
         String key = Keyboard.getKeyName(keyCode);
         boolean pressed = Keyboard.getEventKeyState();
+
+        GameSettings gameSettings = Minecraft.getMinecraft().gameSettings;
+
+        int[] keys = {
+                gameSettings.keyBindForward.getKeyCode(),
+                gameSettings.keyBindLeft.getKeyCode(),
+                gameSettings.keyBindBack.getKeyCode(),
+                gameSettings.keyBindRight.getKeyCode(),
+                gameSettings.keyBindSprint.getKeyCode(),
+                gameSettings.keyBindSneak.getKeyCode(),
+                gameSettings.keyBindJump.getKeyCode()
+        };
+
+        for (int i = 0; i < keys.length; i++)
+            if (keyCode == keys[i])
+                timeQueue.add(ButtonMS.of(ButtonMS.Button.values()[i], Keyboard.getEventNanoseconds(), pressed));
+
 
         API.Events.onKeyInput(keyCode, key, pressed);
 
@@ -34,7 +58,7 @@ public class EventListener {
                 );
             }
 
-            if(keyBindingPressed && API.keyBindingMap.containsKey(id)) {
+            if (keyBindingPressed && API.keyBindingMap.containsKey(id)) {
                 API.keyBindingMap.get(id).run();
             }
         });
@@ -59,7 +83,9 @@ public class EventListener {
                     .setOnGround(mcPlayer.onGround)
                     .setSprinting(mcPlayer.isSprinting())
                     .constructKeyInput()
+                    .setKeyMSList(timeQueue.copy())
                     .buildAndSave();
+            timeQueue.clear();
         }
         if (e.phase == TickEvent.Phase.START) {
             API.Events.onTickStart();

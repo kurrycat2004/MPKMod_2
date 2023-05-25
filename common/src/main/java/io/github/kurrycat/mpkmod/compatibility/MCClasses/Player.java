@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.compatibility.MCClasses;
 
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
+import io.github.kurrycat.mpkmod.ticks.ButtonMSList;
 import io.github.kurrycat.mpkmod.ticks.TimingInput;
 import io.github.kurrycat.mpkmod.ticks.TimingStorage;
 import io.github.kurrycat.mpkmod.util.*;
@@ -22,6 +23,7 @@ public class Player {
     public static Player displayInstance = new Player();
     public TimingInput timingInput = new TimingInput("");
     public KeyInput keyInput = null;
+    public ButtonMSList keyMSList = null;
     @InfoString.Field
     public Vector3D lastLanding = new Vector3D(0, 0, 0);
     @InfoString.Field
@@ -42,30 +44,6 @@ public class Player {
     private boolean landTick = false;
     private String lastTiming = "None";
     private boolean sprinting = false;
-
-    public static void savePlayerState(Player player) {
-        tickHistory.add(player);
-        if (tickHistory.size() > maxSavedTicks)
-            tickHistory.remove(0);
-    }
-
-    public static void updateDisplayInstance() {
-        try {
-            for (Field f : Player.class.getDeclaredFields()) {
-                if (Modifier.isStatic(f.getModifiers())) continue;
-                f.setAccessible(true);
-                Object o = f.get(getLatest());
-                if (o == null) continue;
-                if (o instanceof Integer && (Integer) o == 0) continue;
-                if (o instanceof Float && (Float) o == 0F) continue;
-
-                if (o instanceof Vector3D) f.set(displayInstance, ((Vector3D) o).copy());
-                else if (o instanceof Copyable) f.set(displayInstance, ((Copyable<?>) o).copy());
-                else f.set(displayInstance, o);
-            }
-        } catch (IllegalAccessException ignored) {
-        }
-    }
 
     public static int ticksSince(CheckPlayerFunction f) {
         if (tickHistory.isEmpty()) return -1;
@@ -91,15 +69,6 @@ public class Player {
                 .orElse(new LandingBlock(BoundingBox3D.ZERO));
     }
 
-    public static Player getLatest() {
-        if (tickHistory.isEmpty()) return null;
-        return tickHistory.get(tickHistory.size() - 1);
-    }
-
-    public static List<TimingInput> getInputHistory() {
-        return tickHistory.stream().map(p -> p.timingInput).collect(Collectors.toList());
-    }
-
     @InfoString.Getter
     public static List<String> compressedInputHistory() {
         return getInputHistory().stream()
@@ -119,6 +88,10 @@ public class Player {
                 })
                 .stream().map(Object::toString).collect(Collectors.toList());
 
+    }
+
+    public static List<TimingInput> getInputHistory() {
+        return tickHistory.stream().map(p -> p.timingInput).collect(Collectors.toList());
     }
 
     public static List<String> getInputList() {
@@ -141,34 +114,18 @@ public class Player {
         return tickHistory.get(tickHistory.size() - 2);
     }
 
-    public static float wrapDegrees(float value) {
-        value = value % 360.0F;
-
-        if (value >= 180.0F) {
-            value -= 360.0F;
-        }
-
-        if (value < -180.0F) {
-            value += 360.0F;
-        }
-
-        return value;
-    }
-
     @InfoString.Getter
     public Float getLast45() {
         return last45;
     }
 
-    public Player getPrevious() {
-        if (!tickHistory.contains(this)) return null;
-        int i = tickHistory.indexOf(this);
-        if (i == 0) return null;
-        return tickHistory.get(i - 1);
-    }
-
     public Player constructKeyInput() {
         keyInput = KeyInput.construct();
+        return this;
+    }
+
+    public Player setKeyMSList(ButtonMSList keyMS) {
+        this.keyMSList = keyMS;
         return this;
     }
 
@@ -190,23 +147,23 @@ public class Player {
     }
 
     @InfoString.Getter
-    public Vector3D getPos() {
-        return pos;
+    public Float getYaw() {
+        if (trueYaw == null) return null;
+        else return wrapDegrees(trueYaw);
     }
 
-    public Player setPos(Vector3D pos) {
-        this.pos = pos;
-        return this;
-    }
+    public static float wrapDegrees(float value) {
+        value = value % 360.0F;
 
-    @InfoString.Getter
-    public Vector3D getLastPos() {
-        return lastPos;
-    }
+        if (value >= 180.0F) {
+            value -= 360.0F;
+        }
 
-    public Player setLastPos(Vector3D lastPos) {
-        this.lastPos = lastPos;
-        return this;
+        if (value < -180.0F) {
+            value += 360.0F;
+        }
+
+        return value;
     }
 
     @InfoString.Getter
@@ -217,12 +174,6 @@ public class Player {
     public Player setTrueYaw(Float trueYaw) {
         this.trueYaw = trueYaw;
         return this;
-    }
-
-    @InfoString.Getter
-    public Float getYaw() {
-        if (trueYaw == null) return null;
-        else return wrapDegrees(trueYaw);
     }
 
     @InfoString.Getter
@@ -251,6 +202,13 @@ public class Player {
         Player prev = getPrevious();
         if (prev == null || prev.trueYaw == null) return null;
         else return wrapDegrees(prev.trueYaw);
+    }
+
+    public Player getPrevious() {
+        if (!tickHistory.contains(this)) return null;
+        int i = tickHistory.indexOf(this);
+        if (i == 0) return null;
+        return tickHistory.get(i - 1);
     }
 
     public Float getPrevPitch() {
@@ -327,7 +285,6 @@ public class Player {
             deltaYaw = trueYaw - prev.trueYaw;
             deltaPitch = truePitch - prev.truePitch;
 
-            //TODO: use mc inputs instead of keys (e.g. player not being able to sprint because of hunger but it still saving sprint when button is pressed)
             timingInput = new TimingInput(
                     keyInput.forward,
                     keyInput.left,
@@ -338,6 +295,8 @@ public class Player {
                     jumpTick,
                     onGround
             );
+            if (keyMSList != null)
+                timingInput.msList.addAll(keyMSList);
 
             if (prev.jumpTick && !prev.keyInput.isMovingSideways() && keyInput.isMovingSideways()) {
                 last45 = prev.deltaYaw;
@@ -352,6 +311,35 @@ public class Player {
         return this;
     }
 
+    public static void savePlayerState(Player player) {
+        tickHistory.add(player);
+        if (tickHistory.size() > maxSavedTicks)
+            tickHistory.remove(0);
+    }
+
+    public static void updateDisplayInstance() {
+        try {
+            for (Field f : Player.class.getDeclaredFields()) {
+                if (Modifier.isStatic(f.getModifiers())) continue;
+                f.setAccessible(true);
+                Object o = f.get(getLatest());
+                if (o == null) continue;
+                if (o instanceof Integer && (Integer) o == 0) continue;
+                if (o instanceof Float && (Float) o == 0F) continue;
+
+                if (o instanceof Vector3D) f.set(displayInstance, ((Vector3D) o).copy());
+                else if (o instanceof Copyable) f.set(displayInstance, ((Copyable<?>) o).copy());
+                else f.set(displayInstance, o);
+            }
+        } catch (IllegalAccessException ignored) {
+        }
+    }
+
+    public static Player getLatest() {
+        if (tickHistory.isEmpty()) return null;
+        return tickHistory.get(tickHistory.size() - 1);
+    }
+
     public BoundingBox3D getBB() {
         return new BoundingBox3D(
                 getPos().add(-0.6F / 2D, 0D, -0.6F / 2D), //TODO: use dynamic player size
@@ -359,11 +347,31 @@ public class Player {
         );
     }
 
+    @InfoString.Getter
+    public Vector3D getPos() {
+        return pos;
+    }
+
+    public Player setPos(Vector3D pos) {
+        this.pos = pos;
+        return this;
+    }
+
     public BoundingBox3D getLastBB() {
         return new BoundingBox3D(
                 getLastPos().add(-0.6F / 2D, 0D, -0.6F / 2D), //TODO: use dynamic player size
                 getLastPos().add(0.6F / 2D, 1.8F, 0.6F / 2D)
         );
+    }
+
+    @InfoString.Getter
+    public Vector3D getLastPos() {
+        return lastPos;
+    }
+
+    public Player setLastPos(Vector3D lastPos) {
+        this.lastPos = lastPos;
+        return this;
     }
 
     @FunctionalInterface

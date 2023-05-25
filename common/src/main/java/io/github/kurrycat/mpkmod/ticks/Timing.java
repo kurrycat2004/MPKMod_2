@@ -2,7 +2,9 @@ package io.github.kurrycat.mpkmod.ticks;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.util.MathUtil;
+import io.github.kurrycat.mpkmod.util.Tuple;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,21 +36,24 @@ public class Timing {
     }
 
     private Match startsWithMatch(List<TimingInput> inputList) {
-        HashMap<String, Integer> vars = new HashMap<>();
-        for (TimingEntry entry : timingEntries) {
-            Integer matchCount = entry.matches(inputList, vars);
+        HashMap<String, TickMS> vars = new HashMap<>();
+        int startIndex = 0;
+        for (int i = 0; i < timingEntries.length; i++) {
+            boolean repeatedVar = i >= 1 && timingEntries[i].varNameMatches(timingEntries[i - 1]);
+            Integer matchCount = timingEntries[i].matches(inputList, startIndex, vars, repeatedVar);
             if (matchCount == null)
                 return null;
 
             //System.out.printf("count: %d, entry: %s, inputList: %s\n", matchCount, entry.timingEntry, inputList);
-            inputList = inputList.subList(matchCount, inputList.size());
+            startIndex += matchCount;
+            //inputList = inputList.subList(matchCount, inputList.size());
         }
 
         //System.out.printf("Match: %s\nVars: %s\n\n", inputList, vars);
-        return new Match(getFormatString(vars), vars.size(), inputList.size());
+        return new Match(getFormatString(vars), vars.size(), inputList.size() - startIndex);
     }
 
-    private String getFormatString(HashMap<String, Integer> vars) {
+    private String getFormatString(HashMap<String, TickMS> vars) {
         StringBuilder sb = new StringBuilder();
         format.forEach((fc, fs) -> {
             if (fc.check(vars)) sb.append(fs.get(vars));
@@ -56,30 +61,44 @@ public class Timing {
         return sb.toString();
     }
 
-
     public static class FormatString {
-        private static final String regex = "\\{(?<varName>[a-zA-Z]+)}";
-        private static final Pattern regexPattern = Pattern.compile(regex);
+        private static final String rawRegex = "(?<varName>[a-zA-Z]+)(?<ms>_ms)?";
+        public static final Pattern regexPatternRaw = Pattern.compile(rawRegex);
+        private static final String regex = "\\{(?<varName>[a-zA-Z]+)(?<ms>_ms)?}";
+        public static final Pattern regexPattern = Pattern.compile(regex);
 
         String formatString;
-        List<String> vars = new ArrayList<>();
+        List<Tuple<String, Boolean>> vars = new ArrayList<>();
 
         @JsonCreator
         public FormatString(String formatString) {
             this.formatString = formatString;
             Matcher matcher = regexPattern.matcher(formatString);
             while (matcher.find()) {
-                vars.add(matcher.group("varName"));
+                vars.add(new Tuple<>(
+                        matcher.group("varName"),
+                        matcher.group("varName") != null)
+                );
             }
         }
 
-        public String get(HashMap<String, Integer> vars) {
+        public String get(HashMap<String, TickMS> vars) {
             String returnString = formatString;
-            for (String var : this.vars) {
-                if (vars.containsKey(var))
-                    returnString = returnString.replaceAll("\\{" + var + "}", String.valueOf(vars.get(var)));
-                else
-                    return "";
+            for (Tuple<String, Boolean> var : this.vars) {
+                if (vars.containsKey(var.getFirst())) {
+                    if (var.getSecond()) {
+                        returnString = returnString
+                                .replaceAll(
+                                        "\\{" + var.getFirst() + "_ms}",
+                                        vars.get(var.getFirst()).getMSOrEmpty()
+                                );
+                    }
+                    returnString = returnString
+                            .replaceAll(
+                                    "\\{" + var.getFirst() + "}",
+                                    String.valueOf(vars.get(var.getFirst()).tickCount)
+                            );
+                } else return "";
             }
             return returnString;
         }
@@ -88,22 +107,32 @@ public class Timing {
     public static class FormatCondition {
         OR condition;
         boolean isDefault = false;
+        String checkMS = null;
 
         @JsonCreator
         public FormatCondition(String formatCondition) {
-            if (formatCondition.equals("default")) {
+            if (formatCondition.startsWith("default")) {
                 isDefault = true;
-            } else {
-                try {
-                    condition = new OR(formatCondition);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                return;
+            }
+            Matcher matcher = FormatString.regexPatternRaw.matcher(formatCondition);
+            if (matcher.matches()) {
+                checkMS = matcher.group("varName");
+                if (checkMS != null) return;
+            }
+
+            try {
+                condition = new OR(formatCondition);
+            } catch (Exception e) {
+                API.LOGGER.debug(e.toString());
             }
         }
 
-        public boolean check(HashMap<String, Integer> vars) {
+        public boolean check(HashMap<String, TickMS> vars) {
             if (isDefault) return true;
+            if (checkMS != null)
+                return TimingStorage.renderLastTimingMS && vars.containsKey(checkMS) && vars.get(checkMS).ms != null;
+            if (condition == null) return false;
             return condition.check(vars);
         }
 
@@ -141,7 +170,7 @@ public class Timing {
                 }
             }
 
-            boolean check(HashMap<String, Integer> vars) {
+            boolean check(HashMap<String, TickMS> vars) {
                 for (AND p : parts) {
                     if (p.check(vars)) return true;
                 }
@@ -160,7 +189,7 @@ public class Timing {
                 }
             }
 
-            boolean check(HashMap<String, Integer> vars) {
+            boolean check(HashMap<String, TickMS> vars) {
                 for (COND p : parts) {
                     if (!p.check(vars)) return false;
                 }
@@ -198,7 +227,7 @@ public class Timing {
                 return operator.check.check(parts.get(0), parts.get(1)) && helperCheck(parts.subList(1, parts.size()));
             }
 
-            boolean check(HashMap<String, Integer> vars) {
+            boolean check(HashMap<String, TickMS> vars) {
                 List<Integer> parts = new ArrayList<>();
 
                 for (ADD part : this.parts) {
@@ -217,10 +246,12 @@ public class Timing {
                 parts = add.split("\\+");
             }
 
-            public Integer get(HashMap<String, Integer> vars) {
+            public Integer get(HashMap<String, TickMS> vars) {
                 int result = 0;
                 for (String part : this.parts) {
-                    Integer v = vars.getOrDefault(part, MathUtil.parseInt(part, null));
+                    Integer v;
+                    if (vars.containsKey(part)) v = vars.get(part).tickCount;
+                    else v = MathUtil.parseInt(part, null);
                     if (v == null) return null;
                     result += v;
                 }
@@ -245,6 +276,20 @@ public class Timing {
             if (this.endOffset != o.endOffset)
                 return Integer.compare(this.endOffset, o.endOffset);
             return Integer.compare(this.numberOfVars, o.numberOfVars);
+        }
+    }
+
+    public static class TickMS {
+        public int tickCount;
+        public Integer ms = null;
+
+        public TickMS(int tickCount) {
+            this.tickCount = tickCount;
+        }
+
+        public String getMSOrEmpty() {
+            if (ms == null) return "";
+            return String.valueOf(ms);
         }
     }
 }

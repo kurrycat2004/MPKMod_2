@@ -3,7 +3,8 @@
     "format": {
       "a==1": "Max ",
       "default": "FMM",
-      "a!=1": " {a}t"
+      "a!=1": " {a}t",
+      "a_ms": " ({a_ms}ms)"
     },
     "timingEntries": [
       "a{1,1}:WJ",
@@ -16,6 +17,7 @@
       "a==1": "Max ",
       "default": "c4.5",
       "a!=1&&a!=4": " {a}t",
+      "a_ms": " ({a_ms}ms)",
       "r!=1": " Run {r}t"
     },
     "timingEntries": [
@@ -31,7 +33,8 @@
     "format": {
       "a==1": "Max ",
       "default": "Pessi",
-      "a!=1": " -{a}t"
+      "a!=1": " -{a}t",
+      "a_ms": " ({a_ms}ms}"
     },
     "timingEntries": [
       "a{1,1}:J",
@@ -76,7 +79,8 @@
   "hh": {
     "format": {
       "default": "HH",
-      "x!=1": " {x}t"
+      "x!=1": " {x}t",
+      "x_ms": " ({x_ms}ms}"
     },
     "timingEntries": [
       "x{1,}:WP",
@@ -99,8 +103,9 @@
   "rexbwmm": {
     "format": {
       "default": "Rex BWMM",
-      "w!=1": " Walk {w}t",
-      "s!=1": " Strafe {s}t"
+      "s!=1": " Strafe {s}t",
+      "s_ms": " ({s_ms}ms}",
+      "w!=1": " Walk {w}t"
     },
     "timingEntries": [
       "SJ",
