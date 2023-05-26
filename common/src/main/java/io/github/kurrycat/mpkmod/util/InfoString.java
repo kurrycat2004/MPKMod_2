@@ -16,50 +16,60 @@ import java.util.stream.Collectors;
 
 
 public class InfoString {
-    @SuppressWarnings("all")
     public static final String FORMATTING_REGEX = "\\{(?<varName>.*?)(,(?<decimals>\\d+)(?<keepZeros>!)?)?}";
     public static final Pattern FORMATTING_PATTERN = Pattern.compile(FORMATTING_REGEX);
 
-    public static String getFormattedText(String input) {
-        Matcher matcher = FORMATTING_PATTERN.matcher(input);
+    private final String[] textParts;
+    private final Provider[] providers;
 
-        Profiler.startSection("colors");
-        String result = input;
+    public InfoString(String text) {
+        String result = text;
         for (Colors c : Colors.values()) {
             result = result.replace("{" + c.getName() + "}", c.getCode());
         }
 
-        Profiler.endStartSection("vars");
+        Matcher matcher = FORMATTING_PATTERN.matcher(result);
+        ArrayList<String> parts = new ArrayList<>();
+        ArrayList<Provider> providerList = new ArrayList<>();
 
+        int lastEnd = 0;
         while (matcher.find()) {
+            parts.add(result.substring(lastEnd, matcher.start()));
+
             String fullMatch = matcher.group();
             String varName = matcher.group("varName");
             int decimals = MathUtil.parseInt(matcher.group("decimals"), 3);
             boolean keepZeros = matcher.group("keepZeros") != null;
 
-            ObjectProvider provider = API.infoMap.get(varName);
-            if (provider == null) continue;
-            Object o = provider.getObj();
+            providerList.add(new Provider(fullMatch, varName, decimals, keepZeros));
 
-            if (o == null) continue;
-
-            if (o instanceof Double)
-                result = result.replace(fullMatch, MathUtil.formatDecimals((Double) o, decimals, keepZeros));
-            else if (o instanceof Float)
-                result = result.replace(fullMatch, MathUtil.formatDecimals((Float) o, decimals, keepZeros));
-            else if (o instanceof FormatDecimals)
-                result = result.replace(fullMatch, ((FormatDecimals) o).formatDecimals(decimals, keepZeros));
-            result = result.replace(fullMatch, o.toString());
+            parts.add(null);
+            lastEnd = matcher.end();
         }
-        Profiler.endSection();
-        return result;
+        parts.add(result.substring(lastEnd));
+
+        textParts = parts.toArray(new String[0]);
+        providers = providerList.toArray(new Provider[0]);
+    }
+
+    public String get() {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0, j = 0; i < textParts.length; i++) {
+            if(textParts[i] != null)
+                sb.append(textParts[i]);
+            else {
+                sb.append(providers[j].get());
+                j++;
+            }
+        }
+        return sb.toString();
     }
 
     private static Object getObj(List<Object> list) {
         if (list.size() == 1) return list.get(0);
         Object obj = list.get(0);
         for (int i = 1; i < list.size(); i++) {
-            if(obj == null) return null;
+            if (obj == null) return null;
 
             Object o = list.get(i);
             if (o instanceof Method) {
@@ -252,5 +262,35 @@ public class InfoString {
     @FunctionalInterface
     public interface ObjectProvider {
         Object getObj();
+    }
+
+    private static class Provider {
+        private final String fullMatch;
+        private final String varName;
+        private final int decimals;
+        private final boolean keepZeros;
+
+        public Provider(String fullMatch, String varName, int decimals, boolean keepZeros) {
+            this.fullMatch = fullMatch;
+            this.varName = varName;
+            this.decimals = decimals;
+            this.keepZeros = keepZeros;
+        }
+
+        public String get() {
+            ObjectProvider provider = API.infoMap.get(varName);
+            if (provider == null) return fullMatch;
+
+            Object o = provider.getObj();
+            if (o == null) return fullMatch;
+
+            if (o instanceof Double)
+                return MathUtil.formatDecimals((Double) o, decimals, keepZeros);
+            else if (o instanceof Float)
+                return MathUtil.formatDecimals((Float) o, decimals, keepZeros);
+            else if (o instanceof FormatDecimals)
+                return ((FormatDecimals) o).formatDecimals(decimals, keepZeros);
+            return o.toString();
+        }
     }
 }

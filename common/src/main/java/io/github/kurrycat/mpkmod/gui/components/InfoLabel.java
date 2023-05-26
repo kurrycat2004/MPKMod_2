@@ -19,20 +19,27 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class InfoLabel extends Label {
+    private InfoString infoString;
+
     /**
      * @param text the text to be displayed<br><br>
      *             <code>"{COLOR}"</code> with COLOR being any <code>{@link Colors}.name</code> will be replaced by that color's code<br><br>
-     *             <code>"{VARNAME}"</code> with VARNAME being any field that exists or has an according getter in {@link Minecraft} or
-     *             {@link Player} will be replaced by the field's value<br>
+     *             <code>"{VARNAME}"</code> with VARNAME being any key in {@link API#infoMap}<br>
      * @param pos  top left position of the text
      */
     @JsonCreator
     public InfoLabel(@JsonProperty("text") String text, @JsonProperty("pos") Vector2D pos) {
         super(text, pos);
+        this.infoString = new InfoString(text);
+    }
+
+    public void updateText(String text) {
+        this.text = text;
+        infoString = new InfoString(text);
     }
 
     public String getFormattedText() {
-        return InfoString.getFormattedText(this.text);
+        return infoString.get();
     }
 
     public void render(Vector2D mouse) {
@@ -119,7 +126,7 @@ public class InfoLabel extends Label {
             addChild(this.label, true, false, false, false, Anchor.TOP_LEFT);
             InputField inputField = new InputField(text, new Vector2D(0.5, 5), 1)
                     .setOnContentChange(content -> {
-                        text = content.getContent();
+                        updateText(content.getContent());
                     });
             addChild(inputField, true, false, true, false, Anchor.BOTTOM_LEFT);
 
