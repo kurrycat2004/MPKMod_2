@@ -149,21 +149,7 @@ public class Player {
     @InfoString.Getter
     public Float getYaw() {
         if (trueYaw == null) return null;
-        else return wrapDegrees(trueYaw);
-    }
-
-    public static float wrapDegrees(float value) {
-        value = value % 360.0F;
-
-        if (value >= 180.0F) {
-            value -= 360.0F;
-        }
-
-        if (value < -180.0F) {
-            value += 360.0F;
-        }
-
-        return value;
+        else return MathUtil.wrapDegrees(trueYaw);
     }
 
     @InfoString.Getter
@@ -189,7 +175,7 @@ public class Player {
     @InfoString.Getter
     public Float getPitch() {
         if (truePitch == null) return null;
-        else return wrapDegrees(truePitch);
+        else return MathUtil.wrapDegrees(truePitch);
     }
 
     public Player setRotation(Float yaw, Float pitch) {
@@ -201,7 +187,7 @@ public class Player {
     public Float getPrevYaw() {
         Player prev = getPrevious();
         if (prev == null || prev.trueYaw == null) return null;
-        else return wrapDegrees(prev.trueYaw);
+        else return MathUtil.wrapDegrees(prev.trueYaw);
     }
 
     public Player getPrevious() {
@@ -214,7 +200,7 @@ public class Player {
     public Float getPrevPitch() {
         Player prev = getPrevious();
         if (prev == null || prev.truePitch == null) return null;
-        else return wrapDegrees(prev.truePitch);
+        else return MathUtil.wrapDegrees(prev.truePitch);
     }
 
     @InfoString.Getter
