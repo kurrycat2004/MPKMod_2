@@ -87,6 +87,17 @@
       "WPJ"
     ]
   },
+  "bwhh": {
+    "format": {
+      "default": "BWHH",
+      "x!=1": " {x}t",
+      "x_ms": " ({x_ms}ms}"
+    },
+    "timingEntries": [
+      "x{1,}:S",
+      "SJ"
+    ]
+  },
   "3bcbwmm": {
     "format": {
       "default": "3bc BWMM",
