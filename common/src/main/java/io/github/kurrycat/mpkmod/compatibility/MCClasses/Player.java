@@ -204,6 +204,19 @@ public class Player {
     }
 
     @InfoString.Getter
+    public String getLastInputs() {
+        return keyInput == null ? "" :
+                ((keyInput.forward ? "W" : "") +
+                        (keyInput.left ? "A" : "") +
+                        (keyInput.back ? "S" : "") +
+                        (keyInput.right ? "D" : "") +
+                        (keyInput.sprint ? "P" : "") +
+                        (keyInput.sneak ? "N" : "") +
+                        (keyInput.jump ? "J" : "")
+                );
+    }
+
+    @InfoString.Getter
     public Float getDeltaYaw() {
         return deltaYaw;
     }
