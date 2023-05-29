@@ -46,7 +46,9 @@ public class KeyBindingLabel extends ResizableComponent {
         super(pos, size);
         this.name = name;
         this.keyBinding = KeyBinding.getByName(name);
-        this.displayName = displayName == null ? (keyBinding == null ? name : keyBinding.getDisplayName()) : displayName;
+        updateKeyBinding();
+        if (displayName != null)
+            this.displayName = displayName;
     }
 
     public void render(Vector2D mouse) {
@@ -63,11 +65,6 @@ public class KeyBindingLabel extends ResizableComponent {
                 false
         );
         renderHoverEdges(mouse);
-    }
-
-    @JsonGetter("name")
-    public String getName() {
-        return this.name;
     }
 
     @Override
@@ -93,6 +90,11 @@ public class KeyBindingLabel extends ResizableComponent {
             }
         }));
         return menu;
+    }
+
+    @JsonGetter("name")
+    public String getName() {
+        return this.name;
     }
 
     private class EditPane extends Pane {

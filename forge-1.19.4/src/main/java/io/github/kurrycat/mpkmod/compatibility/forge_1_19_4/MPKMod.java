@@ -26,7 +26,6 @@ public class MPKMod {
     public PoseStack poseStack = new PoseStack();
     private boolean registerMCKeyBindingStarted = false;
 
-
     public MPKMod() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerMCKeyBinding);
@@ -35,20 +34,16 @@ public class MPKMod {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::loadComplete);
     }
 
-    public void registerParticleProviders(RegisterParticleProvidersEvent e) {
-        //Has to be called before preInit, because LabelConfig / keybinding labels get loaded there
-        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering Keybindings...");
-        for (KeyMapping k : Minecraft.getInstance().options.keyMappings) {
-            new KeyBinding(
-                    () -> k.getKey().getDisplayName().getString(),
-                    k.getName(),
-                    k::isDown
-            );
-        }
+    public void init(FMLCommonSetupEvent event) {
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering compatibility functions...");
+        API.registerFunctionHolder(new FunctionCompatibility());
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Done");
 
-        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registered {} Keybindings", KeyBinding.getKeyMap().size());
-        //Have to call it here because it's the only forge hook before registerKeyBinding gets called and API.keyBindingMap is filled in preInit
-        API.preInit(getClass());
+        MinecraftForge.EVENT_BUS.register(new EventListener());
+        MinecraftForge.EVENT_BUS.register(this);
+
+        registerKeyBindings();
+        API.init(SharedConstants.getCurrentVersion().getName());
     }
 
     public void registerMCKeyBinding(RegisterKeyMappingsEvent e) {
@@ -64,11 +59,32 @@ public class MPKMod {
         keyBindingMap.forEach((id, key) -> e.register(key));
     }
 
+    public void registerParticleProviders(RegisterParticleProvidersEvent e) {
+        //Have to call it here because it's the only forge hook before registerKeyBinding gets called and API.keyBindingMap is filled in preInit
+        API.preInit(getClass());
+    }
+
     public void registerOverlay(RegisterGuiOverlaysEvent e) {
         e.registerBelow(VanillaGuiOverlay.DEBUG_TEXT.id(), "mpkmod", (gui, poseStack, partialTick, width, height) -> {
             MPKMod.this.poseStack = poseStack;
             API.Events.onRenderOverlay();
         });
+    }
+
+    public void loadComplete(FMLLoadCompleteEvent e) {
+        API.Events.onLoadComplete();
+    }
+
+    private void registerKeyBindings() {
+        for (KeyMapping k : Minecraft.getInstance().options.keyMappings) {
+            new KeyBinding(
+                    () -> k.getKey().getDisplayName().getString(),
+                    k.getName(),
+                    k::isDown
+            );
+        }
+
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registered {} Keybindings", KeyBinding.getKeyMap().size());
     }
 
     public void registerKeyBinding(String id) {
@@ -78,20 +94,5 @@ public class MPKMod {
                 API.KEYBINDING_CATEGORY
         );
         keyBindingMap.put(id, keyBinding);
-    }
-
-    public void init(FMLCommonSetupEvent event) {
-        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering compatibility functions...");
-        API.registerFunctionHolder(new FunctionCompatibility());
-        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Done");
-
-        MinecraftForge.EVENT_BUS.register(new EventListener());
-        MinecraftForge.EVENT_BUS.register(this);
-
-        API.init(SharedConstants.getCurrentVersion().getName());
-    }
-
-    public void loadComplete(FMLLoadCompleteEvent e) {
-        API.Events.onLoadComplete();
     }
 }

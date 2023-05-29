@@ -66,7 +66,6 @@ public class API {
 
         JSONConfig.setupFiles();
         Serializer.registerSerializer();
-        LabelConfiguration.init();
 
         optionsMap = Option.createOptionMap();
         Option.updateOptionMapFromJSON(true);
@@ -106,6 +105,7 @@ public class API {
 
         gameStartedInstant = Instant.now();
 
+        LabelConfiguration.init();
         EventAPI.init();
 
         API.LOGGER.info(API.DISCORD_RPC_MARKER, "Starting DiscordRPC...");

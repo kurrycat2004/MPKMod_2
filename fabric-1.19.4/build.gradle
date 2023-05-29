@@ -3,6 +3,7 @@ plugins {
 }
 
 loom.runs.client.runDir = "../run"
+loom.accessWidenerPath = file("src/main/resources/mpkmod.accesswidener")
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"

@@ -28,30 +28,8 @@ public class MPKMod {
 
     public static Map<String, KeyBinding> keyBindingMap = new HashMap<>();
 
-    public static void registerKeyBinding(String id) {
-        KeyBinding keyBinding = new KeyBinding(
-                API.MODID + ".key." + id + ".desc",
-                Keyboard.KEY_NONE,
-                API.KEYBINDING_CATEGORY
-        );
-        keyBindingMap.put(id, keyBinding);
-        ClientRegistry.registerKeyBinding(keyBinding);
-    }
-
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        //Has to be called before preInit, because LabelConfig / keybinding labels get loaded there
-        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registering Keybindings...");
-        for (KeyBinding k : Minecraft.getMinecraft().gameSettings.keyBindings) {
-            new io.github.kurrycat.mpkmod.compatibility.MCClasses.KeyBinding(
-                    () -> GameSettings.getKeyDisplayString(k.getKeyCode()),
-                    k.getKeyDescription(),
-                    k::isKeyDown
-            );
-        }
-        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registered {} Keybindings",
-                io.github.kurrycat.mpkmod.compatibility.MCClasses.KeyBinding.getKeyMap().size());
-
         API.preInit(getClass());
 
         API.guiScreenMap.forEach((id, guiScreen) -> {
@@ -68,7 +46,30 @@ public class MPKMod {
         MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(this);
 
+        registerKeyBindings();
         API.init(Minecraft.getSessionInfo().get("X-Minecraft-Version"));
+    }
+
+    public static void registerKeyBinding(String id) {
+        KeyBinding keyBinding = new KeyBinding(
+                API.MODID + ".key." + id + ".desc",
+                Keyboard.KEY_NONE,
+                API.KEYBINDING_CATEGORY
+        );
+        keyBindingMap.put(id, keyBinding);
+        ClientRegistry.registerKeyBinding(keyBinding);
+    }
+
+    private void registerKeyBindings() {
+        for (KeyBinding k : Minecraft.getMinecraft().gameSettings.keyBindings) {
+            new io.github.kurrycat.mpkmod.compatibility.MCClasses.KeyBinding(
+                    () -> GameSettings.getKeyDisplayString(k.getKeyCode()),
+                    k.getKeyDescription(),
+                    k::isKeyDown
+            );
+        }
+        API.LOGGER.info(API.COMPATIBILITY_MARKER, "Registered {} Keybindings",
+                io.github.kurrycat.mpkmod.compatibility.MCClasses.KeyBinding.getKeyMap().size());
     }
 
     @EventHandler
