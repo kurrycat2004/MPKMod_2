@@ -4,16 +4,13 @@ import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.util.*;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+@SuppressWarnings("UnusedReturnValue")
 public abstract class ResizableComponent extends Component implements MouseInputListener {
     private Vector2D minSize = new Vector2D(5, 5);
     private BoundingBox2D.Edge[] areBeingResized = null;
-
-    public ResizableComponent(Vector2D pos, Vector2D size) {
-        super(pos);
-        this.setSize(size);
-    }
 
     public Vector2D getMinSize() {
         return minSize;
@@ -28,6 +25,7 @@ public abstract class ResizableComponent extends Component implements MouseInput
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
         if (button == Mouse.Button.LEFT) {
             BoundingBox2D bb = getComponentBoundingBox();
+
             switch (state) {
                 case DOWN:
                     areBeingResized = bb.allOnEdge(mousePos, 2);
@@ -51,6 +49,53 @@ public abstract class ResizableComponent extends Component implements MouseInput
         return false;
     }
 
+    public BoundingBox2D getComponentBoundingBox() {
+        return BoundingBox2D.fromPosSize(this.getDisplayedPos(), this.getDisplayedSize());
+    }
+
+    public void resizeAccordingToSavedEdges(Vector2D mousePos) {
+        if (areBeingResized == null) return;
+        BoundingBox2D bb = getComponentBoundingBox();
+        List<BoundingBox2D.Edge> beingResized = Arrays.asList(areBeingResized);
+        Boolean xResizing = beingResized.contains(BoundingBox2D.Edge.LEFT) ? Boolean.FALSE :
+                (beingResized.contains(BoundingBox2D.Edge.RIGHT) ? Boolean.TRUE : null);
+        Boolean yResizing = beingResized.contains(BoundingBox2D.Edge.TOP) ? Boolean.FALSE :
+                (beingResized.contains(BoundingBox2D.Edge.BOTTOM) ? Boolean.TRUE : null);
+
+        if (xResizing != null) {
+            double mouseX = mousePos.getX();
+            double edgePos = xResizing ? bb.maxX() : bb.minX();
+            double oppositeEdgePos = xResizing ? bb.minX() : bb.maxX();
+
+            if(xResizing)
+                mouseX = MathUtil.constrain(mouseX, oppositeEdgePos, getRoot().getDisplayedSize().getX());
+            else mouseX = MathUtil.constrain(mouseX, 0, oppositeEdgePos);
+
+            double multiplier = xResizing == parentAnchor.invertedX ? -1 : 1;
+            addSize(new Vector2D((mouseX - edgePos) * multiplier, 0));
+
+            if(xResizing == anchor.invertedX) {
+                addPos(new Vector2D(mouseX - edgePos, 0));
+            }
+        }
+        if (yResizing != null) {
+            double mouseY = mousePos.getY();
+            double edgePos = yResizing ? bb.maxY() : bb.minY();
+            double oppositeEdgePos = yResizing ? bb.minY() : bb.maxY();
+
+            if(yResizing)
+                mouseY = MathUtil.constrain(mouseY, oppositeEdgePos, getRoot().getDisplayedSize().getY());
+            else mouseY = MathUtil.constrain(mouseY, 0, oppositeEdgePos);
+
+            double multiplier = yResizing == parentAnchor.invertedY ? -1 : 1;
+            addSize(new Vector2D(0, (mouseY - edgePos) * multiplier));
+
+            if(yResizing == anchor.invertedY) {
+                addPos(new Vector2D(0, mouseY - edgePos));
+            }
+        }
+    }
+
     public void renderHoverEdges(Vector2D mouse) {
         BoundingBox2D bb = getComponentBoundingBox();
         BoundingBox2D.Edge[] edges = bb.allOnEdge(mouse, 2);
@@ -61,47 +106,4 @@ public abstract class ResizableComponent extends Component implements MouseInput
             Renderer2D.drawRect(lineExpandedBB.getMin(), lineExpandedBB.getSize(), Color.RED);
         }
     }
-
-    public void resizeAccordingToSavedEdges(Vector2D pos) {
-        if (areBeingResized == null) return;
-
-        ArrayList<BoundingBox2D.Edge> beingResized = new ArrayList<>();
-        for(BoundingBox2D.Edge e : areBeingResized) {
-            beingResized.add(BoundingBox2D.Edge.byDir(e.dir.mult(getParentAnchor().multiplier)));
-        }
-
-        pos = getParentAnchor().getAnchorPointPos(Vector2D.ZERO, Renderer2D.getScaledSize()).sub(pos).abs();
-
-        Vector2D topLeftRelativePos = pos.sub(getPos());
-        topLeftRelativePos = new Vector2D(
-                Math.min(topLeftRelativePos.getX(), this.size.getX() - minSize.getX()),
-                Math.min(topLeftRelativePos.getY(), this.size.getY() - minSize.getY())
-        );
-
-        Vector2D bottomRightRelativePos = pos.sub(getPos().add(getDisplayedSize()));
-        bottomRightRelativePos = new Vector2D(
-                Math.max(bottomRightRelativePos.getX(), -this.size.getX() + minSize.getX()),
-                Math.max(bottomRightRelativePos.getY(), -this.size.getY() + minSize.getY())
-        );
-
-        if (beingResized.contains(BoundingBox2D.Edge.TOP)) {
-            this.pos.addYInPlace(topLeftRelativePos.getY());
-            this.size.addYInPlace(-topLeftRelativePos.getY());
-        }
-        if (beingResized.contains(BoundingBox2D.Edge.BOTTOM)) {
-            this.size.addYInPlace(bottomRightRelativePos.getY());
-        }
-        if (beingResized.contains(BoundingBox2D.Edge.LEFT)) {
-            this.pos.addXInPlace(topLeftRelativePos.getX());
-            this.size.addXInPlace(-topLeftRelativePos.getX());
-        }
-        if (beingResized.contains(BoundingBox2D.Edge.RIGHT)) {
-            this.size.addXInPlace(bottomRightRelativePos.getX());
-        }
-    }
-
-    public BoundingBox2D getComponentBoundingBox() {
-        return BoundingBox2D.fromPosSize(this.getDisplayedPos(), this.getDisplayedSize());
-    }
-
 }

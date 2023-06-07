@@ -9,12 +9,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
     public static final Vector2D ONE = new Vector2D(1, 1);
     public static final Vector2D ZERO = new Vector2D(0, 0);
-    public static final Vector2D OFFSCREEN = null;
+    public static final Vector2D OFFSCREEN = new Vector2D(Double.MIN_VALUE, Double.MIN_VALUE);
     public static final Vector2D LEFT = new Vector2D(-1, 0);
     public static final Vector2D RIGHT = new Vector2D(1, 0);
     public static final Vector2D UP = new Vector2D(0, -1);
     public static final Vector2D DOWN = new Vector2D(0, 1);
-    private double x, y;
+    protected double x, y;
 
     @JsonCreator
     public Vector2D(@JsonProperty("x") double x, @JsonProperty("y") double y) {
@@ -23,8 +23,8 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
     }
 
     public Vector2D(Vector2D vector2D) {
-        this.x = vector2D.getX();
-        this.y = vector2D.getY();
+        this.x = vector2D.x;
+        this.y = vector2D.y;
     }
 
     @InfoString.Getter
@@ -83,6 +83,12 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
     public Vector2D set(Vector2D vector2D) {
         this.setX(vector2D.getX());
         this.setY(vector2D.getY());
+        return this;
+    }
+
+    public Vector2D set(double x, double y) {
+        this.setX(x);
+        this.setY(y);
         return this;
     }
 

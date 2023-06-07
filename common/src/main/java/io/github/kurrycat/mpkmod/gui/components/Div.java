@@ -10,9 +10,21 @@ import java.awt.*;
 public class Div extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener {
     public Color backgroundColor = null;
 
+    public Div() {
+    }
+
     public Div(Vector2D pos, Vector2D size) {
-        this.pos = pos;
-        this.size = size;
+        this.setPos(pos);
+        this.setSize(size);
+    }
+
+    public void addChildBelow(Component child) {
+        addChild(child, PERCENT.NONE, Anchor.TOP_LEFT);
+        child.setPos(new Vector2D(1, getDisplayedSize().getY()));
+        this.setSize(new Vector2D(
+                Math.max(child.getDisplayedSize().getX() + 2, this.getDisplayedSize().getX()),
+                getDisplayedSize().getY() + child.getDisplayedSize().getY() + 1
+        ));
     }
 
     @Override

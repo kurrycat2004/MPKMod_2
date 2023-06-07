@@ -60,7 +60,7 @@ public abstract class OptionListItem extends ScrollableListItem<OptionListItem> 
         renderTypeSpecific(index, pos, size, mouse);
 
         resetButton.enabled = !option.getDefaultValue().equals(value);
-        resetButton.pos = pos.add(size.getX() - 35, size.getY() / 2 - 5);
+        resetButton.setPos(pos.add(size.getX() - 35, size.getY() / 2 - 5));
         resetButton.render(mouse);
     }
 

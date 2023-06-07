@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.compatibility.forge_1_8;
 
+import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.InputConstants;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Profiler;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -52,8 +53,7 @@ public class MPKGuiScreen extends GuiScreen {
         try {
             eventReceiver.drawScreen(new Vector2D(mouseX, mouseY), partialTicks);
         } catch (Exception e) {
-            System.err.println("Error in drawScreen with id: " + eventReceiver.getID());
-            e.printStackTrace();
+            API.LOGGER.warn("Error in drawScreen with id: " + eventReceiver.getID(), e);
         }
         Profiler.endSection();
     }

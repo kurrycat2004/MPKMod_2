@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.gui.screens.main_gui;
 
 import io.github.kurrycat.mpkmod.gui.ComponentScreen;
+import io.github.kurrycat.mpkmod.gui.components.Anchor;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -23,15 +24,12 @@ public class MainGuiScreen extends ComponentScreen {
 
         reloadConfig();
 
-        addChild(
-                new Button(
-                        "Save",
-                        new Vector2D(115, 5),
-                        new Vector2D(50, 20),
-                        mouseButton -> MainGuiScreen.this.openPane(saveConfigPane)
-                ),
-                false, false, Component.Anchor.BOTTOM_RIGHT
-        );
+        addChild(new Button(
+                "Save",
+                new Vector2D(115, 5),
+                new Vector2D(50, 20),
+                mouseButton -> MainGuiScreen.this.openPane(saveConfigPane)
+        ), PERCENT.NONE, Anchor.BOTTOM_RIGHT);
 
         addChild(
                 new Button(
@@ -40,7 +38,7 @@ public class MainGuiScreen extends ComponentScreen {
                         new Vector2D(50, 20),
                         mouseButton -> MainGuiScreen.this.openPane(loadConfigPane)
                 ),
-                false, false, Component.Anchor.BOTTOM_RIGHT
+                PERCENT.NONE, Anchor.BOTTOM_RIGHT
         );
 
         addChild(
@@ -50,17 +48,28 @@ public class MainGuiScreen extends ComponentScreen {
                         new Vector2D(50, 20),
                         mouseButton -> MainGuiScreen.this.openPane(optionsPane)
                 ),
-                false, false, Component.Anchor.BOTTOM_RIGHT
+                PERCENT.NONE, Anchor.BOTTOM_RIGHT
         );
 
-        optionsPane = new OptionsPane(new Vector2D(0.5D, 0.5D), new Vector2D(3 / 5D, 3 / 5D));
-        optionsPane.setParent(this, true, true, true, true);
+        optionsPane = new OptionsPane(Vector2D.ZERO, new Vector2D(3 / 5D, 3 / 5D));
+        passPositionTo(optionsPane, PERCENT.ALL, Anchor.CENTER);
 
-        loadConfigPane = new LoadConfigPane(new Vector2D(0.5D, 0.5D), new Vector2D(3 / 5D, 1));
-        loadConfigPane.setParent(this, true, true, true, true);
+        loadConfigPane = new LoadConfigPane(Vector2D.ZERO, new Vector2D(3 / 5D, 1));
+        passPositionTo(loadConfigPane, PERCENT.ALL, Anchor.CENTER);
 
-        saveConfigPane = new SaveConfigPane(new Vector2D(0.5D, 0.5D), new Vector2D(3 / 5D, 1));
-        saveConfigPane.setParent(this, true, true, true, true);
+        saveConfigPane = new SaveConfigPane(Vector2D.ZERO, new Vector2D(3 / 5D, 1));
+        passPositionTo(saveConfigPane, PERCENT.ALL, Anchor.CENTER);
+    }
+
+    @Override
+    public void onGuiClosed() {
+        super.onGuiClosed();
+        closeAllPanes();
+        LabelConfiguration.currentConfig.saveInCustom();
+    }
+
+    public void drawScreen(Vector2D mouse, float partialTicks) {
+        super.drawScreen(mouse, partialTicks);
     }
 
     @Override
@@ -75,18 +84,8 @@ public class MainGuiScreen extends ComponentScreen {
         reloadConfig();
     }
 
-    @Override
-    public void onGuiClosed() {
-        super.onGuiClosed();
-        closeAllPanes();
-        LabelConfiguration.currentConfig.saveInCustom();
-    }
-
     public void reloadConfig() {
         movableComponents = new ArrayList<>(LabelConfiguration.currentConfig.components);
-    }
-
-    public void drawScreen(Vector2D mouse, float partialTicks) {
-        super.drawScreen(mouse, partialTicks);
+        movableComponents.forEach(this::passPositionTo);
     }
 }

@@ -62,7 +62,7 @@ public class DiscordRPC {
                 }
             }
             disableRPC();
-        }, "Discord_RPC_Callback_Handler");
+        }, API.MODID + " Discord RPC Callback Handler");
         t.start();
     }
 

@@ -98,13 +98,6 @@ subprojects {
 
     if (project.name != "common") {
         project.afterEvaluate {
-            project.tasks.matching { it.name == "runClient" }.all { Task task ->
-                tasks.register("runClient_$project.name") {
-                    dependsOn task
-                    group "runClient"
-                }
-            }
-
             tasks.withType(JavaExec) {
                 javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
             }

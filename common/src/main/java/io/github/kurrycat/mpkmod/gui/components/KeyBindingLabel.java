@@ -3,10 +3,10 @@ package io.github.kurrycat.mpkmod.gui.components;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.KeyBinding;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.StringUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -31,7 +31,8 @@ public class KeyBindingLabel extends ResizableComponent {
     private KeyBinding keyBinding;
 
     public KeyBindingLabel(Vector2D pos, Vector2D size, String name) {
-        super(pos, size);
+        this.setPos(pos);
+        this.setSize(size);
         this.name = name;
         updateKeyBinding();
     }
@@ -41,9 +42,11 @@ public class KeyBindingLabel extends ResizableComponent {
         this.displayName = keyBinding == null ? name : StringUtil.capitalize(keyBinding.getDisplayName());
     }
 
+    @SuppressWarnings("unused")
     @JsonCreator
-    public KeyBindingLabel(@JsonProperty("pos") Vector2D pos, @JsonProperty("size") Vector2D size, @JsonProperty("name") String name, @JsonProperty("displayName") String displayName) {
-        super(pos, size);
+    public KeyBindingLabel(@JsonProperty("name") String name, @JsonProperty("displayName") String displayName) {
+        this.setPos(pos);
+        this.setSize(size);
         this.name = name;
         this.keyBinding = KeyBinding.getByName(name);
         updateKeyBinding();
@@ -72,18 +75,18 @@ public class KeyBindingLabel extends ResizableComponent {
         PopupMenu menu = new PopupMenu();
 
         KeyBindingLabel.EditPane editPane = new KeyBindingLabel.EditPane(
-                new Vector2D(0.65, 0.5),
+                Vector2D.ZERO,
                 new Vector2D(0.4, 0.5)
         );
-        editPane.setParent(API.mainGUI, true, true, true, true);
 
-        menu.addComponent(new Button("Edit", Vector2D.OFFSCREEN, new Vector2D(64, 11), mouseButton -> {
+        menu.addComponent(new Button("Edit", mouseButton -> {
             if (Mouse.Button.LEFT.equals(mouseButton)) {
+                menu.paneHolder.passPositionTo(editPane, PERCENT.SIZE, Anchor.CENTER);
                 menu.paneHolder.openPane(editPane);
                 menu.paneHolder.closePane(menu);
             }
         }));
-        menu.addComponent(new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(64, 11), mouseButton -> {
+        menu.addComponent(new Button("Delete", mouseButton -> {
             if (Mouse.Button.LEFT.equals(mouseButton)) {
                 menu.paneHolder.removeComponent(this);
                 menu.paneHolder.closePane(menu);
@@ -97,49 +100,59 @@ public class KeyBindingLabel extends ResizableComponent {
         return this.name;
     }
 
-    private class EditPane extends Pane {
+    private class EditPane extends Pane<MainGuiScreen> {
         private final TextRectangle downKey;
         private final TextRectangle upKey;
 
         public EditPane(Vector2D pos, Vector2D size) {
             super(pos, size);
-            this.backgroundColor = new Color(31, 31, 31, 50);
-            this.upKey = new TextRectangle(new Vector2D(0.27, 2), KeyBindingLabel.this.getDisplayedSize(), displayName, keyUpColor, Color.WHITE);
-            this.addChild(upKey, true, false, false, false, Anchor.TOP_LEFT);
-            this.downKey = new TextRectangle(new Vector2D(0.27, 2), KeyBindingLabel.this.getDisplayedSize(), displayName, keyDownColor, Color.BLACK);
-            this.addChild(downKey, true, false, false, false, Anchor.TOP_RIGHT);
+            this.upKey = new TextRectangle(
+                    new Vector2D(-1 / 6D, 5),
+                    KeyBindingLabel.this.getDisplayedSize(),
+                    displayName,
+                    keyUpColor,
+                    Color.WHITE);
+            this.addChild(upKey, PERCENT.POS_X, Anchor.TOP_CENTER);
+            this.downKey = new TextRectangle(
+                    new Vector2D(1 / 6D, 5),
+                    KeyBindingLabel.this.getDisplayedSize(),
+                    displayName,
+                    keyDownColor,
+                    Color.BLACK);
+            this.addChild(downKey, PERCENT.POS_X, Anchor.TOP_CENTER);
 
             this.addChild(
                     new ColorSelector(keyUpColor, new Vector2D(0.2, 0.4), color -> keyUpColor = color),
-                    true, true, false, false, Anchor.TOP_LEFT
+                    PERCENT.POS, Anchor.TOP_LEFT
             );
             this.addChild(
                     new ColorSelector(keyDownColor, new Vector2D(0.2, 0.4), color -> keyDownColor = color),
-                    true, true, false, false, Anchor.TOP_RIGHT
+                    PERCENT.POS, Anchor.TOP_RIGHT
             );
 
 
             this.addChild(
-                    new InputField(name, new Vector2D(0.5, InputField.HEIGHT + 2), 1)
+                    new InputField(name, new Vector2D(0, InputField.HEIGHT + 7), 0.95D)
                             .setOnContentChange(content -> {
                                 name = content.getContent();
                                 keyBinding = KeyBinding.getByName(name);
                             }),
-                    true, false, true, false, Anchor.BOTTOM_LEFT
+                    PERCENT.X, Anchor.BOTTOM_CENTER
             );
             this.addChild(
-                    new InputField(displayName, new Vector2D(0.5, 1), 1)
+                    new InputField(displayName, new Vector2D(0, 5), 0.95D)
                             .setOnContentChange(content -> {
                                 displayName = content.getContent();
                                 this.downKey.setText(displayName);
                                 this.upKey.setText(displayName);
                             }),
-                    true, false, true, false, Anchor.BOTTOM_LEFT
+                    PERCENT.X, Anchor.BOTTOM_CENTER
             );
 
-            KeySetList list = new KeySetList(new Vector2D(1, 16), new Vector2D(0.3, -20));
-            components.add(list);
-            list.setParent(API.mainGUI, false, false, true, false);
+            KeySetList list = new KeySetList(new Vector2D(0, 16), new Vector2D(0.3, -20));
+            list.setAbsolute(true);
+            this.addChild(list, PERCENT.SIZE_X, Anchor.TOP_LEFT);
+
             SortedSet<String> keyMap = new TreeSet<>(KeyBinding.getKeyMap().keySet());
             HashMap<String, ArrayList<String>> modMap = new HashMap<>();
             for (String s : keyMap) {
@@ -164,38 +177,12 @@ public class KeyBindingLabel extends ResizableComponent {
                     }
                 }
 
-                list.addItem(
-                        new KeySetListItem(
-                                list,
-                                modName + " (" + keyPrefix + ")",
-                                modMap.get(modName)
-                        )
-                );
+                list.addItem(new KeySetListItem(
+                        list,
+                        modName + " (" + keyPrefix + ")",
+                        modMap.get(modName)
+                ));
             }
-
-            /*int currY = 3;
-            double maxWidthLeft = 0;
-            double maxWidthRight = 0;
-            Vector2D windowSize = Renderer2D.getScaledSize();
-            boolean overflowed = false;
-            for (String keyName : keyMap) {
-                Label l = new Label(keyName, new Vector2D(3, currY));
-                currY += l.getDisplayedSize().getY() + 1;
-                if (overflowed) {
-                    l.setWrapPos(new Vector2D(windowSize.getX() - 3 - l.getDisplayedSize().getX(), l.getPos().getY()));
-                    this.components.add(l);
-                    maxWidthRight = Math.max(maxWidthRight, l.getDisplayedSize().getX());
-                } else {
-                    maxWidthLeft = Math.max(maxWidthLeft, l.getDisplayedSize().getX());
-                    this.components.add(l);
-                }
-                if (currY + 3 + l.getDisplayedSize().getY() > windowSize.getY() && !overflowed) {
-                    this.components.add(0, new Rectangle(new Vector2D(2, 2), new Vector2D(maxWidthLeft + 2, currY - 2), new Color(31, 31, 31, 150)));
-                    overflowed = true;
-                    currY = 3;
-                }
-            }
-            this.components.add(0, new Rectangle(new Vector2D(windowSize.getX() - 4 - maxWidthRight, 2), new Vector2D(maxWidthRight + 2, currY - 2), new Color(31, 31, 31, 150)));*/
         }
 
         @Override
@@ -207,12 +194,14 @@ public class KeyBindingLabel extends ResizableComponent {
 
         private class KeySetList extends ScrollableList<KeySetListItem> {
             public KeySetList(Vector2D pos, Vector2D size) {
-                super(pos, size);
+                this.setPos(pos);
+                this.setSize(size);
                 this.title = "Keybinding Names";
             }
         }
 
         private class KeySetListItem extends ScrollableListItem<KeySetListItem> {
+            private static final int keyItemHeight = 12;
             private final String modName;
             private final ArrayList<String> keyNames;
             private final Button collapseButton;
@@ -222,15 +211,20 @@ public class KeyBindingLabel extends ResizableComponent {
                 super(parent);
                 this.modName = modName;
                 this.keyNames = keyNames;
-                this.height = 13;
-                collapseButton = new Button("v", Vector2D.OFFSCREEN, new Vector2D(11, 11), mouseButton -> {
-                    if (mouseButton == Mouse.Button.LEFT) collapsed = !collapsed;
+                this.setHeight(13);
+                collapseButton = new Button("v", new Vector2D(1,1), new Vector2D(11, 11));
+                collapseButton.setButtonCallback(mouseButton -> {
+                    if (mouseButton != Mouse.Button.LEFT) return;
+                    collapsed = !collapsed;
+                    collapseButton.setText(collapsed ? "v" : "^");
+                    collapseButton.textOffset = collapsed ? Vector2D.ZERO : new Vector2D(0, 3);
                 });
+                addChild(collapseButton, PERCENT.NONE, Anchor.TOP_RIGHT);
             }
 
             @Override
             public int getHeight() {
-                return collapsed ? 13 : 12 * (keyNames.size() + 1) + 1;
+                return collapsed ? 13 : keyItemHeight * (keyNames.size() + 1) + 1;
             }
 
             @Override
@@ -239,29 +233,26 @@ public class KeyBindingLabel extends ResizableComponent {
                     Renderer2D.drawRectWithEdge(pos, size, 1, new Color(31, 31, 31, 150), new Color(31, 31, 31, 150));
                     FontRenderer.drawCenteredString(modName, pos.add(size.div(2)), Color.WHITE, false);
                 } else {
-                    Renderer2D.drawRectWithEdge(pos, new Vector2D(size.getX(), this.height), 1, new Color(31, 31, 31, 150), new Color(31, 31, 31, 150));
-                    Renderer2D.drawRect(pos.add(0, this.height), size.sub(0, this.height), new Color(31, 31, 31, 150));
-                    FontRenderer.drawCenteredString(modName, pos.add(size.getX() / 2, this.height / 2D), Color.WHITE, false);
+                    Renderer2D.drawRectWithEdge(pos,
+                            new Vector2D(size.getX(), keyItemHeight),
+                            1, new Color(31, 31, 31, 150),
+                            new Color(31, 31, 31, 150));
+                    Renderer2D.drawRect(
+                            pos.add(0, keyItemHeight),
+                            size.sub(0, keyItemHeight),
+                            new Color(31, 31, 31, 150));
+                    FontRenderer.drawCenteredString(modName, pos.add(size.getX() / 2, keyItemHeight / 2D), Color.WHITE, false);
 
                     for (int i = 0; i < keyNames.size(); i++) {
                         FontRenderer.drawCenteredString(
                                 keyNames.get(i),
-                                pos.add(size.getX() / 2, this.height * 1.5D + 12 * i),
+                                pos.add(size.getX() / 2, keyItemHeight * 1.5D + 12 * i),
                                 Color.WHITE, false
                         );
                     }
                 }
 
-                collapseButton.setText(collapsed ? "v" : "^");
-                collapseButton.textOffset = collapsed ? Vector2D.ZERO : new Vector2D(0, 3);
-                collapseButton.pos = pos.add(size.getX() - 12, 1).round();
-
-                collapseButton.render(mouse);
-            }
-
-            @Override
-            public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-                return collapseButton.handleMouseInput(state, mousePos, button);
+                renderComponents(mouse);
             }
         }
     }

@@ -99,13 +99,6 @@ public class InfoString {
     public static HashMap<String, ObjectProvider> createInfoMap() {
         HashMap<String, ObjectProvider> infoMap = new HashMap<>();
 
-        //List<Class<?>> classes = ClassUtil.getClasses(API.packageName);
-
-       /* if (classes == null || classes.size() == 0) {
-            API.LOGGER.warn(API.CONFIG_MARKER, "Error loading package while initializing option map");
-            return infoMap;
-        }*/
-
         HashMap<Class<?>, List<Object>> accessInstances = new HashMap<>();
         List<Tuple<AccessInstance, java.lang.reflect.Field>> accessInstanceAnnotations = ClassUtil.getFieldAnnotations(AccessInstance.class);
         for (Tuple<AccessInstance, java.lang.reflect.Field> a : accessInstanceAnnotations) {
@@ -193,7 +186,7 @@ public class InfoString {
             });
             if (dataClassList.contains(f.getType())) {
                 //prevent infinite recursion
-                if (!objects.subList(0, objects.size() - 1).contains(f))
+                if (!parent.contains(f))
                     recursiveSearch(infoMap, parentName + "." + name, objects, dataClassList);
             }
         }
@@ -216,7 +209,7 @@ public class InfoString {
             });
             if (dataClassList.contains(m.getReturnType())) {
                 //prevent infinite recursion
-                if (!objects.contains(m))
+                if (!parent.contains(m))
                     recursiveSearch(infoMap, parentName + "." + name, objects, dataClassList);
             }
         }

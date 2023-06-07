@@ -12,29 +12,18 @@ public abstract class MPKGuiScreen extends ComponentHolder {
     private boolean initialized = false;
     private String id = null;
 
-    private Vector2D screenSize = Vector2D.ZERO;
-
     public final String getID() {
         return id;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public final MPKGuiScreen setID(String id) {
         this.id = id;
         return this;
     }
 
     public Vector2D getScreenSize() {
-        return screenSize;
-    }
-
-    @Override
-    public Vector2D getDisplayedPos() {
-        return Vector2D.ZERO.copy();
-    }
-
-    @Override
-    public Vector2D getDisplayedSize() {
-        return getScreenSize();
+        return getDisplayedSize();
     }
 
     public void onGuiInit() {
@@ -42,7 +31,8 @@ public abstract class MPKGuiScreen extends ComponentHolder {
 
     public final void onInit() {
         initialized = true;
-        screenSize = Renderer2D.getScaledSize();
+        setSize(Renderer2D.getScaledSize());
+        setRoot(this);
         onGuiInit();
     }
 
@@ -50,8 +40,8 @@ public abstract class MPKGuiScreen extends ComponentHolder {
     }
 
     public final void onResize(int width, int height) {
-        this.screenSize = new Vector2D(width, height);
-        onGuiResized(screenSize);
+        setSize(new Vector2D(width, height));
+        onGuiResized(size);
     }
 
     public void onGuiResized(Vector2D screenSize) {
@@ -83,7 +73,7 @@ public abstract class MPKGuiScreen extends ComponentHolder {
     }
 
     public final void drawDefaultBackground() {
-        Renderer2D.drawRect(Vector2D.ZERO, getScreenSize().add(2), new Color(16, 16, 16, 140));
+        Renderer2D.drawRect(Vector2D.ZERO, size.add(2), new Color(16, 16, 16, 140));
     }
 
     public boolean shouldCreateKeyBind() {

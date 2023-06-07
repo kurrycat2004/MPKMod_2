@@ -26,12 +26,15 @@ public class SaveConfigPane extends Pane<MainGuiScreen> {
     }
 
     private void initComponents() {
-        savedConfigs = new ConfigFileList(LabelConfiguration.savedConfigs, new Vector2D(0.2 / 3, 0.07), new Vector2D(4 / 10D, 0.9));
+        savedConfigs = new ConfigFileList(
+                LabelConfiguration.savedConfigs,
+                new Vector2D(0.2 / 3, 0.07),
+                new Vector2D(4 / 10D, 0.9));
         savedConfigs.title = "Saved Configurations";
-        addChild(savedConfigs, true, true, Anchor.TOP_RIGHT, true);
+        addChild(savedConfigs, PERCENT.ALL, Anchor.TOP_RIGHT);
 
         TextRectangle r = new TextRectangle(
-                new Vector2D(0.5, 40),
+                new Vector2D(0, 40),
                 new Vector2D(1, 15),
                 "Filename",
                 new Color(0, 0, 0, 0),
@@ -39,20 +42,17 @@ public class SaveConfigPane extends Pane<MainGuiScreen> {
         );
         filename = new InputField(
                 "",
-                new Vector2D(0.5D, 25),
-                0.9D
-        );
-        filename.setFilter(InputField.FILTER_FILENAME);
-        filename.setOnContentChange(content -> {
-            savedConfigs.updateItems();
-        });
+                new Vector2D(0, 25),
+                0.9D)
+                .setFilter(InputField.FILTER_FILENAME)
+                .setOnContentChange(content -> savedConfigs.updateItems());
         Button b = new Button(
                 "Save",
-                new Vector2D(0.5D, 0),
+                new Vector2D(0, 0),
                 new Vector2D(0.9D, 20),
                 mouseButton -> {
-                    if(mouseButton != Mouse.Button.LEFT) return;
-                    if(filename.content.isEmpty()) return;
+                    if (mouseButton != Mouse.Button.LEFT) return;
+                    if (filename.content.isEmpty()) return;
                     LabelConfiguration.currentConfig.save(filename.content);
                     filename.clear();
                     savedConfigs.reloadItems();
@@ -61,13 +61,13 @@ public class SaveConfigPane extends Pane<MainGuiScreen> {
                 }
         );
         Div fileDiv = new Div(
-                new Vector2D(1/7D, 0.5D),
+                new Vector2D(0.2 / 3D, 0),
                 new Vector2D(4 / 10D, 50)
         );
-        fileDiv.addChild(r, true, false, true, false, Anchor.BOTTOM_LEFT);
-        fileDiv.addChild(filename, true, false, true, false, Anchor.BOTTOM_LEFT);
-        fileDiv.addChild(b, true, false, true, false, Anchor.BOTTOM_LEFT);
-        addChild(fileDiv, true, true, true, false, Anchor.BOTTOM_LEFT);
+        fileDiv.addChild(r, PERCENT.SIZE_X, Anchor.BOTTOM_CENTER);
+        fileDiv.addChild(filename, PERCENT.SIZE_X, Anchor.BOTTOM_CENTER);
+        fileDiv.addChild(b, PERCENT.SIZE_X, Anchor.BOTTOM_CENTER);
+        addChild(fileDiv, PERCENT.POS_X | PERCENT.SIZE_X, Anchor.CENTER_LEFT);
     }
 
     private class ConfigFileList extends ScrollableList<ConfigFileListItem> {
@@ -75,7 +75,8 @@ public class SaveConfigPane extends Pane<MainGuiScreen> {
         public List<ConfigFileListItem> allItems;
 
         public ConfigFileList(Map<String, LabelConfiguration> configurationMap, Vector2D pos, Vector2D size) {
-            super(pos, size);
+            this.setPos(pos);
+            this.setSize(size);
             this.configurationMap = configurationMap;
             reloadItems();
             items = new ArrayList<>(allItems);
@@ -106,9 +107,10 @@ public class SaveConfigPane extends Pane<MainGuiScreen> {
 
         public ConfigFileListItem(ConfigFileList parent, String file) {
             super(parent);
+            this.setHeight(25);
             this.file = file;
 
-            delete = new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 20), (mouseButton) -> {
+            delete = new Button("Delete", new Vector2D(5, 0), new Vector2D(30, 20), (mouseButton) -> {
                 if (mouseButton != Mouse.Button.LEFT) return;
                 LabelConfiguration.delete(file);
                 parent.reloadItems();
@@ -116,15 +118,13 @@ public class SaveConfigPane extends Pane<MainGuiScreen> {
                 paneHolder.loadConfigPane.reload();
             });
             delete.textColor = Color.RED;
-
-            height = 25;
+            addChild(delete, PERCENT.NONE, Anchor.CENTER_RIGHT);
         }
 
         @Override
         public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
             Renderer2D.drawHollowRect(pos.add(1), size.sub(2), 1, edgeColor);
             FontRenderer.drawLeftCenteredString(this.file, pos.add(5, size.getY() / 2), Color.WHITE, true);
-            delete.pos = pos.add(size.getX() - delete.getDisplayedSize().getX() - 5, size.getY() / 2 - delete.getDisplayedSize().getY() / 2);
             delete.render(mouse);
         }
 

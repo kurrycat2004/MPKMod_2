@@ -38,7 +38,7 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
     }
 
     public InputField(String content, Vector2D pos, double width, boolean numbersOnly) {
-        super(pos);
+        this.setPos(pos);
         this.setSize(new Vector2D(width, HEIGHT));
         this.content = content;
         this.numbersOnly = numbersOnly;

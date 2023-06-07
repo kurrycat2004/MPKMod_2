@@ -10,27 +10,27 @@ import java.awt.*;
 
 public class CheckButton extends Component implements MouseInputListener {
     public CheckButtonCallback checkButtonCallback;
+    @SuppressWarnings("unused")
     public Color checkedColor = new Color(255, 255, 255, 95);
     public Color normalColor = new Color(31, 31, 31, 150);
     public Color disabledColor = new Color(11, 11, 11, 150);
     public Color disabledTextColor = new Color(70, 70, 70, 150);
-    private boolean isChecked = false;
+    private boolean isChecked;
 
     public boolean enabled = true;
 
     public CheckButton(Vector2D pos, CheckButtonCallback checkButtonCallback) {
-        super(pos);
-        this.checkButtonCallback = checkButtonCallback;
-        this.setSize(new Vector2D(11, 11));
+        this(pos, false, checkButtonCallback);
     }
 
     public CheckButton(Vector2D pos, boolean checked, CheckButtonCallback checkButtonCallback) {
-        super(pos);
+        this.setPos(pos);
+        this.setSize(new Vector2D(11, 11));
         this.isChecked = checked;
         this.checkButtonCallback = checkButtonCallback;
-        this.setSize(new Vector2D(11, 11));
     }
 
+    @SuppressWarnings("unused")
     public CheckButton(Vector2D pos) {
         this(pos, checked -> {});
     }

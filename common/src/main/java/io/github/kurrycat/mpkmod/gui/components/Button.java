@@ -22,21 +22,28 @@ public class Button extends Component implements MouseInputListener {
     private String text;
     private boolean isBeingPressed = false;
 
-    public Button(String text, Vector2D pos, Vector2D size, ButtonCallback buttonCallback) {
-        super(pos);
-        this.setPos(pos);
+    public Button(String text) {
+        this(text, null);
+    }
+
+    public Button(String text, ButtonCallback buttonCallback) {
+        this.setSize(FontRenderer.getStringSize(text).add(2,2));
         this.text = text;
         this.buttonCallback = buttonCallback;
+    }
+
+    public Button(String text, Vector2D pos, Vector2D size, ButtonCallback buttonCallback) {
+        this.setPos(pos);
         this.setSize(size);
+        this.text = text;
+        this.buttonCallback = buttonCallback;
     }
 
     public Button(String text, Vector2D pos, Vector2D size) {
-        super(pos);
-        this.text = text;
-        this.buttonCallback = null;
-        this.setSize(size);
+        this(text, pos, size, null);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public Button setButtonCallback(ButtonCallback buttonCallback) {
         this.buttonCallback = buttonCallback;
         return this;

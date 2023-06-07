@@ -29,7 +29,7 @@ public class OptionListItemString extends OptionListItem {
                         inputField.getDisplayedSize().getY()
                 )
         );
-        inputField.pos = pos.add(size.getX() - 40 - inputField.getDisplayedSize().getX(), size.getY() / 2 - 6);
+        inputField.setPos(pos.add(size.getX() - 40 - inputField.getDisplayedSize().getX(), size.getY() / 2 - 6));
         inputField.render(mouse);
     }
 }

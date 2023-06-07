@@ -64,6 +64,14 @@ public class MathUtil {
     }
 
     /**
+     * @param value value to constrain
+     * @return value constrained between 0 and 1
+     */
+    public static double constrain01(double value) {
+        return constrain(value, 0, 1);
+    }
+
+    /**
      * @param v       value to be mapped
      * @param from    min bound of the range of value
      * @param to      max bound of the range of value

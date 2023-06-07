@@ -18,12 +18,6 @@ public class BarrierDisplayComponent extends ResizableComponent {
     @JsonProperty("lineThickness")
     int lineThickness = 2;
 
-
-    @JsonCreator
-    public BarrierDisplayComponent(@JsonProperty("pos") Vector2D pos, @JsonProperty("size") Vector2D size) {
-        super(pos, size);
-    }
-
     @Override
     public void render(Vector2D mouse) {
         String lookingAtBlock = WorldInteraction.getLookingAtBlock();
@@ -72,7 +66,7 @@ public class BarrierDisplayComponent extends ResizableComponent {
                 })
         );
         menu.addComponent(
-                new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(56, 11), mouseButton -> {
+                new Button("Delete", mouseButton -> {
                     if (Mouse.Button.LEFT.equals(mouseButton)) {
                         menu.paneHolder.removeComponent(this);
                         menu.paneHolder.closePane(menu);

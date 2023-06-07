@@ -6,6 +6,7 @@ import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.PopupMenu;
 import io.github.kurrycat.mpkmod.gui.components.*;
+import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 import io.github.kurrycat.mpkmod.util.ArrayListUtil;
 import io.github.kurrycat.mpkmod.util.BoundingBox2D;
 import io.github.kurrycat.mpkmod.util.Mouse;
@@ -78,9 +79,12 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                     break;
             }
             BoundingBox2D containingSelected = boundingBoxContainingAll(new ArrayList<>(selected));
-            Vector2D toMove = arrowKeyMove.constrain(Vector2D.ZERO.sub(containingSelected.getMin()), getScreenSize().sub(containingSelected.getMax()));
+            Vector2D toMove = arrowKeyMove.constrain(
+                    Vector2D.ZERO.sub(containingSelected.getMin()),
+                    getDisplayedSize().sub(containingSelected.getMax())
+            );
 
-            selected.forEach(c -> c.setPos(c.getPos().add(c.getParentAnchor().translateMovement(toMove))));
+            selected.forEach(c -> c.addPos(toMove));
         }
     }
 
@@ -116,48 +120,63 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                 PopupMenu menu = clicked.getPopupMenu();
                 if (menu != null) {
                     Vector2D windowSize = getScreenSize();
-                    menu.pos = new Vector2D(
-                            clicked.getDisplayedPos().getX() + clicked.getDisplayedSize().getX() + menu.getDisplayedSize().getX() + 1 < windowSize.getX() ?
-                                    clicked.getDisplayedPos().getX() + clicked.getDisplayedSize().getX() + 1 : clicked.getDisplayedPos().getX() - menu.getDisplayedSize().getX() - 1,
-                            clicked.getDisplayedPos().getY()
+                    Vector2D cPos = clicked.getDisplayedPos();
+                    Vector2D cSize = clicked.getDisplayedSize();
+                    openPane(menu,
+                            new Vector2D(
+                                    cPos.getX() + cSize.getX() + menu.getDisplayedSize().getX() + 1 < windowSize.getX() ?
+                                            cPos.getX() + cSize.getX() + 1 : cPos.getX() - menu.getDisplayedSize().getX() - 1,
+                                    clicked.getDisplayedPos().getY()
+                            )
                     );
-                    openPane(menu);
                 }
             } else if (selected.size() > 0) {
                 highlighted.addAll(selected);
                 selected.clear();
                 PopupMenu menu = new PopupMenu();
-                menu.addComponent(
-                        new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mButton -> {
-                            if (Mouse.Button.LEFT.equals(mButton)) {
-                                for (Component c : highlighted) {
-                                    menu.paneHolder.removeComponent(c);
-                                }
-                                menu.paneHolder.closePane(menu);
-                            }
-                        })
-                );
-                menu.pos = mouse;
-                openPane(menu);
+                menu.addComponent(new Button("Delete", b -> {
+                    if (b != Mouse.Button.LEFT) return;
+                    for (Component c : highlighted)
+                        menu.paneHolder.removeComponent(c);
+                    menu.close();
+                }));
+                openPane(menu, mouse);
             } else {
                 highlighted.clear();
                 PopupMenu menu = new PopupMenu();
-                Vector2D windowSize = getScreenSize();
-                NewLabelPane newLabelPane = new NewLabelPane(
-                        new Vector2D(windowSize.getX() * 0.35, windowSize.getY() * 0.5 - 20),
-                        new Vector2D(windowSize.getX() * 0.3, 60)
-                );
-                newLabelPane.setCreationPos(mouse);
-                menu.addComponent(
-                        new Button("Add Label", mouse, new Vector2D(42, 11), mButton -> {
-                            if (Mouse.Button.LEFT.equals(mButton)) {
-                                menu.paneHolder.openPane(newLabelPane);
-                                menu.paneHolder.closePane(menu);
-                            }
-                        })
-                );
-                menu.pos = mouse;
-                openPane(menu);
+                PopupMenu newLabelMenu = new PopupMenu();
+                newLabelMenu.addComponent(new Button("Add InfoLabel", b -> {
+                    if (b != Mouse.Button.LEFT) return;
+                    InfoLabel infoLabel = new InfoLabel("Example Label");
+                    infoLabel.setPos(mouse);
+                    addComponent(infoLabel);
+                    menu.close();
+                }));
+                newLabelMenu.addComponent(new Button("Add KeyBindingLabel", b -> {
+                    if (b != Mouse.Button.LEFT) return;
+                    KeyBindingLabel keyBindingLabel = new KeyBindingLabel(mouse, new Vector2D(20, 20), "key.forward");
+                    addComponent(keyBindingLabel);
+                    menu.close();
+                }));
+                newLabelMenu.addComponent(new Button("Add MessageQueue", b -> {
+                    if (b != Mouse.Button.LEFT) return;
+                    MessageQueue messageQueue = new MessageQueue("Example MessageQueue");
+                    messageQueue.setPos(mouse);
+                    messageQueue.setSize(new Vector2D(30, 22));
+                    addComponent(messageQueue);
+                    menu.close();
+                }));
+                newLabelMenu.addComponent(new Button("Add BarrierDisplay", b -> {
+                    if (b != Mouse.Button.LEFT) return;
+                    BarrierDisplayComponent barrierDisplay = new BarrierDisplayComponent();
+                    barrierDisplay.setPos(mouse);
+                    barrierDisplay.setSize(new Vector2D(30, 30));
+                    addComponent(barrierDisplay);
+                    menu.close();
+                }));
+
+                menu.addSubMenu(new Button("Add Label"), newLabelMenu);
+                openPane(menu, mouse);
             }
         }
     }
@@ -188,7 +207,8 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
             if (holdingSetPosOffset != null) {
                 for (Component c : holding) {
-                    c.setPos(c.getPos().add(c.getParentAnchor().translateMovement(holdingSetPosOffset)));
+                    c.setRenderOffset(Vector2D.ZERO);
+                    c.addPos(holdingSetPosOffset);
                 }
             }
             holding.clear();
@@ -210,51 +230,6 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         handleMouseScroll(mousePos, delta);
     }
 
-    public <T extends PaneHolder> void openPane(Pane<T> p) {
-        openPanes.add(p);
-        p.setPaneHolder((T)this);
-        p.setLoaded(true);
-
-        selected.clear();
-        holding.clear();
-        lastClicked = null;
-        lastClickedPos = null;
-        holdingSetPosOffset = null;
-    }
-
-    public <T extends PaneHolder> void closePane(Pane<T> p) {
-        openPanes.remove(p);
-        if (openPanes.isEmpty()) {
-            highlighted.clear();
-        }
-        p.setLoaded(false);
-    }
-
-    public final void closeAllPanes() {
-        for(int i = openPanes.size() - 1; i >= 0; i--) {
-            closePane(openPanes.get(i));
-        }
-    }
-
-    public void removeComponent(Component c) {
-        components.remove(c);
-    }
-
-    public void addComponent(Component c) {
-        components.add(c);
-    }
-
-    public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-        if (!openPanes.isEmpty()) {
-            openPanes.get(openPanes.size() - 1).handleMouseInput(state, mousePos, button);
-            return true;
-        }
-        return ArrayListUtil.orMap(
-                ArrayListUtil.getAllOfType(MouseInputListener.class, components, movableComponents),
-                b -> b.handleMouseInput(state, mousePos, button)
-        );
-    }
-
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
         if (!openPanes.isEmpty())
             openPanes.get(openPanes.size() - 1).handleMouseScroll(mousePos, delta);
@@ -262,60 +237,6 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                 ArrayListUtil.getAllOfType(MouseScrollListener.class, components, movableComponents),
                 b -> b.handleMouseScroll(mousePos, delta)
         );
-    }
-
-    public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
-        if (!openPanes.isEmpty())
-            openPanes.get(openPanes.size() - 1).handleKeyInput(keyCode, scanCode, modifiers, isCharTyped);
-        return ArrayListUtil.orMap(
-                ArrayListUtil.getAllOfType(KeyInputListener.class, components, movableComponents),
-                b -> b.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
-        );
-    }
-
-    public ArrayList<Component> findContainPos(Vector2D p) {
-        return movableComponents.stream().filter(c -> c.contains(p)).collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    public ArrayList<Component> findAreContainedIn(Vector2D pos1, Vector2D pos2) {
-        return movableComponents.stream().filter(c -> c.getPos().isInRectBetween(pos1, pos2)).collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    public ArrayList<Component> overlap(Vector2D p1, Vector2D p2) {
-        return movableComponents.stream().filter(
-                c -> {
-                    Vector2D c1 = c.getDisplayedPos();
-                    Vector2D c2 = c.getDisplayedPos().add(c.getDisplayedSize());
-
-                    if (c1.getX() > p2.getX() || c2.getX() < p1.getX()) return false;
-                    if (c1.getY() > p2.getY() || c2.getY() < p1.getY()) return false;
-                    return true;
-                }
-        ).collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    public Component findFirstContainPos(Vector2D p) {
-        ArrayList<Component> containPos = findContainPos(p);
-        if (containPos.isEmpty()) return null;
-        return containPos.get(0);
-    }
-
-    public BoundingBox2D boundingBoxContainingAll(ArrayList<Component> components) {
-        if (components.isEmpty()) return null;
-
-        Vector2D min = null, max = null;
-        for (Component c : components) {
-            Vector2D p = c.getDisplayedPos();
-            Vector2D p2 = p.add(c.getDisplayedSize());
-            if (min == null) min = new Vector2D(p);
-            if (max == null) max = new Vector2D(p.add(c.getDisplayedSize()));
-
-            if (p.getX() < min.getX()) min.setX(p.getX());
-            if (p2.getX() > max.getX()) max.setX(p2.getX());
-            if (p.getY() < min.getY()) min.setY(p.getY());
-            if (p2.getY() > max.getY()) max.setY(p2.getY());
-        }
-        return new BoundingBox2D(min, max);
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
@@ -326,8 +247,14 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         movableComponents.forEach(c -> c.setHighlighted(highlighted.contains(c)));
 
         for (Component component : movableComponents) {
-            if (!holding.contains(component))
+            if(holding.contains(component))
+            {
+                Vector2D offset = component.getRenderOffset();
+                component.setRenderOffset(Vector2D.ZERO);
                 component.render(hoverMousePos);
+                component.setRenderOffset(offset);
+            }
+            else component.render(hoverMousePos);
         }
 
         for (Component b : components) b.render(hoverMousePos);
@@ -336,14 +263,14 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
             BoundingBox2D containingHolding = boundingBoxContainingAll(new ArrayList<>(holding));
 
             Vector2D toMove = mouse.sub(lastClickedPos);
-            toMove = toMove.constrain(Vector2D.ZERO.sub(containingHolding.getMin()), getScreenSize().sub(containingHolding.getMax()));
+            toMove = toMove.constrain(
+                    containingHolding.getMin().mult(-1),
+                    getScreenSize().sub(containingHolding.getMax())
+            );
             holdingSetPosOffset = toMove;
             for (Component component : holding) {
-                Vector2D p = component.getPos();
-                Vector2D relToMove = component.getParentAnchor().translateMovement(toMove);
-                component.setPos(p.add(relToMove));
+                component.setRenderOffset(toMove);
                 component.render(hoverMousePos);
-                component.setPos(p);
             }
         }
 
@@ -361,6 +288,117 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                 openPanes.get(i).render(Vector2D.OFFSCREEN);
             }
             last.render(mouse);
+        }
+    }
+
+    public ArrayList<Component> overlap(Vector2D p1, Vector2D p2) {
+        return movableComponents.stream().filter(
+                c -> {
+                    Vector2D c1 = c.getDisplayedPos();
+                    Vector2D c2 = c.getDisplayedPos().add(c.getDisplayedSize());
+
+                    if (c1.getX() > p2.getX() || c2.getX() < p1.getX()) return false;
+                    //noinspection RedundantIfStatement
+                    if (c1.getY() > p2.getY() || c2.getY() < p1.getY()) return false;
+                    return true;
+                }
+        ).collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
+        if (!openPanes.isEmpty()) {
+            openPanes.get(openPanes.size() - 1).handleMouseInput(state, mousePos, button);
+            return true;
+        }
+        return ArrayListUtil.orMap(
+                ArrayListUtil.getAllOfType(MouseInputListener.class, components, movableComponents),
+                b -> b.handleMouseInput(state, mousePos, button)
+        );
+    }
+
+    public Component findFirstContainPos(Vector2D p) {
+        ArrayList<Component> containPos = findContainPos(p);
+        if (containPos.isEmpty()) return null;
+        return containPos.get(0);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends PaneHolder> void openPane(Pane<T> p, Vector2D pos) {
+        openPanes.add(p);
+        p.setPaneHolder((T) this);
+        p.setLoaded(true);
+        p.setPos(pos);
+
+        cleanupScreen();
+    }
+
+    public <T extends PaneHolder> void closePane(Pane<T> p) {
+        openPanes.remove(p);
+        if (openPanes.isEmpty()) {
+            highlighted.clear();
+        }
+        p.setLoaded(false);
+    }
+
+    public void removeComponent(Component c) {
+        components.remove(c);
+    }
+
+    public void addComponent(Component c) {
+        components.add(c);
+    }
+
+    public ArrayList<Component> findContainPos(Vector2D p) {
+        return movableComponents.stream().filter(c -> c.contains(p)).collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private void cleanupScreen() {
+        selected.clear();
+        holding.clear();
+        lastClicked = null;
+        lastClickedPos = null;
+        holdingSetPosOffset = null;
+    }
+
+    public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
+        if (!openPanes.isEmpty())
+            openPanes.get(openPanes.size() - 1).handleKeyInput(keyCode, scanCode, modifiers, isCharTyped);
+        return ArrayListUtil.orMap(
+                ArrayListUtil.getAllOfType(KeyInputListener.class, components, movableComponents),
+                b -> b.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
+        );
+    }
+
+    public BoundingBox2D boundingBoxContainingAll(ArrayList<Component> components) {
+        if (components.isEmpty()) return null;
+
+        Vector2D min = null, max = null;
+        for (Component c : components) {
+            Vector2D p = c.getDisplayedPos().sub(c.getRenderOffset());
+            Vector2D p2 = p.add(c.getDisplayedSize());
+            if (min == null) min = new Vector2D(p);
+            if (max == null) max = new Vector2D(p.add(c.getDisplayedSize()));
+
+            if (p.getX() < min.getX()) min.setX(p.getX());
+            if (p2.getX() > max.getX()) max.setX(p2.getX());
+            if (p.getY() < min.getY()) min.setY(p.getY());
+            if (p2.getY() > max.getY()) max.setY(p2.getY());
+        }
+        return new BoundingBox2D(min, max);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends PaneHolder> void openPane(Pane<T> p) {
+        openPanes.add(p);
+        p.setPaneHolder((T) this);
+        p.setLoaded(true);
+
+        cleanupScreen();
+    }
+
+    public final void closeAllPanes() {
+        for (int i = openPanes.size() - 1; i >= 0; i--) {
+            closePane(openPanes.get(i));
         }
     }
 }

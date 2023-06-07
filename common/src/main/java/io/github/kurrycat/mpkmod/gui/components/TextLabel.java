@@ -11,7 +11,8 @@ public class TextLabel extends Label {
     private Color borderColor = new Color(255, 255, 255, 0);
 
     public TextLabel(String text, Vector2D pos) {
-        super(text, pos);
+        super(text);
+        this.setPos(pos);
     }
 
     @Override

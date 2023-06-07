@@ -3,7 +3,6 @@ package io.github.kurrycat.mpkmod.gui.screens.options_gui;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.components.Button;
-import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.*;
@@ -23,38 +22,38 @@ public class OptionsGuiScreen extends ComponentScreen {
     public void onGuiInit() {
         super.onGuiInit();
         optionList = new OptionList(
-                new Vector2D(0.5, 16),
+                new Vector2D(0, 16),
                 new Vector2D(3 / 5D, -40),
                 new ArrayList<>(API.optionsMap.values())
         );
-        addChild(optionList, true, false, true, false, Component.Anchor.TOP_LEFT);
+        addChild(optionList,PERCENT.SIZE_X, Anchor.TOP_CENTER);
 
-        optionList.addChild(
+        optionList.topCover.addChild(
                 new Button(
                         "x",
-                        new Vector2D(3, -13),
+                        new Vector2D(3, 2),
                         new Vector2D(11, 11),
                         mouseButton -> close()
                 ),
-                false, false, false, false, Component.Anchor.TOP_RIGHT
+                PERCENT.NONE, Anchor.CENTER_RIGHT
         );
 
-        optionList.addChild(new Button(
+        optionList.bottomCover.addChild(new Button(
                         "Apply",
-                        new Vector2D(0.2, -22),
+                        new Vector2D(-2, 2),
                         new Vector2D(100, 20),
                         mouseButton -> optionList.updateAll()
                 ),
-                true, false, false, false, Component.Anchor.BOTTOM_LEFT
+                PERCENT.NONE, Anchor.BOTTOM_RIGHT, Anchor.BOTTOM_CENTER
         );
 
-        optionList.addChild(new Button(
+        optionList.bottomCover.addChild(new Button(
                         "Reset all",
-                        new Vector2D(0.2, -22),
+                        new Vector2D(2, 2),
                         new Vector2D(100, 20),
                         mouseButton -> optionList.resetAllToDefault()
                 ),
-                true, false, false, false, Component.Anchor.BOTTOM_RIGHT
+                PERCENT.NONE, Anchor.BOTTOM_LEFT, Anchor.BOTTOM_CENTER
         );
     }
 
@@ -75,7 +74,8 @@ public class OptionsGuiScreen extends ComponentScreen {
 
     public static class OptionList extends ScrollableList<OptionListItem> {
         public OptionList(Vector2D pos, Vector2D size, ArrayList<Option> options) {
-            super(pos, size);
+            this.setPos(pos);
+            this.setSize(size);
             items.clear();
             for (Option option : options) {
                 OptionListItem item;
@@ -101,7 +101,7 @@ public class OptionsGuiScreen extends ComponentScreen {
         @Override
         public void render(Vector2D mouse) {
             super.render(mouse);
-            components.forEach(c -> c.render(mouse));
+            renderComponents(mouse);
         }
 
         public void resetAllToDefault() {

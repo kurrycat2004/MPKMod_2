@@ -21,45 +21,30 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
     private boolean isSliding = false;
 
     public NumberSlider(double from, double to, double step, double value, Vector2D pos, Vector2D size, SliderCallback sliderCallback) {
-        super(pos);
+        this.setPos(pos);
+        this.setSize(size);
         this.from = from;
         this.to = to;
         this.step = step;
         this.value = value;
         this.sliderCallback = sliderCallback;
-        this.setSize(size);
 
         this.button = new Button("",
                 new Vector2D(getRelativeXPosFromValue(), 1),
-                new Vector2D(
-                        getSliderWidth(),
-                        -2
-                )
+                new Vector2D(getSliderWidth(), -2)
         );
-        this.button.setParent(this);
+        passPositionTo(this.button, PERCENT.NONE, Anchor.TOP_LEFT);
         this.button.hoverColor = buttonHoverColor;
         this.button.normalColor = buttonColor;
         this.button.pressedColor = buttonPressedColor;
-    }
-
-    private double getSliderWidth() {
-        return Math.max(5, (step / (to - from)) * getDisplayedSize().getX() - 2);
     }
 
     private double getRelativeXPosFromValue() {
         return MathUtil.map(value, from, to, 1, getDisplayedSize().getX() - 1 - getSliderWidth());
     }
 
-    private double getValueFromPos(Vector2D pos) {
-        double v = MathUtil.strictMap(
-                pos.getX() - getDisplayedPos().getX(),
-                1 + getSliderWidth() / 2, getDisplayedSize().getX() - 1 - getSliderWidth() / 2,
-                from, to
-        );
-        if (step != 0) {
-            v = MathUtil.constrain(MathUtil.roundToStep(v, step), from, to);
-        }
-        return v;
+    private double getSliderWidth() {
+        return Math.max(5, (step / (to - from)) * getDisplayedSize().getX() - 2);
     }
 
     public double getValue() {
@@ -67,8 +52,11 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
     }
 
     public NumberSlider setValue(double value) {
+        if(this.value == value) return this;
+
         this.value = value;
         this.button.pos.setX(getRelativeXPosFromValue());
+        this.button.updatePosAndSize();
         return this;
     }
 
@@ -97,11 +85,10 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
                 this.button.setPressed(true);
 
                 double beforeValue = this.value;
-                this.value = getValueFromPos(mousePos);
+                setValue(getValueFromPos(mousePos));
                 if (beforeValue != this.value)
                     sliderCallback.apply(value);
 
-                this.button.pos.setX(getRelativeXPosFromValue());
                 return true;
             }
         }
@@ -113,16 +100,27 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
             case DRAG:
                 if (isSliding) {
                     double beforeValue = this.value;
-                    this.value = getValueFromPos(mousePos);
+                    setValue(getValueFromPos(mousePos));
                     if (beforeValue != this.value)
                         sliderCallback.apply(value);
 
-                    this.button.pos.setX(getRelativeXPosFromValue());
                     return true;
                 }
                 return false;
         }
         return contains(mousePos);
+    }
+
+    private double getValueFromPos(Vector2D pos) {
+        double v = MathUtil.strictMap(
+                pos.getX() - getDisplayedPos().getX(),
+                1 + getSliderWidth() / 2, getDisplayedSize().getX() - 1 - getSliderWidth() / 2,
+                from, to
+        );
+        if (step != 0) {
+            v = MathUtil.constrain(MathUtil.roundToStep(v, step), from, to);
+        }
+        return v;
     }
 
     @Override

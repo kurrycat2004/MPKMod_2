@@ -9,7 +9,7 @@ public class Rectangle extends Component {
     public Color color;
 
     public Rectangle(Vector2D pos, Vector2D size, Color color) {
-        super(pos);
+        this.setPos(pos);
         this.setSize(size);
         this.color = color;
     }

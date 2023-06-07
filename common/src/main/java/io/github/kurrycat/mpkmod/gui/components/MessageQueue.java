@@ -35,8 +35,9 @@ public class MessageQueue extends ResizableComponent {
 
 
     @JsonCreator
-    public MessageQueue(@JsonProperty("pos") Vector2D pos, @JsonProperty("size") Vector2D size, @JsonProperty("displayName") String name) {
-        super(pos, size);
+    public MessageQueue(@JsonProperty("displayName") String name) {
+        this.setPos(pos);
+        this.setSize(size);
         this.name = name;
         this.setMinSize(new Vector2D(40, 22));
     }

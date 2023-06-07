@@ -5,31 +5,29 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
-import io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft;
-import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
-import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.gui.TickThread;
+import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.InfoString;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class InfoLabel extends Label {
+public class InfoLabel extends Label implements TickThread.Tickable {
     private InfoString infoString;
+    private volatile String formattedText = "";
 
     /**
      * @param text the text to be displayed<br><br>
      *             <code>"{COLOR}"</code> with COLOR being any <code>{@link Colors}.name</code> will be replaced by that color's code<br><br>
      *             <code>"{VARNAME}"</code> with VARNAME being any key in {@link API#infoMap}<br>
-     * @param pos  top left position of the text
      */
     @JsonCreator
-    public InfoLabel(@JsonProperty("text") String text, @JsonProperty("pos") Vector2D pos) {
-        super(text, pos);
+    public InfoLabel(@JsonProperty("text") String text) {
+        super(text);
         this.infoString = new InfoString(text);
     }
 
@@ -38,47 +36,46 @@ public class InfoLabel extends Label {
         infoString = new InfoString(text);
     }
 
-    public String getFormattedText() {
-        return infoString.get();
-    }
-
     public void render(Vector2D mouse) {
         drawDefaultSelectedBackground();
         FontRenderer.drawString(getFormattedText(), getDisplayedPos(), color, true);
         //CUSTOM FONT - FontManager.testArialFont.drawStringWithShadow(getFormattedText(), getDisplayedPos().getX(), getDisplayedPos().getY(), color.getRGB());
     }
 
+    public String getFormattedText() {
+        return formattedText;
+    }
+
     @JsonIgnore
-    public Vector2D getSize() {
+    public Vector2D getSizeForJson() {
         return FontRenderer.getStringSize(getFormattedText());
     }
 
     @Override
+    public Vector2D getDisplayedSize() {
+        return FontRenderer.getStringSize(getFormattedText());
+    }
+
+    public void tick() {
+        formattedText = infoString.get();
+    }
+
+    @Override
     public PopupMenu getPopupMenu() {
-        Vector2D windowSize = Renderer2D.getScaledSize();
-        EditPane editPane = new EditPane(
-                new Vector2D(windowSize.getX() / 4, windowSize.getY() / 2 - 20),
-                new Vector2D(windowSize.getX() / 2, 40)
-        );
-
-
         PopupMenu menu = new PopupMenu();
-        menu.addComponent(
-                new Button("Edit", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
-                    if (Mouse.Button.LEFT.equals(mouseButton)) {
-                        menu.paneHolder.openPane(editPane);
-                        menu.paneHolder.closePane(menu);
-                    }
-                })
-        );
-        menu.addComponent(
-                new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
-                    if (Mouse.Button.LEFT.equals(mouseButton)) {
-                        menu.paneHolder.removeComponent(this);
-                        menu.paneHolder.closePane(menu);
-                    }
-                })
-        );
+        EditPane editPane = new EditPane();
+
+        menu.addComponent(new Button("Edit", mouseButton -> {
+            if (mouseButton != Mouse.Button.LEFT) return;
+            menu.paneHolder.passPositionTo(editPane, PERCENT.SIZE_X, Anchor.CENTER);
+            menu.paneHolder.openPane(editPane);
+            menu.close();
+        }));
+        menu.addComponent(new Button("Delete", mouseButton -> {
+            if (mouseButton != Mouse.Button.LEFT) return;
+            menu.paneHolder.removeComponent(this);
+            menu.close();
+        }));
         return menu;
     }
 
@@ -86,9 +83,17 @@ public class InfoLabel extends Label {
         private final List<InfoLabelVariableListItem> allItems;
 
         public InfoLabelVariableList(Vector2D pos, Vector2D size) {
-            super(pos, size);
+            this.setPos(pos);
+            this.setSize(size);
+            title = "Variables";
             allItems = API.infoVars.stream().map(s -> new InfoLabelVariableListItem(this, s)).collect(Collectors.toList());
             updateSearchFilter("");
+        }
+
+        @Override
+        public void render(Vector2D mouse) {
+            super.render(mouse);
+            renderComponents(mouse);
         }
 
         public void updateSearchFilter(String searchString) {
@@ -101,8 +106,8 @@ public class InfoLabel extends Label {
 
         public InfoLabelVariableListItem(ScrollableList<InfoLabelVariableListItem> parent, String varName) {
             super(parent);
+            this.setHeight(18);
             this.varName = varName;
-            height = 18;
         }
 
         @Override
@@ -116,78 +121,60 @@ public class InfoLabel extends Label {
         }
     }
 
-    private class EditPane extends Pane {
-        private final Label label;
+    public class EditPane extends Pane<MainGuiScreen> {
+        private final TextRectangle label;
 
-        public EditPane(Vector2D pos, Vector2D size) {
-            super(pos, size);
-            this.backgroundColor = new Color(31, 31, 31, 50);
-            this.label = new Label("", new Vector2D(0.5, 5));
-            addChild(this.label, true, false, false, false, Anchor.TOP_LEFT);
-            InputField inputField = new InputField(text, new Vector2D(0.5, 5), 1)
-                    .setOnContentChange(content -> {
-                        updateText(content.getContent());
-                    });
-            addChild(inputField, true, false, true, false, Anchor.BOTTOM_LEFT);
+        public EditPane() {
+            super(Vector2D.ZERO, new Vector2D(0.5, 40));
+            this.label = new TextRectangle(
+                    new Vector2D(0, 1),
+                    new Vector2D(1, 20),
+                    "",
+                    new Color(0, 0, 0, 0),
+                    Color.WHITE
+            );
+            addChild(this.label, PERCENT.SIZE_X, Anchor.TOP_CENTER);
 
-            ArrayList<Component> colors = new ArrayList<>();
-            int currY = 3;
-            double maxWidth = 0;
+            InputField inputField = new InputField(text, new Vector2D(0, 5), 0.9D)
+                    .setOnContentChange(content -> updateText(content.getContent()));
+
+            addChild(inputField, PERCENT.SIZE_X, Anchor.BOTTOM_CENTER);
+
+            Div colors = new Div();
             for (Colors c : Colors.values()) {
-                ColorLabel l = new ColorLabel(c, new Vector2D(3, currY));
-                colors.add(l);
-                currY += l.getDisplayedSize().getY() + 1;
-                maxWidth = Math.max(maxWidth, l.getDisplayedSize().getX());
+                colors.addChildBelow(new ColorLabel(c));
             }
-            Div d = new Div(new Vector2D(2, 2), new Vector2D(maxWidth + 2, currY - 2));
-            colors.forEach(d::addChild);
-            d.backgroundColor = new Color(31, 31, 31, 150);
-            d.setAbsolute(true);
-            addChild(d);
+            colors.backgroundColor = new Color(31, 31, 31, 150);
+            colors.setAbsolute(true);
+            addChild(colors);
 
-            InfoLabelVariableList vl = new InfoLabelVariableList(new Vector2D(5, 20), new Vector2D(1 / 5D, -50));
-            vl.title = "Variables";
+
+            InfoLabelVariableList vl = new InfoLabelVariableList(new Vector2D(0, 20), new Vector2D(2 / 9D, -50));
             vl.setAbsolute(true);
-            addChild(vl, false, false, true, false, Anchor.TOP_RIGHT);
+            addChild(vl, PERCENT.SIZE_X, Anchor.TOP_RIGHT);
 
-            Div searchFieldDiv = new Div(new Vector2D(5, 0), new Vector2D(1 / 5D, 30));
+            Div searchFieldDiv = new Div(Vector2D.ZERO, new Vector2D(1, 30));
 
             TextRectangle searchText = new TextRectangle(
-                    new Vector2D(0.5, 0),
+                    Vector2D.ZERO,
                     new Vector2D(1, 14),
                     "Filter",
                     null,
                     Color.WHITE
             );
-            searchFieldDiv.addChild(searchText, true, false, true, false, Anchor.TOP_LEFT);
+            searchFieldDiv.addChild(searchText, PERCENT.SIZE_X, Anchor.TOP_CENTER);
 
-            InputField searchField = new InputField(new Vector2D(0.5D, 5), 0.9D);
+            InputField searchField = new InputField(new Vector2D(0, 5), 0.9D);
             searchField.setOnContentChange(c -> vl.updateSearchFilter(c.getContent()));
-            searchFieldDiv.addChild(searchField, true, false, true, false, Anchor.BOTTOM_LEFT);
+            searchFieldDiv.addChild(searchField, PERCENT.SIZE_X, Anchor.BOTTOM_CENTER);
 
-            searchFieldDiv.setAbsolute(true);
-            addChild(searchFieldDiv, false, false, true, false, Anchor.BOTTOM_RIGHT);
+            vl.bottomCover.addChild(searchFieldDiv, PERCENT.SIZE_X, Anchor.CENTER);
         }
 
         @Override
         public void render(Vector2D mousePos) {
             this.label.setText(getFormattedText());
             super.render(mousePos);
-        }
-
-        private class ColorLabel extends Label {
-            private final Colors color;
-
-            public ColorLabel(Colors color, Vector2D pos) {
-                super(color.getCode() + color.getName(), pos);
-                this.color = color;
-            }
-
-            @Override
-            public void render(Vector2D mouse) {
-                this.text = contains(mouse) ? color.getName() : color.getCode() + color.getName();
-                super.render(mouse);
-            }
         }
     }
 }

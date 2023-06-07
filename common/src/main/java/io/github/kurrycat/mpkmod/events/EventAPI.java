@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.events;
 
+import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Profiler;
 
@@ -71,8 +72,7 @@ public class EventAPI {
                 try {
                     listener.run(event);
                 } catch (Exception e) {
-                    System.err.println("Error during Event: " + event.getType().name());
-                    e.printStackTrace();
+                    API.LOGGER.info("Error during Event: " + event.getType().name(), e);
                 }
             });
             Profiler.endSection();

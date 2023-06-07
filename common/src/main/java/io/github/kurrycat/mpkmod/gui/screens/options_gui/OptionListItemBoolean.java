@@ -25,7 +25,7 @@ public class OptionListItemBoolean extends OptionListItem {
     }
 
     protected void renderTypeSpecific(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
-        checkButton.pos = pos.add(size.getX() - 40 - checkButton.getDisplayedSize().getX(), size.getY() / 2 - 5);
+        checkButton.setPos(pos.add(size.getX() - 40 - checkButton.getDisplayedSize().getX(), size.getY() / 2 - 5));
         checkButton.render(mouse);
     }
 }

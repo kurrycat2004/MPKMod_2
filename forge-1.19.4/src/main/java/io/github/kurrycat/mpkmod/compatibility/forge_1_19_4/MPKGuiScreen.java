@@ -34,8 +34,7 @@ public class MPKGuiScreen extends Screen {
         try {
             eventReceiver.drawScreen(new Vector2D(mouseX, mouseY), partialTicks);
         } catch (Exception e) {
-            System.err.println("Error in drawScreen with id: " + eventReceiver.getID());
-            e.printStackTrace();
+            API.LOGGER.warn("Error in drawScreen with id: " + eventReceiver.getID(), e);
         }
         Profiler.endSection();
     }

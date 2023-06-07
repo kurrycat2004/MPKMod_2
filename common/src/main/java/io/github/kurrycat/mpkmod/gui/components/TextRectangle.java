@@ -12,7 +12,7 @@ public class TextRectangle extends Component {
     private Color textColor;
 
     public TextRectangle(Vector2D pos, Vector2D size, String text, Color color, Color textColor) {
-        super(pos);
+        this.setPos(pos);
         this.setSize(size);
         this.text = text;
         this.color = color;

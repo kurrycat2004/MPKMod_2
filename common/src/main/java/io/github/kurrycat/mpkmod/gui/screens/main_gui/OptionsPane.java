@@ -1,9 +1,7 @@
 package io.github.kurrycat.mpkmod.gui.screens.main_gui;
 
+import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.gui.components.Button;
-import io.github.kurrycat.mpkmod.gui.components.NumberSlider;
-import io.github.kurrycat.mpkmod.gui.components.Pane;
-import io.github.kurrycat.mpkmod.gui.components.TextRectangle;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.WorldToFile;
 
@@ -42,9 +40,9 @@ public class OptionsPane extends Pane<MainGuiScreen> {
                         new Vector2D(20, 30),
                         new Vector2D(100, 20),
                         mouseButton -> WorldToFile.parseWorld((int) pkcFileRadius.getValue())),
-                false, false, Anchor.TOP_LEFT
+                PERCENT.NONE, Anchor.TOP_LEFT
         );
-        addChild(pkcFileRadiusLabel, false, false, Anchor.TOP_LEFT);
-        addChild(pkcFileRadius, false, false, Anchor.TOP_LEFT);
+        addChild(pkcFileRadiusLabel, PERCENT.NONE, Anchor.TOP_LEFT);
+        addChild(pkcFileRadius, PERCENT.NONE, Anchor.TOP_LEFT);
     }
 }

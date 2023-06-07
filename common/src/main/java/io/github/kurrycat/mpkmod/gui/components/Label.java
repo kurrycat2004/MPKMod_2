@@ -16,8 +16,12 @@ public class Label extends Component {
     public Color selectedColor = new Color(255, 170, 0, 100);
     public Color backgroundColor = null;
 
+    public Label(String text) {
+        this.text = text;
+    }
+
     public Label(String text, Vector2D pos) {
-        super(pos);
+        this.setPos(pos);
         this.text = text;
     }
 
@@ -47,7 +51,12 @@ public class Label extends Component {
         return this;
     }
 
-    public Vector2D getSize() {
+    @Override
+    public Vector2D getDisplayedSize() {
+        return FontRenderer.getStringSize(text);
+    }
+
+    public Vector2D getSizeForJson() {
         return FontRenderer.getStringSize(text);
     }
 }

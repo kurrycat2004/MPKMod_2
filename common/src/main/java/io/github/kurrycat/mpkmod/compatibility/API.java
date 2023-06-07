@@ -5,6 +5,7 @@ import io.github.kurrycat.mpkmod.discord.DiscordRPC;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.gui.TickThread;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.LabelConfiguration;
@@ -22,8 +23,10 @@ import org.apache.logging.log4j.MarkerManager;
 
 import java.awt.*;
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class API {
     public static final String MODID = "mpkmod";
@@ -96,6 +99,27 @@ public class API {
     }
 
     /**
+     * Should be called in {@link #preInit(Class)}
+     *
+     * @param guiID  ID used to display the GUI and localize the GUI key bind ({@link API#MODID} + ".key." + guiID + ".desc")
+     * @param screen {@link MPKGuiScreen} instance to be registered
+     */
+    public static void registerGUIScreen(String guiID, MPKGuiScreen screen) {
+        screen.setID(guiID);
+        guiScreenMap.put(guiID, screen);
+    }
+
+    /**
+     * Should be called in {@link #preInit(Class)}
+     *
+     * @param id        ID used to localize the key bind ({@link API#MODID} + ".key." + guiID + ".desc")
+     * @param procedure procedure to be called when key event is received
+     */
+    public static void registerKeyBinding(String id, Procedure procedure) {
+        keyBindingMap.put(id, procedure);
+    }
+
+    /**
      * Gets called once at the end of the mod loader initialization event
      *
      * @param mcVersion String containing the current minecraft version (e.g. "1.8.9")
@@ -117,19 +141,28 @@ public class API {
             e.printStackTrace();
             discordRpcInitialized = false;
         }
+        TickThread.startThread();
+        API.LOGGER.info(API.DISCORD_RPC_MARKER, "Started GuiTickThread");
 
         EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> tickTime++));
+        EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> {
+            TickThread.setTickables(
+                    ArrayListUtil.getAllOfType(TickThread.Tickable.class, mainGUI.movableComponents)
+            );
+        }));
 
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(
                         e -> {
                             Profiler.startSection("components");
-                            if (mainGUI != null)
+                            if (mainGUI != null) {
+                                mainGUI.setSize(Renderer2D.getScaledSize());
                                 for (Component c : mainGUI.movableComponents) {
                                     Profiler.startSection(c.getClass().getSimpleName());
                                     c.render(new Vector2D(-1, -1));
                                     Profiler.endSection();
                                 }
+                            }
                             Profiler.endSection();
                         }
                 )
@@ -217,27 +250,6 @@ public class API {
     }
 
     /**
-     * Should be called in {@link #preInit(Class)}
-     *
-     * @param guiID  ID used to display the GUI and localize the GUI key bind ({@link API#MODID} + ".key." + guiID + ".desc")
-     * @param screen {@link MPKGuiScreen} instance to be registered
-     */
-    public static void registerGUIScreen(String guiID, MPKGuiScreen screen) {
-        screen.setID(guiID);
-        guiScreenMap.put(guiID, screen);
-    }
-
-    /**
-     * Should be called in {@link #preInit(Class)}
-     *
-     * @param id        ID used to localize the key bind ({@link API#MODID} + ".key." + guiID + ".desc")
-     * @param procedure procedure to be called when key event is received
-     */
-    public static void registerKeyBinding(String id, Procedure procedure) {
-        keyBindingMap.put(id, procedure);
-    }
-
-    /**
      * Used to link mc version specific functions to their static counterpart in one of the {@link FunctionHolder}s in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses MCClasses}
      *
      * @param holder an interface of a mc compatibility class that extends {@link FunctionHolder}<br>
@@ -270,7 +282,7 @@ public class API {
 
         public static void onLoadComplete() {
             guiScreenMap.forEach((id, guiScreen) -> {
-                guiScreen.onGuiInit();
+                guiScreen.onInit();
             });
         }
 

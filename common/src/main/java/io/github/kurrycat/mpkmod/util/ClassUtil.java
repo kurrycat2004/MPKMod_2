@@ -41,6 +41,7 @@ public class ClassUtil {
                     classes.add(Class.forName(s));
                 }
             } catch (IOException | ClassNotFoundException ignored) {
+                API.LOGGER.fatal("Failed to load all classes in classes.txt, maybe it was not regenerated correctly?");
             }
         }
         return classes;

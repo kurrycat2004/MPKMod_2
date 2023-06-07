@@ -9,18 +9,32 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 
 public class Pane<T extends PaneHolder> extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener {
-    public Color backgroundColor = new Color(255, 255, 255, 255);
+    public Color backgroundColor = new Color(31, 31, 31, 150);
 
     public T paneHolder = null;
 
     private boolean loaded;
 
     public Pane(Vector2D pos, Vector2D size) {
-        super(pos);
+        this.setPos(pos);
         this.setSize(size);
         this.loaded = false;
 
-        this.addChild(createCloseButton(), false, false, Anchor.TOP_RIGHT);
+        this.addChild(createCloseButton(), PERCENT.NONE, Anchor.TOP_RIGHT);
+    }
+
+    public Button createCloseButton() {
+        return new Button(
+                "x",
+                new Vector2D(1, 1),
+                new Vector2D(10, 10),
+                mouseButton -> close()
+        );
+    }
+
+    public void close() {
+        if (paneHolder == null) return;
+        paneHolder.closePane(this);
     }
 
     public void render(Vector2D mousePos) {
@@ -49,11 +63,6 @@ public class Pane<T extends PaneHolder> extends Component implements MouseInputL
         return false;
     }
 
-    public void close() {
-        if (paneHolder == null) return;
-        paneHolder.closePane(this);
-    }
-
     public boolean isLoaded() {
         return this.loaded;
     }
@@ -66,24 +75,15 @@ public class Pane<T extends PaneHolder> extends Component implements MouseInputL
         this.paneHolder = p;
     }
 
-    public Button createCloseButton() {
-        return new Button(
-                "x",
-                new Vector2D(1, 1),
-                new Vector2D(10, 10),
-                mouseButton -> close()
-        );
-    }
-
     public void addTitle(String title) {
         TextRectangle titleRect = new TextRectangle(
-                new Vector2D(0.5, 1),
+                new Vector2D(0, 1),
                 new Vector2D(1, 20),
                 Colors.UNDERLINE.getCode() + title,
                 new Color(0, 0, 0, 0),
                 Color.WHITE
         );
-        addChild(titleRect, true, false, true, false, Anchor.TOP_LEFT);
+        addChild(titleRect, PERCENT.SIZE_X, Anchor.TOP_CENTER);
     }
 
     public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {

@@ -115,7 +115,7 @@
     "format": {
       "default": "Rex BWMM",
       "s!=1": " Strafe {s}t",
-      "s_ms": " ({s_ms}ms}",
+      "s_ms": " ({s_ms}ms)",
       "w!=1": " Walk {w}t"
     },
     "timingEntries": [

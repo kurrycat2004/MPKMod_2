@@ -6,7 +6,6 @@ import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.WorldInteraction;
 import io.github.kurrycat.mpkmod.gui.ComponentScreen;
 import io.github.kurrycat.mpkmod.gui.components.Button;
-import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.util.*;
@@ -20,7 +19,6 @@ public class LandingBlockGuiScreen extends ComponentScreen {
     public static List<LandingBlock> lbs = new ArrayList<>();
     public static Color lbListColorItemEdge = new Color(255, 255, 255, 95);
     public static Color lbListColorBg = new Color(31, 31, 31, 150);
-    public static Color hoverColor = new Color(70, 70, 70, 150);
 
     private LBList lbList;
 
@@ -44,10 +42,10 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         super.onGuiInit();
 
         lbList = new LBList(
-                new Vector2D(0.5, 16),
+                new Vector2D(0, 16),
                 new Vector2D(3 / 5D, -40)
         );
-        addChild(lbList, true, false, true, false, Component.Anchor.TOP_LEFT);
+        addChild(lbList, PERCENT.SIZE_X, Anchor.TOP_CENTER);
         lbList.addChild(
                 new Button(
                         "x",
@@ -55,27 +53,8 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                         new Vector2D(11, 11),
                         mouseButton -> close()
                 ),
-                false, false, false, false, Component.Anchor.TOP_RIGHT
+                PERCENT.NONE, Anchor.TOP_RIGHT
         );
-
-
-        /*components.add(
-                new Button(
-                        "t",
-                        new Vector2D(
-                                lbList.getDisplayPos().getX() + lbList.getSize().getX() - lbList.getDisplayPos().getY() / 2 - 30,
-                                lbList.getDisplayPos().getY() / 2 - 5.5
-                        ).round(),
-                        new Vector2D(11, 11),
-                        mouseButton -> {
-                            ArrayListUtil.getAllOfType(InfoLabel.class, API.mainGUI.movableComponents).forEach(i -> i.infoString.updateProviders());
-                        }
-                )
-        );*/
-    }
-
-    public void drawScreen(Vector2D mouse, float partialTicks) {
-        super.drawScreen(mouse, partialTicks);
     }
 
     @Override
@@ -86,13 +65,16 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         }
     }
 
-    public static class LBList extends ScrollableList<LBListItem> {
-        private final Button addLB;
+    public void drawScreen(Vector2D mouse, float partialTicks) {
+        super.drawScreen(mouse, partialTicks);
+    }
 
+    public static class LBList extends ScrollableList<LBListItem> {
         public LBList(Vector2D pos, Vector2D size) {
-            super(pos, size);
+            this.setPos(pos);
+            this.setSize(size);
             updateList();
-            this.addLB = new Button("Add LB", new Vector2D(0.5, -22), new Vector2D(40, 20), mouseButton -> {
+            Button addLB = new Button("Add LB", new Vector2D(0, -22), new Vector2D(40, 20), mouseButton -> {
                 if (Mouse.Button.LEFT.equals(mouseButton)) {
                     Vector3D lookingAt = WorldInteraction.getLookingAt();
                     if (lookingAt != null) {
@@ -105,7 +87,7 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                     items.add(new LBListItem(this, lbs.get(lbs.size() - 1)));
                 }
             });
-            addChild(addLB, true, false, false, false, Anchor.BOTTOM_LEFT);
+            addChild(addLB, PERCENT.NONE, Anchor.BOTTOM_CENTER);
 
             this.title = "Landing Blocks";
         }
@@ -217,14 +199,18 @@ public class LandingBlockGuiScreen extends ComponentScreen {
             });
         }
 
+        public int getHeight() {
+            return collapsed ? 21 : 50;
+        }
+
         public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
             Renderer2D.drawRectWithEdge(pos, size, 1, lbListColorBg, lbListColorItemEdge);
 
             for (int i = 0; i < fields.length; i++) {
-                fields[i].pos = pos.add(
+                fields[i].setPos(pos.add(
                         size.getX() / 12 + size.getX() / 5 * 2 * (((int) (i / 3))),
                         size.getY() / 4 * (1 + (i % 3)) - fields[i].getDisplayedSize().getY() / 2
-                );
+                ));
                 fields[i].setWidth(size.getX() / 3);
             }
 
@@ -240,26 +226,26 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                 );
             else
                 for (int i = 0; i < fields.length; i++) {
-                    fields[i].pos = pos.add(
+                    fields[i].setPos(pos.add(
                             size.getX() / 12 + size.getX() / 5 * 2 * (((int) (i / 3))),
                             size.getY() / 4 * (1 + (i % 3)) - fields[i].getDisplayedSize().getY() / 2
-                    );
+                    ));
                     fields[i].setWidth(size.getX() / 3);
                     fields[i].render(mouse);
                 }
 
-            enabled.pos = pos.add(size.getX() / 16 - enabled.getDisplayedSize().getX(), size.getY() / 2 - 5.5).round();
+            enabled.setPos(pos.add(size.getX() / 16 - enabled.getDisplayedSize().getX(), size.getY() / 2 - 5.5).round());
             enabled.render(mouse);
 
             collapseButton.setText(collapsed ? "v" : "^");
             collapseButton.textOffset = collapsed ? Vector2D.ZERO : new Vector2D(0, 3);
-            collapseButton.pos = pos.add(size.getX() - size.getX() / 16, size.getY() / (collapsed ? 2 : 3) - 5.5).round();
+            collapseButton.setPos(pos.add(size.getX() - size.getX() / 16, size.getY() / (collapsed ? 2 : 3) - 5.5).round());
             collapseButton.render(mouse);
 
-            deleteButton.pos = pos.add(size.getX() - size.getX() / 8, size.getY() / (collapsed ? 2 : 3) - 5.5).round();
+            deleteButton.setPos(pos.add(size.getX() - size.getX() / 8, size.getY() / (collapsed ? 2 : 3) - 5.5).round());
             deleteButton.render(mouse);
 
-            landingModeButton.pos = pos.add(size.getX() - size.getX() / 8, size.getY() / 3 * 2 - 5.5).round();
+            landingModeButton.setPos(pos.add(size.getX() - size.getX() / 8, size.getY() / 3 * 2 - 5.5).round());
             landingModeButton.setSize(new Vector2D(size.getX() / 16 + collapseButton.getDisplayedSize().getX(), 11));
             landingModeButton.enabled = !collapsed;
             landingModeButton.setText(landingBlock.landingMode.toString());
@@ -279,10 +265,6 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                     ArrayListUtil.getAllOfType(KeyInputListener.class, minX, minY, minZ, maxX, maxY, maxZ),
                     ele -> ele.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
             );
-        }
-
-        public int getHeight() {
-            return collapsed ? 21 : 50;
         }
     }
 }
