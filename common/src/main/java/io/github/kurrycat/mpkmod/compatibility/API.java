@@ -259,6 +259,11 @@ public class API {
         functionHolder = holder;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T extends FunctionHolder> T getFunctionHolder() {
+        return (T) functionHolder;
+    }
+
     public static <T extends FunctionHolder> Optional<T> getFunctionHolder(Class<T> subClass) {
         return Optional.ofNullable(subClass.isInstance(functionHolder) ? subClass.cast(functionHolder) : null);
     }

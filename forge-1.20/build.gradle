@@ -27,13 +27,11 @@ sourceSets {
 }
 
 dependencies {
-    minecraft 'net.minecraft:minecraft:1.19.4'
-    forge 'net.minecraftforge:forge:1.19.4-45.0.64'
+    minecraft 'net.minecraft:minecraft:1.20'
+    forge 'net.minecraftforge:forge:1.20-46.0.1'
 
-    /*mappings "net.fabricmc:intermediary:1.19.4:v2"*/
-    mappings "net.minecraft:minecraft:1.19.4:client-mappings"
+    mappings "net.minecraft:minecraft:1.20:client-mappings"
     mappings "org.parchmentmc.data:parchment-1.19.3:2023.03.12@zip"
-    /*mappings "net.fabricmc:yarn:1.19.4+build.2:v2"*/
 }
 
 processResources {

@@ -79,6 +79,7 @@ public class InfoString {
                     API.LOGGER.info(API.CONFIG_MARKER,
                             "InfoMap: IllegalAccessException while trying to access method {} from {}",
                             ((Method) o).getName(), obj.getClass().getName());
+                    Debug.stacktrace();
                     return null;
                 }
             } else if (o instanceof java.lang.reflect.Field) {

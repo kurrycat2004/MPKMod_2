@@ -3,14 +3,21 @@ package io.github.kurrycat.mpkmod.util;
 import io.github.kurrycat.mpkmod.compatibility.API;
 
 public class Debug {
+    public static void stacktrace() {
+        stacktrace(NoneType.NONE);
+    }
+
     public static void stacktrace(Object obj) {
         try {
             throw new Exception();
         } catch (Exception e) {
-            StringBuilder sb = new StringBuilder(obj.toString() + "\n");
+            StringBuilder sb = new StringBuilder();
+            if (obj != NoneType.NONE) {
+                sb.append(obj.toString()).append("\n");
+            }
             boolean skip = true;
             for (StackTraceElement s : e.getStackTrace()) {
-                if(skip) {
+                if (skip) {
                     skip = false;
                     continue;
                 }
@@ -28,7 +35,7 @@ public class Debug {
             boolean fromClass = false;
             boolean skip = true;
             for (StackTraceElement s : e.getStackTrace()) {
-                if(skip) {
+                if (skip) {
                     skip = false;
                     continue;
                 }
@@ -39,4 +46,6 @@ public class Debug {
                 API.LOGGER.info(sb.toString());
         }
     }
+
+    private enum NoneType {NONE}
 }
