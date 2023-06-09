@@ -2,8 +2,6 @@ group = $jitpackGroup
 version = $version
 archivesBaseName = $commonBaseName
 
-apply plugin: 'maven-publish'
-
 dependencies {
     compileOnly 'org.apache.logging.log4j:log4j-api:2.0-beta9'
     compileOnly 'org.apache.logging.log4j:log4j-core:2.0-beta9'
@@ -11,7 +9,7 @@ dependencies {
 
 compileJava.doLast {
     var classFile = new File("$temporaryDir${File.separator}classes.txt")
-    if(!classFile.exists())
+    if (!classFile.exists())
         classFile.createNewFile()
 
     classFile.text = sourceSets.main.output.classesDirs.asFileTree

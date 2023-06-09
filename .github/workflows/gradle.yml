@@ -38,8 +38,10 @@ jobs:
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
         arguments: build
+    - name: Set current date as env variable
+      run: echo "NOW=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
     - name: Upload jars artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Mod jars
+        name: mpkmod-build.${{ env.NOW }}
         path: build/*.jar
