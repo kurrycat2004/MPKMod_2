@@ -11,9 +11,13 @@
 MPK Mod is a minecraft mod that adds some features for [minecraft parkour](https://www.mcpk.wiki/wiki/Main_Page) to your client. It's a client side only mod, that means it can be used on any server.
 
 Supported versions: 
-- Forge 1.8.9
-- Forge 1.19.4
-- Fabric 1.19.4
+* [Forge](https://files.minecraftforge.net)
+    - 1.8.9
+    - 1.19.4
+    - 1.20
+* [Fabric](https://fabricmc.net/)
+    - 1.19.4
+    - 1.20
 
 ## Content
 - [Installation](#installation)
