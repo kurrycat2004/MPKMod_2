@@ -3,7 +3,7 @@ package io.github.kurrycat.mpkmod.compatibility.MCClasses;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
-import io.github.kurrycat.mpkmod.util.InfoString;
+import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

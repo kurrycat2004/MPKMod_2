@@ -171,6 +171,10 @@ public abstract class ComponentHolder {
         addChild(child, PERCENT.NONE, Anchor.TOP_LEFT);
     }
 
+    public void addChild(Component child, int percentFlag) {
+        addChild(child, percentFlag, Anchor.TOP_LEFT);
+    }
+
     /**
      * @param child       child component to add to parent
      * @param percentFlag flag built of {@link PERCENT} fields that determines which fields of posX, posY, sizeX and sizeY should be treated as a percentage of the parent

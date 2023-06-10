@@ -7,6 +7,8 @@ import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.TickThread;
 import io.github.kurrycat.mpkmod.gui.components.Component;
+import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
+import io.github.kurrycat.mpkmod.gui.infovars.InfoTree;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.LabelConfiguration;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
@@ -52,8 +54,7 @@ public class API {
 
     public static boolean discordRpcInitialized = false;
     public static HashMap<String, Option> optionsMap;
-    public static HashMap<String, InfoString.ObjectProvider> infoMap;
-    public static List<String> infoVars;
+    public static InfoTree infoTree;
     private static FunctionHolder functionHolder;
     /*@Option.Field
     public static String testOption = "String Option";*/
@@ -73,9 +74,8 @@ public class API {
         optionsMap = Option.createOptionMap();
         Option.updateOptionMapFromJSON(true);
 
-        infoMap = InfoString.createInfoMap();
-        infoVars = InfoString.getInfoVarsList();
-        API.LOGGER.info("{} infoVars registered", infoVars.size());
+        infoTree = InfoString.createInfoTree();
+        API.LOGGER.info("{} infoVars registered", infoTree.getSize());
 
         TimingStorage.init();
 
