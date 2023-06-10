@@ -1,4 +1,27 @@
 plugins {
+    id 'fabric-loom' version '1.2-SNAPSHOT'
+}
+
+loom.runs.client.runDir = "../run"
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+/*
+plugins {
 	id 'xyz.wagyourtail.unimined' version '1.0.0-SNAPSHOT'
 }
 
@@ -10,11 +33,9 @@ unimined.useGlobalCache = false
 unimined.minecraft(sourceSets.main) {
 	version "1.20"
 
-	/*clientWorkingDirectory = project.file('../run')*/
+	//clientWorkingDirectory = project.file('../run')
 
 	mappings {
-		/* helper declarations - intermediary/searge are auto added by fabric/forge */
-
 		// intermediary()
 		// searge()
 		// mojmap()
@@ -53,4 +74,4 @@ processResources {
 	filesMatching("fabric.mod.json") {
 		expand "version": project.version
 	}
-}
+}*/

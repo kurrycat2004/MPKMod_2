@@ -16,7 +16,6 @@
 
   "license": "MIT",
   "icon": "assets/mpkmod/icon.png",
-  "accessWidener" : "mpkmod.accesswidener",
   "environment": "client",
   "entrypoints": {
     "main": [
