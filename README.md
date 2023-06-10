@@ -11,9 +11,13 @@
 MPK Mod is a minecraft mod that adds some features for [minecraft parkour](https://www.mcpk.wiki/wiki/Main_Page) to your client. It's a client side only mod, that means it can be used on any server.
 
 Supported versions: 
-- Forge 1.8.9
-- Forge 1.19.4
-- Fabric 1.19.4
+* [Forge](https://files.minecraftforge.net)
+    - 1.8.9
+    - 1.19.4
+    - 1.20
+* [Fabric](https://fabricmc.net/)
+    - 1.19.4
+    - 1.20
 
 ## Content
 - [Installation](#installation)
@@ -34,4 +38,5 @@ Landing blocks can be set with the keybind set in controls and edited inside the
 
 
 ### Snapshots
-[Download the latest build](https://nightly.link/kurrycat2004/MPKMod_2/workflows/gradle/master/Mod%20jars.zip) or select one yourself under [actions](https://github.com/kurrycat2004/MPKMod_2/actions/workflows/gradle.yml?query=is%3Asuccess)
+Go to [actions](https://github.com/kurrycat2004/MPKMod_2/actions/workflows/gradle.yml?query=is%3Asuccess), click the build you want to download (first=newest) and scroll down to Artifacts.
+The zip file (`mpkmod-build.DATE-TIME.zip`) will contain the mod jar for every supported version
