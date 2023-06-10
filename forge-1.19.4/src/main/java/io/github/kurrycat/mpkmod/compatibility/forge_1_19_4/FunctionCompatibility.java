@@ -171,6 +171,7 @@ public class FunctionCompatibility implements FunctionHolder,
      * Is called in {@link Renderer2D.Interface}
      */
     public void drawRect(Vector2D pos, Vector2D size, Color color) {
+        poseStack.translate(0,0,0.04);
         Screen.fill(
                 poseStack,
                 pos.getXI(),
@@ -196,6 +197,7 @@ public class FunctionCompatibility implements FunctionHolder,
      * Is called in {@link FontRenderer.Interface}
      */
     public void drawString(String text, Vector2D pos, Color color, boolean shadow) {
+        poseStack.translate(0,0,0.04);
         if (shadow)
             Minecraft.getInstance().font.drawShadow(poseStack, text, pos.getXF(), pos.getYF(), color.getRGB());
         else

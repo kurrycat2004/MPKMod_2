@@ -71,8 +71,10 @@ public class EventHandler {
     }
 
     public void onInGameOverlayRender(DrawContext drawContext, float tickDelta) {
+        drawContext.getMatrices().push();
         API.<FunctionCompatibility>getFunctionHolder().drawContext = drawContext;
         API.Events.onRenderOverlay();
+        drawContext.getMatrices().pop();
     }
 
     public void onRenderWorldOverlay(MatrixStack matrixStack, float tickDelta) {

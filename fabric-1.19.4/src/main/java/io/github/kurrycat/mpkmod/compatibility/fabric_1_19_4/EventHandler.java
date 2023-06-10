@@ -68,16 +68,18 @@ public class EventHandler {
         });
     }
 
-    public void onInGameOverlayRender(MatrixStack matrices, float tickDelta) {
-        MPKMod.INSTANCE.matrixStack = matrices;
+    public void onInGameOverlayRender(MatrixStack matrixStack, float tickDelta) {
+        matrixStack.push();
+        API.<FunctionCompatibility>getFunctionHolder().matrixStack = matrixStack;
         API.Events.onRenderOverlay();
+        matrixStack.pop();
     }
 
     public void onRenderWorldOverlay(MatrixStack matrixStack, float tickDelta) {
-        MPKMod.INSTANCE.matrixStack = matrixStack;
         matrixStack.push();
+        API.<FunctionCompatibility>getFunctionHolder().matrixStack = matrixStack;
         Vec3d pos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
-        MPKMod.INSTANCE.matrixStack.translate(-pos.x, -pos.y, -pos.z);
+        matrixStack.translate(-pos.x, -pos.y, -pos.z);
         API.Events.onRenderWorldOverlay(tickDelta);
         matrixStack.pop();
     }

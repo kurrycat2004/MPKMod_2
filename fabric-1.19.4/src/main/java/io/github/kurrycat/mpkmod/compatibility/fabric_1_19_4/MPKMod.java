@@ -23,7 +23,6 @@ public class MPKMod implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("MPKMod");
 	public static final MPKMod INSTANCE = new MPKMod();
 	public final EventHandler eventHandler = new EventHandler();
-	public MatrixStack matrixStack;
 
 	@Override
 	public void onInitialize() {

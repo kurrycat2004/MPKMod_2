@@ -28,6 +28,7 @@ public class MPKGuiScreen extends Screen {
     }
 
     public void render(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+        drawContext.getMatrices().push();
         API.<FunctionCompatibility>getFunctionHolder().drawContext = drawContext;
         Profiler.startSection(eventReceiver.getID() == null ? "mpk_gui" : eventReceiver.getID());
         try {
@@ -36,6 +37,7 @@ public class MPKGuiScreen extends Screen {
             API.LOGGER.warn("Error in drawScreen with id: " + eventReceiver.getID(), e);
         }
         Profiler.endSection();
+        drawContext.getMatrices().pop();
     }
 
     public void close() {

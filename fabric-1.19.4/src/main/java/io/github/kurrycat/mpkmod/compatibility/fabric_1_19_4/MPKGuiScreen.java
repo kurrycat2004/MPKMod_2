@@ -27,7 +27,9 @@ public class MPKGuiScreen extends Screen {
         eventReceiver.onResize(width, height);
     }
 
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+        matrixStack.push();
+        API.<FunctionCompatibility>getFunctionHolder().matrixStack = matrixStack;
         Profiler.startSection(eventReceiver.getID() == null ? "mpk_gui" : eventReceiver.getID());
         try {
             eventReceiver.drawScreen(new Vector2D(mouseX, mouseY), delta);
@@ -35,6 +37,7 @@ public class MPKGuiScreen extends Screen {
             API.LOGGER.warn("Error in drawScreen with id: " + eventReceiver.getID(), e);
         }
         Profiler.endSection();
+        matrixStack.pop();
     }
 
     public void close() {

@@ -125,7 +125,7 @@ public class FunctionCompatibility implements FunctionHolder,
 
         RenderSystem.lineWidth(1.0F);
 
-        Matrix4f posMat = MPKMod.INSTANCE.matrixStack.peek().getPositionMatrix();
+        Matrix4f posMat = matrixStack.peek().getPositionMatrix();
 
         float minX = (float) bb.minX();
         float minY = (float) bb.minY();
@@ -175,6 +175,7 @@ public class FunctionCompatibility implements FunctionHolder,
      * Is called in {@link Renderer2D.Interface}
      */
     public void drawRect(Vector2D pos, Vector2D size, Color color) {
+        matrixStack.translate(0,0,0.04);
         Screen.fill(
                 matrixStack,
                 pos.getXI(),
@@ -193,6 +194,7 @@ public class FunctionCompatibility implements FunctionHolder,
     }
 
     public void drawString(String text, Vector2D pos, Color color, boolean shadow) {
+        matrixStack.translate(0,0,0.04);
         if (shadow)
             MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, text, pos.getXF(), pos.getYF(), color.getRGB());
         else
