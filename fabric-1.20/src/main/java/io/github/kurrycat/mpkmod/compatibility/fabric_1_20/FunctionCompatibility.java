@@ -245,6 +245,14 @@ public class FunctionCompatibility implements FunctionHolder,
         return curr.getClass().getSimpleName();
     }
 
+    /**
+     * Is called in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.Interface Minecraft.Interface}
+     */
+    public String getUserName() {
+        if(MinecraftClient.getInstance().player == null) return null;
+        return MinecraftClient.getInstance().player.getName().getString();
+    }
+
     public List<String> getPressedButtons() {
         return new ArrayList<>(pressedButtons);
     }

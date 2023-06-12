@@ -33,6 +33,21 @@ public class Minecraft {
         });
     }
 
+    @InfoString.Getter
+    public static String getMcVersion() {
+        return version;
+    }
+
+    @InfoString.Getter
+    public static String getUsername() {
+        if(!Interface.get().isPresent()) {
+            API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get username, are you playing on an unsupported minecraft version?");
+            return "Error";
+        } else {
+            return Interface.get().get().getUserName();
+        }
+    }
+
     public static String getCurrentGuiScreen() {
         if(!Interface.get().isPresent()) {
             API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get current screen name, are you playing on an unsupported minecraft version?");
@@ -92,5 +107,7 @@ public class Minecraft {
         void displayGuiScreen(MPKGuiScreen screen);
 
         String getCurrentGuiScreen();
+
+        String getUserName();
     }
 }
