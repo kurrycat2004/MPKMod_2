@@ -94,8 +94,14 @@ public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
         return Math.sqrt(lengthSqr());
     }
 
+    @InfoString.Getter
     public double lengthXZ() {
         return Math.sqrt(lengthXZSqr());
+    }
+
+    @InfoString.Getter
+    public double angleXZ() {
+        return Math.toDegrees(Math.atan2(x, z));
     }
 
     @Override
