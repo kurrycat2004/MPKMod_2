@@ -38,5 +38,5 @@ Landing blocks can be set with the keybind set in controls and edited inside the
 
 
 ### Snapshots
-Go to [actions](https://github.com/kurrycat2004/MPKMod_2/actions/workflows/gradle.yml?query=is%3Asuccess), click the build you want to download (first=newest) and scroll down to Artifacts.
+Go to [actions](https://github.com/kurrycat2004/MPKMod_2/actions/workflows/gradle.yml?query=is%3Asuccess+branch%3Amaster), click the build you want to download (first=newest) and scroll down to Artifacts.
 The zip file (`mpkmod-build.DATE-TIME.zip`) will contain the mod jar for every supported version
