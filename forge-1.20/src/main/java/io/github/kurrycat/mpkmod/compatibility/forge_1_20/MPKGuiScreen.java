@@ -20,6 +20,7 @@ public class MPKGuiScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        guiGraphics.pose().pushPose();
         API.<FunctionCompatibility>getFunctionHolder().guiGraphics = guiGraphics;
         Profiler.startSection(eventReceiver.getID() == null ? "mpk_gui" : eventReceiver.getID());
         try {
@@ -28,6 +29,7 @@ public class MPKGuiScreen extends Screen {
             API.LOGGER.warn("Error in drawScreen with id: " + eventReceiver.getID(), e);
         }
         Profiler.endSection();
+        guiGraphics.pose().popPose();
     }
 
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {

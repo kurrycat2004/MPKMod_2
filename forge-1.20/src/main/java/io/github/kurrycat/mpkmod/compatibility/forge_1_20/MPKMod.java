@@ -23,7 +23,6 @@ import java.util.Map;
 public class MPKMod {
     public static Map<String, KeyMapping> keyBindingMap = new HashMap<>();
 
-    public GuiGraphics guiGraphics = null;
     private boolean registerMCKeyBindingStarted = false;
 
     public MPKMod() {
@@ -66,8 +65,10 @@ public class MPKMod {
 
     public void registerOverlay(RegisterGuiOverlaysEvent e) {
         e.registerBelow(VanillaGuiOverlay.DEBUG_TEXT.id(), "mpkmod", (gui, guiGraphics, partialTick, width, height) -> {
+            guiGraphics.pose().pushPose();
             API.<FunctionCompatibility>getFunctionHolder().guiGraphics = guiGraphics;
             API.Events.onRenderOverlay();
+            guiGraphics.pose().popPose();
         });
     }
 

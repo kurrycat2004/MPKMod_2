@@ -1,7 +1,7 @@
-package io.github.kurrycat.mpkmod.util;
+package io.github.kurrycat.mpkmod.gui.infovars;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
-import io.github.kurrycat.mpkmod.compatibility.MCClasses.Profiler;
+import io.github.kurrycat.mpkmod.util.*;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -52,20 +52,7 @@ public class InfoString {
         providers = providerList.toArray(new Provider[0]);
     }
 
-    public String get() {
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0, j = 0; i < textParts.length; i++) {
-            if(textParts[i] != null)
-                sb.append(textParts[i]);
-            else {
-                sb.append(providers[j].get());
-                j++;
-            }
-        }
-        return sb.toString();
-    }
-
-    private static Object getObj(List<Object> list) {
+    public static Object getObj(List<Object> list) {
         if (list.size() == 1) return list.get(0);
         Object obj = list.get(0);
         for (int i = 1; i < list.size(); i++) {
@@ -89,6 +76,7 @@ public class InfoString {
                     API.LOGGER.info(API.CONFIG_MARKER,
                             "InfoMap: IllegalAccessException while trying to access field {} from {}",
                             ((java.lang.reflect.Field) o).getName(), obj.getClass().getName());
+                    Debug.stacktrace();
                     return null;
                 }
 
@@ -97,8 +85,8 @@ public class InfoString {
         return obj;
     }
 
-    public static HashMap<String, ObjectProvider> createInfoMap() {
-        HashMap<String, ObjectProvider> infoMap = new HashMap<>();
+    public static InfoTree createInfoTree() {
+        InfoTree infoMap = new InfoTree();
 
         HashMap<Class<?>, List<Object>> accessInstances = new HashMap<>();
         List<Tuple<AccessInstance, java.lang.reflect.Field>> accessInstanceAnnotations = ClassUtil.getFieldAnnotations(AccessInstance.class);
@@ -128,12 +116,11 @@ public class InfoString {
             List<Object> objects = new ArrayList<>(accessInstances.get(clazz));
             objects.add(f);
 
-            infoMap.put(name, () -> {
-                Object o = getObj(objects);
-                return o == null ? "undefined" : o;
-            });
+            InfoVar var = new InfoVar(name, objects);
+            infoMap.addElement(name, var);
+
             if (dataClassList.contains(f.getType())) {
-                recursiveSearch(infoMap, name, new ArrayList<>(objects), dataClassList);
+                recursiveSearch(var, objects, dataClassList);
             }
         }
 
@@ -142,32 +129,25 @@ public class InfoString {
             Method m = t.getSecond();
             Class<?> clazz = m.getDeclaringClass();
 
-            String methodName = m.getName();
-            String name = StringUtil.getterName(methodName);
+            String name = StringUtil.getterName(m.getName());
             List<Object> objects = new ArrayList<>(accessInstances.get(clazz));
             objects.add(m);
 
-            infoMap.put(name, () -> {
-                Object o = getObj(objects);
-                return o == null ? "undefined" : o;
-            });
+            InfoVar var = new InfoVar(name, objects);
+            infoMap.addElement(name, var);
+
             if (dataClassList.contains(m.getReturnType())) {
-                recursiveSearch(infoMap, name, objects, dataClassList);
+                recursiveSearch(var, objects, dataClassList);
             }
         }
 
         return infoMap;
     }
 
-    private static void recursiveSearch(Map<String, ObjectProvider> infoMap, String parentName, List<Object> parent, List<Class<?>> dataClassList) {
+    private static void recursiveSearch(InfoVar parentVar, List<Object> parent, List<Class<?>> dataClassList) {
         if (parent.size() == 0) return;
         Object lastParent = parent.get(parent.size() - 1);
-        Class<?> lastParentType = null;
-        if (lastParent instanceof Method)
-            lastParentType = ((Method) lastParent).getReturnType();
-        else if (lastParent instanceof java.lang.reflect.Field)
-            lastParentType = ((java.lang.reflect.Field) lastParent).getType();
-
+        Class<?> lastParentType = getParentType(lastParent);
         if (lastParentType == null) return;
 
         List<Tuple<Field, java.lang.reflect.Field>> fieldAnnotations = ClassUtil.getFieldAnnotations(
@@ -181,14 +161,12 @@ public class InfoString {
             List<Object> objects = new ArrayList<>(parent);
             objects.add(f);
 
-            infoMap.put(parentName + "." + name, () -> {
-                Object o = getObj(objects);
-                return o == null ? "undefined" : o;
-            });
+            InfoVar var = parentVar.createChild(name, objects);
+
             if (dataClassList.contains(f.getType())) {
                 //prevent infinite recursion
                 if (!parent.contains(f))
-                    recursiveSearch(infoMap, parentName + "." + name, objects, dataClassList);
+                    recursiveSearch(var, objects, dataClassList);
             }
         }
 
@@ -199,25 +177,40 @@ public class InfoString {
         for (Tuple<Getter, Method> t : methodAnnotations) {
             Method m = t.getSecond();
 
-            String methodName = m.getName();
-            String name = StringUtil.getterName(methodName);
+            String name = StringUtil.getterName(m.getName());
             List<Object> objects = new ArrayList<>(parent);
             objects.add(m);
 
-            infoMap.put(parentName + "." + name, () -> {
-                Object o = getObj(objects);
-                return o == null ? "undefined" : o;
-            });
+            InfoVar var = parentVar.createChild(name, objects);
+
             if (dataClassList.contains(m.getReturnType())) {
                 //prevent infinite recursion
                 if (!parent.contains(m))
-                    recursiveSearch(infoMap, parentName + "." + name, objects, dataClassList);
+                    recursiveSearch(var, objects, dataClassList);
             }
         }
     }
 
-    public static List<String> getInfoVarsList() {
-        return API.infoMap.keySet().stream().sorted().collect(Collectors.toList());
+    private static Class<?> getParentType(Object parent) {
+        Class<?> parentType = null;
+        if (parent instanceof Method)
+            parentType = ((Method) parent).getReturnType();
+        else if (parent instanceof java.lang.reflect.Field)
+            parentType = ((java.lang.reflect.Field) parent).getType();
+        return parentType;
+    }
+
+    public String get() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0, j = 0; i < textParts.length; i++) {
+            if (textParts[i] != null)
+                sb.append(textParts[i]);
+            else {
+                sb.append(providers[j].get());
+                j++;
+            }
+        }
+        return sb.toString();
     }
 
     /**
@@ -231,6 +224,7 @@ public class InfoString {
     /**
      * Method that takes no arguments.
      * Variable name is method name without get
+     * @see StringUtil#getterName(String)
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
@@ -253,29 +247,27 @@ public class InfoString {
     public @interface DataClass {
     }
 
-    @FunctionalInterface
-    public interface ObjectProvider {
-        Object getObj();
-    }
-
     private static class Provider {
         private final String fullMatch;
         private final String varName;
         private final int decimals;
         private final boolean keepZeros;
 
+        private final InfoVar infoVar;
+
         public Provider(String fullMatch, String varName, int decimals, boolean keepZeros) {
             this.fullMatch = fullMatch;
             this.varName = varName;
             this.decimals = decimals;
             this.keepZeros = keepZeros;
+
+            this.infoVar = API.infoTree.getElement(this.varName);
         }
 
         public String get() {
-            ObjectProvider provider = API.infoMap.get(varName);
-            if (provider == null) return fullMatch;
+            if(this.infoVar == null) return fullMatch;
+            Object o = this.infoVar.getObj();
 
-            Object o = provider.getObj();
             if (o == null) return fullMatch;
 
             if (o instanceof Double)

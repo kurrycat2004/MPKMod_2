@@ -175,7 +175,8 @@ public class FunctionCompatibility implements FunctionHolder,
      * Is called in {@link Renderer2D.Interface}
      */
     public void drawRect(Vector2D pos, Vector2D size, Color color) {
-        if(drawContext == null) return;
+        if (drawContext == null) return;
+        drawContext.getMatrices().translate(0, 0, 0.04);
         drawContext.fill(
                 pos.getXI(),
                 pos.getYI(),
@@ -193,7 +194,8 @@ public class FunctionCompatibility implements FunctionHolder,
     }
 
     public void drawString(String text, Vector2D pos, Color color, boolean shadow) {
-        if(drawContext == null) return;
+        if (drawContext == null) return;
+        drawContext.getMatrices().translate(0, 0, 0.04);
         drawContext.drawText(MinecraftClient.getInstance().textRenderer, text, pos.getXI(), pos.getYI(), color.getRGB(), shadow);
     }
 
@@ -223,8 +225,8 @@ public class FunctionCompatibility implements FunctionHolder,
     public void displayGuiScreen(MPKGuiScreen screen) {
         MinecraftClient.getInstance().setScreen(
                 screen == null
-                ? null
-                : new io.github.kurrycat.mpkmod.compatibility.fabric_1_20.MPKGuiScreen(screen));
+                        ? null
+                        : new io.github.kurrycat.mpkmod.compatibility.fabric_1_20.MPKGuiScreen(screen));
     }
 
     public String getCurrentGuiScreen() {
@@ -241,6 +243,14 @@ public class FunctionCompatibility implements FunctionHolder,
         }
 
         return curr.getClass().getSimpleName();
+    }
+
+    /**
+     * Is called in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.Interface Minecraft.Interface}
+     */
+    public String getUserName() {
+        if(MinecraftClient.getInstance().player == null) return null;
+        return MinecraftClient.getInstance().player.getName().getString();
     }
 
     public List<String> getPressedButtons() {

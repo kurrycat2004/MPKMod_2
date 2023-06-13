@@ -1,5 +1,7 @@
 package io.github.kurrycat.mpkmod.util;
 
+import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
+
 /**
  * 3-dimensional Vector<br>
  * Contains an x, y and z.<br>
@@ -28,7 +30,6 @@ public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
         return this;
     }
 
-    @InfoString.Getter
     public int getXI() {
         return (int) x;
     }
@@ -43,7 +44,6 @@ public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
         return this;
     }
 
-    @InfoString.Getter
     public int getYI() {
         return (int) y;
     }
@@ -58,7 +58,6 @@ public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
         return this;
     }
 
-    @InfoString.Getter
     public int getZI() {
         return (int) z;
     }
@@ -95,8 +94,14 @@ public class Vector3D implements Copyable<Vector3D>, FormatDecimals {
         return Math.sqrt(lengthSqr());
     }
 
+    @InfoString.Getter
     public double lengthXZ() {
         return Math.sqrt(lengthXZSqr());
+    }
+
+    @InfoString.Getter
+    public double angleXZ() {
+        return Math.toDegrees(Math.atan2(x, z));
     }
 
     @Override

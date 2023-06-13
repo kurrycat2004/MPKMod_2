@@ -6,9 +6,10 @@
   "mixins": [
   ],
   "client": [
+    "GameRendererMixin",
+    "KeyBindingAccessor",
     "KeyboardMixin",
-    "MinecraftClientMixin",
-    "GameRendererMixin"
+    "MinecraftClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -9,11 +9,9 @@ dependencies {
 
 compileJava.doLast {
     var classFile = new File("$temporaryDir${File.separator}classes.txt")
-    if (!classFile.exists())
-        classFile.createNewFile()
+    classFile.createNewFile()
 
     classFile.text = sourceSets.main.output.classesDirs.asFileTree
-            .filter { File file -> file.text.contains("@") }
             .files
             .collect {
                 it.getAbsolutePath().substring(

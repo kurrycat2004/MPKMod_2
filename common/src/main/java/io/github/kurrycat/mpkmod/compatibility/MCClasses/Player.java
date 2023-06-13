@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.compatibility.MCClasses;
 
+import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.ticks.ButtonMSList;
@@ -15,21 +16,22 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("unused")
 public class Player {
     public static ArrayList<Player> tickHistory = new ArrayList<>();
     public static int maxSavedTicks = 100;
     @InfoString.AccessInstance
     public static Player displayInstance = new Player();
+
+    @InfoString.Field
+    public PosAndAngle lastLanding = null;
+    @InfoString.Field
+    public PosAndAngle lastHit = null;
+    @InfoString.Field
+    public PosAndAngle lastJump = null;
+
     public TimingInput timingInput = new TimingInput("");
     public KeyInput keyInput = null;
     public ButtonMSList keyMSList = null;
-    @InfoString.Field
-    public Vector3D lastLanding = new Vector3D(0, 0, 0);
-    @InfoString.Field
-    public Vector3D lastHit = new Vector3D(0, 0, 0);
-    @InfoString.Field
-    public Vector3D lastJump = new Vector3D(0, 0, 0);
     private Vector3D pos = null;
     private Vector3D lastPos = null;
     private Float trueYaw = null;
@@ -44,22 +46,6 @@ public class Player {
     private boolean landTick = false;
     private String lastTiming = "None";
     private boolean sprinting = false;
-
-    public static int ticksSince(CheckPlayerFunction f) {
-        if (tickHistory.isEmpty()) return -1;
-        for (int i = 0; i < tickHistory.size(); i++) {
-            if (f.apply(tickHistory.get(tickHistory.size() - i - 1)))
-                return i;
-        }
-        return -1;
-    }
-
-    public static Player findInState(CheckPlayerFunction f) {
-        for (int i = tickHistory.size() - 1; i >= 0; i--) {
-            if (f.apply(tickHistory.get(i))) return tickHistory.get(i);
-        }
-        return null;
-    }
 
     @InfoString.Getter
     public static LandingBlock getLatestLB() {
@@ -92,21 +78,6 @@ public class Player {
 
     public static List<TimingInput> getInputHistory() {
         return tickHistory.stream().map(p -> p.timingInput).collect(Collectors.toList());
-    }
-
-    public static List<String> getInputList() {
-        ArrayList<Tuple<TimingInput, Integer>> inputList = new ArrayList<>();
-        for (TimingInput p : getInputHistory()) {
-            if (inputList.isEmpty())
-                inputList.add(new Tuple<>(p, 1));
-
-            Tuple<TimingInput, Integer> last = inputList.get(inputList.size() - 1);
-            if (last.getFirst().equals(p))
-                last.setSecond(last.getSecond() + 1);
-            else inputList.add(new Tuple<>(p, 1));
-        }
-
-        return inputList.stream().map(t -> t.getSecond() + "*" + t.getFirst().toString()).collect(Collectors.toList());
     }
 
     public static Player getBeforeLatest() {
@@ -157,19 +128,9 @@ public class Player {
         return trueYaw;
     }
 
-    public Player setTrueYaw(Float trueYaw) {
-        this.trueYaw = trueYaw;
-        return this;
-    }
-
     @InfoString.Getter
     public Float getTruePitch() {
         return truePitch;
-    }
-
-    public Player setTruePitch(Float truePitch) {
-        this.truePitch = truePitch;
-        return this;
     }
 
     @InfoString.Getter
@@ -182,25 +143,6 @@ public class Player {
         this.trueYaw = yaw;
         this.truePitch = pitch;
         return this;
-    }
-
-    public Float getPrevYaw() {
-        Player prev = getPrevious();
-        if (prev == null || prev.trueYaw == null) return null;
-        else return MathUtil.wrapDegrees(prev.trueYaw);
-    }
-
-    public Player getPrevious() {
-        if (!tickHistory.contains(this)) return null;
-        int i = tickHistory.indexOf(this);
-        if (i == 0) return null;
-        return tickHistory.get(i - 1);
-    }
-
-    public Float getPrevPitch() {
-        Player prev = getPrevious();
-        if (prev == null || prev.truePitch == null) return null;
-        else return MathUtil.wrapDegrees(prev.truePitch);
     }
 
     @InfoString.Getter
@@ -266,6 +208,7 @@ public class Player {
         return lastTiming;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public Player buildAndSave() {
         Player.savePlayerState(this);
         Player prev = getPrevious();
@@ -277,9 +220,9 @@ public class Player {
             landTick = (!prev.onGround && onGround);
             jumpTick = !onGround && prev.onGround && keyInput.jump;
 
-            lastLanding = landTick ? pos : prev.lastLanding;
-            lastHit = prev.landTick ? pos : prev.lastHit;
-            lastJump = jumpTick ? prev.pos : prev.lastJump;
+            lastLanding = landTick ? new PosAndAngle(pos, trueYaw, truePitch) : prev.lastLanding;
+            lastHit = prev.landTick ? new PosAndAngle(pos, trueYaw, truePitch) : prev.lastHit;
+            lastJump = jumpTick ? new PosAndAngle(prev.pos, prev.trueYaw, prev.truePitch) : prev.lastJump;
 
             deltaYaw = trueYaw - prev.trueYaw;
             deltaPitch = truePitch - prev.truePitch;
@@ -314,6 +257,12 @@ public class Player {
         tickHistory.add(player);
         if (tickHistory.size() > maxSavedTicks)
             tickHistory.remove(0);
+    }
+
+    public Player getPrevious() {
+        int i = tickHistory.indexOf(this);
+        if (i <= 0) return null;
+        return tickHistory.get(i - 1);
     }
 
     public static void updateDisplayInstance() {
@@ -373,9 +322,34 @@ public class Player {
         return this;
     }
 
-    @FunctionalInterface
-    public interface CheckPlayerFunction {
-        boolean apply(Player p);
+    @InfoString.DataClass
+    public static class PosAndAngle implements FormatDecimals {
+        @InfoString.Field
+        public final Vector3D pos;
+        @InfoString.Field
+        public final float yaw;
+        @InfoString.Field
+        public final float pitch;
+
+        public PosAndAngle(Vector3D pos, float yaw, float pitch) {
+            this.pos = pos;
+            this.yaw = yaw;
+            this.pitch = pitch;
+        }
+
+        @Override
+        public String toString() {
+            return "[" + yaw + ", " + pitch + ", " + pos.toString() + "]";
+        }
+
+        @Override
+        public String formatDecimals(int decimals, boolean keepZeros) {
+            return "[" +
+                    MathUtil.formatDecimals(yaw, decimals, keepZeros) + ", " +
+                    MathUtil.formatDecimals(pitch, decimals, keepZeros) + ", " +
+                    pos.formatDecimals(decimals, keepZeros) +
+                    "]";
+        }
     }
 
     public static class KeyInput {

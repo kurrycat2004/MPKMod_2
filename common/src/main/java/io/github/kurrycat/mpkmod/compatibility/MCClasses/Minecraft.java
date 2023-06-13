@@ -3,7 +3,7 @@ package io.github.kurrycat.mpkmod.compatibility.MCClasses;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
-import io.github.kurrycat.mpkmod.util.InfoString;
+import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -31,6 +31,21 @@ public class Minecraft {
             API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get FPS, are you playing on an unsupported minecraft version?");
             return "Error";
         });
+    }
+
+    @InfoString.Getter
+    public static String getMcVersion() {
+        return version;
+    }
+
+    @InfoString.Getter
+    public static String getUsername() {
+        if(!Interface.get().isPresent()) {
+            API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get username, are you playing on an unsupported minecraft version?");
+            return "Error";
+        } else {
+            return Interface.get().get().getUserName();
+        }
     }
 
     public static String getCurrentGuiScreen() {
@@ -92,5 +107,7 @@ public class Minecraft {
         void displayGuiScreen(MPKGuiScreen screen);
 
         String getCurrentGuiScreen();
+
+        String getUserName();
     }
 }

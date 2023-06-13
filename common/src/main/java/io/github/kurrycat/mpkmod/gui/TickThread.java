@@ -25,6 +25,7 @@ public class TickThread implements Runnable {
 
     @Override
     public void run() {
+        API.LOGGER.info("Started GuiTickThread");
         while (!Thread.currentThread().isInterrupted()) {
             if (!changed.get()) continue;
 

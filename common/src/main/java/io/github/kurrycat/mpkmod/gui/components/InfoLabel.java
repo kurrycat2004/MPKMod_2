@@ -6,14 +6,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.gui.TickThread;
+import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
+import io.github.kurrycat.mpkmod.gui.infovars.InfoVar;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
+import io.github.kurrycat.mpkmod.util.ArrayListUtil;
 import io.github.kurrycat.mpkmod.util.Colors;
-import io.github.kurrycat.mpkmod.util.InfoString;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class InfoLabel extends Label implements TickThread.Tickable {
@@ -23,7 +27,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
     /**
      * @param text the text to be displayed<br><br>
      *             <code>"{COLOR}"</code> with COLOR being any <code>{@link Colors}.name</code> will be replaced by that color's code<br><br>
-     *             <code>"{VARNAME}"</code> with VARNAME being any key in {@link API#infoMap}<br>
+     *             <code>"{VARNAME}"</code> with VARNAME being any key in {@link API#infoTree}<br>
      */
     @JsonCreator
     public InfoLabel(@JsonProperty("text") String text) {
@@ -46,13 +50,13 @@ public class InfoLabel extends Label implements TickThread.Tickable {
         return formattedText;
     }
 
-    @JsonIgnore
-    public Vector2D getSizeForJson() {
+    @Override
+    public Vector2D getDisplayedSize() {
         return FontRenderer.getStringSize(getFormattedText());
     }
 
-    @Override
-    public Vector2D getDisplayedSize() {
+    @JsonIgnore
+    public Vector2D getSizeForJson() {
         return FontRenderer.getStringSize(getFormattedText());
     }
 
@@ -79,15 +83,24 @@ public class InfoLabel extends Label implements TickThread.Tickable {
         return menu;
     }
 
-    private static class InfoLabelVariableList extends ScrollableList<InfoLabelVariableListItem> {
-        private final List<InfoLabelVariableListItem> allItems;
+    private static class InfoVarList extends ScrollableList<InfoVarListItem> {
+        private final List<InfoVarListItem> allItems;
 
-        public InfoLabelVariableList(Vector2D pos, Vector2D size) {
+        public InfoVarList(Vector2D pos, Vector2D size) {
             this.setPos(pos);
             this.setSize(size);
             title = "Variables";
-            allItems = API.infoVars.stream().map(s -> new InfoLabelVariableListItem(this, s)).collect(Collectors.toList());
+            allItems = API.infoTree.getEntries().stream()
+                    .map(entry ->
+                            new InfoVarListItem(this, entry.getValue())
+                    ).collect(Collectors.toList());
             updateSearchFilter("");
+        }
+
+        public void updateSearchFilter(String searchString) {
+            items = allItems.stream()
+                    .filter(i -> i.containsSearchString(searchString))
+                    .collect(Collectors.toList());
         }
 
         @Override
@@ -95,29 +108,148 @@ public class InfoLabel extends Label implements TickThread.Tickable {
             super.render(mouse);
             renderComponents(mouse);
         }
-
-        public void updateSearchFilter(String searchString) {
-            items = allItems.stream().filter(i -> i.varName.toLowerCase().contains(searchString.toLowerCase())).collect(Collectors.toList());
-        }
     }
 
-    private static class InfoLabelVariableListItem extends ScrollableListItem<InfoLabelVariableListItem> {
+    private static class InfoVarListItem extends ScrollableListItem<InfoVarListItem> {
+        public static final int HEIGHT = 18;
         private final String varName;
+        private final InfoVarComponent infoVarComponent;
 
-        public InfoLabelVariableListItem(ScrollableList<InfoLabelVariableListItem> parent, String varName) {
+        public InfoVarListItem(ScrollableList<InfoVarListItem> parent, InfoVar infoVar) {
             super(parent);
             this.setHeight(18);
-            this.varName = varName;
+            this.varName = infoVar.getName();
+            this.infoVarComponent = new InfoVarComponent(infoVar);
+            infoVarComponent.setSize(new Vector2D(1, -HEIGHT));
+            passPositionTo(infoVarComponent, PERCENT.SIZE_X);
+        }
+
+        @Override
+        public int getHeight() {
+            return infoVarComponent.collapsed ? HEIGHT : infoVarComponent.getHeight();
         }
 
         @Override
         public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
-            renderDefaultBorder(pos, size);
-            FontRenderer.drawLeftCenteredString(varName,
-                    new Vector2D(pos.getX() + 5, pos.getY() + size.getY() / 2D),
-                    Color.WHITE,
-                    false
+            //renderDefaultBorder(pos, size);
+            infoVarComponent.render(mouse);
+        }
+
+        @Override
+        public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
+            return infoVarComponent.handleMouseInput(state, mousePos, button) ||
+                    super.handleMouseInput(state, mousePos, button);
+        }
+
+        public boolean containsSearchString(String searchString) {
+            return infoVarComponent.searchAndOpenString(searchString);
+        }
+    }
+
+    private static class InfoVarComponent extends Component implements MouseInputListener {
+        private final InfoVar infoVar;
+        private final ArrayList<InfoVarComponent> children = new ArrayList<>();
+        private final Button collapseButton;
+        private final boolean showCollapseButton;
+        public boolean collapsed = true;
+        private InfoVarComponent parent = null;
+
+        public InfoVarComponent(InfoVar infoVar) {
+            this.infoVar = infoVar;
+            double[] i = {InfoVarListItem.HEIGHT};
+            infoVar.getEntries().stream()
+                    .map(entry -> new InfoVarComponent(entry.getValue()))
+                    .forEach(c -> {
+                        c.parent = this;
+                        c.setSize(new Vector2D(-4, InfoVarListItem.HEIGHT));
+                        c.setPos(new Vector2D(2, i[0] + 2));
+                        i[0] += c.getHeight();
+                        passPositionTo(c, PERCENT.NONE, Anchor.TOP_RIGHT);
+                        children.add(c);
+                    });
+
+            showCollapseButton = children.size() > 0;
+
+            TextRectangle text = new TextRectangle(
+                    Vector2D.ZERO,
+                    new Vector2D(1, InfoVarListItem.HEIGHT),
+                    infoVar.getName(),
+                    new Color(0, 0, 0, 0),
+                    Color.WHITE
             );
+            text.edgeColor = ScrollableListItem.defaultEdgeColor;
+            text.leftAligned = true;
+            addChild(text, PERCENT.SIZE_X);
+
+            Div buttonHolder = new Div();
+            buttonHolder.setSize(new Vector2D(1, InfoVarListItem.HEIGHT));
+            passPositionTo(buttonHolder, PERCENT.SIZE_X);
+
+            collapseButton = new Button("v", new Vector2D(1, 0), new Vector2D(11, 11));
+            collapseButton.setButtonCallback(mouseButton -> {
+                if (mouseButton != Mouse.Button.LEFT) return;
+                setCollapsed(!collapsed);
+            });
+            buttonHolder.passPositionTo(collapseButton, PERCENT.NONE, Anchor.CENTER_RIGHT);
+            components.add(collapseButton);
+        }
+
+        private void setCollapsed(boolean collapsed) {
+            if (collapsed == this.collapsed) return;
+            this.collapsed = collapsed;
+            collapseButton.setText(collapsed ? "v" : "^");
+            collapseButton.textOffset = collapsed ? Vector2D.ZERO : new Vector2D(0, 3);
+
+            if (parent != null) parent.updateChildPositions();
+
+            if (collapsed)
+                for (InfoVarComponent c : children) c.setCollapsed(true);
+        }
+
+        public boolean searchAndOpenString(String searchString) {
+            if (Objects.equals(searchString, "")) setCollapsed(true);
+            if (infoVar.getName().toLowerCase().contains(searchString.toLowerCase()))
+                return true;
+
+            boolean result = false;
+            for (InfoVarComponent c : children) {
+                if (c.searchAndOpenString(searchString)) result = true;
+            }
+            setCollapsed(!result);
+            return result;
+        }
+
+        private void updateChildPositions() {
+            double[] i = {InfoVarListItem.HEIGHT};
+            children.forEach(c -> {
+                c.setPos(new Vector2D(2, i[0] + 2));
+                i[0] += c.getHeight();
+            });
+        }
+
+        @Override
+        public void render(Vector2D mouse) {
+            for (Component c : components) {
+                if (!showCollapseButton && c == collapseButton) continue;
+                c.render(mouse);
+            }
+
+            if (!collapsed) {
+                children.forEach(c -> c.render(mouse));
+            }
+        }
+
+        public int getHeight() {
+            return InfoVarListItem.HEIGHT +
+                    (collapsed ? 0 : children.stream()
+                            .map(InfoVarComponent::getHeight)
+                            .reduce(0, Integer::sum) + 4);
+        }
+
+        @Override
+        public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
+            return showCollapseButton && collapseButton.handleMouseInput(state, mousePos, button) ||
+                    ArrayListUtil.orMap(children, c -> c.handleMouseInput(state, mousePos, button));
         }
     }
 
@@ -149,7 +281,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
             addChild(colors);
 
 
-            InfoLabelVariableList vl = new InfoLabelVariableList(new Vector2D(0, 20), new Vector2D(2 / 9D, -50));
+            InfoVarList vl = new InfoVarList(new Vector2D(0, 20), new Vector2D(2 / 9D, -50));
             vl.setAbsolute(true);
             addChild(vl, PERCENT.SIZE_X, Anchor.TOP_RIGHT);
 

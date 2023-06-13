@@ -3,6 +3,7 @@ package io.github.kurrycat.mpkmod.util;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 @InfoString.DataClass
@@ -39,13 +40,11 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
         return this;
     }
 
-    @InfoString.Getter
     @JsonIgnore
     public float getXF() {
         return (float) x;
     }
 
-    @InfoString.Getter
     @JsonIgnore
     public int getXI() {
         return (int) x;
@@ -63,13 +62,11 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
         return this;
     }
 
-    @InfoString.Getter
     @JsonIgnore
     public float getYF() {
         return (float) y;
     }
 
-    @InfoString.Getter
     @JsonIgnore
     public int getYI() {
         return (int) y;

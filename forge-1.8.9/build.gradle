@@ -9,7 +9,7 @@ unimined {
 }
 
 minecraft {
-    clientWorkingDirectory = project.file('../run')
+    clientWorkingDirectory = project.file('../runs/run_1_8_9')
 
     forge {
         mcpVersion = '22-1.8.9'

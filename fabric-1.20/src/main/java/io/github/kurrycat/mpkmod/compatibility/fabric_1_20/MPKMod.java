@@ -18,7 +18,6 @@ import java.util.Map;
 
 public class MPKMod implements ModInitializer {
 	public static Map<String, net.minecraft.client.option.KeyBinding> keyBindingMap = new HashMap<>();
-	public static final Logger LOGGER = LoggerFactory.getLogger("MPKMod");
 	public static final MPKMod INSTANCE = new MPKMod();
 	public final EventHandler eventHandler = new EventHandler();
 	public MatrixStack matrixStack;
@@ -27,7 +26,7 @@ public class MPKMod implements ModInitializer {
 	public void onInitialize() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
-		LOGGER.info("Loading " + API.NAME + " " + API.VERSION);
+		API.LOGGER.info("Loading " + API.NAME + " " + API.VERSION);
 		API.preInit(getClass());
 		registerKeybindingsFromGUIs();
 

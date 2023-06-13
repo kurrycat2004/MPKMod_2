@@ -3,6 +3,7 @@ package io.github.kurrycat.mpkmod.compatibility.fabric_1_19_4;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
+import io.github.kurrycat.mpkmod.compatibility.fabric_1_19_4.mixin.KeyBindingAccessor;
 import io.github.kurrycat.mpkmod.ticks.ButtonMS;
 import io.github.kurrycat.mpkmod.ticks.ButtonMSList;
 import io.github.kurrycat.mpkmod.util.Vector3D;
@@ -31,13 +32,13 @@ public class EventHandler {
         InputUtil.Key inputKey = InputUtil.fromKeyCode(key, scanCode);
 
         int[] keys = {
-                options.forwardKey.boundKey.getCode(),
-                options.leftKey.boundKey.getCode(),
-                options.backKey.boundKey.getCode(),
-                options.rightKey.boundKey.getCode(),
-                options.sprintKey.boundKey.getCode(),
-                options.sneakKey.boundKey.getCode(),
-                options.jumpKey.boundKey.getCode()
+                ((KeyBindingAccessor) options.forwardKey).getBoundKey().getCode(),
+                ((KeyBindingAccessor) options.leftKey).getBoundKey().getCode(),
+                ((KeyBindingAccessor) options.backKey).getBoundKey().getCode(),
+                ((KeyBindingAccessor) options.rightKey).getBoundKey().getCode(),
+                ((KeyBindingAccessor) options.sprintKey).getBoundKey().getCode(),
+                ((KeyBindingAccessor) options.sneakKey).getBoundKey().getCode(),
+                ((KeyBindingAccessor) options.jumpKey).getBoundKey().getCode()
         };
 
         for (int i = 0; i < keys.length; i++) {
@@ -68,16 +69,18 @@ public class EventHandler {
         });
     }
 
-    public void onInGameOverlayRender(MatrixStack matrices, float tickDelta) {
-        MPKMod.INSTANCE.matrixStack = matrices;
+    public void onInGameOverlayRender(MatrixStack matrixStack, float tickDelta) {
+        matrixStack.push();
+        API.<FunctionCompatibility>getFunctionHolder().matrixStack = matrixStack;
         API.Events.onRenderOverlay();
+        matrixStack.pop();
     }
 
     public void onRenderWorldOverlay(MatrixStack matrixStack, float tickDelta) {
-        MPKMod.INSTANCE.matrixStack = matrixStack;
         matrixStack.push();
+        API.<FunctionCompatibility>getFunctionHolder().matrixStack = matrixStack;
         Vec3d pos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
-        MPKMod.INSTANCE.matrixStack.translate(-pos.x, -pos.y, -pos.z);
+        matrixStack.translate(-pos.x, -pos.y, -pos.z);
         API.Events.onRenderWorldOverlay(tickDelta);
         matrixStack.pop();
     }

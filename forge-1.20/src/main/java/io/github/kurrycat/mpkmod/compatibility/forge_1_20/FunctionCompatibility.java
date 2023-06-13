@@ -173,6 +173,8 @@ public class FunctionCompatibility implements FunctionHolder,
      */
     public void drawRect(Vector2D pos, Vector2D size, Color color) {
         if(guiGraphics == null) return;
+        //0.04 because drawString SHADOW_OFFSET is 0.03
+        guiGraphics.pose().translate(0,0,0.04);
         guiGraphics.fill(
                 pos.getXI(),
                 pos.getYI(),
@@ -198,6 +200,8 @@ public class FunctionCompatibility implements FunctionHolder,
      */
     public void drawString(String text, Vector2D pos, Color color, boolean shadow) {
         if(guiGraphics == null) return;
+        //0.04 because drawString SHADOW_OFFSET is 0.03
+        guiGraphics.pose().translate(0,0,0.04);
         guiGraphics.drawString(Minecraft.getInstance().font, text, pos.getXF(), pos.getYF(), color.getRGB(), shadow);
     }
 
@@ -250,6 +254,13 @@ public class FunctionCompatibility implements FunctionHolder,
         return curr.getClass().getSimpleName();
     }
 
+    /**
+     * Is called in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.Interface Minecraft.Interface}
+     */
+    public String getUserName() {
+        if(Minecraft.getInstance().player == null) return null;
+        return Minecraft.getInstance().player.getName().getString();
+    }
 
     /**
      * Is called in {@link Keyboard.Interface Keyboard.Interface}

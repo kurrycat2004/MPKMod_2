@@ -1,56 +1,21 @@
 plugins {
-	id 'xyz.wagyourtail.unimined' version '1.0.0-SNAPSHOT'
+    id 'fabric-loom' version '1.2-SNAPSHOT'
 }
 
-// debug, puts some things in build/unimined instead of ~/.gradle/caches/unimined
-unimined.useGlobalCache = false
-
-// when targetting main the first arg is optional
-// unimined.minecraft {
-unimined.minecraft(sourceSets.main) {
-	version "1.20"
-
-	/*clientWorkingDirectory = project.file('../run')*/
-
-	mappings {
-		/* helper declarations - intermediary/searge are auto added by fabric/forge */
-
-		// intermediary()
-		// searge()
-		// mojmap()
-		// retroMCP()
-		yarn(1)
-		// parchment("1.19.3", "2022.12.18")
-		// mcp("stable", "39+1.12")
-	}
-
-    fabric {
-        accessWidener = file("src/main/resources/mpkmod.accesswidener")
-        loader "net.fabricmc:fabric-loader:${project.loader_version}"
-    }
-
-	minecraftRemapper.config {
-		ignoreFieldDesc(true)
-		ignoreConflicts(true)
-	}
-
-	runs {
-		config("client") {
-			workingDir = rootProject.file('run')
-		}
-	}
-}
-
+loom.runs.client.runDir = "../runs/run"
 
 dependencies {
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
 processResources {
-	inputs.property "version", project.version
+    inputs.property "version", project.version
 
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
-	}
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
 }
