@@ -225,6 +225,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
                 c.setPos(new Vector2D(2, i[0] + 2));
                 i[0] += c.getHeight();
             });
+            if(parent != null) parent.updateChildPositions();
         }
 
         @Override

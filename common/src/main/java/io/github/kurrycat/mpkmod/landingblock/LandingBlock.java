@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class LandingBlock {
     public static final int MAX_OFFSETS_SAVED = 500;
     public LandingMode landingMode = LandingMode.LAND;
+    @InfoString.Field
     public BoundingBox3D boundingBox;
     public boolean enabled = true;
     public boolean highlight = false;

@@ -1,6 +1,9 @@
 package io.github.kurrycat.mpkmod.util;
 
-public class BoundingBox3D {
+import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
+
+@InfoString.DataClass
+public class BoundingBox3D implements FormatDecimals {
     public static final BoundingBox3D ZERO = new BoundingBox3D(Vector3D.ZERO, Vector3D.ZERO);
     private Vector3D min, max;
 
@@ -24,48 +27,9 @@ public class BoundingBox3D {
         );
     }
 
-    public Vector3D getMin() {
-        return min;
-    }
-
-    public Vector3D getMax() {
-        return max;
-    }
-
-    public double minX() {
-        return min.getX();
-    }
-
-    public double maxX() {
-        return max.getX();
-    }
-
-    public double midX() {
-        return (minX() + maxX()) / 2D;
-    }
-
-    public double minY() {
-        return min.getY();
-    }
-
-    public double maxY() {
-        return max.getY();
-    }
-
-    public double midY() {
-        return (minY() + maxY()) / 2D;
-    }
-
-    public double minZ() {
-        return min.getZ();
-    }
-
-    public double maxZ() {
-        return max.getZ();
-    }
-
-    public double midZ() {
-        return (minZ() + maxZ()) / 2D;
+    @InfoString.Getter
+    public Vector3D getSize() {
+        return max.sub(min);
     }
 
     public BoundingBox3D setMinX(double minX) {
@@ -105,6 +69,22 @@ public class BoundingBox3D {
                 other.minZ() <= this.maxZ();
     }
 
+    public double maxX() {
+        return max.getX();
+    }
+
+    public double minX() {
+        return min.getX();
+    }
+
+    public double maxZ() {
+        return max.getZ();
+    }
+
+    public double minZ() {
+        return min.getZ();
+    }
+
     public Vector3D distanceTo(BoundingBox3D other) {
         return new Vector3D(
                 this.midX() > other.midX() ? this.minX() - other.maxX() : other.minX() - this.maxX(),
@@ -113,20 +93,31 @@ public class BoundingBox3D {
         );
     }
 
+    public double midX() {
+        return (minX() + maxX()) / 2D;
+    }
+
+    public double midY() {
+        return (minY() + maxY()) / 2D;
+    }
+
+    public double minY() {
+        return min.getY();
+    }
+
+    public double maxY() {
+        return max.getY();
+    }
+
+    public double midZ() {
+        return (minZ() + maxZ()) / 2D;
+    }
+
     public BoundingBox3D expand(double amount) {
         return new BoundingBox3D(
                 this.min.sub(amount),
                 this.max.add(amount)
         );
-    }
-
-    @Override
-    public String toString() {
-        return "BoundingBox3D{" + min + " - " + max + "}";
-    }
-
-    public String toDisplayString() {
-        return min + " - " + max;
     }
 
     @Override
@@ -139,11 +130,31 @@ public class BoundingBox3D {
         return obj instanceof BoundingBox3D && this.min.equals(((BoundingBox3D) obj).min) && this.max.equals(((BoundingBox3D) obj).max);
     }
 
-    public BoundingBox3D move(double x, double y, double z) {
-        return new BoundingBox3D(getMin().add(x, y, z), getMax().add(x, y, z));
+    @Override
+    public String toString() {
+        return "BoundingBox3D{" + min + " - " + max + "}";
     }
 
     public BoundingBox3D move(Vector3D v) {
         return move(v.getX(), v.getY(), v.getZ());
+    }
+
+    public BoundingBox3D move(double x, double y, double z) {
+        return new BoundingBox3D(getMin().add(x, y, z), getMax().add(x, y, z));
+    }
+
+    @InfoString.Getter
+    public Vector3D getMin() {
+        return min;
+    }
+
+    @InfoString.Getter
+    public Vector3D getMax() {
+        return max;
+    }
+
+    @Override
+    public String formatDecimals(int decimals, boolean keepZeros) {
+        return "[" + min.formatDecimals(decimals, keepZeros) + " - " + max.formatDecimals(decimals, keepZeros) + "]";
     }
 }
