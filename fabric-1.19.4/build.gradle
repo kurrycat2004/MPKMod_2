@@ -2,8 +2,7 @@ plugins {
 	id 'fabric-loom' version '1.2-SNAPSHOT'
 }
 
-loom.runs.client.runDir = "../run"
-loom.accessWidenerPath = file("src/main/resources/mpkmod.accesswidener")
+loom.runs.client.runDir = "../runs/run"
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -20,10 +19,3 @@ processResources {
 		expand "version": project.version
 	}
 }
-
-/*remapJar {
-	inputFile.set jar.archiveFile
-	destinationDirectory = rootProject.buildDir
-	dependsOn jar
-	archiveFileName = jar.archiveFileName
-}*/

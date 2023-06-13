@@ -142,7 +142,6 @@ public class API {
             discordRpcInitialized = false;
         }
         TickThread.startThread();
-        API.LOGGER.info(API.DISCORD_RPC_MARKER, "Started GuiTickThread");
 
         EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> tickTime++));
         EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> {
