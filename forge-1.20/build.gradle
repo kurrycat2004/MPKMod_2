@@ -41,10 +41,3 @@ processResources {
         expand "version": project.version
     }
 }
-
-/*remapJar {
-    dependsOn jar
-    inputFile = jar.archiveFile
-    destinationDirectory = rootProject.buildDir
-    archiveFileName = jar.archiveFileName
-}*/

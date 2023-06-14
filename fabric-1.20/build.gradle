@@ -1,14 +1,38 @@
 plugins {
-    id 'fabric-loom' version '1.2-SNAPSHOT'
+    id 'xyz.wagyourtail.unimined' version '1.0.0-SNAPSHOT'
 }
 
-loom.runs.client.runDir = "../runs/run"
+// debug, puts some things in build/unimined instead of ~/.gradle/caches/unimined
+unimined.useGlobalCache = false
+
+// when targetting main the first arg is optional
+// unimined.minecraft {
+unimined.minecraft(sourceSets.main) {
+    version "1.20"
+
+    mappings {
+        yarn(1)
+    }
+
+    fabric {
+        loader "net.fabricmc:fabric-loader:${project.loader_version}"
+    }
+
+    minecraftRemapper.config {
+        ignoreFieldDesc(true)
+        ignoreConflicts(true)
+    }
+
+    runs {
+        config("client") {
+            workingDir = rootProject.file('runs/run')
+        }
+    }
+}
+
 
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
