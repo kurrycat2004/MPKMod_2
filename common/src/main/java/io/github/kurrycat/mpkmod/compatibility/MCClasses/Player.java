@@ -327,14 +327,20 @@ public class Player {
         @InfoString.Field
         public final Vector3D pos;
         @InfoString.Field
+        public final float trueYaw;
+        @InfoString.Field
+        public final float truePitch;
+        @InfoString.Field
         public final float yaw;
         @InfoString.Field
         public final float pitch;
 
-        public PosAndAngle(Vector3D pos, float yaw, float pitch) {
+        public PosAndAngle(Vector3D pos, float trueYaw, float truePitch) {
             this.pos = pos;
-            this.yaw = yaw;
-            this.pitch = pitch;
+            this.trueYaw = trueYaw;
+            this.truePitch = truePitch;
+            this.yaw = MathUtil.wrapDegrees(trueYaw);
+            this.pitch = MathUtil.wrapDegrees(truePitch);
         }
 
         @Override
