@@ -230,7 +230,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Last Land X: {reset}{lastLanding.x,5}",
+  "text" : "{gold}Last Land X: {reset}{lastLanding.pos.x,5}",
   "pos" : {
     "x" : 5.0,
     "y" : 138.0
@@ -239,7 +239,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Last Land Y: {reset}{lastLanding.y,5}",
+  "text" : "{gold}Last Land Y: {reset}{lastLanding.pos.y,5}",
   "pos" : {
     "x" : 5.0,
     "y" : 148.0
@@ -248,7 +248,7 @@
   "selectedColor" : "#64FFAA00"
 }, {
   "@class" : "io.github.kurrycat.mpkmod.gui.components.InfoLabel",
-  "text" : "{gold}Last Land Z: {reset}{lastLanding.z,5}",
+  "text" : "{gold}Last Land Z: {reset}{lastLanding.pos.z,5}",
   "pos" : {
     "x" : 5.0,
     "y" : 158.0
