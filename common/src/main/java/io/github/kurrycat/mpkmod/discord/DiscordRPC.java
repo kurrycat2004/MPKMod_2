@@ -88,7 +88,7 @@ public class DiscordRPC {
     private static void createCore() {
         try (CreateParams params = new CreateParams()) {
             params.setClientID(CLIENT_ID);
-            params.setFlags(CreateParams.getDefaultFlags());
+            params.setFlags(CreateParams.Flags.NO_REQUIRE_DISCORD);
 
             try {
                 core = new Core(params);
