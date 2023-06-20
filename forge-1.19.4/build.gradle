@@ -4,12 +4,11 @@ plugins {
 
 unimined {
     // debug, puts some things in build/unimined instead of ~/.gradle/caches/unimined
-    // I reccomend you leave this on until unimined is stable
     useGlobalCache = false
 }
 
 minecraft {
-    clientWorkingDirectory = project.file('../run')
+    clientWorkingDirectory = project.file('../runs/run')
     forge {
     }
 

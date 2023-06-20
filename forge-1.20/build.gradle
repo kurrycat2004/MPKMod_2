@@ -9,7 +9,7 @@ unimined {
 }
 
 minecraft {
-    clientWorkingDirectory = project.file('../run')
+    clientWorkingDirectory = project.file('../runs/run')
     forge {
     }
 
