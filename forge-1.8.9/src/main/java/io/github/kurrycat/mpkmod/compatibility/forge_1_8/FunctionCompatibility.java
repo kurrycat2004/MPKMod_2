@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
@@ -67,7 +68,7 @@ public class FunctionCompatibility implements FunctionHolder,
      * Is called in {@link WorldInteraction.Interface}
      */
     public Vector3D getLookingAt() {
-        BlockPos blockPos = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
+        BlockPos blockPos = Minecraft.getMinecraft().thePlayer.rayTrace(20, 0).getBlockPos();
         if (blockPos == null) return null;
         return new Vector3D(blockPos.getX(), blockPos.getY(), blockPos.getZ());
     }
