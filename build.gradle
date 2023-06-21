@@ -1,13 +1,13 @@
-/*subprojects {
+configure(
+        subprojects.findAll {
+            it.parent == rootProject && !it.name.startsWith("modules")
+        }
+) {
     apply plugin: 'java'
-}*/
 
-subprojects {
-    apply plugin: 'java'
-
-    group = project(":common").$group
-    version = project(":common").$version
-    archivesBaseName = project(":common").$modBaseName
+    group = $group
+    version = $version
+    archivesBaseName = $modBaseName
 
     configurations {
         library
@@ -50,12 +50,12 @@ subprojects {
     jar {
         manifest {
             attributes([
-                    "Specification-Title"     : project(":common").$modBaseName,
-                    "Specification-Vendor"    : project(":common").$vendor,
+                    "Specification-Title"     : $modBaseName,
+                    "Specification-Vendor"    : $vendor,
                     "Specification-Version"   : "1", // We are version 1 of ourselves
-                    "Implementation-Title"    : project(":common").$modBaseName,
-                    "Implementation-Version"  : project(":common").$version,
-                    "Implementation-Vendor"   : project(":common").$vendor,
+                    "Implementation-Title"    : $modBaseName,
+                    "Implementation-Version"  : $version,
+                    "Implementation-Vendor"   : $vendor,
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
             ])
         }
@@ -104,7 +104,7 @@ subprojects {
 
             remapJar {
                 inputFile.set project.jar.archiveFile
-                destinationDirectory = rootProject.buildDir
+                destinationDirectory = file("${rootProject.buildDir}/libs")
                 dependsOn project.jar
                 archiveFileName = project.jar.archiveFileName
             }
@@ -140,7 +140,6 @@ subprojects {
                     }
                 }
             }
-
         }
     }
 }

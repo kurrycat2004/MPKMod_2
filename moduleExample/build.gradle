@@ -1,0 +1,63 @@
+import groovy.json.JsonBuilder
+
+plugins {
+    id 'java'
+}
+
+group = $group
+version = $version
+archivesBaseName = $moduleName
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    // Use this if you also have the mpkmod repo locally and don't want to use the github version of the mpkmod common lib
+    // Requires you to run "./gradlew build publishToMaven" (set env variable JITPACK=true to only build common)
+    mavenLocal()
+
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    compileOnly 'org.apache.logging.log4j:log4j-api:2.0-beta9'
+    compileOnly 'org.apache.logging.log4j:log4j-core:2.0-beta9'
+
+    implementation 'com.github.kurrycat2004:mpkmod-api:1.0'
+}
+
+//ill maybe make a gradle plugin for this but for now this works
+jar {
+    var config = file("$temporaryDir/mpkmodule.config.json")
+    var jsonBuilder = new JsonBuilder()
+
+    jsonBuilder {
+        moduleName $moduleName
+        mainClass $mainClass
+    }
+
+    config.text = jsonBuilder.toPrettyString()
+    from config
+
+    destinationDirectory = file("${buildDir}/libs")
+}
+
+// simple builds and copies the module to the specified path
+// you can just save the path by specifying it in the task run configuration in your IDE
+tasks.register("buildAndMove") {
+    dependsOn build
+    doLast {
+        if (!project.hasProperty("dir")) {
+            println "Argument -Pdir missing, please provide Minecraft mods folder path"
+        } else {
+            copy {
+                from "${buildDir}/libs"
+                into file(dir)
+            }
+        }
+    }
+}

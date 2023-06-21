@@ -1,4 +1,6 @@
-group = $jitpackGroup
+apply plugin: 'maven-publish'
+
+group = $group
 version = $version
 archivesBaseName = $commonBaseName
 
@@ -20,4 +22,15 @@ compileJava.doLast {
                 )
                         .replaceAll("[/\\\\]", ".")
             }.join(";")
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId $jitpackGroup
+            artifactId $modBaseName + "-api"
+            version $apiVersion
+            from components.java
+        }
+    }
 }

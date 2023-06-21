@@ -1,20 +1,21 @@
 package io.github.kurrycat.mpkmod.compatibility;
 
+import io.github.kurrycat.mpkmod.Main;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
-import io.github.kurrycat.mpkmod.gui.TickThread;
-import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoTree;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
-import io.github.kurrycat.mpkmod.gui.screens.main_gui.LabelConfiguration;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
+import io.github.kurrycat.mpkmod.modules.MPKModule;
+import io.github.kurrycat.mpkmod.modules.ModuleFinder;
+import io.github.kurrycat.mpkmod.modules.ModuleManager;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.ticks.TimingStorage;
 import io.github.kurrycat.mpkmod.util.*;
@@ -23,7 +24,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
-import java.awt.*;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -52,10 +52,10 @@ public class API {
     public static Map<String, MPKGuiScreen> guiScreenMap = new HashMap<>();
     public static Map<String, Procedure> keyBindingMap = new HashMap<>();
 
-    public static boolean discordRpcInitialized = false;
     public static HashMap<String, Option> optionsMap;
     public static InfoTree infoTree;
     private static FunctionHolder functionHolder;
+
     /*@Option.Field
     public static String testOption = "String Option";*/
 
@@ -129,123 +129,11 @@ public class API {
 
         gameStartedInstant = Instant.now();
 
-        LabelConfiguration.init();
-        EventAPI.init();
+        MPKModule mainModule = new Main();
+        mainModule.init();
 
-        API.LOGGER.info(API.DISCORD_RPC_MARKER, "Starting DiscordRPC...");
-        try {
-            DiscordRPC.init();
-            discordRpcInitialized = true;
-        } catch (Exception e) {
-            API.LOGGER.error(API.DISCORD_RPC_MARKER, "Unexpected exception while initializing DiscordRPC:");
-            e.printStackTrace();
-            discordRpcInitialized = false;
-        }
-        TickThread.startThread();
-
-        EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> tickTime++));
-        EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> {
-            TickThread.setTickables(
-                    ArrayListUtil.getAllOfType(TickThread.Tickable.class, mainGUI.movableComponents)
-            );
-        }));
-
-        EventAPI.addListener(
-                EventAPI.EventListener.onRenderOverlay(
-                        e -> {
-                            Profiler.startSection("components");
-                            if (mainGUI != null) {
-                                mainGUI.setSize(Renderer2D.getScaledSize());
-                                for (Component c : mainGUI.movableComponents) {
-                                    Profiler.startSection(c.getClass().getSimpleName());
-                                    c.render(new Vector2D(-1, -1));
-                                    Profiler.endSection();
-                                }
-                            }
-                            Profiler.endSection();
-                        }
-                )
-        );
-
-        EventAPI.addListener(
-                new EventAPI.EventListener<OnRenderWorldOverlayEvent>(
-                        e -> {
-                            Profiler.startSection("renderLBOverlays");
-                            LandingBlockGuiScreen.lbs.forEach(lb -> {
-                                        if (lb.enabled || lb.highlight && lb.boundingBox != null)
-                                            Renderer3D.drawBox(
-                                                    lb.boundingBox.expand(0.005D),
-                                                    lb.highlight ?
-                                                            new Color(98, 255, 74, 157) :
-                                                            new Color(255, 68, 68, 157),
-                                                    e.partialTicks
-                                            );
-                                    }
-                            );
-                            Profiler.endSection();
-                        },
-                        Event.EventType.RENDER_WORLD_OVERLAY
-                )
-        );
-
-        EventAPI.addListener(
-                EventAPI.EventListener.onTickEnd(
-                        e -> {
-                            Profiler.startSection("calculateLBOffsets");
-                            LandingBlockGuiScreen.calculateLBOffsets()
-                                    .forEach(offset -> {
-                                        if (mainGUI != null)
-                                            mainGUI.postMessage(
-                                                    "offset",
-                                                    MathUtil.formatDecimals(offset.getX(), 5, false) +
-                                                            ", " + MathUtil.formatDecimals(offset.getZ(), 5, false),
-                                                    offset.getX() > 0 && offset.getZ() > 0
-                                            );
-                                    });
-                            Profiler.endSection();
-                        }
-                )
-        );
-
-        /*EventAPI.addListener(
-                EventAPI.EventListener.onTickEnd(
-                        e -> {
-                            Player p = Player.getLatest();
-                            if (p != null)
-                                System.out.println(p.tickInput);
-                        }
-                )
-        );*/
-
-        /*EventAPI.addListener(
-                EventAPI.EventListener.onTickStart(
-                        e -> {
-                            if (metronome == 0)
-                                SoundManager.playButtonSound();
-
-                            if (metronome == 11) {
-                                metronome = 0;
-                            } else metronome++;
-                        }
-                )
-        );*/
-
-        /*EventAPI.addListener(
-                new EventAPI.EventListener<OnKeyInputEvent>(
-                        e -> {
-                            System.out.println(
-                                    "KeyCode: " + e.keyCode +
-                                            " Key: " + e.key +
-                                            " Pressed: " + e.pressed
-                            );
-
-                            System.out.println(
-                                    Keyboard.getPressedButtons()
-                            );
-                        },
-                        Event.EventType.KEY_INPUT
-                )
-        );*/
+        ModuleFinder.init();
+        ModuleManager.reloadAllModules();
     }
 
     /**
@@ -292,12 +180,12 @@ public class API {
 
         public static void onServerConnect(boolean isLocal) {
             Minecraft.updateWorldState(Event.EventType.SERVER_CONNECT, isLocal);
-            if (discordRpcInitialized) DiscordRPC.updateWorldAndPlayState();
+            if (Main.discordRpcInitialized) DiscordRPC.updateWorldAndPlayState();
         }
 
         public static void onServerDisconnect() {
             Minecraft.updateWorldState(Event.EventType.SERVER_DISCONNECT, false);
-            if (discordRpcInitialized) DiscordRPC.updateWorldAndPlayState();
+            if (Main.discordRpcInitialized) DiscordRPC.updateWorldAndPlayState();
         }
 
         public static void onKeyInput(int keyCode, String key, boolean pressed) {

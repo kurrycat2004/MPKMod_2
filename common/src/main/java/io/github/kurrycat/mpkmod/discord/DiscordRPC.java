@@ -4,6 +4,7 @@ import de.jcm.discordgamesdk.Core;
 import de.jcm.discordgamesdk.CreateParams;
 import de.jcm.discordgamesdk.GameSDKException;
 import de.jcm.discordgamesdk.activity.Activity;
+import io.github.kurrycat.mpkmod.Main;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
@@ -118,7 +119,7 @@ public class DiscordRPC {
 
     private static void updateActivity(String details, String state) {
         if (!LIBRARY_LOADED) return;
-        if (!API.discordRpcInitialized) return;
+        if (!Main.discordRpcInitialized) return;
         if (!discordRPCEnabled) return;
 
         try (Activity activity = new Activity()) {

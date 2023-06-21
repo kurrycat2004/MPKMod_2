@@ -6,6 +6,7 @@ import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -15,6 +16,18 @@ public class ClassUtil {
     public static Class<?> ModClass = null;
 
     private static Set<Class<?>> classes = null;
+    private static File modJarFile = null;
+
+    public static File getJarFile() {
+        if(modJarFile != null) return modJarFile;
+        try {
+            modJarFile = new File(ClassUtil.class.getProtectionDomain().getCodeSource().getLocation()
+                    .toURI());
+        } catch (URISyntaxException e) {
+            API.LOGGER.info("Failed to get mod jar path");
+        }
+        return modJarFile;
+    }
 
     public static <A extends Annotation> List<Tuple<A, Class<?>>> getClassAnnotations(Class<A> annotationClass) {
         return getClassAnnotations(classes(), annotationClass);
