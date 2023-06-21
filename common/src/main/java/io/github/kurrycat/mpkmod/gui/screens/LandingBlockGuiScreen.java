@@ -180,21 +180,25 @@ public class LandingBlockGuiScreen extends ComponentScreen {
             deleteButton.pressedTextColor = Color.RED;
 
             landingModeButton = new Button("", Vector2D.OFFSCREEN, Vector2D.ZERO, mouseButton -> {
-                if (mouseButton == Mouse.Button.LEFT) {
-                    landingBlock.landingMode = landingBlock.landingMode.getNext();
-                } else if (Mouse.Button.RIGHT.equals(mouseButton)) {
-                    switch (landingBlock.landingMode) {
-                        case Z_NEO:
-                            landingBlock.boundingBox.setMinZ(landingBlock.boundingBox.getMin().getZ() + 0.6D);
-                            landingBlock.boundingBox.setMaxZ(landingBlock.boundingBox.getMax().getZ() - 0.6D);
-                            break;
-                        case ENTER:
-                            landingBlock.boundingBox.setMaxX((int) landingBlock.boundingBox.getMin().getX() + 0.7D);
-                            landingBlock.boundingBox.setMaxZ((int) landingBlock.boundingBox.getMin().getZ() + 0.7D);
-                            landingBlock.boundingBox.setMinX((int) landingBlock.boundingBox.getMin().getX() + 0.3D);
-                            landingBlock.boundingBox.setMinZ((int) landingBlock.boundingBox.getMin().getZ() + 0.3D);
-                            break;
-                    }
+                landingBlock.landingMode = landingBlock.landingMode.getNext();
+
+                switch (landingBlock.landingMode) {
+                    case Z_NEO:
+                        landingBlock.boundingBox.setMinZ(landingBlock.boundingBox.getMin().getZ() + 0.6D);
+                        landingBlock.boundingBox.setMaxZ(landingBlock.boundingBox.getMax().getZ() - 0.6D);
+                        break;
+                    case ENTER:
+                        landingBlock.boundingBox.setMaxX((int) landingBlock.boundingBox.getMin().getX() + 0.7D);
+                        landingBlock.boundingBox.setMaxZ((int) landingBlock.boundingBox.getMin().getZ() + 0.7D);
+                        landingBlock.boundingBox.setMinX((int) landingBlock.boundingBox.getMin().getX() + 0.3D);
+                        landingBlock.boundingBox.setMinZ((int) landingBlock.boundingBox.getMin().getZ() + 0.3D);
+                        break;
+                    case LAND:
+                        landingBlock.boundingBox.setMinX(landingBlock.boundingBox.getMin().getX() - 0.3D);
+                        landingBlock.boundingBox.setMaxX(landingBlock.boundingBox.getMax().getX() + 0.3D);
+                        landingBlock.boundingBox.setMinZ(landingBlock.boundingBox.getMin().getZ() - 0.3D);
+                        landingBlock.boundingBox.setMaxZ(landingBlock.boundingBox.getMax().getZ() + 0.3D);
+                        break;
                 }
             });
         }
