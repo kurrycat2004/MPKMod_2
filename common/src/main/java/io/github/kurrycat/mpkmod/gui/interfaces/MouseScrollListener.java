@@ -1,4 +1,4 @@
-package io.github.kurrycat.mpkmod.gui.components;
+package io.github.kurrycat.mpkmod.gui.interfaces;
 
 import io.github.kurrycat.mpkmod.util.Vector2D;
 

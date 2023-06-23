@@ -1,6 +1,10 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.gui.interfaces.HoverComponent;
+import io.github.kurrycat.mpkmod.gui.interfaces.KeyInputListener;
+import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
+import io.github.kurrycat.mpkmod.gui.interfaces.MouseScrollListener;
 import io.github.kurrycat.mpkmod.util.ArrayListUtil;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;

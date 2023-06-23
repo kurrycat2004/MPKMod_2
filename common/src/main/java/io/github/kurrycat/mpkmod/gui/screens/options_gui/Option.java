@@ -277,10 +277,10 @@ public class Option {
 
     public enum ValueType {
         STRING,
-        DOUBLE,
+        DOUBLE, //TODO: OptionListItemDouble
         INTEGER,
         BOOLEAN,
-        COLOR,
+        COLOR, //TODO: OptionListItemColor
     }
 
     /**
