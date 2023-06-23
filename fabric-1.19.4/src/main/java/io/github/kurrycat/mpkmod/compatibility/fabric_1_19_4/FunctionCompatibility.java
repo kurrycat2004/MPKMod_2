@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
+import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.block.BlockState;
@@ -165,6 +166,39 @@ public class FunctionCompatibility implements FunctionHolder,
         builder.vertex(posMat, maxX, maxY, minZ).color(r, g, b, a).next();
         builder.vertex(posMat, maxX, maxY, maxZ).color(r, g, b, a).next();
         builder.vertex(posMat, maxX, minY, maxZ).color(r, g, b, a).next();
+
+        tessellator.draw();
+
+        RenderSystem.enableBlend();
+    }
+
+    /**
+     * Is called in {@link Renderer2D.Interface}
+     */
+    public void drawLines(List<Vector2D> points, Color color) {
+        if (points.size() < 2) {
+            Debug.stacktrace("At least two points expected, got: " + points.size());
+            return;
+        }
+        int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
+
+        matrixStack.translate(0, 0, 0.04);
+        Matrix4f posMat = matrixStack.peek().getPositionMatrix();
+
+        RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder builder = tessellator.getBuffer();
+
+        RenderSystem.lineWidth(1.0f);
+
+        builder.begin(VertexFormat.DrawMode.DEBUG_LINE_STRIP, VertexFormats.POSITION_COLOR);
+
+        for (Vector2D p : points) {
+            builder.vertex(posMat, (float) p.getX(), (float) p.getY(), 0).color(r, g, b, a).next();
+        }
 
         tessellator.draw();
 

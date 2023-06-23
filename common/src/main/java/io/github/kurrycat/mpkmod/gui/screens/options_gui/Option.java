@@ -103,7 +103,7 @@ public class Option {
                 try {
                     m.invoke(m.getDeclaringClass());
                 } catch (IllegalAccessException | InvocationTargetException ignored) {
-                    System.out.println("failed to invoke");
+                    API.LOGGER.debug("Failed to invoke changeListener for option: {} ", fieldName);
                 }
             });
 

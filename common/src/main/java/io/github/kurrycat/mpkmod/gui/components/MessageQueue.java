@@ -36,8 +36,6 @@ public class MessageQueue extends ResizableComponent {
 
     @JsonCreator
     public MessageQueue(@JsonProperty("displayName") String name) {
-        this.setPos(pos);
-        this.setSize(size);
         this.name = name;
         this.setMinSize(new Vector2D(40, 22));
     }
@@ -72,20 +70,6 @@ public class MessageQueue extends ResizableComponent {
     @JsonGetter("displayName")
     public String getName() {
         return this.name;
-    }
-
-    @Override
-    public PopupMenu getPopupMenu() {
-        PopupMenu menu = new PopupMenu();
-        menu.addComponent(
-                new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
-                    if (Mouse.Button.LEFT.equals(mouseButton)) {
-                        menu.paneHolder.removeComponent(this);
-                        menu.paneHolder.closePane(menu);
-                    }
-                })
-        );
-        return menu;
     }
 
     public static class Message {

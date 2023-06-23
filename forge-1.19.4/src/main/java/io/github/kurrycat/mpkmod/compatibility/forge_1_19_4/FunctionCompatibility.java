@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.*;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
+import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.Util;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 
 import java.awt.*;
 import java.util.List;
@@ -161,6 +163,39 @@ public class FunctionCompatibility implements FunctionHolder,
         builder.vertex(bb.maxX(), bb.maxY(), bb.minZ()).color(r, g, b, a).endVertex();
         builder.vertex(bb.maxX(), bb.maxY(), bb.maxZ()).color(r, g, b, a).endVertex();
         builder.vertex(bb.maxX(), bb.minY(), bb.maxZ()).color(r, g, b, a).endVertex();
+
+        tesselator.end();
+
+        RenderSystem.enableBlend();
+    }
+
+    /**
+     * Is called in {@link Renderer2D.Interface}
+     */
+    public void drawLines(List<Vector2D> points, Color color) {
+        if (points.size() < 2) {
+            Debug.stacktrace("At least two points expected, got: " + points.size());
+            return;
+        }
+        int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
+
+        poseStack.translate(0, 0, 0.04);
+        Matrix4f posMat = poseStack.last().pose();
+
+        RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder builder = tesselator.getBuilder();
+
+        RenderSystem.lineWidth(1.0f);
+
+        builder.begin(VertexFormat.Mode.DEBUG_LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+
+        for (Vector2D p : points) {
+            builder.vertex(posMat, (float) p.getX(), (float) p.getY(), 0).color(r, g, b, a).endVertex();
+        }
 
         tesselator.end();
 

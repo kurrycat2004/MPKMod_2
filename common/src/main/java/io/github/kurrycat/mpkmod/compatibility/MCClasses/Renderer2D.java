@@ -4,6 +4,8 @@ import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class Renderer2D {
@@ -82,12 +84,23 @@ public class Renderer2D {
         return Interface.get().map(Interface::getScaledSize).orElse(new Vector2D(800, 600));
     }
 
+    public static void drawLines(List<Vector2D> points, Color color) {
+        Optional<Interface> renderer = Interface.get();
+        renderer.ifPresent(renderer2DInterface -> renderer2DInterface.drawLines(points, color));
+    }
+
+    public static void drawLine(Vector2D p1, Vector2D p2, Color color) {
+        drawLines(Arrays.asList(p1, p2), color);
+    }
+
     public interface Interface extends FunctionHolder {
         static Optional<Interface> get() {
             return API.getFunctionHolder(Interface.class);
         }
 
         void drawRect(Vector2D pos, Vector2D size, Color color);
+
+        void drawLines(List<Vector2D> points, Color color);
 
         Vector2D getScaledSize();
     }

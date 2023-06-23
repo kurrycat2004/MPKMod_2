@@ -32,20 +32,20 @@ public class Player {
     public TimingInput timingInput = new TimingInput("");
     public KeyInput keyInput = null;
     public ButtonMSList keyMSList = null;
-    private Vector3D pos = null;
-    private Vector3D lastPos = null;
-    private Float trueYaw = null;
-    private Float truePitch = null;
-    private Vector3D motion = null;
-    private boolean onGround = false;
-    private Float deltaYaw = 0F;
-    private Float deltaPitch = 0F;
-    private int airtime = 0;
-    private Float last45 = 0F;
-    private boolean jumpTick = false;
-    private boolean landTick = false;
-    private String lastTiming = "None";
-    private boolean sprinting = false;
+    public Vector3D pos = null;
+    public Vector3D lastPos = null;
+    public Float trueYaw = null;
+    public Float truePitch = null;
+    public Vector3D motion = null;
+    public boolean onGround = false;
+    public Float deltaYaw = null;
+    public Float deltaPitch = null;
+    public int airtime = 0;
+    public Float last45 = null;
+    public boolean jumpTick = false;
+    public boolean landTick = false;
+    public String lastTiming = "None";
+    public boolean sprinting = false;
 
     @InfoString.Getter
     public static LandingBlock getLatestLB() {
@@ -92,6 +92,11 @@ public class Player {
 
     public Player constructKeyInput() {
         keyInput = KeyInput.construct();
+        return this;
+    }
+
+    public Player setKeyInput(KeyInput keyInput) {
+        this.keyInput = keyInput;
         return this;
     }
 
@@ -160,12 +165,12 @@ public class Player {
 
     @InfoString.Getter
     public Float getDeltaYaw() {
-        return deltaYaw;
+        return deltaYaw == null ? 0 : deltaYaw;
     }
 
     @InfoString.Getter
     public Float getDeltaPitch() {
-        return deltaPitch;
+        return deltaPitch == null ? 0 : deltaPitch;
     }
 
     @InfoString.Getter
@@ -225,7 +230,9 @@ public class Player {
             lastJump = jumpTick ? new PosAndAngle(prev.pos, prev.trueYaw, prev.truePitch) : prev.lastJump;
 
             deltaYaw = trueYaw - prev.trueYaw;
+            if (deltaYaw == 0) deltaYaw = null;
             deltaPitch = truePitch - prev.truePitch;
+            if (deltaPitch == 0) deltaPitch = null;
 
             timingInput = new TimingInput(
                     keyInput.forward,
@@ -273,7 +280,7 @@ public class Player {
                 Object o = f.get(getLatest());
                 if (o == null) continue;
                 if (o instanceof Integer && (Integer) o == 0) continue;
-                if (o instanceof Float && (Float) o == 0F) continue;
+                /*if (o instanceof Float && (Float) o == 0F) continue;*/
 
                 if (o instanceof Vector3D) f.set(displayInstance, ((Vector3D) o).copy());
                 else if (o instanceof Copyable) f.set(displayInstance, ((Copyable<?>) o).copy());
@@ -366,6 +373,20 @@ public class Player {
         public boolean sprint = false;
         public boolean sneak = false;
         public boolean jump = false;
+
+        public KeyInput() {
+
+        }
+
+        public KeyInput(boolean forward, boolean left, boolean back, boolean right, boolean sprint, boolean sneak, boolean jump) {
+            this.forward = forward;
+            this.left = left;
+            this.back = back;
+            this.right = right;
+            this.sprint = sprint;
+            this.sneak = sneak;
+            this.jump = jump;
+        }
 
         public static KeyInput construct() {
             KeyInput k = new KeyInput();

@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.compatibility.forge_1_8;
 
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
+import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.block.Block;
@@ -170,6 +171,43 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link Renderer2D.Interface}
      */
+    public void drawLines(List<Vector2D> points, Color color) {
+        if(points.size() < 2) {
+            Debug.stacktrace("At least two points expected, got: " + points.size());
+            return;
+        }
+        int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
+
+        GlStateManager.pushMatrix();
+        GlStateManager.disableTexture2D();
+        GlStateManager.disableAlpha();
+        GlStateManager.enableBlend();
+        GL11.glLineWidth(2.0F);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer wr = tessellator.getWorldRenderer();
+
+        wr.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
+
+        for(Vector2D p : points) {
+            wr.pos(p.getX(), p.getY(), 0).color(r, g, b, a).endVertex();
+        }
+
+        wr.setTranslation(0, 0, 0);
+
+        tessellator.draw();
+
+        GlStateManager.enableTexture2D();
+        GlStateManager.enableAlpha();
+        GlStateManager.disableBlend();
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+        GlStateManager.popMatrix();
+    }
+
+    /**
+     * Is called in {@link Renderer2D.Interface}
+     */
     public void drawRect(Vector2D pos, Vector2D size, Color color) {
         Gui.drawRect(
                 pos.getXI(),
@@ -239,10 +277,10 @@ public class FunctionCompatibility implements FunctionHolder,
      */
     public String getCurrentGuiScreen() {
         GuiScreen curr = Minecraft.getMinecraft().currentScreen;
-        if(curr == null) return null;
-        else if(curr instanceof MPKGuiScreen) {
+        if (curr == null) return null;
+        else if (curr instanceof MPKGuiScreen) {
             String id = ((MPKGuiScreen) curr).eventReceiver.getID();
-            if(id == null) id = "unknown";
+            if (id == null) id = "unknown";
             return id;
         }
         return curr.getClass().getSimpleName();
@@ -252,7 +290,7 @@ public class FunctionCompatibility implements FunctionHolder,
      * Is called in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.Interface Minecraft.Interface}
      */
     public String getUserName() {
-        if(Minecraft.getMinecraft().thePlayer == null) return null;
+        if (Minecraft.getMinecraft().thePlayer == null) return null;
         return Minecraft.getMinecraft().thePlayer.getName();
     }
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import io.github.kurrycat.mpkmod.util.JSONPos2D;
+import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 public abstract class Component extends ComponentHolder {
@@ -57,7 +58,16 @@ public abstract class Component extends ComponentHolder {
     }
 
     public PopupMenu getPopupMenu() {
-        return null;
+        PopupMenu menu = new PopupMenu();
+        menu.addComponent(
+                new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
+                    if (Mouse.Button.LEFT.equals(mouseButton)) {
+                        menu.paneHolder.removeComponent(this);
+                        menu.paneHolder.closePane(menu);
+                    }
+                })
+        );
+        return menu;
     }
 
     public boolean contains(Vector2D testPos) {

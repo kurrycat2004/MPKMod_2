@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
+import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.block.BlockState;
@@ -186,6 +187,39 @@ public class FunctionCompatibility implements FunctionHolder,
         );
     }
 
+    /**
+     * Is called in {@link Renderer2D.Interface}
+     */
+    public void drawLines(List<Vector2D> points, Color color) {
+        if (points.size() < 2) {
+            Debug.stacktrace("At least two points expected, got: " + points.size());
+            return;
+        }
+        int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
+
+        drawContext.getMatrices().translate(0, 0, 0.04);
+        Matrix4f posMat = drawContext.getMatrices().peek().getPositionMatrix();
+
+        RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder builder = tessellator.getBuffer();
+
+        RenderSystem.lineWidth(1.0f);
+
+        builder.begin(VertexFormat.DrawMode.DEBUG_LINE_STRIP, VertexFormats.POSITION_COLOR);
+
+        for (Vector2D p : points) {
+            builder.vertex(posMat, (float) p.getX(), (float) p.getY(), 0).color(r, g, b, a).next();
+        }
+
+        tessellator.draw();
+
+        RenderSystem.enableBlend();
+    }
+
     public Vector2D getScaledSize() {
         return new Vector2D(
                 MinecraftClient.getInstance().getWindow().getScaledWidth(),
@@ -249,7 +283,7 @@ public class FunctionCompatibility implements FunctionHolder,
      * Is called in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.Interface Minecraft.Interface}
      */
     public String getUserName() {
-        if(MinecraftClient.getInstance().player == null) return null;
+        if (MinecraftClient.getInstance().player == null) return null;
         return MinecraftClient.getInstance().player.getName().getString();
     }
 

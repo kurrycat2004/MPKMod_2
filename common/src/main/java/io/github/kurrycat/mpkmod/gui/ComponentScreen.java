@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.gui;
 
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.InputConstants;
+import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
@@ -176,6 +177,14 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                     addComponent(barrierDisplay);
                     menu.close();
                 }));
+                newLabelMenu.addComponent(new Button("Add Plot (WIP)", b -> {
+                    if (b != Mouse.Button.LEFT) return;
+                    Plot plot = new Last45Plot();
+                    plot.setPos(mouse);
+                    plot.setSize(new Vector2D(40, 40));
+                    addComponent(plot);
+                    menu.close();
+                }));
 
                 menu.addSubMenu(new Button("Add Label"), newLabelMenu);
                 openPane(menu, mouse);
@@ -249,14 +258,12 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         movableComponents.forEach(c -> c.setHighlighted(highlighted.contains(c)));
 
         for (Component component : movableComponents) {
-            if(holding.contains(component))
-            {
+            if (holding.contains(component)) {
                 Vector2D offset = component.getRenderOffset();
                 component.setRenderOffset(Vector2D.ZERO);
                 component.render(hoverMousePos);
                 component.setRenderOffset(offset);
-            }
-            else component.render(hoverMousePos);
+            } else component.render(hoverMousePos);
         }
 
         for (Component b : components) b.render(hoverMousePos);
