@@ -29,6 +29,12 @@ public class Option {
     private String category = "";
     private OptionChangeListener changeListener;
     private java.lang.reflect.Field linkedField = null;
+    private String displayName = null;
+    private String description = null;
+
+    public Option(String name, String value, String defaultValue) {
+        this(name, value, defaultValue, ValueType.STRING);
+    }
 
     @JsonCreator
     public Option(@JsonProperty("name") String name, @JsonProperty("value") String value, @JsonProperty("defaultValue") String defaultValue, @JsonProperty("valueType") ValueType type) {
@@ -36,10 +42,6 @@ public class Option {
         this.value = value;
         this.defaultValue = defaultValue;
         this.type = type;
-    }
-
-    public Option(String name, String value, String defaultValue) {
-        this(name, value, defaultValue, ValueType.STRING);
     }
 
     public Option(String name, Boolean value, Boolean defaultValue) {
@@ -60,27 +62,31 @@ public class Option {
         for (Tuple<Field, java.lang.reflect.Field> t : annotations) {
             Field a = t.getFirst();
             java.lang.reflect.Field f = t.getSecond();
-            String name = f.getName();
+            String id = f.getName();
             String value;
             try {
                 value = f.get(f.getDeclaringClass()).toString();
             } catch (IllegalAccessException e) {
-                API.LOGGER.info(API.CONFIG_MARKER,
+                API.LOGGER.debug(API.CONFIG_MARKER,
                         "OptionMap: IllegalAccessException while trying to access field {} from {}",
-                        name, f.getDeclaringClass().getName());
+                        id, f.getDeclaringClass().getName());
                 continue;
             }
-            String category = a.category();
+
             ValueType type = ValueType.STRING;
             if (f.getType() == Boolean.class || f.getType() == boolean.class) type = ValueType.BOOLEAN;
             if (f.getType() == Double.class || f.getType() == double.class) type = ValueType.DOUBLE;
             if (f.getType() == Integer.class || f.getType() == int.class) type = ValueType.INTEGER;
             if (f.getType() == Color.class) type = ValueType.COLOR;
 
-            Option option = new Option(name, value, value, type).setCategory(category).link(f);
-            optionMap.put(name, option);
+            Option option = new Option(id, value, value, type)
+                    .setCategory(a.category())
+                    .setDisplayName(a.displayName())
+                    .setDescription(a.description())
+                    .link(f);
+            optionMap.put(id, option);
 
-            API.LOGGER.debug("Option of type {} added to map: {} with default value: {}", type, name, value);
+            API.LOGGER.debug("Option of type {} added to map: {} with default value: {}", type, id, value);
         }
 
         List<Tuple<ChangeListener, Method>> listeners = ClassUtil.getMethodAnnotations(ChangeListener.class);
@@ -109,34 +115,20 @@ public class Option {
         return optionMap;
     }
 
+    public Option link(java.lang.reflect.Field field) {
+        this.linkedField = field;
+        return this;
+    }
+
     public static void updateOptionMapFromJSON(boolean suppressChangeListener) {
-        HashMap<String, String> deserializedInfo = Serializer.deserializeAny(JSONConfig.optionsFile, new TypeReference<HashMap<String, String>>() {});
+        HashMap<String, String> deserializedInfo = Serializer.deserializeAny(JSONConfig.optionsFile, new TypeReference<HashMap<String, String>>() {
+        });
         if (deserializedInfo == null) return;
 
         for (String key : deserializedInfo.keySet()) {
             if (!API.optionsMap.containsKey(key)) continue;
             API.optionsMap.get(key).setValue(deserializedInfo.get(key), suppressChangeListener);
         }
-    }
-
-
-    @JsonGetter("name")
-    public String getName() {
-        return name;
-    }
-
-    public Option setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    @JsonGetter("value")
-    public String getValue() {
-        return value;
-    }
-
-    public Option setValue(String value) {
-        return setValue(value, false);
     }
 
     public Option setValue(String value, boolean suppressChangeListener) {
@@ -154,11 +146,6 @@ public class Option {
 
         if (!suppressChangeListener && changeListener != null)
             changeListener.onOptionChange();
-        return this;
-    }
-
-    public Option link(java.lang.reflect.Field field) {
-        this.linkedField = field;
         return this;
     }
 
@@ -199,6 +186,43 @@ public class Option {
         return 0.0;
     }
 
+    @JsonGetter("value")
+    public String getValue() {
+        return value;
+    }
+
+    public Option setValue(String value) {
+        return setValue(value, false);
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public Option setDisplayName(String s) {
+        this.displayName = s;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Option setDescription(String s) {
+        this.description = s;
+        return this;
+    }
+
+    @JsonGetter("name")
+    public String getName() {
+        return name;
+    }
+
+    public Option setName(String name) {
+        this.name = name;
+        return this;
+    }
+
     public String getCategory() {
         return category;
     }
@@ -212,6 +236,7 @@ public class Option {
         return changeListener;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public Option setChangeListener(OptionChangeListener changeListener) {
         this.changeListener = changeListener;
         return this;
@@ -238,6 +263,11 @@ public class Option {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -245,28 +275,30 @@ public class Option {
         return name.equals(option.name);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
     public enum ValueType {
         STRING,
         DOUBLE,
         INTEGER,
         BOOLEAN,
-        COLOR;
+        COLOR,
     }
 
     /**
-     * Marks a field as an MPK-Option. The field has to be public.
+     * Marks a field as a MPK-Option. The field has to be public.
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface Field {
         String category() default "";
+
+        String displayName() default "";
+
+        String description() default "";
     }
 
+    /**
+     * Marks a method as a MPK-Option change listener. The method has to be public.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
     public @interface ChangeListener {

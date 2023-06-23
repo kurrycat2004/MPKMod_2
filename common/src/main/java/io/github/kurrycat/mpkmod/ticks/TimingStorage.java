@@ -16,7 +16,11 @@ public class TimingStorage {
     private final static String stratFileName = "/assets/mpkmod/strats/strats.json";
     public static Map<String, Timing> patterns = new HashMap<>();
 
-    @Option.Field
+    @Option.Field(
+            category = "labels",
+            displayName = "Display ms for lastTiming",
+            description = "Enable whether milliseconds should be shown in the lastTiming infoVar"
+    )
     public static boolean renderLastTimingMS = false;
 
     public static void init() {

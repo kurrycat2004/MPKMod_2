@@ -8,7 +8,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ScrollableList<I extends ScrollableListItem<I>> extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener {
+public class ScrollableList<I extends ScrollableListItem<I>> extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener, HoverComponent {
     public Color backgroundColor = Color.DARK_GRAY;
     public ScrollBar<I> scrollBar;
     public List<I> items = new ArrayList<>();
@@ -38,10 +38,11 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         topCover.components.forEach(c -> c.render(mouse));
         bottomCover.components.forEach(c -> c.render(mouse));
     }
+
     public void render(Vector2D mouse) {
         scrollBar.constrainScrollAmountToScreen();
 
-        topCover.setSize(new Vector2D(1,  getDisplayedPos().getY() + 1));
+        topCover.setSize(new Vector2D(1, getDisplayedPos().getY() + 1));
         bottomCover.setSize(new Vector2D(1,
                 (getRoot() == null ? Renderer2D.getScaledSize() : getRoot().getDisplayedSize()).getY() -
                         (getDisplayedPos().getY() + getDisplayedSize().getY()) + 1)
@@ -181,6 +182,13 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
                 ArrayListUtil.getAllOfType(KeyInputListener.class, components, topCover.components, bottomCover.components),
                 e -> e.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
         );
+    }
+
+    @Override
+    public void renderHover(Vector2D mouse) {
+        getItems().forEach(i -> i.renderHover(mouse));
+        ArrayListUtil.getAllOfType(HoverComponent.class, components, topCover.components, bottomCover.components)
+                .forEach(i -> i.renderHover(mouse));
     }
 
     public static class ScrollBar<I extends ScrollableListItem<I>> extends Component implements MouseInputListener {

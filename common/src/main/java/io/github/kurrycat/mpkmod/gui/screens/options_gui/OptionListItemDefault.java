@@ -17,7 +17,7 @@ public class OptionListItemDefault extends OptionListItem {
     protected void renderTypeSpecific(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
         FontRenderer.drawRightCenteredString(
                 value,
-                pos.add(size.getX() - 40, size.getY() / 2),
+                pos.add(5, size.getY() / 2),
                 Color.WHITE,
                 false
         );

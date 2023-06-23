@@ -16,7 +16,11 @@ public class DiscordRPC {
     public static Core core = null;
     public static boolean LIBRARY_LOADED = false;
 
-    @Option.Field
+    @Option.Field(
+            category = "discord",
+            displayName = "Discord Rich Presence",
+            description = "Show \"Playing MPKMod\" in Discord"
+    )
     public static boolean discordRPCEnabled = true;
 
     public static void init() {

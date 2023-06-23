@@ -28,6 +28,32 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
         this.y = vector2D.y;
     }
 
+    @JsonIgnore
+    public float getXF() {
+        return (float) x;
+    }
+
+    @JsonIgnore
+    public int getXI() {
+        return (int) x;
+    }
+
+    @JsonIgnore
+    public float getYF() {
+        return (float) y;
+    }
+
+    @JsonIgnore
+    public int getYI() {
+        return (int) y;
+    }
+
+    public Vector2D set(Vector2D vector2D) {
+        this.setX(vector2D.getX());
+        this.setY(vector2D.getY());
+        return this;
+    }
+
     @InfoString.Getter
     @JsonProperty("x")
     public double getX() {
@@ -38,16 +64,6 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
     public Vector2D setX(double x) {
         this.x = x;
         return this;
-    }
-
-    @JsonIgnore
-    public float getXF() {
-        return (float) x;
-    }
-
-    @JsonIgnore
-    public int getXI() {
-        return (int) x;
     }
 
     @InfoString.Getter
@@ -62,61 +78,18 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
         return this;
     }
 
-    @JsonIgnore
-    public float getYF() {
-        return (float) y;
-    }
-
-    @JsonIgnore
-    public int getYI() {
-        return (int) y;
-    }
-
-    @Override
-    public String toString() {
-        return "[" + x + ", " + y + "]";
-    }
-
-    public Vector2D set(Vector2D vector2D) {
-        this.setX(vector2D.getX());
-        this.setY(vector2D.getY());
-        return this;
-    }
-
     public Vector2D set(double x, double y) {
         this.setX(x);
         this.setY(y);
         return this;
     }
 
-    public Vector2D add(Vector2D v) {
-        return new Vector2D(this.x + v.x, this.y + v.y);
-    }
-
     public Vector2D add(double v) {
         return add(new Vector2D(v, v));
     }
 
-    public Vector2D addXInPlace(double x) {
-        this.x += x;
-        return this;
-    }
-
-    public Vector2D addYInPlace(double y) {
-        this.y += y;
-        return this;
-    }
-
-    public Vector2D subXInPlace(double x) {
-        return addXInPlace(-x);
-    }
-
-    public Vector2D subYInPlace(double y) {
-        return addYInPlace(-y);
-    }
-
-    public Vector2D sub(Vector2D v) {
-        return new Vector2D(this.x - v.x, this.y - v.y);
+    public Vector2D add(Vector2D v) {
+        return new Vector2D(this.x + v.x, this.y + v.y);
     }
 
     public Vector2D sub(double v) {
@@ -143,11 +116,6 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
         return new Vector2D(this.x / v.x, this.y / v.y);
     }
 
-    public Vector2D copy() {
-        return new Vector2D(this.x, this.y);
-    }
-
-
     /**
      * @param from top left corner
      * @param to   botton right corner
@@ -163,16 +131,42 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
         return curr;
     }
 
-    public double lengthSqr() {
-        return this.x * this.x + this.y * this.y;
+    public Vector2D sub(Vector2D v) {
+        return new Vector2D(this.x - v.x, this.y - v.y);
+    }
+
+    public Vector2D copy() {
+        return new Vector2D(this.x, this.y);
+    }
+
+    public Vector2D addXInPlace(double x) {
+        this.x += x;
+        return this;
+    }
+
+    public Vector2D addYInPlace(double y) {
+        this.y += y;
+        return this;
+    }
+
+    public Vector2D subXInPlace(double x) {
+        return addXInPlace(-x);
+    }
+
+    public Vector2D subYInPlace(double y) {
+        return addYInPlace(-y);
+    }
+
+    public double dist(Vector2D other) {
+        return this.sub(other).length();
     }
 
     public double length() {
         return Math.sqrt(lengthSqr());
     }
 
-    public double dist(Vector2D other) {
-        return this.sub(other).length();
+    public double lengthSqr() {
+        return this.x * this.x + this.y * this.y;
     }
 
     public Vector2D add(double x, double y) {
@@ -189,7 +183,12 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
      * @return whether <code>this</code> is inside the input rectangle
      */
     public boolean isInRectBetween(Vector2D pos1, Vector2D pos2) {
-        return this.x > pos1.x && this.x < pos2.x && this.y > pos1.y && this.y < pos2.y;
+        return this.x >= pos1.x && this.x <= pos2.x && this.y >= pos1.y && this.y <= pos2.y;
+    }
+
+    @Override
+    public int hashCode() {
+        return Double.hashCode(x) + Double.hashCode(y);
     }
 
     @Override
@@ -198,8 +197,8 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
     }
 
     @Override
-    public int hashCode() {
-        return Double.hashCode(x) + Double.hashCode(y);
+    public String toString() {
+        return "[" + x + ", " + y + "]";
     }
 
     public boolean equals(Vector2D other) {
@@ -227,5 +226,10 @@ public class Vector2D implements Copyable<Vector2D>, FormatDecimals {
     public String formatDecimals(int decimals, boolean keepZeros) {
         return "[" + MathUtil.formatDecimals(this.x, decimals, keepZeros) + "," +
                 MathUtil.formatDecimals(this.y, decimals, keepZeros) + "]";
+    }
+
+    public boolean isInRectBetweenPS(Vector2D pos, Vector2D size) {
+        return pos.x <= this.x && pos.x + size.x >= this.x &&
+                pos.y <= this.y && pos.y + size.y >= this.y;
     }
 }

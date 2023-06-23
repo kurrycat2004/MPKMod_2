@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
+import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.MathUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
@@ -146,19 +147,15 @@ public abstract class ComponentHolder {
         this.setPos(this.pos.add(transformed));
     }
 
+    public void setCPos(Vector2D pos) {
+        this.cpos.set(pos);
+    }
+
     public void setPos(Vector2D pos) {
         if (this.pos.equals(pos)) return;
         if (PERCENT.HAS_POS_X(percentFlag) && MathUtil.constrain01(pos.getX()) != pos.getX() ||
                 PERCENT.HAS_POS_Y(percentFlag) && MathUtil.constrain01(pos.getY()) != pos.getY()) {
-            try {
-                throw new Exception();
-            } catch (Exception e) {
-                StringBuilder sb = new StringBuilder("Warning: position not in range 0 - 1 even though percent flag is true for this field");
-                for (StackTraceElement s : e.getStackTrace()) {
-                    sb.append("\tat ").append(s).append("\n");
-                }
-                API.LOGGER.debug(sb.toString());
-            }
+            Debug.stacktrace("Warning: position not in range 0 - 1 even though percent flag is true for this field");
         }
         this.pos.set(
                 PERCENT.HAS_POS_X(percentFlag) ? MathUtil.constrain01(pos.getX()) : pos.getX(),
