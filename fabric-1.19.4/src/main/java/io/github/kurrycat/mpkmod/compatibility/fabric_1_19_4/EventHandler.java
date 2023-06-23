@@ -48,9 +48,9 @@ public class EventHandler {
         }
 
         if (action == 1) {
-            FunctionCompatibility.pressedButtons.add(inputKey.getLocalizedText().getString());
+            FunctionCompatibility.pressedButtons.add(inputKey.getCode());
         } else if (action == 0) {
-            FunctionCompatibility.pressedButtons.remove(inputKey.getLocalizedText().getString());
+            FunctionCompatibility.pressedButtons.remove(inputKey.getCode());
         }
 
         API.Events.onKeyInput(key, inputKey.getLocalizedText().getString(), action == 1);

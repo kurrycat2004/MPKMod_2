@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class Keyboard {
-    public static List<String> getPressedButtons() {
+    public static List<Integer> getPressedButtons() {
         return Interface.get().map(Interface::getPressedButtons).orElseGet(ArrayList::new);
     }
 
@@ -24,6 +24,6 @@ public class Keyboard {
             return API.getFunctionHolder(Interface.class);
         }
 
-        List<String> getPressedButtons();
+        List<Integer> getPressedButtons();
     }
 }

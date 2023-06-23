@@ -42,9 +42,9 @@ public class EventListener {
 
 
         if (event.getAction() == InputConstants.PRESS) {
-            FunctionCompatibility.pressedButtons.add(InputConstants.getKey(event.getKey(), event.getScanCode()).getName());
+            FunctionCompatibility.pressedButtons.add(InputConstants.getKey(event.getKey(), event.getScanCode()).getValue());
         } else if (event.getAction() == InputConstants.RELEASE) {
-            FunctionCompatibility.pressedButtons.remove(InputConstants.getKey(event.getKey(), event.getScanCode()).getName());
+            FunctionCompatibility.pressedButtons.remove(InputConstants.getKey(event.getKey(), event.getScanCode()).getValue());
         }
 
         API.Events.onKeyInput(event.getKey(), InputConstants.getKey(event.getKey(), event.getScanCode()).getName(), event.getAction() == InputConstants.PRESS);

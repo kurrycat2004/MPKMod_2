@@ -20,7 +20,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
@@ -261,11 +260,11 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses.Keyboard.Interface Keyboard.Interface}
      */
-    public List<String> getPressedButtons() {
-        List<String> keysDown = new ArrayList<>();
+    public List<Integer> getPressedButtons() {
+        List<Integer> keysDown = new ArrayList<>();
         for (int i = 0; i < Keyboard.getKeyCount(); i++)
             if (Keyboard.isKeyDown(i))
-                keysDown.add(Keyboard.getKeyName(i));
+                keysDown.add(InputConstants.convert(i));
         return keysDown;
     }
 

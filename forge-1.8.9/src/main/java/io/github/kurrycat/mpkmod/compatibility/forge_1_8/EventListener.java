@@ -1,12 +1,14 @@
 package io.github.kurrycat.mpkmod.compatibility.forge_1_8;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
+import io.github.kurrycat.mpkmod.compatibility.MCClasses.InputConstants;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
 import io.github.kurrycat.mpkmod.ticks.ButtonMS;
 import io.github.kurrycat.mpkmod.ticks.ButtonMSList;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.GuiOverlayDebug;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -48,7 +50,7 @@ public class EventListener {
                 timeQueue.add(ButtonMS.of(ButtonMS.Button.values()[i], Keyboard.getEventNanoseconds(), pressed));
 
 
-        API.Events.onKeyInput(keyCode, key, pressed);
+        API.Events.onKeyInput(InputConstants.convert(keyCode), key, pressed);
 
         MPKMod.keyBindingMap.forEach((id, keyBinding) -> {
             boolean keyBindingPressed = keyBinding.isPressed();

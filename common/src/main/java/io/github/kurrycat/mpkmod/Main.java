@@ -1,18 +1,18 @@
 package io.github.kurrycat.mpkmod;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
-import io.github.kurrycat.mpkmod.compatibility.MCClasses.Profiler;
-import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
-import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer3D;
+import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.EventAPI;
+import io.github.kurrycat.mpkmod.events.OnKeyInputEvent;
 import io.github.kurrycat.mpkmod.events.OnRenderWorldOverlayEvent;
 import io.github.kurrycat.mpkmod.gui.TickThread;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.LabelConfiguration;
 import io.github.kurrycat.mpkmod.modules.MPKModule;
+import io.github.kurrycat.mpkmod.modules.ModuleManager;
 import io.github.kurrycat.mpkmod.util.ArrayListUtil;
 import io.github.kurrycat.mpkmod.util.MathUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -39,6 +39,14 @@ public class Main implements MPKModule {
             discordRpcInitialized = false;
         }
         TickThread.startThread();
+
+        EventAPI.addListener(
+                new EventAPI.EventListener<OnKeyInputEvent>(event -> {
+                    if (event.keyCode == InputConstants.KEY_M && Keyboard.getPressedButtons().contains(InputConstants.KEY_F3)) {
+                        API.LOGGER.info("Reloading mpkmodules...");
+                        ModuleManager.reloadAllModules();
+                    }
+                }, Event.EventType.KEY_INPUT));
 
         EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> API.tickTime++));
         EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> {

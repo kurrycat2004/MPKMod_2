@@ -35,7 +35,7 @@ public class FunctionCompatibility implements FunctionHolder,
         io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.Interface,
         io.github.kurrycat.mpkmod.compatibility.MCClasses.Keyboard.Interface,
         Profiler.Interface {
-    public static final Set<String> pressedButtons = new HashSet<>();
+    public static final Set<Integer> pressedButtons = new HashSet<>();
     public GuiGraphics guiGraphics = null;
 
     /**
@@ -265,7 +265,7 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link Keyboard.Interface Keyboard.Interface}
      */
-    public List<String> getPressedButtons() {
+    public List<Integer> getPressedButtons() {
         return new ArrayList<>(pressedButtons);
     }
 
