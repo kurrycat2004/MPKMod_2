@@ -5,7 +5,7 @@ plugins {
 unimined {
     // debug, puts some things in build/unimined instead of ~/.gradle/caches/unimined
     // I reccomend you leave this on until unimined is stable
-    useGlobalCache = true
+    useGlobalCache = false
 }
 
 minecraft {

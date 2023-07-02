@@ -2,9 +2,11 @@ package io.github.kurrycat.mpkmod.util;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class MathUtil {
+    private static final HashMap<String, DecimalFormat> decimalFormatCache = new HashMap<>();
     public static String formatDecimals(double value, int decimals, boolean keepZeros) {
         if (keepZeros) {
             return String.format(Locale.US, "%." + decimals + "f", value);
@@ -12,7 +14,12 @@ public class MathUtil {
         String pattern;
         if (decimals == 0) pattern = "###";
         else pattern = "###." + new String(new char[decimals]).replace("\0", "#");
-        return new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.US)).format(value);
+        if(decimalFormatCache.containsKey(pattern)) {
+            return decimalFormatCache.get(pattern).format(value);
+        }
+        DecimalFormat decimalFormat = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.US));
+        decimalFormatCache.put(pattern, decimalFormat);
+        return decimalFormat.format(value);
     }
 
     public static Integer parseInt(String value, Integer defaultValue) {

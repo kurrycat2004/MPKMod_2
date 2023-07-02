@@ -15,6 +15,8 @@ public class Minecraft {
     public static String version;
     public static WorldState worldState = WorldState.MENU;
     public static PlayState playState = PlayState.ACTIVE;
+    private static SimpleDateFormat timeFormat = new SimpleDateFormat("HH : mm : ss");
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 
     @InfoString.Getter
     public static String getIp() {
@@ -59,12 +61,12 @@ public class Minecraft {
 
     @InfoString.Getter
     public static String getTime() {
-        return new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+        return Minecraft.timeFormat.format(Calendar.getInstance().getTime());
     }
 
     @InfoString.Getter
     public static String getDate() {
-        return new SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().getTime());
+        return Minecraft.dateFormat.format(Calendar.getInstance().getTime());
     }
 
     @InfoString.Getter

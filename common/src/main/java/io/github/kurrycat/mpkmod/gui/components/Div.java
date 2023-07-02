@@ -78,7 +78,7 @@ public class Div extends Component implements MouseInputListener, MouseScrollLis
                         lines.add(line.toString());
                         height += fontHeight;
                         width = Math.max(width, lineLen);
-                        line = new StringBuilder();
+                        line.delete(0, line.length());
                         lineLen = 0;
                     }
                     int maxLen = findLargestPossLenInLine(word, maxWidth);
@@ -92,7 +92,7 @@ public class Div extends Component implements MouseInputListener, MouseScrollLis
                     lines.add(line.toString());
                     height += fontHeight;
                     width = Math.max(width, lineLen);
-                    line = new StringBuilder();
+                    line.delete(0, line.length());
                     lineLen = 0;
                 }
                 line.append(word).append(" ");
