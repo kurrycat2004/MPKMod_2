@@ -1,11 +1,11 @@
 plugins {
-    id 'xyz.wagyourtail.unimined' version '0.4.10-SNAPSHOT'
+    id 'xyz.wagyourtail.unimined' version '0.4.10'
 }
 
 unimined {
     // debug, puts some things in build/unimined instead of ~/.gradle/caches/unimined
     // I reccomend you leave this on until unimined is stable
-    useGlobalCache = false
+    useGlobalCache = true
 }
 
 minecraft {
