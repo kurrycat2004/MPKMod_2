@@ -40,6 +40,9 @@ processResources {
     filesMatching("META-INF/mods.toml") {
         expand "version": project.version
     }
+    filesMatching("mcmod.info") {
+        expand "version": project.version
+    }
 }
 
 /*remapJar {
