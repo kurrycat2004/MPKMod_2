@@ -36,6 +36,7 @@ public class TickThread implements Runnable {
                     e.printStackTrace();
                 }
             }
+            TickThread.changed.set(false);
         }
     }
 
