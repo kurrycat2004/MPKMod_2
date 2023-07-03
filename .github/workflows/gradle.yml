@@ -44,4 +44,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: mpkmod-build.${{ env.NOW }}
-        path: build/*.jar
+        path: build/libs/*.jar
