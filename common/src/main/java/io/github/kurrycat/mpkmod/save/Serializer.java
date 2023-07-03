@@ -6,8 +6,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.save.deserialize.ColorDeserializer;
 import io.github.kurrycat.mpkmod.save.serialize.ColorSerializer;
 
@@ -30,7 +33,8 @@ public class Serializer {
         module.addDeserializer(Color.class, new ColorDeserializer());
 
         mapper.registerModule(module);
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
+        PolymorphicTypeValidator polymorphicTypeValidator = BasicPolymorphicTypeValidator.builder().allowIfBaseType(Component.class).build();
+        mapper.activateDefaultTyping(polymorphicTypeValidator, ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         mapper.setVisibility(mapper.getSerializationConfig().getDefaultVisibilityChecker()

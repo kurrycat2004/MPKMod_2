@@ -5,8 +5,8 @@ version = $version
 archivesBaseName = $commonBaseName
 
 dependencies {
-    compileOnly 'org.apache.logging.log4j:log4j-api:2.0-beta9'
-    compileOnly 'org.apache.logging.log4j:log4j-core:2.0-beta9'
+    compileOnly 'org.apache.logging.log4j:log4j-api:2.3.2'
+    compileOnly 'org.apache.logging.log4j:log4j-core:2.3.2'
 }
 
 compileJava.doLast {
