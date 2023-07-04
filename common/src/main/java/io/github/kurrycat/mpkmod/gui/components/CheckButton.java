@@ -3,6 +3,7 @@ package io.github.kurrycat.mpkmod.gui.components;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.SoundManager;
+import io.github.kurrycat.mpkmod.gui.Theme;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -12,10 +13,11 @@ import java.awt.*;
 public class CheckButton extends Component implements MouseInputListener {
     public CheckButtonCallback checkButtonCallback;
     @SuppressWarnings("unused")
-    public Color checkedColor = new Color(255, 255, 255, 95);
-    public Color normalColor = new Color(31, 31, 31, 150);
-    public Color disabledColor = new Color(11, 11, 11, 150);
-    public Color disabledTextColor = new Color(70, 70, 70, 150);
+    public Color checkedColor = Theme.lightBackground;
+    public Color normalColor = Theme.darkBackground;
+    public Color disabledColor = Theme.disabledBackground;
+    public Color textColor = Theme.defaultText;
+    public Color disabledTextColor = Theme.disabledText;
     private boolean isChecked;
 
     public boolean enabled = true;
@@ -52,7 +54,7 @@ public class CheckButton extends Component implements MouseInputListener {
             FontRenderer.drawString(
                     "x",
                     getDisplayedPos().add(new Vector2D(3, 1)),
-                    enabled ? Color.WHITE : disabledTextColor,
+                    enabled ? textColor : disabledTextColor,
                     false
             );
     }

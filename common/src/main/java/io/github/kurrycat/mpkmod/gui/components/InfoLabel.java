@@ -90,7 +90,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
         public InfoVarList(Vector2D pos, Vector2D size) {
             this.setPos(pos);
             this.setSize(size);
-            title = "Variables";
+            this.setTitle("Variables");
             allItems = API.infoTree.getEntries().stream()
                     .map(entry ->
                             new InfoVarListItem(this, entry.getValue())
@@ -226,7 +226,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
                 c.setPos(new Vector2D(2, i[0] + 2));
                 i[0] += c.getHeight();
             });
-            if(parent != null) parent.updateChildPositions();
+            if (parent != null) parent.updateChildPositions();
         }
 
         @Override
@@ -274,35 +274,32 @@ public class InfoLabel extends Label implements TickThread.Tickable {
 
             addChild(inputField, PERCENT.SIZE_X, Anchor.BOTTOM_CENTER);
 
-            Div colors = new Div();
+            Div colors = new Div(new Vector2D(5, 5), new Vector2D(0, 0));
+            addChild(colors);
             for (Colors c : Colors.values()) {
                 colors.addChildBelow(new ColorLabel(c));
             }
             colors.backgroundColor = new Color(31, 31, 31, 150);
             colors.setAbsolute(true);
-            addChild(colors);
 
 
-            InfoVarList vl = new InfoVarList(new Vector2D(0, 20), new Vector2D(2 / 9D, -50));
+            InfoVarList vl = new InfoVarList(new Vector2D(5, 5), new Vector2D(2 / 9D, -10));
             vl.setAbsolute(true);
             addChild(vl, PERCENT.SIZE_X, Anchor.TOP_RIGHT);
 
-            Div searchFieldDiv = new Div(Vector2D.ZERO, new Vector2D(1, 30));
-
-            TextRectangle searchText = new TextRectangle(
-                    Vector2D.ZERO,
-                    new Vector2D(1, 14),
-                    "Filter",
-                    null,
-                    Color.WHITE
-            );
-            searchFieldDiv.addChild(searchText, PERCENT.SIZE_X, Anchor.TOP_CENTER);
-
-            InputField searchField = new InputField(new Vector2D(0, 5), 0.9D);
-            searchField.setOnContentChange(c -> vl.updateSearchFilter(c.getContent()));
-            searchFieldDiv.addChild(searchField, PERCENT.SIZE_X, Anchor.BOTTOM_CENTER);
-
-            vl.bottomCover.addChild(searchFieldDiv, PERCENT.SIZE_X, Anchor.CENTER);
+            vl.bottomCover.setHeight(35, false);
+            vl.bottomCover.addChild(
+                    new TextRectangle(
+                            new Vector2D(0, 5),
+                            new Vector2D(1, 14),
+                            "Filter",
+                            null,
+                            Color.WHITE
+                    ), PERCENT.SIZE_X, Anchor.TOP_CENTER);
+            vl.bottomCover.addChild(
+                    new InputField(new Vector2D(0, 5), 0.9D)
+                            .setOnContentChange(c -> vl.updateSearchFilter(c.getContent())),
+                    PERCENT.SIZE_X, Anchor.BOTTOM_CENTER);
         }
 
         @Override

@@ -15,6 +15,7 @@ import io.github.kurrycat.mpkmod.modules.MPKModule;
 import io.github.kurrycat.mpkmod.modules.ModuleManager;
 import io.github.kurrycat.mpkmod.util.ArrayListUtil;
 import io.github.kurrycat.mpkmod.util.MathUtil;
+import io.github.kurrycat.mpkmod.util.StringUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
@@ -42,9 +43,21 @@ public class Main implements MPKModule {
 
         EventAPI.addListener(
                 new EventAPI.EventListener<OnKeyInputEvent>(event -> {
-                    if (event.keyCode == InputConstants.KEY_M && Keyboard.getPressedButtons().contains(InputConstants.KEY_F3)) {
-                        API.LOGGER.info("Reloading mpkmodules...");
-                        ModuleManager.reloadAllModules();
+                    if (Keyboard.getPressedButtons().contains(InputConstants.KEY_F3)) {
+                        if (event.keyCode == InputConstants.KEY_M) {
+                            API.LOGGER.info("Reloading mpkmodules...");
+                            ModuleManager.reloadAllModules();
+                        } else if (event.keyCode == InputConstants.KEY_C) {
+                            if (Player.getLatest() == null) return;
+                            Player p = Player.getLatest();
+                            StringUtil.copyToClipboard(
+                                    p.pos.getX() + " " +
+                                            p.pos.getY() + " " +
+                                            p.pos.getZ() + " " +
+                                            p.trueYaw + " " +
+                                            p.truePitch
+                            );
+                        }
                     }
                 }, Event.EventType.KEY_INPUT));
 

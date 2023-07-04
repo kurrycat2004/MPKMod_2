@@ -3,6 +3,7 @@ package io.github.kurrycat.mpkmod.gui.components;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.SoundManager;
+import io.github.kurrycat.mpkmod.gui.Theme;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -10,13 +11,13 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 
 public class Button extends Component implements MouseInputListener {
-    public Color pressedColor = new Color(255, 255, 255, 95);
-    public Color normalColor = new Color(31, 31, 31, 150);
-    public Color hoverColor = new Color(70, 70, 70, 150);
-    public Color textColor = Color.WHITE;
-    public Color disabledColor = new Color(11, 11, 11, 150);
-    public Color disabledTextColor = new Color(70, 70, 70, 150);
-    public Color pressedTextColor = Color.BLACK;
+    public Color pressedColor = Theme.lightBackground;
+    public Color normalColor = Theme.darkBackground;
+    public Color hoverColor = Theme.hoverBackground;
+    public Color textColor = Theme.defaultText;
+    public Color disabledColor = Theme.disabledBackground;
+    public Color disabledTextColor = Theme.disabledText;
+    public Color pressedTextColor = Theme.darkText;
     public Vector2D textOffset = Vector2D.ZERO;
     public boolean enabled = true;
     private ButtonCallback buttonCallback;
@@ -28,9 +29,13 @@ public class Button extends Component implements MouseInputListener {
     }
 
     public Button(String text, ButtonCallback buttonCallback) {
-        this.setSize(FontRenderer.getStringSize(text).add(2,2));
+        this.setSize(FontRenderer.getStringSize(text).add(2, 2));
         this.text = text;
         this.buttonCallback = buttonCallback;
+    }
+
+    public Button(String text, Vector2D pos, Vector2D size) {
+        this(text, pos, size, null);
     }
 
     public Button(String text, Vector2D pos, Vector2D size, ButtonCallback buttonCallback) {
@@ -40,22 +45,9 @@ public class Button extends Component implements MouseInputListener {
         this.buttonCallback = buttonCallback;
     }
 
-    public Button(String text, Vector2D pos, Vector2D size) {
-        this(text, pos, size, null);
-    }
-
     @SuppressWarnings("UnusedReturnValue")
     public Button setButtonCallback(ButtonCallback buttonCallback) {
         this.buttonCallback = buttonCallback;
-        return this;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public Button setText(String text) {
-        this.text = text;
         return this;
     }
 
@@ -84,6 +76,15 @@ public class Button extends Component implements MouseInputListener {
                                 textColor,
                 false
         );
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public Button setText(String text) {
+        this.text = text;
+        return this;
     }
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {

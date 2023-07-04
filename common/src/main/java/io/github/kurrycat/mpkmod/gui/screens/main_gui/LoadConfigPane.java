@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.gui.screens.main_gui;
 
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.gui.Theme;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.util.Mouse;
@@ -15,7 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class LoadConfigPane extends Pane<MainGuiScreen> {
-    public static Color edgeColor = new Color(255, 255, 255, 95);
+    public static Color edgeColor = Theme.lightEdge;
     private InputField filename;
     private ConfigFileList presets;
     private ConfigFileList savedConfigs;
@@ -38,18 +39,31 @@ public class LoadConfigPane extends Pane<MainGuiScreen> {
             savedConfigs.updateItems();
         });
 
+        TextRectangle r = new TextRectangle(
+                new Vector2D(0, 1 / 4D),
+                new Vector2D(1, filename.getDisplayedSize().getY()),
+                "Search for file",
+                null,
+                Color.WHITE
+        );
+
         presets = new ConfigFileList(
                 LabelConfiguration.presets,
-                new Vector2D(0.2 / 3, 0.07),
-                new Vector2D(4 / 10D, 0.8));
-        presets.title = "Presets";
+                new Vector2D(0.2 / 3, 0.05),
+                new Vector2D(0.4, 0.9));
+        presets.setTitle("Presets");
         addChild(presets, PERCENT.ALL, Anchor.TOP_LEFT);
+
+        presets.bottomCover.setHeight(0.13, true);
+        presets.bottomCover.backgroundColor = null;
+        presets.bottomCover.addChild(r, PERCENT.POS_Y | PERCENT.SIZE_X, Anchor.CENTER, Anchor.TOP_CENTER);
+        presets.bottomCover.addChild(filename, PERCENT.POS_Y | PERCENT.SIZE_X, Anchor.CENTER, Anchor.BOTTOM_CENTER);
 
         savedConfigs = new ConfigFileList(
                 LabelConfiguration.savedConfigs,
-                new Vector2D(0.2 / 3, 0.07),
-                new Vector2D(4 / 10D, 0.83));
-        savedConfigs.title = "Saved Configurations";
+                new Vector2D(0.2 / 3, 0.05),
+                new Vector2D(0.4, 0.9));
+        savedConfigs.setTitle("Saved Configurations");
         addChild(savedConfigs, PERCENT.ALL, Anchor.TOP_RIGHT);
 
         Button reloadCurrent = new Button(
@@ -62,27 +76,18 @@ public class LoadConfigPane extends Pane<MainGuiScreen> {
                     paneHolder.reloadConfig();
                 }
         );
-        Div reloadDiv = new Div(
-                new Vector2D(0.2 / 3, 0),
-                new Vector2D(4 / 10D, 0.1)
-        );
-        reloadDiv.addChild(reloadCurrent, PERCENT.SIZE_X, Anchor.CENTER);
-        addChild(reloadDiv, PERCENT.ALL, Anchor.BOTTOM_RIGHT);
 
-        TextRectangle r = new TextRectangle(
-                new Vector2D(0, 1 / 4D),
-                new Vector2D(1, filename.getDisplayedSize().getY()),
-                "Search for file",
-                new Color(0, 0, 0, 0),
-                Color.WHITE
-        );
-        Div fileDiv = new Div(
+        savedConfigs.bottomCover.setHeight(0.1, true);
+        savedConfigs.bottomCover.backgroundColor = null;
+        savedConfigs.bottomCover.addChild(reloadCurrent, PERCENT.SIZE_X, Anchor.CENTER);
+
+        /*Div fileDiv = new Div(
                 new Vector2D(0.2 / 3, 0),
                 new Vector2D(4 / 10D, 0.13)
         );
         fileDiv.addChild(r, PERCENT.POS_Y | PERCENT.SIZE_X, Anchor.CENTER, Anchor.TOP_CENTER);
         fileDiv.addChild(filename, PERCENT.POS_Y | PERCENT.SIZE_X, Anchor.CENTER, Anchor.BOTTOM_CENTER);
-        addChild(fileDiv, PERCENT.ALL, Anchor.BOTTOM_LEFT);
+        addChild(fileDiv, PERCENT.ALL, Anchor.BOTTOM_LEFT);*/
     }
 
     public void reload() {

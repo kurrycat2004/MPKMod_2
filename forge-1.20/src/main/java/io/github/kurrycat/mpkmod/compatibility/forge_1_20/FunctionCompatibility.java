@@ -1,7 +1,11 @@
 package io.github.kurrycat.mpkmod.compatibility.forge_1_20;
 
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
@@ -23,6 +27,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.List;
@@ -173,6 +178,31 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link Renderer2D.Interface}
      */
+    public void drawRect(Vector2D pos, Vector2D size, Color color) {
+        if (guiGraphics == null) return;
+        //0.04 because drawString SHADOW_OFFSET is 0.03
+        guiGraphics.pose().translate(0, 0, 0.04);
+        Matrix4f posMat = guiGraphics.pose().last().pose();
+        int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
+        double x = pos.getX(), y = pos.getY(), w = size.getX(), h = size.getY();
+
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bb = tesselator.getBuilder();
+        RenderSystem.enableBlend();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        bb.vertex(posMat, (float) x, (float) (y + h), 0).color(r, g, b, a).endVertex();
+        bb.vertex(posMat, (float) (x + w), (float) (y + h), 0).color(r, g, b, a).endVertex();
+        bb.vertex(posMat, (float) (x + w), (float) y, 0).color(r, g, b, a).endVertex();
+        bb.vertex(posMat, (float) x, (float) y, 0).color(r, g, b, a).endVertex();
+        tesselator.end();
+
+        RenderSystem.disableBlend();
+    }
+
+    /**
+     * Is called in {@link Renderer2D.Interface}
+     */
     public void drawLines(List<Vector2D> points, Color color) {
         if (points.size() < 2) {
             Debug.stacktrace("At least two points expected, got: " + points.size());
@@ -206,23 +236,6 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link Renderer2D.Interface}
      */
-    public void drawRect(Vector2D pos, Vector2D size, Color color) {
-        if(guiGraphics == null) return;
-        //0.04 because drawString SHADOW_OFFSET is 0.03
-        guiGraphics.pose().translate(0,0,0.04);
-        guiGraphics.fill(
-                pos.getXI(),
-                pos.getYI(),
-                pos.getXI() + size.getXI(),
-                pos.getYI() + size.getYI(),
-                color.getRGB()
-        );
-    }
-
-
-    /**
-     * Is called in {@link Renderer2D.Interface}
-     */
     public Vector2D getScaledSize() {
         return new Vector2D(
                 Minecraft.getInstance().getWindow().getGuiScaledWidth(),
@@ -230,13 +243,29 @@ public class FunctionCompatibility implements FunctionHolder,
         );
     }
 
+    public void enableScissor(double x, double y, double w, double h) {
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        Window r = Minecraft.getInstance().getWindow();
+
+        double scaleFactor = r.getGuiScale();
+        double posX = x * scaleFactor;
+        double posY = r.getHeight() - (y + h) * scaleFactor;
+        double width = w * scaleFactor;
+        double height = h * scaleFactor;
+        GL11.glScissor((int) posX, (int) posY, Math.max(0, (int) width), Math.max(0, (int) height));
+    }
+
+    public void disableScissor() {
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+    }
+
     /**
      * Is called in {@link FontRenderer.Interface}
      */
     public void drawString(String text, Vector2D pos, Color color, boolean shadow) {
-        if(guiGraphics == null) return;
+        if (guiGraphics == null) return;
         //0.04 because drawString SHADOW_OFFSET is 0.03
-        guiGraphics.pose().translate(0,0,0.04);
+        guiGraphics.pose().translate(0, 0, 0.04);
         guiGraphics.drawString(Minecraft.getInstance().font, text, pos.getXF(), pos.getYF(), color.getRGB(), shadow);
     }
 
@@ -293,7 +322,7 @@ public class FunctionCompatibility implements FunctionHolder,
      * Is called in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.Interface Minecraft.Interface}
      */
     public String getUserName() {
-        if(Minecraft.getInstance().player == null) return null;
+        if (Minecraft.getInstance().player == null) return null;
         return Minecraft.getInstance().player.getName().getString();
     }
 

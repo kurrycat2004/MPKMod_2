@@ -1,11 +1,11 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.WorldInteraction;
+import io.github.kurrycat.mpkmod.gui.Theme;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
@@ -18,13 +18,15 @@ public class BarrierDisplayComponent extends ResizableComponent {
     @JsonProperty("lineThickness")
     int lineThickness = 2;
 
+    public Color selectedColor = new Color(255, 170, 0, 100);
+
     @Override
     public void render(Vector2D mouse) {
         String lookingAtBlock = WorldInteraction.getLookingAtBlock();
         boolean lookingAtBarrier = lookingAtBlock != null && lookingAtBlock.equals("minecraft:barrier");
 
-        Color color = lookingAtBarrier ? new Color(227, 0, 0) : Color.WHITE;
-        if (selected) color = new Color(255, 170, 0, 100);
+        Color color = lookingAtBarrier ? Theme.warnText : Theme.defaultText;
+        if (selected) color = selectedColor;
 
         String currentGui = Minecraft.getCurrentGuiScreen();
 

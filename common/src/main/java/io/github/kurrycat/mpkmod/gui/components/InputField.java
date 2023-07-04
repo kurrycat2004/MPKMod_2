@@ -23,6 +23,7 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
     public ContentProvider onContentChange = null;
     public String name = null;
     public Color normalColor = new Color(31, 31, 31, 150);
+    public Color edgeColor = new Color(255, 255, 255, 95);
     public Color cursorColor = new Color(255, 255, 255, 150);
     public Color highlightColor = new Color(255, 255, 255, 175);
     private boolean isFocused = false;
@@ -83,7 +84,7 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
             );
         }
 
-        Renderer2D.drawRectWithEdge(rectPos.round(), rectSize.round(), 1, normalColor, normalColor);
+        Renderer2D.drawRectWithEdge(rectPos.round(), rectSize.round(), 1, normalColor, edgeColor);
 
         FontRenderer.drawString(
                 content.substring(0, highlightStart),

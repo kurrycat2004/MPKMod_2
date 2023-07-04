@@ -10,7 +10,6 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.ServerData;
@@ -96,6 +95,7 @@ public class FunctionCompatibility implements FunctionHolder,
         if (Minecraft.getMinecraft().theWorld.getWorldType() != WorldType.DEBUG_WORLD) {
             iblockstate = iblockstate.getBlock().getActualState(iblockstate, Minecraft.getMinecraft().theWorld, blockpos);
         }
+        //noinspection rawtypes
         for (Map.Entry<IProperty, Comparable> e : iblockstate.getProperties().entrySet()) {
             properties.put(e.getKey().getName(), e.getValue().toString());
         }
@@ -171,8 +171,31 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link Renderer2D.Interface}
      */
+    public void drawRect(Vector2D pos, Vector2D size, Color color) {
+        int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
+        double x = pos.getX(), y = pos.getY(), w = size.getX(), h = size.getY();
+
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer wr = tessellator.getWorldRenderer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        //GlStateManager.shadeModel(GL11.GL_SMOOTH); // - for gradients
+        wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        wr.pos(x, y + h, 0.0).color(r, g, b, a).endVertex();
+        wr.pos(x + w, y + h, 0.0).color(r, g, b, a).endVertex();
+        wr.pos(x + w, y, 0.0).color(r, g, b, a).endVertex();
+        wr.pos(x, y, 0.0).color(r, g, b, a).endVertex();
+        tessellator.draw();
+        //GlStateManager.shadeModel(GL11.GL_FLAT);
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+    }
+
+    /**
+     * Is called in {@link Renderer2D.Interface}
+     */
     public void drawLines(List<Vector2D> points, Color color) {
-        if(points.size() < 2) {
+        if (points.size() < 2) {
             Debug.stacktrace("At least two points expected, got: " + points.size());
             return;
         }
@@ -190,7 +213,7 @@ public class FunctionCompatibility implements FunctionHolder,
 
         wr.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
 
-        for(Vector2D p : points) {
+        for (Vector2D p : points) {
             wr.pos(p.getX(), p.getY(), 0).color(r, g, b, a).endVertex();
         }
 
@@ -208,26 +231,29 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link Renderer2D.Interface}
      */
-    public void drawRect(Vector2D pos, Vector2D size, Color color) {
-        Gui.drawRect(
-                pos.getXI(),
-                pos.getYI(),
-                pos.getXI() + size.getXI(),
-                pos.getYI() + size.getYI(),
-                color.getRGB()
-        );
-    }
-
-
-    /**
-     * Is called in {@link Renderer2D.Interface}
-     */
     public Vector2D getScaledSize() {
         ScaledResolution r = new ScaledResolution(Minecraft.getMinecraft());
         return new Vector2D(
                 r.getScaledWidth_double(),
                 r.getScaledHeight_double()
         );
+    }
+
+    public void enableScissor(double x, double y, double w, double h) {
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+
+        ScaledResolution r = new ScaledResolution(Minecraft.getMinecraft());
+
+        double scaleFactor = r.getScaleFactor();
+        double posX = x * scaleFactor;
+        double posY = Minecraft.getMinecraft().displayHeight - (y + h) * scaleFactor;
+        double width = w * scaleFactor;
+        double height = h * scaleFactor;
+        GL11.glScissor((int) posX, (int) posY, Math.max(0, (int) width), Math.max(0, (int) height));
+    }
+
+    public void disableScissor() {
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 
     /**

@@ -149,9 +149,9 @@ public class KeyBindingLabel extends ResizableComponent {
                     PERCENT.X, Anchor.BOTTOM_CENTER
             );
 
-            KeySetList list = new KeySetList(new Vector2D(0, 16), new Vector2D(0.3, -20));
+            KeySetList list = new KeySetList(new Vector2D(0.025, 10), new Vector2D(0.25, -20));
             list.setAbsolute(true);
-            this.addChild(list, PERCENT.SIZE_X, Anchor.TOP_LEFT);
+            this.addChild(list, PERCENT.POS_X | PERCENT.SIZE_X, Anchor.TOP_LEFT);
 
             SortedSet<String> keyMap = new TreeSet<>(KeyBinding.getKeyMap().keySet());
             HashMap<String, ArrayList<String>> modMap = new HashMap<>();
@@ -196,7 +196,7 @@ public class KeyBindingLabel extends ResizableComponent {
             public KeySetList(Vector2D pos, Vector2D size) {
                 this.setPos(pos);
                 this.setSize(size);
-                this.title = "Keybinding Names";
+                this.setTitle("Keybinding Names");
             }
         }
 

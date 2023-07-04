@@ -1,6 +1,5 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
-import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.MathUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -44,9 +43,16 @@ public abstract class ComponentHolder {
     protected Anchor anchor = Anchor.TOP_LEFT;
     private ComponentHolder root = null;
 
+    private ComponentHolder minX = null, minY = null, maxX = null, maxY = null;
+
     private long getLastUpdated() {
         if (rParent() == null) return lastUpdated;
-        return Math.max(lastUpdated, rParent().getLastUpdated());
+        long updated = Math.max(lastUpdated, rParent().getLastUpdated());
+        if (minX != null) updated = Math.max(updated, minX.getLastUpdated());
+        if (maxX != null) updated = Math.max(updated, maxX.getLastUpdated());
+        if (minY != null) updated = Math.max(updated, minY.getLastUpdated());
+        if (maxY != null) updated = Math.max(updated, maxY.getLastUpdated());
+        return updated;
     }
 
     public ComponentHolder getRoot() {
@@ -71,7 +77,7 @@ public abstract class ComponentHolder {
 
         //size update
         if (rParent() == null || rParent() == this) this.csize.set(this.size);
-        else {
+        else if (minX == null && maxX == null && minY == null && maxY == null) {
             Vector2D pSize = this.rParent().getDisplayedSize();
             this.csize.set(
                     PERCENT.HAS_SIZE_X(percentFlag) ? pSize.getX() * this.size.getX() :
@@ -83,12 +89,26 @@ public abstract class ComponentHolder {
 
         //pos update
         if (rParent() == null || rParent() == this) this.cpos.set(this.pos);
-        else {
+        else if (minX == null && maxX == null && minY == null && maxY == null) {
             this.cpos.set(
                     parentAnchor.getOriginPos(this.rParent().getDisplayedSize())
                             .add(this.rParent().getDisplayedPos())
                             .add(parentAnchor.transformVec(getPosWithoutPercentage()))
                             .sub(anchor.getOriginPos(this.csize))
+            );
+        }
+
+        if (rParent() != null && (minX != null || maxX != null || minY != null || maxY != null)) {
+            ComponentHolder p = rParent();
+            this.cpos.set(
+                    minX == null ? p.getDisplayedPos().getX() : (minX.getDisplayedPos().getX() + minX.getDisplayedSize().getX()),
+                    minY == null ? p.getDisplayedPos().getY() : (minY.getDisplayedPos().getY() + minY.getDisplayedSize().getY())
+            );
+            this.csize.set(
+                    maxX == null ? p.getDisplayedPos().getX() + p.getDisplayedSize().getX() - cpos.getX() :
+                            maxX.getDisplayedPos().getX() - cpos.getX(),
+                    maxY == null ? p.getDisplayedPos().getY() + p.getDisplayedSize().getY() - cpos.getY() :
+                            maxY.getDisplayedPos().getY() - cpos.getY()
             );
         }
 
@@ -122,6 +142,20 @@ public abstract class ComponentHolder {
                 PERCENT.HAS_SIZE_X(percentFlag) ? MathUtil.constrain01(size.getX()) : size.getX(),
                 PERCENT.HAS_SIZE_Y(percentFlag) ? MathUtil.constrain01(size.getY()) : size.getY()
         );
+        updatePosAndSize();
+    }
+
+    public void setHeight(double h, boolean percent) {
+        if (this.size.getY() == h && percent == PERCENT.HAS_SIZE_Y(percentFlag)) return;
+        percentFlag = PERCENT.SET_SIZE_Y(percentFlag, percent);
+        this.size.setY(PERCENT.HAS_SIZE_Y(percentFlag) ? MathUtil.constrain01(h) : h);
+        updatePosAndSize();
+    }
+
+    public void setWidth(double w, boolean percent) {
+        if (this.size.getY() == w && percent == PERCENT.HAS_SIZE_X(percentFlag)) return;
+        percentFlag = PERCENT.SET_SIZE_X(percentFlag, percent);
+        this.size.setY(PERCENT.HAS_SIZE_Y(percentFlag) ? MathUtil.constrain01(w) : w);
         updatePosAndSize();
     }
 
@@ -204,6 +238,18 @@ public abstract class ComponentHolder {
         child.updatePosAndSize();
     }
 
+    public void stretchXBetween(ComponentHolder child, ComponentHolder min, ComponentHolder max) {
+        child.minX = min;
+        child.maxX = max;
+        passPositionTo(child);
+    }
+
+    public void stretchYBetween(ComponentHolder child, ComponentHolder min, ComponentHolder max) {
+        child.minY = min;
+        child.maxY = max;
+        passPositionTo(child);
+    }
+
     public void passPositionTo(ComponentHolder child, int percentFlag, Anchor anchor) {
         passPositionTo(child, percentFlag, anchor, anchor);
     }
@@ -231,16 +277,40 @@ public abstract class ComponentHolder {
             return (flag & POS_X) != 0;
         }
 
+        public static int SET_POS_X(int flag, boolean state) {
+            flag &= ~POS_X;
+            if (state) flag |= POS_X;
+            return flag;
+        }
+
         public static boolean HAS_POS_Y(int flag) {
             return (flag & POS_Y) != 0;
+        }
+
+        public static int SET_POS_Y(int flag, boolean state) {
+            flag &= ~POS_Y;
+            if (state) flag |= POS_Y;
+            return flag;
         }
 
         public static boolean HAS_SIZE_X(int flag) {
             return (flag & SIZE_X) != 0;
         }
 
+        public static int SET_SIZE_X(int flag, boolean state) {
+            flag &= ~SIZE_X;
+            if (state) flag |= SIZE_X;
+            return flag;
+        }
+
         public static boolean HAS_SIZE_Y(int flag) {
             return (flag & SIZE_Y) != 0;
+        }
+
+        public static int SET_SIZE_Y(int flag, boolean state) {
+            flag &= ~SIZE_Y;
+            if (state) flag |= SIZE_Y;
+            return flag;
         }
     }
 }

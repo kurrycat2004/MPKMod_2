@@ -33,12 +33,15 @@ public class OptionsGuiScreen extends ComponentScreen {
         optionList.topCover.addChild(
                 new Button(
                         "x",
-                        new Vector2D(3, 2),
+                        new Vector2D(5, 1),
                         new Vector2D(11, 11),
                         mouseButton -> close()
                 ),
                 PERCENT.NONE, Anchor.CENTER_RIGHT
         );
+
+        optionList.bottomCover.setHeight(24, false);
+        optionList.bottomCover.backgroundColor = null;
 
         optionList.bottomCover.addChild(new Button(
                         "Apply",
@@ -79,6 +82,7 @@ public class OptionsGuiScreen extends ComponentScreen {
         public OptionList(Vector2D pos, Vector2D size, ArrayList<Option> options) {
             this.setPos(pos);
             this.setSize(size);
+            this.setTitle("Options");
             items.clear();
             for (Option option : options) {
                 OptionListItem item;
@@ -98,7 +102,6 @@ public class OptionsGuiScreen extends ComponentScreen {
                 items.add(item);
             }
             this.scrollBar.constrainScrollAmountToScreen();
-            this.title = "Options";
         }
 
         @Override
