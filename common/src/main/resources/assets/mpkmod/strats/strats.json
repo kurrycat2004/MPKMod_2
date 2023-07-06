@@ -76,6 +76,14 @@
       "WPJ"
     ]
   },
+  "bwjam": {
+    "format": {
+      "default": "BWJam"
+    },
+    "timingEntries": [
+      "SJ"
+    ]
+  },
   "hh": {
     "format": {
       "default": "HH",
