@@ -11,6 +11,7 @@ unimined {
 minecraft {
     clientWorkingDirectory = project.file('../runs/run')
     forge {
+        mixinConfig = ["mpkmod.mixins.json"]
     }
 
     mcRemapper.tinyRemapperConf = {

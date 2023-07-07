@@ -4,7 +4,6 @@ import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class PopupMenu extends Pane<MainGuiScreen> {
@@ -30,15 +29,19 @@ public class PopupMenu extends Pane<MainGuiScreen> {
     }
 
     public void addComponent(Component c) {
-        addChild(c, PERCENT.NONE, Anchor.TOP_LEFT);
+        addComponent(c, PERCENT.NONE);
+    }
+
+    public void addComponent(Component c, int percentFlag) {
         c.setPos(new Vector2D(1, getDisplayedSize().getY()));
+        addChild(c, percentFlag, Anchor.TOP_LEFT);
         this.setSize(
                 new Vector2D(
                         Math.max(c.getDisplayedSize().getX() + 2, this.getDisplayedSize().getX()),
                         getDisplayedSize().getY() + c.getDisplayedSize().getY() + 1
                 )
         );
-        for(Component comp : components) {
+        for (Component comp : components) {
             comp.setSize(new Vector2D(-2, comp.getDisplayedSize().getY()));
         }
     }

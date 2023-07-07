@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "io.github.kurrycat.mpkmod.compatibility.forge_1_20.mixin",
+  "mixins": [
+  ],
+  "client": [
+    "MouseMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

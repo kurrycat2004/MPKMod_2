@@ -115,7 +115,7 @@ public abstract class ComponentHolder {
         lastUpdated = System.nanoTime();
     }
 
-    private ComponentHolder rParent() {
+    protected ComponentHolder rParent() {
         return absolute ? root : parent;
     }
 

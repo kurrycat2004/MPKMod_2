@@ -27,10 +27,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FunctionCompatibility implements FunctionHolder,
@@ -194,7 +192,7 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link Renderer2D.Interface}
      */
-    public void drawLines(List<Vector2D> points, Color color) {
+    public void drawLines(Collection<Vector2D> points, Color color) {
         if (points.size() < 2) {
             Debug.stacktrace("At least two points expected, got: " + points.size());
             return;
@@ -205,7 +203,7 @@ public class FunctionCompatibility implements FunctionHolder,
         GlStateManager.disableTexture2D();
         GlStateManager.disableAlpha();
         GlStateManager.enableBlend();
-        GL11.glLineWidth(2.0F);
+        GL11.glLineWidth(1.0F);
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
         Tessellator tessellator = Tessellator.getInstance();
@@ -254,6 +252,10 @@ public class FunctionCompatibility implements FunctionHolder,
 
     public void disableScissor() {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
+    }
+
+    public Vector2D getScreenSize() {
+        return new Vector2D(Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
     }
 
     /**

@@ -191,5 +191,9 @@ public class API {
         public static void onKeyInput(int keyCode, String key, boolean pressed) {
             EventAPI.postEvent(new OnKeyInputEvent(keyCode, key, pressed));
         }
+
+        public static void onMouseInput(Mouse.Button button, Mouse.State state, int x, int y, int dx, int dy, int dwheel, long nanos) {
+            EventAPI.postEvent(new OnMouseInputEvent(button, state, x, y, dx, dy, dwheel, nanos));
+        }
     }
 }

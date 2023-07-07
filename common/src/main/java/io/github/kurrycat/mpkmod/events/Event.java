@@ -18,7 +18,8 @@ public abstract class Event {
         RENDER_WORLD_OVERLAY(OnRenderWorldOverlayEvent.class),
         SERVER_CONNECT(OnServerConnect.class),
         SERVER_DISCONNECT(OnServerDisconnect.class),
-        KEY_INPUT(OnKeyInputEvent.class);
+        KEY_INPUT(OnKeyInputEvent.class),
+        MOUSE_INPUT(OnMouseInputEvent.class);
 
         public final Class<? extends Event> eventClass;
 

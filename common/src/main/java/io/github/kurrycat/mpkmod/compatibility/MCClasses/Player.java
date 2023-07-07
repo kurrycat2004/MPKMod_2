@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.compatibility.MCClasses;
 
+import io.github.kurrycat.mpkmod.Main;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
@@ -40,6 +41,8 @@ public class Player {
     public boolean onGround = false;
     public Float deltaYaw = null;
     public Float deltaPitch = null;
+    public int[] deltaX = null;
+    public int[] deltaY = null;
     public int airtime = 0;
     public Float last45 = null;
     public boolean jumpTick = false;
@@ -233,6 +236,14 @@ public class Player {
             if (deltaYaw == 0) deltaYaw = null;
             deltaPitch = truePitch - prev.truePitch;
             if (deltaPitch == 0) deltaPitch = null;
+
+            deltaX = new int[Main.mouseMovements.size()];
+            deltaY = new int[Main.mouseMovements.size()];
+            for (int i = 0; i < Main.mouseMovements.size(); i++) {
+                deltaX[i] = Main.mouseMovements.get(i).getXI();
+                deltaY[i] = Main.mouseMovements.get(i).getYI();
+            }
+            Main.mouseMovements.clear();
 
             timingInput = new TimingInput(
                     keyInput.forward,

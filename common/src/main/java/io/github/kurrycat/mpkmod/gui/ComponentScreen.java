@@ -185,6 +185,14 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                     addComponent(plot);
                     menu.close();
                 }));
+                newLabelMenu.addComponent(new Button("Add Angle path (WIP)", b -> {
+                    if (b != Mouse.Button.LEFT) return;
+                    AnglePath path = new AnglePath(false);
+                    path.setPos(mouse);
+                    path.setSize(new Vector2D(40, 40));
+                    addComponent(path);
+                    menu.close();
+                }));
 
                 menu.addSubMenu(new Button("Add Label"), newLabelMenu);
                 openPane(menu, mouse);

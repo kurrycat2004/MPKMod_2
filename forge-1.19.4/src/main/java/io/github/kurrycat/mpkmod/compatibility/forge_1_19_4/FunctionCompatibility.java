@@ -199,7 +199,7 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link Renderer2D.Interface}
      */
-    public void drawLines(List<Vector2D> points, Color color) {
+    public void drawLines(Collection<Vector2D> points, Color color) {
         if (points.size() < 2) {
             Debug.stacktrace("At least two points expected, got: " + points.size());
             return;
@@ -237,6 +237,10 @@ public class FunctionCompatibility implements FunctionHolder,
                 Minecraft.getInstance().getWindow().getGuiScaledWidth(),
                 Minecraft.getInstance().getWindow().getGuiScaledHeight()
         );
+    }
+
+    public Vector2D getScreenSize() {
+        return new Vector2D(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
     }
 
     public void enableScissor(double x, double y, double w, double h) {

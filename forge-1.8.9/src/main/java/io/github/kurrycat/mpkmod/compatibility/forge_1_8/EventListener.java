@@ -5,11 +5,13 @@ import io.github.kurrycat.mpkmod.compatibility.MCClasses.InputConstants;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
 import io.github.kurrycat.mpkmod.ticks.ButtonMS;
 import io.github.kurrycat.mpkmod.ticks.ButtonMSList;
+import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiOverlayDebug;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -64,6 +66,17 @@ public class EventListener {
                 API.keyBindingMap.get(id).run();
             }
         });
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onMouseEvent(MouseEvent event) {
+        API.Events.onMouseInput(
+                Mouse.Button.fromInt(event.button),
+                event.button == -1 ? Mouse.State.NONE : (event.buttonstate ? Mouse.State.DOWN : Mouse.State.UP),
+                event.x, event.y, event.dx, event.dy,
+                event.dwheel, event.nanoseconds
+        );
     }
 
 

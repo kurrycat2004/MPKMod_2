@@ -4,9 +4,7 @@ import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
 import io.github.kurrycat.mpkmod.events.Event;
-import io.github.kurrycat.mpkmod.events.EventAPI;
-import io.github.kurrycat.mpkmod.events.OnKeyInputEvent;
-import io.github.kurrycat.mpkmod.events.OnRenderWorldOverlayEvent;
+import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.TickThread;
 import io.github.kurrycat.mpkmod.gui.components.Component;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
@@ -19,11 +17,15 @@ import io.github.kurrycat.mpkmod.util.StringUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.github.kurrycat.mpkmod.compatibility.API.mainGUI;
 
 public class Main implements MPKModule {
     public static boolean discordRpcInitialized = false;
+
+    public static List<Vector2D> mouseMovements = new ArrayList<>();
 
     @Override
     public void init() {
@@ -67,6 +69,13 @@ public class Main implements MPKModule {
                     ArrayListUtil.getAllOfType(TickThread.Tickable.class, mainGUI.movableComponents)
             );
         }));
+
+        EventAPI.addListener(
+                new EventAPI.EventListener<OnMouseInputEvent>(e -> {
+                    if (e.dx != 0 || e.dy != 0)
+                        mouseMovements.add(new Vector2D(e.dx, e.dy));
+                }, Event.EventType.MOUSE_INPUT)
+        );
 
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(

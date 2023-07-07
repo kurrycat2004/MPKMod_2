@@ -5,7 +5,6 @@ import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Last45Plot extends Plot {
@@ -15,8 +14,9 @@ public class Last45Plot extends Plot {
     @JsonCreator
     public Last45Plot() {
         super();
-        this.minY = -60;
-        this.maxY = 60;
+        this.minY = -100;
+        this.maxY = 100;
+        this.stepY = 20;
         this.setDataSupplier(() -> {
             if (Player.getLatest() == null) return data;
 
@@ -49,7 +49,11 @@ public class Last45Plot extends Plot {
     }
 
     private List<Double> fromPlayer(Player p) {
-        if (p == null) return null;
-        return Collections.singletonList((double) p.getDeltaYaw());
+        if (p == null || p.deltaX == null) return null;
+        List<Double> x = new ArrayList<>();
+        for (int dx : p.deltaX)
+            x.add((double) dx);
+
+        return x;
     }
 }

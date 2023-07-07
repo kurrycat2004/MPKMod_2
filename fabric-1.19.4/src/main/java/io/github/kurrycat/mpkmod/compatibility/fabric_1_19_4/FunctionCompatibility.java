@@ -1,6 +1,5 @@
 package io.github.kurrycat.mpkmod.compatibility.fabric_1_19_4;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
@@ -178,7 +177,32 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link Renderer2D.Interface}
      */
-    public void drawLines(List<Vector2D> points, Color color) {
+    public void drawRect(Vector2D pos, Vector2D size, Color color) {
+        if (matrixStack == null) return;
+        //0.04 because drawString SHADOW_OFFSET is 0.03
+        matrixStack.translate(0, 0, 0.04);
+        Matrix4f posMat = matrixStack.peek().getPositionMatrix();
+        int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
+        double x = pos.getX(), y = pos.getY(), w = size.getX(), h = size.getY();
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bb = tessellator.getBuffer();
+        RenderSystem.enableBlend();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        bb.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        bb.vertex(posMat, (float) x, (float) (y + h), 0).color(r, g, b, a).next();
+        bb.vertex(posMat, (float) (x + w), (float) (y + h), 0).color(r, g, b, a).next();
+        bb.vertex(posMat, (float) (x + w), (float) y, 0).color(r, g, b, a).next();
+        bb.vertex(posMat, (float) x, (float) y, 0).color(r, g, b, a).next();
+        tessellator.draw();
+
+        RenderSystem.disableBlend();
+    }
+
+    /**
+     * Is called in {@link Renderer2D.Interface}
+     */
+    public void drawLines(Collection<Vector2D> points, Color color) {
         if (points.size() < 2) {
             Debug.stacktrace("At least two points expected, got: " + points.size());
             return;
@@ -208,36 +232,15 @@ public class FunctionCompatibility implements FunctionHolder,
         RenderSystem.enableBlend();
     }
 
-    /**
-     * Is called in {@link Renderer2D.Interface}
-     */
-    public void drawRect(Vector2D pos, Vector2D size, Color color) {
-        if (matrixStack == null) return;
-        //0.04 because drawString SHADOW_OFFSET is 0.03
-        matrixStack.translate(0, 0, 0.04);
-        Matrix4f posMat = matrixStack.peek().getPositionMatrix();
-        int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
-        double x = pos.getX(), y = pos.getY(), w = size.getX(), h = size.getY();
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bb = tessellator.getBuffer();
-        RenderSystem.enableBlend();
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-        bb.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-        bb.vertex(posMat, (float) x, (float) (y + h), 0).color(r, g, b, a).next();
-        bb.vertex(posMat, (float) (x + w), (float) (y + h), 0).color(r, g, b, a).next();
-        bb.vertex(posMat, (float) (x + w), (float) y, 0).color(r, g, b, a).next();
-        bb.vertex(posMat, (float) x, (float) y, 0).color(r, g, b, a).next();
-        tessellator.draw();
-
-        RenderSystem.disableBlend();
-    }
-
     public Vector2D getScaledSize() {
         return new Vector2D(
                 MinecraftClient.getInstance().getWindow().getScaledWidth(),
                 MinecraftClient.getInstance().getWindow().getScaledHeight()
         );
+    }
+
+    public Vector2D getScreenSize() {
+        return new Vector2D(MinecraftClient.getInstance().getWindow().getWidth(), MinecraftClient.getInstance().getWindow().getHeight());
     }
 
     public void enableScissor(double x, double y, double w, double h) {
@@ -257,7 +260,7 @@ public class FunctionCompatibility implements FunctionHolder,
     }
 
     public void drawString(String text, Vector2D pos, Color color, boolean shadow) {
-        matrixStack.translate(0,0,0.04);
+        matrixStack.translate(0, 0, 0.04);
         if (shadow)
             MinecraftClient.getInstance().textRenderer.drawWithShadow(matrixStack, text, pos.getXF(), pos.getYF(), color.getRGB());
         else
@@ -290,8 +293,8 @@ public class FunctionCompatibility implements FunctionHolder,
     public void displayGuiScreen(MPKGuiScreen screen) {
         MinecraftClient.getInstance().setScreen(
                 screen == null
-                ? null
-                : new io.github.kurrycat.mpkmod.compatibility.fabric_1_19_4.MPKGuiScreen(screen));
+                        ? null
+                        : new io.github.kurrycat.mpkmod.compatibility.fabric_1_19_4.MPKGuiScreen(screen));
     }
 
     public String getCurrentGuiScreen() {
@@ -314,7 +317,7 @@ public class FunctionCompatibility implements FunctionHolder,
      * Is called in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.Interface Minecraft.Interface}
      */
     public String getUserName() {
-        if(MinecraftClient.getInstance().player == null) return null;
+        if (MinecraftClient.getInstance().player == null) return null;
         return MinecraftClient.getInstance().player.getName().getString();
     }
 
