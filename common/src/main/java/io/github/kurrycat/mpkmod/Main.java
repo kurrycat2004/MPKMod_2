@@ -7,28 +7,57 @@ import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.TickThread;
 import io.github.kurrycat.mpkmod.gui.components.Component;
+import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
+import io.github.kurrycat.mpkmod.gui.infovars.InfoTree;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.LabelConfiguration;
+import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
+import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
+import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.modules.MPKModule;
 import io.github.kurrycat.mpkmod.modules.ModuleManager;
-import io.github.kurrycat.mpkmod.util.ArrayListUtil;
-import io.github.kurrycat.mpkmod.util.MathUtil;
-import io.github.kurrycat.mpkmod.util.StringUtil;
-import io.github.kurrycat.mpkmod.util.Vector2D;
+import io.github.kurrycat.mpkmod.ticks.TimingStorage;
+import io.github.kurrycat.mpkmod.util.*;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.kurrycat.mpkmod.compatibility.API.mainGUI;
-
 public class Main implements MPKModule {
     public static boolean discordRpcInitialized = false;
 
     public static List<Vector2D> mouseMovements = new ArrayList<>();
+    public static MainGuiScreen mainGUI;
+    public static InfoTree infoTree;
 
     @Override
     public void init() {
+        infoTree = InfoString.createInfoTree();
+        API.LOGGER.info("{} infoVars registered", infoTree.getSize());
+
+        TimingStorage.init();
+
+        mainGUI = new MainGuiScreen();
+        API.registerGUIScreen("main_gui", mainGUI);
+
+        API.registerGUIScreen("lb_gui", new LandingBlockGuiScreen());
+        API.registerKeyBinding("lb_set",
+                () -> {
+                    List<BoundingBox3D> boundingBox3DList = WorldInteraction.getLookingAtCollisionBoundingBoxes();
+                    List<LandingBlock> lbs = LandingBlock.asLandingBlocks(boundingBox3DList);
+                    lbs.forEach(lb -> {
+                        if (LandingBlockGuiScreen.lbs.contains(lb))
+                            LandingBlockGuiScreen.lbs.remove(lb);
+                        else LandingBlockGuiScreen.lbs.add(lb);
+                    });
+                }
+        );
+
+        API.registerGUIScreen("options_gui", new OptionsGuiScreen());
+    }
+
+    @Override
+    public void loaded() {
         LabelConfiguration.init();
         EventAPI.init();
 
@@ -52,7 +81,7 @@ public class Main implements MPKModule {
                         } else if (event.keyCode == InputConstants.KEY_C) {
                             if (Player.getLatest() == null) return;
                             Player p = Player.getLatest();
-                            StringUtil.copyToClipboard(
+                            Minecraft.copyToClipboard(
                                     p.pos.getX() + " " +
                                             p.pos.getY() + " " +
                                             p.pos.getZ() + " " +
@@ -146,10 +175,5 @@ public class Main implements MPKModule {
                         }
                 )
         );*/
-    }
-
-    @Override
-    public void loaded() {
-
     }
 }

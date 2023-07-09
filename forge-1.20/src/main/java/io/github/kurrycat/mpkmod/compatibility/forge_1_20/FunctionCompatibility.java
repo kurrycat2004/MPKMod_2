@@ -30,6 +30,8 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.util.List;
 import java.util.*;
 
@@ -328,6 +330,10 @@ public class FunctionCompatibility implements FunctionHolder,
     public String getUserName() {
         if (Minecraft.getInstance().player == null) return null;
         return Minecraft.getInstance().player.getName().getString();
+    }
+
+    public void copyToClipboard(String content) {
+        Minecraft.getInstance().keyboardHandler.setClipboard(content);
     }
 
     /**

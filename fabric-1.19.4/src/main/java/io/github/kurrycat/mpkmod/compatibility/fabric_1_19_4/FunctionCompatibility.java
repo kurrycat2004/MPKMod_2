@@ -321,6 +321,10 @@ public class FunctionCompatibility implements FunctionHolder,
         return MinecraftClient.getInstance().player.getName().getString();
     }
 
+    public void copyToClipboard(String content) {
+        MinecraftClient.getInstance().keyboard.setClipboard(content);
+    }
+
     public List<Integer> getPressedButtons() {
         return new ArrayList<>(pressedButtons);
     }

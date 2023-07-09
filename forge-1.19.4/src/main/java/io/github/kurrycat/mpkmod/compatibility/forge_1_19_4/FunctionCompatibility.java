@@ -327,6 +327,10 @@ public class FunctionCompatibility implements FunctionHolder,
         return Minecraft.getInstance().player.getName().getString();
     }
 
+    public void copyToClipboard(String content) {
+        Minecraft.getInstance().keyboardHandler.setClipboard(content);
+    }
+
     /**
      * Is called in {@link Keyboard.Interface Keyboard.Interface}
      */

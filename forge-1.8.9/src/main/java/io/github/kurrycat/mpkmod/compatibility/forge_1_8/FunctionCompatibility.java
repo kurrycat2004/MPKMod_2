@@ -27,6 +27,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -322,6 +324,11 @@ public class FunctionCompatibility implements FunctionHolder,
         return Minecraft.getMinecraft().thePlayer.getName();
     }
 
+    public void copyToClipboard(String content) {
+        StringSelection selection = new StringSelection(content);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(selection, selection);
+    }
 
     /**
      * Is called in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses.Keyboard.Interface Keyboard.Interface}

@@ -1,19 +1,20 @@
 package io.github.kurrycat.mpkmod.compatibility;
 
 import io.github.kurrycat.mpkmod.Main;
-import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
+import io.github.kurrycat.mpkmod.compatibility.MCClasses.FunctionHolder;
+import io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft;
+import io.github.kurrycat.mpkmod.compatibility.MCClasses.WorldInteraction;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
-import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
-import io.github.kurrycat.mpkmod.gui.infovars.InfoTree;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.modules.MPKModule;
+import io.github.kurrycat.mpkmod.modules.MPKModuleImpl;
 import io.github.kurrycat.mpkmod.modules.ModuleFinder;
 import io.github.kurrycat.mpkmod.modules.ModuleManager;
 import io.github.kurrycat.mpkmod.save.Serializer;
@@ -48,12 +49,10 @@ public class API {
      */
     public static long tickTime = 0;
 
-    public static MainGuiScreen mainGUI;
     public static Map<String, MPKGuiScreen> guiScreenMap = new HashMap<>();
     public static Map<String, Procedure> keyBindingMap = new HashMap<>();
 
     public static HashMap<String, Option> optionsMap;
-    public static InfoTree infoTree;
     private static FunctionHolder functionHolder;
 
     /*@Option.Field
@@ -74,28 +73,12 @@ public class API {
         optionsMap = Option.createOptionMap();
         Option.updateOptionMapFromJSON(true);
 
-        infoTree = InfoString.createInfoTree();
-        API.LOGGER.info("{} infoVars registered", infoTree.getSize());
+        MPKModule mainModule = new Main();
+        ModuleManager.moduleMap.put("main", new MPKModuleImpl("main", mainModule));
+        mainModule.init();
 
-        TimingStorage.init();
-
-        mainGUI = new MainGuiScreen();
-        registerGUIScreen("main_gui", mainGUI);
-
-        registerGUIScreen("lb_gui", new LandingBlockGuiScreen());
-        registerKeyBinding("lb_set",
-                () -> {
-                    List<BoundingBox3D> boundingBox3DList = WorldInteraction.getLookingAtCollisionBoundingBoxes();
-                    List<LandingBlock> lbs = LandingBlock.asLandingBlocks(boundingBox3DList);
-                    lbs.forEach(lb -> {
-                        if (LandingBlockGuiScreen.lbs.contains(lb))
-                            LandingBlockGuiScreen.lbs.remove(lb);
-                        else LandingBlockGuiScreen.lbs.add(lb);
-                    });
-                }
-        );
-
-        registerGUIScreen("options_gui", new OptionsGuiScreen());
+        ModuleFinder.init();
+        ModuleManager.initAllModules();
     }
 
     /**
@@ -128,12 +111,7 @@ public class API {
         Minecraft.version = mcVersion;
 
         gameStartedInstant = Instant.now();
-
-        MPKModule mainModule = new Main();
-        mainModule.init();
-
-        ModuleFinder.init();
-        ModuleManager.reloadAllModules();
+        ModuleManager.loadAllModules();
     }
 
     /**

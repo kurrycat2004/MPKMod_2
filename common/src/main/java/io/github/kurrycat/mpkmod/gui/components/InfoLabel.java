@@ -3,7 +3,7 @@ package io.github.kurrycat.mpkmod.gui.components;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.kurrycat.mpkmod.compatibility.API;
+import io.github.kurrycat.mpkmod.Main;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.gui.TickThread;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
@@ -28,7 +28,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
     /**
      * @param text the text to be displayed<br><br>
      *             <code>"{COLOR}"</code> with COLOR being any <code>{@link Colors}.name</code> will be replaced by that color's code<br><br>
-     *             <code>"{VARNAME}"</code> with VARNAME being any key in {@link API#infoTree}<br>
+     *             <code>"{VARNAME}"</code> with VARNAME being any key in {@link Main#infoTree}<br>
      */
     @JsonCreator
     public InfoLabel(@JsonProperty("text") String text) {
@@ -91,7 +91,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
             this.setPos(pos);
             this.setSize(size);
             this.setTitle("Variables");
-            allItems = API.infoTree.getEntries().stream()
+            allItems = Main.infoTree.getEntries().stream()
                     .map(entry ->
                             new InfoVarListItem(this, entry.getValue())
                     ).collect(Collectors.toList());
