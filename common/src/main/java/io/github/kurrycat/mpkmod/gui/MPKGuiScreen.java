@@ -63,8 +63,8 @@ public abstract class MPKGuiScreen extends ComponentHolder {
     /**
      * @param mousePos Mouse position when scrolled
      * @param delta    number of lines to scroll (one scroll tick = 3 per default)<br>
-     *                 delta < 0: scrolled down<br>
-     *                 delta > 0: scrolled up
+     *                 delta {@literal <} 0: scrolled down<br>
+     *                 delta {@literal >} 0: scrolled up
      */
     public void onMouseScroll(Vector2D mousePos, int delta) {
     }

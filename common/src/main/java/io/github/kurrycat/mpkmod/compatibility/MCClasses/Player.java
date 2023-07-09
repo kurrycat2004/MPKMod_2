@@ -228,8 +228,8 @@ public class Player {
             landTick = (!prev.onGround && onGround);
             jumpTick = !onGround && prev.onGround && keyInput.jump;
 
-            lastLanding = landTick ? new PosAndAngle(pos, trueYaw, truePitch) : prev.lastLanding;
-            lastHit = prev.landTick ? new PosAndAngle(pos, trueYaw, truePitch) : prev.lastHit;
+            lastLanding = landTick ? new PosAndAngle(prev.pos, prev.trueYaw, prev.truePitch) : prev.lastLanding;
+            lastHit = prev.landTick ? new PosAndAngle(prev.pos, prev.trueYaw, prev.truePitch) : prev.lastHit;
             lastJump = jumpTick ? new PosAndAngle(prev.pos, prev.trueYaw, prev.truePitch) : prev.lastJump;
 
             deltaYaw = trueYaw - prev.trueYaw;

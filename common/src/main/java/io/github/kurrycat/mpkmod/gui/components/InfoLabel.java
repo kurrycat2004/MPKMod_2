@@ -251,7 +251,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
         @Override
         public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
             return showCollapseButton && collapseButton.handleMouseInput(state, mousePos, button) ||
-                    ArrayListUtil.orMap(children, c -> c.handleMouseInput(state, mousePos, button));
+                    !collapsed && ArrayListUtil.orMap(children, c -> c.handleMouseInput(state, mousePos, button));
         }
     }
 

@@ -63,6 +63,8 @@ public class API {
     /**
      * Gets called at the beginning of mod init<br>
      * Register GUIs here using {@link #registerGUIScreen(String, MPKGuiScreen) registerGuiScreen}
+     *
+     * @param callerClass class that calls this
      */
     public static void preInit(Class<?> callerClass) {
         ClassUtil.setModClass(callerClass);
@@ -74,7 +76,7 @@ public class API {
         Option.updateOptionMapFromJSON(true);
 
         MPKModule mainModule = new Main();
-        ModuleManager.moduleMap.put("main", new MPKModuleImpl("main", mainModule));
+        ModuleManager.moduleMap.put("main", new MPKModuleImpl("main", mainModule, null));
         mainModule.init();
 
         ModuleFinder.init();

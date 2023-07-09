@@ -24,6 +24,11 @@ compileJava.doLast {
             }.join(";")
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 publishing {
     publications {
         maven(MavenPublication) {

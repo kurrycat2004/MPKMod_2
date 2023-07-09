@@ -33,12 +33,17 @@ public class ModuleManager {
                 (alreadyLoaded ? "Reloaded" : "Loaded") +
                         " module " + module.getName()
         );
-        moduleMap.put(module.getName(), module);
+        MPKModuleImpl prev = moduleMap.put(module.getName(), module);
+        if (prev != null) prev.closeLoader();
 
-        if (init)
-            module.getModule().init();
-        else
-            module.getModule().loaded();
+        try {
+            if (init) module.getModule().init();
+            else module.getModule().loaded();
+        } catch (Exception e) {
+            API.LOGGER.info("Caught exception during " +
+                    (init ? "initialization" : "reloading") +
+                    " of module: " + module.getName(), e);
+        }
     }
 
     public static void initAllModules() {
@@ -47,7 +52,11 @@ public class ModuleManager {
 
     public static void loadAllModules() {
         for (Map.Entry<String, MPKModuleImpl> entry : moduleMap.entrySet()) {
-            entry.getValue().getModule().loaded();
+            try {
+                entry.getValue().getModule().loaded();
+            } catch (Exception e) {
+                API.LOGGER.info("Caught exception during loading of module: " + entry.getValue().getName(), e);
+            }
         }
     }
 }
