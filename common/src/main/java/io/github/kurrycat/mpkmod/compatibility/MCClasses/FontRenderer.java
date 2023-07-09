@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.compatibility.MCClasses;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
+import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
@@ -16,7 +17,7 @@ public class FontRenderer {
      * @param shadow Draws the same text again underneath in {@link Color#BLACK} and a positive offset of 1px for each axis
      */
     public static void drawString(String text, Vector2D pos, Color color, boolean shadow) {
-        Interface.get().ifPresent(f -> f.drawString(text, pos, color, shadow));
+        Interface.get().ifPresent(f -> f.drawString(Colors.RESET.getCode() + text, pos, color, shadow));
     }
 
     /**
