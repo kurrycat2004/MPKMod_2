@@ -277,6 +277,8 @@ public class InfoString {
                 return MathUtil.formatDecimals((Float) o, decimals, keepZeros);
             else if (o instanceof FormatDecimals)
                 return ((FormatDecimals) o).formatDecimals(decimals, keepZeros);
+            if(o.toString().equals(o.getClass().getName() + "@" + Integer.toHexString(o.hashCode())))
+                return "[" + o.getClass().getSimpleName() + " object]";
             return o.toString();
         }
     }

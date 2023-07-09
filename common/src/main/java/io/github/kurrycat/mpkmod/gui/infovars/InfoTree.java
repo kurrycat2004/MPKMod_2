@@ -7,7 +7,16 @@ import java.util.*;
 public class InfoTree {
     private final HashMap<String, InfoVar> elements = new HashMap<>();
     private InfoTree parentTree = null;
+    private InfoVar node = null;
     private int size = 0;
+
+    public InfoTree() {
+
+    }
+
+    public InfoTree(InfoVar node) {
+        this.node = node;
+    }
 
     public void addElement(String name, InfoVar var) {
         if (name.contains(".")) {
@@ -44,7 +53,15 @@ public class InfoTree {
         return size;
     }
 
+    public InfoTree getParent() {
+        return parentTree;
+    }
+
     public void setParent(InfoTree infoTree) {
         this.parentTree = infoTree;
+    }
+
+    public InfoVar getNode() {
+        return node;
     }
 }

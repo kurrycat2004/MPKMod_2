@@ -6,14 +6,14 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 public class ColorLabel extends Label {
     private final Colors color;
 
-    public ColorLabel(Colors color) {
-        super(color.getCode() + color.getName());
-        this.color = color;
-    }
-
     public ColorLabel(Colors color, Vector2D pos) {
         this(color);
         this.setPos(pos);
+    }
+
+    public ColorLabel(Colors color) {
+        super(color.getCode() + color.getName());
+        this.color = color;
     }
 
     @Override

@@ -3,6 +3,8 @@ package io.github.kurrycat.mpkmod.gui;
 import java.awt.*;
 
 public class Theme {
+    public static Color NONE = new Color(0, 0, 0, 0);
+
     public static Color lightEdge = new Color(255, 255, 255, 95);
     public static Color darkEdge = new Color(0, 0, 0, 255);
     public static Color darkBackground = new Color(31, 31, 31, 150);
