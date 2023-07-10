@@ -2,7 +2,7 @@ pluginManagement {
     repositories {
         maven {
             name = 'WagYourMaven'
-            url = 'https://maven.wagyourtail.xyz/snapshots'
+            url = 'https://maven.wagyourtail.xyz/releases'
         }
         maven {
             name = 'ForgeMaven'
