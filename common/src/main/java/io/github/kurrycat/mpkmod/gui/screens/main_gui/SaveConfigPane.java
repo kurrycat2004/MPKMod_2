@@ -28,9 +28,9 @@ public class SaveConfigPane extends Pane<MainGuiScreen> {
     private void initComponents() {
         savedConfigs = new ConfigFileList(
                 LabelConfiguration.savedConfigs,
-                new Vector2D(0.2 / 3, 0.07),
+                new Vector2D(0.2 / 3, 0.05),
                 new Vector2D(4 / 10D, 0.9));
-        savedConfigs.title = "Saved Configurations";
+        savedConfigs.setTitle("Saved Configurations");
         addChild(savedConfigs, PERCENT.ALL, Anchor.TOP_RIGHT);
 
         TextRectangle r = new TextRectangle(

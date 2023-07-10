@@ -59,7 +59,7 @@ public class MathUtil {
      * @param value value to constrain
      * @param min   min bounds
      * @param max   max bounds
-     * @return min if value < min, max if value > max or else value
+     * @return min if value {@literal <} min, max if value {@literal >} max or else value
      */
     public static double constrain(double value, double min, double max) {
         if (min > max) {

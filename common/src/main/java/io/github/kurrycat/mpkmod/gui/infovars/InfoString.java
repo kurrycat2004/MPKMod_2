@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.gui.infovars;
 
+import io.github.kurrycat.mpkmod.Main;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.util.*;
 
@@ -261,7 +262,7 @@ public class InfoString {
             this.decimals = decimals;
             this.keepZeros = keepZeros;
 
-            this.infoVar = API.infoTree.getElement(this.varName);
+            this.infoVar = Main.infoTree.getElement(this.varName);
         }
 
         public String get() {
@@ -276,6 +277,8 @@ public class InfoString {
                 return MathUtil.formatDecimals((Float) o, decimals, keepZeros);
             else if (o instanceof FormatDecimals)
                 return ((FormatDecimals) o).formatDecimals(decimals, keepZeros);
+            if(o.toString().equals(o.getClass().getName() + "@" + Integer.toHexString(o.hashCode())))
+                return "[" + o.getClass().getSimpleName() + " object]";
             return o.toString();
         }
     }

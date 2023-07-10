@@ -54,12 +54,21 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
     }
 
     public NumberSlider setValue(double value) {
-        if(this.value == value) return this;
+        if (this.value == value) return this;
 
         this.value = value;
         this.button.pos.setX(getRelativeXPosFromValue());
         this.button.updatePosAndSize();
         return this;
+    }
+
+    @Override
+    public void updatePosAndSize() {
+        super.updatePosAndSize();
+        if (this.button != null) {
+            this.button.pos.setX(getRelativeXPosFromValue());
+            this.button.updatePosAndSize();
+        }
     }
 
     public void render(Vector2D mouse) {

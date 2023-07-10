@@ -2,8 +2,8 @@ package io.github.kurrycat.mpkmod.landingblock;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
-import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
+import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 
 import java.util.ArrayList;
@@ -30,14 +30,43 @@ public class LandingBlock {
 
     public long lastTimeOffsetSaved = 0;
 
-    public LandingBlock(BoundingBox3D boundingBox) {
-        this.boundingBox = boundingBox;
-    }
-
     public static List<LandingBlock> asLandingBlocks(List<BoundingBox3D> collisionBoundingBoxes) {
         return collisionBoundingBoxes.stream().map(LandingBlock::new).collect(Collectors.toCollection(ArrayList<LandingBlock>::new));
     }
 
+    public LandingBlock(BoundingBox3D boundingBox) {
+        this.boundingBox = boundingBox;
+    }
+
+    @InfoString.Getter
+    public Vector3D getOffset() {
+        if (offsets.size() == 0) return null;
+        return offsets.get(offsets.size() - 1);
+    }
+
+    public Vector3D saveOffsetIfInRange() {
+        if (!isTryingToLandOn()) return null;
+        BoundingBox3D playerBB = landingMode.getPlayerBB();
+        if (playerBB == null) return null;
+
+        Vector3D offset = boundingBox.distanceTo(playerBB).mult(-1D);
+        if (offset.getX() <= -0.3F || offset.getZ() <= -0.3F) return null;
+
+        offsets.add(offset);
+        while (offsets.size() > MAX_OFFSETS_SAVED)
+            offsets.remove(0);
+
+        if (pb == null) pb = offset;
+        else if (calculateOffsetDist(offset) > calculateOffsetDist(pb)) {
+            pb = offset;
+        }
+        if (pbX == null || offset.getX() > pbX.getX()) pbX = offset;
+        if (pbZ == null || offset.getZ() > pbZ.getZ()) pbZ = offset;
+
+        lastTimeOffsetSaved = API.tickTime;
+
+        return offset.copy();
+    }
 
     public boolean isTryingToLandOn() {
         if (Player.getLatest() == null) return false;
@@ -55,39 +84,15 @@ public class LandingBlock {
         double xSign = Math.signum(offset.getX());
         double zSign = Math.signum(offset.getZ());
 
-        if(xSign <= 0 && zSign >= 0) {
+        if (xSign <= 0 && zSign >= 0) {
             return offset.getX();
-        } else if(xSign >= 0 && zSign <= 0) {
+        } else if (xSign >= 0 && zSign <= 0) {
             return offset.getZ();
-        } else if(xSign <= 0 && zSign <= 0) {
+        } else if (xSign <= 0 && zSign <= 0) {
             return -offset.lengthXZ();
         } else {
             return offset.lengthXZ();
         }
-    }
-
-    public Vector3D saveOffsetIfInRange() {
-        if (!isTryingToLandOn()) return null;
-        BoundingBox3D playerBB = landingMode.getPlayerBB();
-        if (playerBB == null) return null;
-
-        Vector3D offset = boundingBox.distanceTo(playerBB).mult(-1D);
-        if (offset.getX() <= -0.3F || offset.getZ() <= -0.3F) return null;
-
-        offsets.add(offset);
-        while (offsets.size() > MAX_OFFSETS_SAVED)
-            offsets.remove(0);
-
-        if (pb == null) pb = offset;
-        else if(calculateOffsetDist(offset) > calculateOffsetDist(pb)){
-            pb = offset;
-        }
-        if (pbX == null || offset.getX() > pbX.getX()) pbX = offset;
-        if (pbZ == null || offset.getZ() > pbZ.getZ()) pbZ = offset;
-
-        lastTimeOffsetSaved = API.tickTime;
-
-        return offset.copy();
     }
 
     @Override

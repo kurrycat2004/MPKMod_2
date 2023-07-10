@@ -3,8 +3,9 @@ package io.github.kurrycat.mpkmod.gui.components;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.kurrycat.mpkmod.compatibility.API;
+import io.github.kurrycat.mpkmod.Main;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
+import io.github.kurrycat.mpkmod.gui.Theme;
 import io.github.kurrycat.mpkmod.gui.TickThread;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoVar;
@@ -16,9 +17,8 @@ import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class InfoLabel extends Label implements TickThread.Tickable {
@@ -28,7 +28,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
     /**
      * @param text the text to be displayed<br><br>
      *             <code>"{COLOR}"</code> with COLOR being any <code>{@link Colors}.name</code> will be replaced by that color's code<br><br>
-     *             <code>"{VARNAME}"</code> with VARNAME being any key in {@link API#infoTree}<br>
+     *             <code>"{VARNAME}"</code> with VARNAME being any key in {@link Main#infoTree}<br>
      */
     @JsonCreator
     public InfoLabel(@JsonProperty("text") String text) {
@@ -86,12 +86,14 @@ public class InfoLabel extends Label implements TickThread.Tickable {
 
     private static class InfoVarList extends ScrollableList<InfoVarListItem> {
         private final List<InfoVarListItem> allItems;
+        private final InputField inputField;
 
-        public InfoVarList(Vector2D pos, Vector2D size) {
+        public InfoVarList(InputField inputField, Vector2D pos, Vector2D size) {
             this.setPos(pos);
             this.setSize(size);
-            title = "Variables";
-            allItems = API.infoTree.getEntries().stream()
+            this.setTitle("Variables");
+            this.inputField = inputField;
+            allItems = Main.infoTree.getEntries().stream()
                     .map(entry ->
                             new InfoVarListItem(this, entry.getValue())
                     ).collect(Collectors.toList());
@@ -113,26 +115,23 @@ public class InfoLabel extends Label implements TickThread.Tickable {
 
     private static class InfoVarListItem extends ScrollableListItem<InfoVarListItem> {
         public static final int HEIGHT = 18;
-        private final String varName;
         private final InfoVarComponent infoVarComponent;
 
-        public InfoVarListItem(ScrollableList<InfoVarListItem> parent, InfoVar infoVar) {
+        public InfoVarListItem(InfoVarList parent, InfoVar infoVar) {
             super(parent);
             this.setHeight(18);
-            this.varName = infoVar.getName();
-            this.infoVarComponent = new InfoVarComponent(infoVar);
+            this.infoVarComponent = new InfoVarComponent(infoVar, parent.inputField);
             infoVarComponent.setSize(new Vector2D(1, -HEIGHT));
             passPositionTo(infoVarComponent, PERCENT.SIZE_X);
         }
 
         @Override
         public int getHeight() {
-            return infoVarComponent.collapsed ? HEIGHT : infoVarComponent.getHeight();
+            return infoVarComponent.getHeight();
         }
 
         @Override
         public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
-            //renderDefaultBorder(pos, size);
             infoVarComponent.render(mouse);
         }
 
@@ -149,17 +148,20 @@ public class InfoLabel extends Label implements TickThread.Tickable {
 
     private static class InfoVarComponent extends Component implements MouseInputListener {
         private final InfoVar infoVar;
+        private final InputField inputField;
         private final ArrayList<InfoVarComponent> children = new ArrayList<>();
         private final Button collapseButton;
+        private final Button addButton;
         private final boolean showCollapseButton;
         public boolean collapsed = true;
         private InfoVarComponent parent = null;
 
-        public InfoVarComponent(InfoVar infoVar) {
+        public InfoVarComponent(InfoVar infoVar, InputField inputField) {
             this.infoVar = infoVar;
+            this.inputField = inputField;
             double[] i = {InfoVarListItem.HEIGHT};
             infoVar.getEntries().stream()
-                    .map(entry -> new InfoVarComponent(entry.getValue()))
+                    .map(entry -> new InfoVarComponent(entry.getValue(), inputField))
                     .forEach(c -> {
                         c.parent = this;
                         c.setSize(new Vector2D(-4, InfoVarListItem.HEIGHT));
@@ -186,13 +188,22 @@ public class InfoLabel extends Label implements TickThread.Tickable {
             buttonHolder.setSize(new Vector2D(1, InfoVarListItem.HEIGHT));
             passPositionTo(buttonHolder, PERCENT.SIZE_X);
 
-            collapseButton = new Button("v", new Vector2D(1, 0), new Vector2D(11, 11));
+            collapseButton = new Button("v", new Vector2D(13, 0), new Vector2D(11, 11));
             collapseButton.setButtonCallback(mouseButton -> {
                 if (mouseButton != Mouse.Button.LEFT) return;
                 setCollapsed(!collapsed);
             });
             buttonHolder.passPositionTo(collapseButton, PERCENT.NONE, Anchor.CENTER_RIGHT);
             components.add(collapseButton);
+
+            addButton = new Button("+", new Vector2D(1, 0), new Vector2D(11, 11));
+            addButton.setButtonCallback(mouseButton -> {
+                if (mouseButton != Mouse.Button.LEFT) return;
+                inputField.typeContentAtCursor("{" + infoVar.getFullName() + "}");
+                inputField.focus();
+            });
+            buttonHolder.passPositionTo(addButton, PERCENT.NONE, Anchor.CENTER_RIGHT);
+            components.add(addButton);
         }
 
         private void setCollapsed(boolean collapsed) {
@@ -226,7 +237,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
                 c.setPos(new Vector2D(2, i[0] + 2));
                 i[0] += c.getHeight();
             });
-            if(parent != null) parent.updateChildPositions();
+            if (parent != null) parent.updateChildPositions();
         }
 
         @Override
@@ -250,8 +261,46 @@ public class InfoLabel extends Label implements TickThread.Tickable {
 
         @Override
         public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-            return showCollapseButton && collapseButton.handleMouseInput(state, mousePos, button) ||
-                    ArrayListUtil.orMap(children, c -> c.handleMouseInput(state, mousePos, button));
+            return addButton.handleMouseInput(state, mousePos, button) ||
+                    showCollapseButton && collapseButton.handleMouseInput(state, mousePos, button) ||
+                    !collapsed && ArrayListUtil.orMap(children, c -> c.handleMouseInput(state, mousePos, button));
+        }
+    }
+
+    private static class ColorList extends ScrollableList<ColorItem> {
+        public ColorList(InputField inputField) {
+            super();
+            setTitle("Colors");
+            setPos(new Vector2D(5, 5));
+            double width = Arrays.stream(Colors.values())
+                    .map(c -> FontRenderer.getStringSize(c.getName()).getX())
+                    .max(Comparator.naturalOrder()).orElse(50D);
+            setSize(new Vector2D(width + 15, -10));
+            for (Colors c : Colors.values()) {
+                addItem(new ColorItem(this, inputField, c));
+            }
+        }
+    }
+
+    private static class ColorItem extends ScrollableListItem<ColorItem> {
+        public ColorItem(ScrollableList<ColorItem> parent, InputField inputField, Colors color) {
+            super(parent);
+            setHeight(12);
+            Button button = new Button(
+                    color.getCode() + color.getName(),
+                    new Vector2D(0, 0), new Vector2D(1, 1),
+                    mouseButton -> {
+                        inputField.typeContentAtCursor("{" + color.getName() + "}");
+                        inputField.focus();
+                    }
+            );
+            button.normalColor = Theme.NONE;
+            addChild(button, PERCENT.SIZE);
+        }
+
+        @Override
+        public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
+            renderComponents(mouse);
         }
     }
 
@@ -274,35 +323,31 @@ public class InfoLabel extends Label implements TickThread.Tickable {
 
             addChild(inputField, PERCENT.SIZE_X, Anchor.BOTTOM_CENTER);
 
-            Div colors = new Div();
-            for (Colors c : Colors.values()) {
-                colors.addChildBelow(new ColorLabel(c));
-            }
-            colors.backgroundColor = new Color(31, 31, 31, 150);
-            colors.setAbsolute(true);
-            addChild(colors);
+            ColorList cl = new ColorList(inputField);
+            cl.setAbsolute(true);
+            addChild(cl);
 
-
-            InfoVarList vl = new InfoVarList(new Vector2D(0, 20), new Vector2D(2 / 9D, -50));
+            InfoVarList vl = new InfoVarList(
+                    inputField,
+                    new Vector2D(5, 5),
+                    new Vector2D(2 / 9D, -10)
+            );
             vl.setAbsolute(true);
             addChild(vl, PERCENT.SIZE_X, Anchor.TOP_RIGHT);
 
-            Div searchFieldDiv = new Div(Vector2D.ZERO, new Vector2D(1, 30));
-
-            TextRectangle searchText = new TextRectangle(
-                    Vector2D.ZERO,
-                    new Vector2D(1, 14),
-                    "Filter",
-                    null,
-                    Color.WHITE
-            );
-            searchFieldDiv.addChild(searchText, PERCENT.SIZE_X, Anchor.TOP_CENTER);
-
-            InputField searchField = new InputField(new Vector2D(0, 5), 0.9D);
-            searchField.setOnContentChange(c -> vl.updateSearchFilter(c.getContent()));
-            searchFieldDiv.addChild(searchField, PERCENT.SIZE_X, Anchor.BOTTOM_CENTER);
-
-            vl.bottomCover.addChild(searchFieldDiv, PERCENT.SIZE_X, Anchor.CENTER);
+            vl.bottomCover.setHeight(35, false);
+            vl.bottomCover.addChild(
+                    new TextRectangle(
+                            new Vector2D(0, 5),
+                            new Vector2D(1, 14),
+                            "Filter",
+                            null,
+                            Color.WHITE
+                    ), PERCENT.SIZE_X, Anchor.TOP_CENTER);
+            vl.bottomCover.addChild(
+                    new InputField(new Vector2D(0, 5), 0.9D)
+                            .setOnContentChange(c -> vl.updateSearchFilter(c.getContent())),
+                    PERCENT.SIZE_X, Anchor.BOTTOM_CENTER);
         }
 
         @Override

@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.gui.Theme;
 import io.github.kurrycat.mpkmod.gui.interfaces.KeyInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseScrollListener;
@@ -12,7 +13,7 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 
 public class Pane<T extends PaneHolder> extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener {
-    public Color backgroundColor = new Color(31, 31, 31, 150);
+    public Color backgroundColor = Theme.darkBackground;
 
     public T paneHolder = null;
 

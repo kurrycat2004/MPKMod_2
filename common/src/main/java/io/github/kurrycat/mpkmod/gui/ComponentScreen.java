@@ -1,7 +1,6 @@
 package io.github.kurrycat.mpkmod.gui;
 
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.InputConstants;
-import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.Component;
@@ -185,6 +184,14 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                     addComponent(plot);
                     menu.close();
                 }));
+                newLabelMenu.addComponent(new Button("Add Angle path (WIP)", b -> {
+                    if (b != Mouse.Button.LEFT) return;
+                    AnglePath path = new AnglePath(false);
+                    path.setPos(mouse);
+                    path.setSize(new Vector2D(40, 40));
+                    addComponent(path);
+                    menu.close();
+                }));
 
                 menu.addSubMenu(new Button("Add Label"), newLabelMenu);
                 openPane(menu, mouse);
@@ -316,8 +323,9 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
         if (!openPanes.isEmpty()) {
-            openPanes.get(openPanes.size() - 1).handleMouseInput(state, mousePos, button);
-            return true;
+            Pane<?> topPane = openPanes.get(openPanes.size() - 1);
+            topPane.handleMouseInput(state, mousePos, button);
+            if (topPane.isLoaded()) return true;
         }
         return ArrayListUtil.orMap(
                 ArrayListUtil.getAllOfType(MouseInputListener.class, components, movableComponents),

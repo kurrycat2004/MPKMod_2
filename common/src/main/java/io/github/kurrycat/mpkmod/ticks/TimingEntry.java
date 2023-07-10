@@ -61,7 +61,9 @@ public class TimingEntry {
 
     /**
      * @param inputList List of {@link TimingInput} instances
+     * @param startIndex the index it should start matching from
      * @param vars      HashMap containing all variables for that {@link Timing}. Vars of this TimingEntry are added
+     * @param repeatedVar if the current var already appeared before
      * @return amount of matched inputs or null if no match was found (returns 0 for variable entries with 0 within range)
      */
     public Integer matches(List<TimingInput> inputList, int startIndex, HashMap<String, Timing.TickMS> vars, boolean repeatedVar) {

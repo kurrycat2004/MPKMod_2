@@ -14,6 +14,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.util.Window;
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Util;
@@ -21,6 +22,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.List;
@@ -177,20 +179,30 @@ public class FunctionCompatibility implements FunctionHolder,
      */
     public void drawRect(Vector2D pos, Vector2D size, Color color) {
         if (drawContext == null) return;
+        //0.04 because drawString SHADOW_OFFSET is 0.03
         drawContext.getMatrices().translate(0, 0, 0.04);
-        drawContext.fill(
-                pos.getXI(),
-                pos.getYI(),
-                pos.getXI() + size.getXI(),
-                pos.getYI() + size.getYI(),
-                color.getRGB()
-        );
+        Matrix4f posMat = drawContext.getMatrices().peek().getPositionMatrix();
+        int r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
+        double x = pos.getX(), y = pos.getY(), w = size.getX(), h = size.getY();
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bb = tessellator.getBuffer();
+        RenderSystem.enableBlend();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        bb.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        bb.vertex(posMat, (float) x, (float) (y + h), 0).color(r, g, b, a).next();
+        bb.vertex(posMat, (float) (x + w), (float) (y + h), 0).color(r, g, b, a).next();
+        bb.vertex(posMat, (float) (x + w), (float) y, 0).color(r, g, b, a).next();
+        bb.vertex(posMat, (float) x, (float) y, 0).color(r, g, b, a).next();
+        tessellator.draw();
+
+        RenderSystem.disableBlend();
     }
 
     /**
      * Is called in {@link Renderer2D.Interface}
      */
-    public void drawLines(List<Vector2D> points, Color color) {
+    public void drawLines(Collection<Vector2D> points, Color color) {
         if (points.size() < 2) {
             Debug.stacktrace("At least two points expected, got: " + points.size());
             return;
@@ -225,6 +237,26 @@ public class FunctionCompatibility implements FunctionHolder,
                 MinecraftClient.getInstance().getWindow().getScaledWidth(),
                 MinecraftClient.getInstance().getWindow().getScaledHeight()
         );
+    }
+
+    public Vector2D getScreenSize() {
+        return new Vector2D(MinecraftClient.getInstance().getWindow().getWidth(), MinecraftClient.getInstance().getWindow().getHeight());
+    }
+
+    public void enableScissor(double x, double y, double w, double h) {
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        Window r = MinecraftClient.getInstance().getWindow();
+
+        double scaleFactor = r.getScaleFactor();
+        double posX = x * scaleFactor;
+        double posY = r.getFramebufferHeight() - (y + h) * scaleFactor;
+        double width = w * scaleFactor;
+        double height = h * scaleFactor;
+        GL11.glScissor((int) posX, (int) posY, Math.max(0, (int) width), Math.max(0, (int) height));
+    }
+
+    public void disableScissor() {
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 
     public void drawString(String text, Vector2D pos, Color color, boolean shadow) {
@@ -285,6 +317,10 @@ public class FunctionCompatibility implements FunctionHolder,
     public String getUserName() {
         if (MinecraftClient.getInstance().player == null) return null;
         return MinecraftClient.getInstance().player.getName().getString();
+    }
+
+    public void copyToClipboard(String content) {
+        MinecraftClient.getInstance().keyboard.setClipboard(content);
     }
 
     public List<Integer> getPressedButtons() {

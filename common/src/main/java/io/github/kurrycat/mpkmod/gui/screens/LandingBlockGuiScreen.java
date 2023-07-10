@@ -44,18 +44,18 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         super.onGuiInit();
 
         lbList = new LBList(
-                new Vector2D(0, 16),
-                new Vector2D(3 / 5D, -40)
+                new Vector2D(0, 0.05),
+                new Vector2D(3 / 5D, 0.9)
         );
-        addChild(lbList, PERCENT.SIZE_X, Anchor.TOP_CENTER);
-        lbList.addChild(
+        addChild(lbList, PERCENT.ALL, Anchor.TOP_CENTER);
+        lbList.topCover.addChild(
                 new Button(
                         "x",
-                        new Vector2D(3, -13),
+                        new Vector2D(5, 1),
                         new Vector2D(11, 11),
                         mouseButton -> close()
                 ),
-                PERCENT.NONE, Anchor.TOP_RIGHT
+                PERCENT.NONE, Anchor.CENTER_RIGHT
         );
     }
 
@@ -75,8 +75,9 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         public LBList(Vector2D pos, Vector2D size) {
             this.setPos(pos);
             this.setSize(size);
+            this.setTitle("Landing Blocks");
             updateList();
-            Button addLB = new Button("Add LB", new Vector2D(0, -22), new Vector2D(40, 20), mouseButton -> {
+            Button addLB = new Button("Add LB", new Vector2D(0, 0), new Vector2D(40, 20), mouseButton -> {
                 if (Mouse.Button.LEFT.equals(mouseButton)) {
                     Vector3D lookingAt = WorldInteraction.getLookingAt();
                     if (lookingAt != null) {
@@ -89,9 +90,9 @@ public class LandingBlockGuiScreen extends ComponentScreen {
                     items.add(new LBListItem(this, lbs.get(lbs.size() - 1)));
                 }
             });
-            addChild(addLB, PERCENT.NONE, Anchor.BOTTOM_CENTER);
-
-            this.title = "Landing Blocks";
+            bottomCover.setHeight(24, false);
+            bottomCover.backgroundColor = null;
+            bottomCover.addChild(addLB, PERCENT.NONE, Anchor.CENTER);
         }
 
         public void updateList() {

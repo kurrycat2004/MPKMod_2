@@ -23,6 +23,7 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
     public ContentProvider onContentChange = null;
     public String name = null;
     public Color normalColor = new Color(31, 31, 31, 150);
+    public Color edgeColor = new Color(255, 255, 255, 95);
     public Color cursorColor = new Color(255, 255, 255, 150);
     public Color highlightColor = new Color(255, 255, 255, 175);
     private boolean isFocused = false;
@@ -35,10 +36,6 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         this("", pos, width, false);
     }
 
-    public InputField(String content, Vector2D pos, double width) {
-        this(content, pos, width, false);
-    }
-
     public InputField(String content, Vector2D pos, double width, boolean numbersOnly) {
         this.setPos(pos);
         this.setSize(new Vector2D(width, HEIGHT));
@@ -46,16 +43,12 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         this.numbersOnly = numbersOnly;
     }
 
-    private String getFilter() {
-        if (customFilter != null) {
-            return customFilter;
-        }
-        return numbersOnly ? FILTER_NUMBERS : FILTER_ALL;
+    public InputField(String content, Vector2D pos, double width) {
+        this(content, pos, width, false);
     }
 
-    public InputField setFilter(String filter) {
-        this.customFilter = filter;
-        return this;
+    public void focus() {
+        isFocused = true;
     }
 
     public InputField setName(String name) {
@@ -83,7 +76,7 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
             );
         }
 
-        Renderer2D.drawRectWithEdge(rectPos.round(), rectSize.round(), 1, normalColor, normalColor);
+        Renderer2D.drawRectWithEdge(rectPos.round(), rectSize.round(), 1, normalColor, edgeColor);
 
         FontRenderer.drawString(
                 content.substring(0, highlightStart),
@@ -115,14 +108,17 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
             );
     }
 
+    private double getCursorX() {
+        return 2 + FontRenderer.getStringSize(content.substring(0, cursorPos)).getX();
+    }
+
     @Override
     public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
         if (!isFocused) return false;
         boolean inputPerformed = true;
 
         if (isCharTyped && String.valueOf((char) keyCode).matches(getFilter())) {
-            replaceSelectionWithChar(Character.toString((char) keyCode));
-            cursorPos = highlightStart + 1;
+            typeContentAtCursor(Character.toString((char) keyCode));
         } else {
             switch (keyCode) {
                 case InputConstants.KEY_BACKSPACE:
@@ -163,15 +159,29 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         return true;
     }
 
+    private String getFilter() {
+        if (customFilter != null) {
+            return customFilter;
+        }
+        return numbersOnly ? FILTER_NUMBERS : FILTER_ALL;
+    }
+
+    public InputField setFilter(String filter) {
+        this.customFilter = filter;
+        return this;
+    }
+
+    public void typeContentAtCursor(String c) {
+        updateContent(content.substring(0, highlightStart) + c + content.substring(highlightEnd));
+        cursorPos = highlightStart + c.length();
+        highlightStart = highlightEnd = cursorPos;
+    }
+
     private void deleteSelection() {
         if (highlightStart == highlightEnd)
             updateContent(content.substring(0, Math.max(cursorPos - 1, 0)) + (cursorPos >= content.length() ? "" : content.substring(cursorPos)));
         else
             updateContent(content.substring(0, highlightStart) + content.substring(highlightEnd));
-    }
-
-    private void replaceSelectionWithChar(String c) {
-        updateContent(content.substring(0, highlightStart) + c + content.substring(highlightEnd));
     }
 
     private void updateContent(String content) {
@@ -188,8 +198,40 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
         content = "";
     }
 
-    private double getCursorX() {
-        return 2 + FontRenderer.getStringSize(content.substring(0, cursorPos)).getX();
+    public void setWidth(double width) {
+        this.size.setX(width);
+    }
+
+    @Override
+    public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
+        if (button == Mouse.Button.LEFT) {
+            switch (state) {
+                case DOWN:
+                    if (contains(mousePos)) {
+                        isFocused = true;
+                        cursorPos = getCursorPosFromMousePos(mousePos);
+                        highlightStart = cursorPos;
+                        highlightEnd = cursorPos;
+                        return true;
+                    } else {
+                        isFocused = false;
+                    }
+                case DRAG:
+                case UP:
+                    if (isFocused) {
+                        int c = getCursorPosFromMousePos(mousePos);
+                        if (c < cursorPos) {
+                            highlightStart = c;
+                            highlightEnd = cursorPos;
+                        } else {
+                            highlightStart = cursorPos;
+                            highlightEnd = c;
+                        }
+                        return true;
+                    }
+            }
+        }
+        return false;
     }
 
     private int getCursorPosFromMousePos(Vector2D mouse) {
@@ -212,45 +254,6 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
             x -= charWidth;
         }
         return content.length();
-    }
-
-    public void setWidth(double width) {
-        this.size.setX(width);
-    }
-
-    @Override
-    public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-        if (button == Mouse.Button.LEFT) {
-            switch (state) {
-                case DOWN:
-                    if (contains(mousePos)) {
-                        isFocused = true;
-                        cursorPos = getCursorPosFromMousePos(mousePos);
-                        highlightStart = cursorPos;
-                        highlightEnd = cursorPos;
-                        return true;
-                    } else {
-                        isFocused = false;
-                        highlightStart = 0;
-                        highlightEnd = 0;
-                    }
-                case DRAG:
-                case UP:
-                    if (isFocused) {
-                        int c = getCursorPosFromMousePos(mousePos);
-                        if (c < cursorPos) {
-                            highlightStart = c;
-                            highlightEnd = cursorPos;
-                        } else {
-                            highlightStart = cursorPos;
-                            highlightEnd = c;
-                        }
-
-                        return contains(mousePos);
-                    }
-            }
-        }
-        return false;
     }
 
     @FunctionalInterface

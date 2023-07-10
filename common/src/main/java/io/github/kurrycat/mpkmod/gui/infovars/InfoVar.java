@@ -5,37 +5,42 @@ import java.util.Map;
 import java.util.Set;
 
 public class InfoVar {
-    private final InfoTree node;
+    private final InfoTree childTree;
     private final List<Object> objects;
     private final String name;
 
     public InfoVar(String name, List<Object> objects) {
         this.name = name;
         this.objects = objects;
-        this.node = new InfoTree();
+        this.childTree = new InfoTree(this);
     }
 
     public Set<Map.Entry<String, InfoVar>> getEntries() {
-        return node.getEntries();
+        return childTree.getEntries();
     }
 
     public InfoVar getElement(List<String> name) {
-        return node.getElement(name);
+        return childTree.getElement(name);
     }
 
     public String getName() {
         return name;
     }
 
+    public String getFullName() {
+        if (this.childTree.getParent() == null || this.childTree.getParent().getNode() == null) return this.name;
+        return this.childTree.getParent().getNode().getFullName() + "." + this.name;
+    }
+
     public InfoVar createChild(String name, List<Object> objects) {
         InfoVar child = new InfoVar(name, objects);
-        child.setParent(node);
-        node.addElement(name, child);
+        child.setParent(childTree);
+        childTree.addElement(name, child);
         return child;
     }
 
     public void setParent(InfoTree infoTree) {
-        this.node.setParent(infoTree);
+        this.childTree.setParent(infoTree);
     }
 
     public Object getObj() {

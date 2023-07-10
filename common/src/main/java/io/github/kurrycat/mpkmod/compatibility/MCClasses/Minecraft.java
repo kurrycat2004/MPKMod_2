@@ -5,6 +5,9 @@ import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Optional;
@@ -85,6 +88,10 @@ public class Minecraft {
         Interface.get().ifPresent(i -> i.displayGuiScreen(screen));
     }
 
+    public static void copyToClipboard(String str) {
+        Interface.get().ifPresent(i -> i.copyToClipboard(str));
+    }
+
     public enum WorldState {
         MENU,
         SINGLE_PLAYER,
@@ -111,5 +118,7 @@ public class Minecraft {
         String getCurrentGuiScreen();
 
         String getUserName();
+
+        void copyToClipboard(String content);
     }
 }

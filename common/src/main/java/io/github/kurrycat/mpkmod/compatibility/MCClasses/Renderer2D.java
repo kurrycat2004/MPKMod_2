@@ -5,6 +5,7 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,23 +36,23 @@ public class Renderer2D {
     public static void drawHollowRect(Vector2D pos, Vector2D size, double edgeThickness, Color color) {
         //TOP
         drawRect(
-                pos.sub(edgeThickness).round(),
-                new Vector2D(size.getX() + edgeThickness * 2, edgeThickness).round(),
+                pos.sub(edgeThickness),
+                new Vector2D(size.getX() + edgeThickness * 2, edgeThickness),
                 color);
         //BOTTOM
         drawRect(
-                pos.add(-edgeThickness, size.getY()).round(),
-                new Vector2D(size.getX() + edgeThickness * 2, edgeThickness).round(),
+                pos.add(-edgeThickness, size.getY()),
+                new Vector2D(size.getX() + edgeThickness * 2, edgeThickness),
                 color);
         //LEFT
         drawRect(
-                pos.sub(edgeThickness, 0).round(),
-                new Vector2D(edgeThickness, size.getY()).round(),
+                pos.sub(edgeThickness, 0),
+                new Vector2D(edgeThickness, size.getY()),
                 color);
         //RIGHT
         drawRect(
-                pos.add(size.getX(), 0).round(),
-                new Vector2D(edgeThickness, size.getY()).round(),
+                pos.add(size.getX(), 0),
+                new Vector2D(edgeThickness, size.getY()),
                 color);
     }
 
@@ -84,13 +85,27 @@ public class Renderer2D {
         return Interface.get().map(Interface::getScaledSize).orElse(new Vector2D(800, 600));
     }
 
-    public static void drawLines(List<Vector2D> points, Color color) {
-        Optional<Interface> renderer = Interface.get();
-        renderer.ifPresent(renderer2DInterface -> renderer2DInterface.drawLines(points, color));
+    public static Vector2D getScreenSize() {
+        return Interface.get().map(Interface::getScreenSize).orElse(new Vector2D(800, 600));
     }
 
     public static void drawLine(Vector2D p1, Vector2D p2, Color color) {
         drawLines(Arrays.asList(p1, p2), color);
+    }
+
+    public static void drawLines(Collection<Vector2D> points, Color color) {
+        Optional<Interface> renderer = Interface.get();
+        renderer.ifPresent(renderer2DInterface -> renderer2DInterface.drawLines(points, color));
+    }
+
+    public static void enableScissor(double x, double y, double w, double h) {
+        Optional<Interface> renderer = Interface.get();
+        renderer.ifPresent(renderer2DInterface -> renderer2DInterface.enableScissor(x, y, w, h));
+    }
+
+    public static void disableScissor() {
+        Optional<Interface> renderer = Interface.get();
+        renderer.ifPresent(Interface::disableScissor);
     }
 
     public interface Interface extends FunctionHolder {
@@ -100,8 +115,14 @@ public class Renderer2D {
 
         void drawRect(Vector2D pos, Vector2D size, Color color);
 
-        void drawLines(List<Vector2D> points, Color color);
+        void drawLines(Collection<Vector2D> points, Color color);
 
         Vector2D getScaledSize();
+
+        Vector2D getScreenSize();
+
+        void enableScissor(double x, double y, double w, double h);
+
+        void disableScissor();
     }
 }

@@ -2,6 +2,7 @@ package io.github.kurrycat.mpkmod.util;
 
 public class Mouse {
     public enum Button {
+        NONE(-1),
         LEFT(0),
         RIGHT(1),
         WHEEL(2),
@@ -28,6 +29,7 @@ public class Mouse {
     public enum State {
         DOWN,
         DRAG,
-        UP;
+        UP,
+        NONE;
     }
 }

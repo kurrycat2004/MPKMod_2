@@ -72,7 +72,7 @@ public class ModuleFinder {
         MPKModuleConfig config = null;
         try (JarFile jarFile = new JarFile(modJar)) {
             ZipEntry entry = jarFile.getJarEntry("mpkmodule.config.json");
-            if(entry == null) return null;
+            if (entry == null) return null;
             try (InputStream stream = jarFile.getInputStream(entry)) {
                 config = Serializer.deserialize(stream, MPKModuleConfig.class);
             }
@@ -85,25 +85,24 @@ public class ModuleFinder {
         MPKModule module;
 
         URL[] jars = {modJar.toURI().toURL()};
-        try (URLClassLoader loader = new CustomClassLoader(config.mainClass, jars, ClassUtil.ModClass.getClassLoader())) {
-            Class<?> moduleClass = loader.loadClass(config.mainClass);
-            module = (MPKModule) moduleClass.newInstance();
-        }
+        CustomClassLoader loader = new CustomClassLoader(config.mainClass, jars, ClassUtil.ModClass.getClassLoader());
+        Class<?> moduleClass = loader.loadClass(config.mainClass);
+        module = (MPKModule) moduleClass.newInstance();
 
-        return new MPKModuleImpl(config.moduleName, module);
+        return new MPKModuleImpl(config.moduleName, module, loader);
     }
 
-    private static class CustomClassLoader extends URLClassLoader {
-        private final String module;
+    public static class CustomClassLoader extends URLClassLoader {
+        private final String packageName;
 
         public CustomClassLoader(String module, URL[] urls, ClassLoader parent) {
             super(urls, parent);
-            this.module = module;
+            packageName = module.substring(0, module.lastIndexOf("."));
         }
 
         protected Class<?> loadClass(String name, boolean resolve)
                 throws ClassNotFoundException {
-            if (!name.equals(this.module)) return super.loadClass(name, resolve);
+            if (!name.startsWith(this.packageName)) return super.loadClass(name, resolve);
 
             synchronized (getClassLoadingLock(name)) {
                 Class<?> c = findClass(name);

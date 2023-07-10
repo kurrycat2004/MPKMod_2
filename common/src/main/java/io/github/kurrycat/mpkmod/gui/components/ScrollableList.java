@@ -1,7 +1,7 @@
 package io.github.kurrycat.mpkmod.gui.components;
 
-import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
+import io.github.kurrycat.mpkmod.gui.Theme;
 import io.github.kurrycat.mpkmod.gui.interfaces.HoverComponent;
 import io.github.kurrycat.mpkmod.gui.interfaces.KeyInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
@@ -13,28 +13,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScrollableList<I extends ScrollableListItem<I>> extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener, HoverComponent {
-    public Color backgroundColor = Color.DARK_GRAY;
+    private final TextRectangle titleComponent;
+
+    public Color backgroundColor = Theme.darkBackground;
+    public Color edgeColor = Theme.darkEdge;
     public ScrollBar<I> scrollBar;
     public List<I> items = new ArrayList<>();
-    public String title = null;
-
     public Div topCover;
     public Div bottomCover;
+    public Div content;
 
     public ScrollableList() {
+        topCover = new Div(Vector2D.ZERO, new Vector2D(1, 0));
+        topCover.backgroundColor = backgroundColor;
+        passPositionTo(topCover, PERCENT.SIZE_X, Anchor.TOP_LEFT);
+
+        titleComponent = new TextRectangle(
+                Vector2D.ZERO,
+                new Vector2D(1, 1),
+                "", null, Color.WHITE
+        );
+        topCover.addChild(titleComponent, PERCENT.SIZE);
+
+        bottomCover = new Div(Vector2D.ZERO, new Vector2D(1, 0));
+        bottomCover.backgroundColor = backgroundColor;
+        passPositionTo(bottomCover, PERCENT.SIZE_X, Anchor.BOTTOM_LEFT);
+
+        content = new Div(Vector2D.ZERO, Vector2D.ZERO);
+        stretchYBetween(content, topCover, bottomCover);
+
         scrollBar = new ScrollBar<>(this);
-        passPositionTo(scrollBar, PERCENT.SIZE_Y, Anchor.TOP_RIGHT);
+        content.passPositionTo(scrollBar, PERCENT.SIZE_Y, Anchor.TOP_RIGHT);
         scrollBar.setSize(new Vector2D(scrollBar.barWidth, 1));
-
-        topCover = new Div(new Vector2D(0, -1), Vector2D.ZERO);
-        passPositionTo(topCover, PERCENT.SIZE_X, Anchor.BOTTOM_LEFT, Anchor.TOP_LEFT);
-
-        bottomCover = new Div(Vector2D.ZERO, Vector2D.ZERO);
-        passPositionTo(bottomCover, PERCENT.SIZE_X, Anchor.TOP_LEFT, Anchor.BOTTOM_LEFT);
     }
 
     public void addItem(I item) {
         this.items.add(item);
+    }
+
+    public void setTitle(String title) {
+        this.titleComponent.setText(Colors.UNDERLINE + title);
+        if (topCover.getDisplayedSize().getY() < 20)
+            topCover.setSize(new Vector2D(topCover.size.getX(), 20));
     }
 
     public void renderComponents(Vector2D mouse) {
@@ -46,45 +66,45 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     public void render(Vector2D mouse) {
         scrollBar.constrainScrollAmountToScreen();
 
-        topCover.setSize(new Vector2D(1, getDisplayedPos().getY() + 1));
-        bottomCover.setSize(new Vector2D(1,
-                (getRoot() == null ? Renderer2D.getScaledSize() : getRoot().getDisplayedSize()).getY() -
-                        (getDisplayedPos().getY() + getDisplayedSize().getY()) + 1)
-        );
-
-        int h = 1;
+        int relItemYPos = 1;
         ArrayList<I> items = getItems();
 
         double itemWidth = getDisplayedSize().getX() - 2;
         if (shouldRenderScrollbar()) itemWidth -= scrollBar.barWidth - 1;
 
+        Renderer2D.enableScissor(content.getDisplayedPos().getX(), content.getDisplayedPos().getY(),
+                content.getDisplayedSize().getX(), content.getDisplayedSize().getY()-1);
+
         for (int i = 0; i < getItemCount(); i++) {
             I item = getItem(i);
             if (item == null) item = items.get(i);
-            if (h - scrollBar.scrollAmount > -item.getHeight() && h - scrollBar.scrollAmount < getDisplayedSize().getY()) {
-                item.setPos(new Vector2D(1, h - scrollBar.scrollAmount));
+            double absItemYPos = relItemYPos - scrollBar.scrollAmount;
+            if (absItemYPos >= -item.getHeight() && absItemYPos <= content.getDisplayedSize().getY()) {
+                item.setPos(new Vector2D(1, topCover.getDisplayedSize().getY() + absItemYPos));
                 item.setSize(new Vector2D(itemWidth, item.getHeight()));
                 item.render(
                         i,
-                        new Vector2D(getDisplayedPos().getX() + 1, getDisplayedPos().getY() + h - scrollBar.scrollAmount),
-                        new Vector2D(itemWidth, item.getHeight()),
+                        item.getDisplayedPos(),
+                        item.getDisplayedSize(),
                         mouse
                 );
             }
-            h += item.getHeight() + 1;
+            relItemYPos += item.getHeight() + 1;
         }
 
-        Renderer2D.drawHollowRect(getDisplayedPos().add(1), getDisplayedSize().sub(2), 1, Color.BLACK);
+        Renderer2D.disableScissor();
+
+        Renderer2D.drawHollowRect(getDisplayedPos().add(1), getDisplayedSize().sub(2), 1, edgeColor);
+        if (topCover.getDisplayedSize().getY() > 0)
+            Renderer2D.drawRect(topCover.getDisplayedPos().add(0, topCover.getDisplayedSize().getY()),
+                    new Vector2D(topCover.getDisplayedSize().getX(), 1), edgeColor);
+        if (bottomCover.getDisplayedSize().getY() > 0)
+            Renderer2D.drawRect(bottomCover.getDisplayedPos(), new Vector2D(bottomCover.getDisplayedSize().getX(), 1), edgeColor);
         if (shouldRenderScrollbar())
             scrollBar.render(mouse);
-        drawTopCover(
-                mouse,
-                new Vector2D(getDisplayedPos().getX(), 0),
-                new Vector2D(getDisplayedSize().getX(), getDisplayedPos().getY()));
-        drawBottomCover(
-                mouse,
-                new Vector2D(getDisplayedPos().getX(), getDisplayedPos().getY() + getDisplayedSize().getY()),
-                new Vector2D(getDisplayedSize().getX(), Renderer2D.getScaledSize().getY() - (getDisplayedPos().getY() + getDisplayedSize().getY()) + 2));
+
+        topCover.render(mouse);
+        bottomCover.render(mouse);
     }
 
     public ArrayList<I> getItems() {
@@ -113,16 +133,6 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         return items.get(index);
     }
 
-    public void drawTopCover(Vector2D mouse, Vector2D pos, Vector2D size) {
-        Renderer2D.drawRectWithEdge(pos, size.add(0, 1), 1, Color.DARK_GRAY, Color.BLACK);
-        if (title != null)
-            FontRenderer.drawCenteredString(Colors.UNDERLINE + title, pos.add(size.div(2)).add(0, 1), Color.WHITE, false);
-    }
-
-    public void drawBottomCover(Vector2D mouse, Vector2D pos, Vector2D size) {
-        Renderer2D.drawRectWithEdge(pos.sub(0, 1), size.add(0, 1), 1, Color.DARK_GRAY, Color.BLACK);
-    }
-
     public int totalHeight() {
         if (getItemCount() == 0) return 0;
 
@@ -134,16 +144,16 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     }
 
     public Pair<I, Vector2D> getItemAndRelMousePosUnderMouse(Vector2D mouse) {
-        double itemWidth = getDisplayedSize().getX() - 2;
+        double itemWidth = content.getDisplayedSize().getX() - 2;
         if (shouldRenderScrollbar()) itemWidth -= scrollBar.barWidth - 1;
-        if (mouse.getX() < getDisplayedPos().getX() + 1 || mouse.getX() > getDisplayedPos().getX() + itemWidth + 1)
+        if (mouse.getX() < content.getDisplayedPos().getX() + 1 || mouse.getX() > content.getDisplayedPos().getX() + itemWidth + 1)
             return null;
 
-        double currY = mouse.getY() - 1 - getDisplayedPos().getY() + scrollBar.scrollAmount;
+        double currY = mouse.getY() - 1 - content.getDisplayedPos().getY() + scrollBar.scrollAmount;
         for (int i = 0; i < getItemCount(); i++) {
             I item = getItem(i);
             if (currY >= 0 && currY <= item.getHeight()) {
-                return new Pair<>(item, new Vector2D(mouse.getX() - getDisplayedPos().getX() - 1, currY));
+                return new Pair<>(item, new Vector2D(mouse.getX() - content.getDisplayedPos().getX() - 1, currY));
             }
             currY -= item.getHeight() + 1;
         }
@@ -234,7 +244,7 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         public int mapScrollAmountToScrollButtonPos() {
             return MathUtil.map(
                     scrollAmount,
-                    0, parentList.totalHeight() - parentList.getDisplayedSize().getYI() - 2,
+                    0, parentList.totalHeight() - getDisplayedSize().getYI() - 2,
                     1, getDisplayedSize().getYI() - getScrollButtonHeight() - 1
             );
         }
@@ -274,12 +284,12 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
             return MathUtil.map(
                     pos.getYI() - clickedYOffset - getDisplayedPos().getYI(),
                     1, getDisplayedSize().getYI() - getScrollButtonHeight() - 1,
-                    0, parentList.totalHeight() - parentList.getDisplayedSize().getYI() - 2
+                    0, parentList.totalHeight() - getDisplayedSize().getYI() - 2
             );
         }
 
         public void constrainScrollAmountToScreen() {
-            scrollAmount = MathUtil.constrain(scrollAmount, 0, parentList.totalHeight() - parentList.getDisplayedSize().getYI() - 2);
+            scrollAmount = MathUtil.constrain(scrollAmount, 0, parentList.totalHeight() - getDisplayedSize().getYI() - 2);
         }
 
         public void scrollBy(int delta) {

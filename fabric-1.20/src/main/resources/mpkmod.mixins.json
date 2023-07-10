@@ -9,7 +9,8 @@
     "GameRendererMixin",
     "KeyBindingAccessor",
     "KeyboardMixin",
-    "MinecraftClientMixin"
+    "MinecraftClientMixin",
+    "MouseMixin"
   ],
   "injectors": {
     "defaultRequire": 1
