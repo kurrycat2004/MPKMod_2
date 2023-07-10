@@ -11,7 +11,7 @@ import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoVar;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
-import io.github.kurrycat.mpkmod.util.ArrayListUtil;
+import io.github.kurrycat.mpkmod.util.ItrUtil;
 import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -101,9 +101,11 @@ public class InfoLabel extends Label implements TickThread.Tickable {
         }
 
         public void updateSearchFilter(String searchString) {
-            items = allItems.stream()
-                    .filter(i -> i.containsSearchString(searchString))
-                    .collect(Collectors.toList());
+            items.clear();
+            for(InfoVarListItem item : allItems) {
+                if(item.containsSearchString(searchString))
+                    items.add(item);
+            }
         }
 
         @Override
@@ -263,7 +265,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
         public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
             return addButton.handleMouseInput(state, mousePos, button) ||
                     showCollapseButton && collapseButton.handleMouseInput(state, mousePos, button) ||
-                    !collapsed && ArrayListUtil.orMap(children, c -> c.handleMouseInput(state, mousePos, button));
+                    !collapsed && ItrUtil.orMap(children, c -> c.handleMouseInput(state, mousePos, button));
         }
     }
 

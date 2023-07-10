@@ -95,7 +95,7 @@ public class Main implements MPKModule {
         EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> API.tickTime++));
         EventAPI.addListener(EventAPI.EventListener.onTickStart(e -> {
             TickThread.setTickables(
-                    ArrayListUtil.getAllOfType(TickThread.Tickable.class, mainGUI.movableComponents)
+                    ItrUtil.getAllOfType(TickThread.Tickable.class, mainGUI.movableComponents)
             );
         }));
 

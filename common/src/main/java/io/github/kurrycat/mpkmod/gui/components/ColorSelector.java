@@ -4,7 +4,7 @@ import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.interfaces.KeyInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseScrollListener;
-import io.github.kurrycat.mpkmod.util.ArrayListUtil;
+import io.github.kurrycat.mpkmod.util.ItrUtil;
 import io.github.kurrycat.mpkmod.util.ColorUtil;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -114,13 +114,13 @@ public class ColorSelector extends Component implements KeyInputListener, MouseI
 
     @Override
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-        return ArrayListUtil.orMapAll(ArrayListUtil.getAllOfType(MouseInputListener.class, this.red, this.green, this.blue, this.alpha, this.color),
+        return ItrUtil.orMapAll(ItrUtil.getAllOfType(MouseInputListener.class, this.red, this.green, this.blue, this.alpha, this.color),
                 listener -> listener.handleMouseInput(state, mousePos, button));
     }
 
     @Override
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
-        return ArrayListUtil.orMapAll(Arrays.asList(this.red, this.green, this.blue, this.alpha),
+        return ItrUtil.orMapAll(Arrays.asList(this.red, this.green, this.blue, this.alpha),
                 slider -> slider.handleMouseScroll(mousePos, delta));
     }
 }

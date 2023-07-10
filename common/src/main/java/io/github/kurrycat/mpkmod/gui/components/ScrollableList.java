@@ -9,16 +9,15 @@ import io.github.kurrycat.mpkmod.gui.interfaces.MouseScrollListener;
 import io.github.kurrycat.mpkmod.util.*;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ScrollableList<I extends ScrollableListItem<I>> extends Component implements MouseInputListener, MouseScrollListener, KeyInputListener, HoverComponent {
+    public final List<I> items = new CopyOnWriteArrayList<>();
     private final TextRectangle titleComponent;
-
     public Color backgroundColor = Theme.darkBackground;
     public Color edgeColor = Theme.darkEdge;
     public ScrollBar<I> scrollBar;
-    public List<I> items = new ArrayList<>();
     public Div topCover;
     public Div bottomCover;
     public Div content;
@@ -67,21 +66,20 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         scrollBar.constrainScrollAmountToScreen();
 
         int relItemYPos = 1;
-        ArrayList<I> items = getItems();
 
         double itemWidth = getDisplayedSize().getX() - 2;
         if (shouldRenderScrollbar()) itemWidth -= scrollBar.barWidth - 1;
 
         Renderer2D.enableScissor(content.getDisplayedPos().getX(), content.getDisplayedPos().getY(),
-                content.getDisplayedSize().getX(), content.getDisplayedSize().getY()-1);
+                content.getDisplayedSize().getX(), content.getDisplayedSize().getY() - 1);
 
-        for (int i = 0; i < getItemCount(); i++) {
-            I item = getItem(i);
-            if (item == null) item = items.get(i);
+        int i = 0;
+        for (I item : getItems()) {
             double absItemYPos = relItemYPos - scrollBar.scrollAmount;
+            item.setParent(content);
+            item.setPos(new Vector2D(1, absItemYPos));
+            item.setSize(new Vector2D(itemWidth, item.getHeight()));
             if (absItemYPos >= -item.getHeight() && absItemYPos <= content.getDisplayedSize().getY()) {
-                item.setPos(new Vector2D(1, topCover.getDisplayedSize().getY() + absItemYPos));
-                item.setSize(new Vector2D(itemWidth, item.getHeight()));
                 item.render(
                         i,
                         item.getDisplayedPos(),
@@ -90,6 +88,7 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
                 );
             }
             relItemYPos += item.getHeight() + 1;
+            i++;
         }
 
         Renderer2D.disableScissor();
@@ -107,39 +106,24 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         bottomCover.render(mouse);
     }
 
-    public ArrayList<I> getItems() {
-        ArrayList<I> items = new ArrayList<>();
-        for (int i = 0; i < getItemCount(); i++) {
-            items.add(getItem(i));
-        }
-        return items;
-    }
-
     private boolean shouldRenderScrollbar() {
-        return totalHeight() > getDisplayedSize().getY() - 2;
-    }
-
-    public int getItemCount() {
-        return this.items.size();
+        return totalHeight() > content.getDisplayedSize().getY() - 2;
     }
 
     /**
-     * Override this method for lists, where you can't save your items inside {@link #items}
+     * Override this if you don't want to use the default ArrayList implementation
      *
-     * @param index item index
-     * @return the item at the given index
+     * @return an iterable containing the items
      */
-    public I getItem(int index) {
-        return items.get(index);
+    public Iterable<I> getItems() {
+        return items;
     }
 
     public int totalHeight() {
-        if (getItemCount() == 0) return 0;
+        int sum = 0;
+        for (I item : getItems()) sum += item.getHeight() + 1;
+        if (sum != 0) sum += 3;
 
-        int sum = 3;
-        for (int i = 0; i < getItemCount(); i++) {
-            sum += getItem(i).getHeight() + 1;
-        }
         return sum;
     }
 
@@ -150,8 +134,7 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
             return null;
 
         double currY = mouse.getY() - 1 - content.getDisplayedPos().getY() + scrollBar.scrollAmount;
-        for (int i = 0; i < getItemCount(); i++) {
-            I item = getItem(i);
+        for (I item : getItems()) {
             if (currY >= 0 && currY <= item.getHeight()) {
                 return new Pair<>(item, new Vector2D(mouse.getX() - content.getDisplayedPos().getX() - 1, currY));
             }
@@ -164,24 +147,40 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         if (shouldRenderScrollbar() && scrollBar.handleMouseInput(state, mousePos, button))
             return true;
 
-        return ArrayListUtil.orMapAll(
-                getItems(),
-                e -> e.handleMouseInput(state, mousePos, button)
-        ) || ArrayListUtil.orMapAll(
-                ArrayListUtil.getAllOfType(MouseInputListener.class, components, topCover.components, bottomCover.components),
-                e -> e.handleMouseInput(state, mousePos, button)
-        ) || contains(mousePos);
+        boolean itemClicked = false;
+        if (mousePos.getY() > content.getDisplayedPos().getY() &&
+                mousePos.getY() < content.getDisplayedPos().getY() + content.getDisplayedSize().getY())
+            for (I item : getItems()) {
+                if (item.isVisible()) {
+                    itemClicked = itemClicked || item.handleMouseInput(state, mousePos, button);
+                }
+            }
+
+        return itemClicked ||
+                ItrUtil.orMapAll(
+                        ItrUtil.getAllOfType(MouseInputListener.class, components, topCover.components, bottomCover.components),
+                        e -> e.handleMouseInput(state, mousePos, button)
+                ) || contains(mousePos);
     }
 
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
         if (!contains(mousePos)) return false;
-        if (ArrayListUtil.orMapAll(
-                getItems(),
-                e -> e.handleMouseScroll(mousePos, delta)
-        ) || ArrayListUtil.orMapAll(
-                ArrayListUtil.getAllOfType(MouseScrollListener.class, components, topCover.components, bottomCover.components),
-                e -> e.handleMouseScroll(mousePos, delta)
-        )) return true;
+
+        boolean itemClicked = false;
+        if (mousePos.getY() > content.getDisplayedPos().getY() &&
+                mousePos.getY() < content.getDisplayedPos().getY() + content.getDisplayedSize().getY())
+            for (I item : getItems()) {
+                if (item.isVisible()) {
+                    itemClicked = itemClicked || item.handleMouseScroll(mousePos, delta);
+                }
+            }
+
+        if (itemClicked ||
+                ItrUtil.orMapAll(
+                        ItrUtil.getAllOfType(MouseScrollListener.class, components, topCover.components, bottomCover.components),
+                        e -> e.handleMouseScroll(mousePos, delta)
+                )
+        ) return true;
 
         if (shouldRenderScrollbar())
             scrollBar.scrollBy(-delta);
@@ -189,19 +188,23 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     }
 
     public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
-        return ArrayListUtil.orMapAll(
-                getItems(),
-                e -> e.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
-        ) || ArrayListUtil.orMapAll(
-                ArrayListUtil.getAllOfType(KeyInputListener.class, components, topCover.components, bottomCover.components),
-                e -> e.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
-        );
+        boolean itemClicked = false;
+        for (I item : getItems()) {
+            if (item.isVisible()) {
+                itemClicked = itemClicked || item.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped);
+            }
+        }
+        return itemClicked ||
+                ItrUtil.orMapAll(
+                        ItrUtil.getAllOfType(KeyInputListener.class, components, topCover.components, bottomCover.components),
+                        e -> e.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
+                );
     }
 
     @Override
     public void renderHover(Vector2D mouse) {
         getItems().forEach(i -> i.renderHover(mouse));
-        ArrayListUtil.getAllOfType(HoverComponent.class, components, topCover.components, bottomCover.components)
+        ItrUtil.getAllOfType(HoverComponent.class, components, topCover.components, bottomCover.components)
                 .forEach(i -> i.renderHover(mouse));
     }
 

@@ -5,7 +5,7 @@ import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.interfaces.KeyInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseScrollListener;
-import io.github.kurrycat.mpkmod.util.ArrayListUtil;
+import io.github.kurrycat.mpkmod.util.ItrUtil;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
@@ -160,24 +160,24 @@ public class Div extends Component implements MouseInputListener, MouseScrollLis
 
     @Override
     public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
-        return ArrayListUtil.orMapAll(
-                ArrayListUtil.getAllOfType(KeyInputListener.class, components),
+        return ItrUtil.orMapAll(
+                ItrUtil.getAllOfType(KeyInputListener.class, components),
                 e -> e.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
         );
     }
 
     @Override
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-        return ArrayListUtil.orMapAll(
-                ArrayListUtil.getAllOfType(MouseInputListener.class, components),
+        return ItrUtil.orMapAll(
+                ItrUtil.getAllOfType(MouseInputListener.class, components),
                 e -> e.handleMouseInput(state, mousePos, button)
         );
     }
 
     @Override
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
-        return ArrayListUtil.orMapAll(
-                ArrayListUtil.getAllOfType(MouseScrollListener.class, components),
+        return ItrUtil.orMapAll(
+                ItrUtil.getAllOfType(MouseScrollListener.class, components),
                 e -> e.handleMouseScroll(mousePos, delta)
         );
     }

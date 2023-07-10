@@ -232,10 +232,13 @@ public abstract class ComponentHolder {
     }
 
     public void passPositionTo(ComponentHolder child) {
-        child.root = root;
-        child.parent = this;
-
+        child.setParent(this);
         child.updatePosAndSize();
+    }
+
+    public void setParent(ComponentHolder parent) {
+        root = parent.root;
+        this.parent = parent;
     }
 
     public void stretchXBetween(ComponentHolder child, ComponentHolder min, ComponentHolder max) {

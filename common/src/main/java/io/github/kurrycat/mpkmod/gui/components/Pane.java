@@ -5,7 +5,7 @@ import io.github.kurrycat.mpkmod.gui.Theme;
 import io.github.kurrycat.mpkmod.gui.interfaces.KeyInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseScrollListener;
-import io.github.kurrycat.mpkmod.util.ArrayListUtil;
+import io.github.kurrycat.mpkmod.util.ItrUtil;
 import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -49,8 +49,8 @@ public class Pane<T extends PaneHolder> extends Component implements MouseInputL
 
     public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
         if (this.loaded) {
-            return ArrayListUtil.orMapAll(
-                    ArrayListUtil.getAllOfType(MouseInputListener.class, components),
+            return ItrUtil.orMapAll(
+                    ItrUtil.getAllOfType(MouseInputListener.class, components),
                     b -> b.handleMouseInput(state, mousePos, button)
             );
         }
@@ -59,8 +59,8 @@ public class Pane<T extends PaneHolder> extends Component implements MouseInputL
 
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
         if (this.loaded) {
-            return ArrayListUtil.orMapAll(
-                    ArrayListUtil.getAllOfType(MouseScrollListener.class, components),
+            return ItrUtil.orMapAll(
+                    ItrUtil.getAllOfType(MouseScrollListener.class, components),
                     b -> b.handleMouseScroll(mousePos, delta)
             );
         }
@@ -92,8 +92,8 @@ public class Pane<T extends PaneHolder> extends Component implements MouseInputL
 
     public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
         if (this.loaded) {
-            return ArrayListUtil.orMapAll(
-                    ArrayListUtil.getAllOfType(KeyInputListener.class, components),
+            return ItrUtil.orMapAll(
+                    ItrUtil.getAllOfType(KeyInputListener.class, components),
                     b -> b.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
             );
         }

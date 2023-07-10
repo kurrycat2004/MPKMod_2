@@ -15,7 +15,6 @@ import io.github.kurrycat.mpkmod.util.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LandingBlockGuiScreen extends ComponentScreen {
     public static List<LandingBlock> lbs = new ArrayList<>();
@@ -62,9 +61,8 @@ public class LandingBlockGuiScreen extends ComponentScreen {
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
-        for (int i = 0; i < lbList.getItemCount(); i++) {
-            lbList.getItem(i).landingBlock.highlight = false;
-        }
+        for (LBListItem item : lbList.getItems())
+            item.landingBlock.highlight = false;
     }
 
     public void drawScreen(Vector2D mouse, float partialTicks) {
@@ -96,15 +94,18 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         }
 
         public void updateList() {
-            items = lbs.stream().map(lb -> new LBListItem(this, lb)).collect(Collectors.toCollection(ArrayList<LBListItem>::new));
+            items.clear();
+            for (LandingBlock lb : lbs) {
+                items.add(new LBListItem(this, lb));
+            }
         }
 
         @Override
         public void render(Vector2D mouse) {
             super.render(mouse);
-            for (int i = 0; i < getItemCount(); i++) {
-                getItem(i).landingBlock.highlight = false;
-            }
+            for (LBListItem item : getItems())
+                item.landingBlock.highlight = false;
+
             Pair<LBListItem, Vector2D> p = getItemAndRelMousePosUnderMouse(mouse);
             if (p != null)
                 p.first.landingBlock.highlight = true;
@@ -256,16 +257,16 @@ public class LandingBlockGuiScreen extends ComponentScreen {
         }
 
         public boolean handleMouseInput(Mouse.State state, Vector2D mousePos, Mouse.Button button) {
-            return ArrayListUtil.orMapAll(
-                    collapsed ? ArrayListUtil.getAllOfType(MouseInputListener.class, enabled, collapseButton, deleteButton, landingModeButton) :
-                            ArrayListUtil.getAllOfType(MouseInputListener.class, minX, minY, minZ, maxX, maxY, maxZ, enabled, collapseButton, deleteButton, landingModeButton),
+            return ItrUtil.orMapAll(
+                    collapsed ? ItrUtil.getAllOfType(MouseInputListener.class, enabled, collapseButton, deleteButton, landingModeButton) :
+                            ItrUtil.getAllOfType(MouseInputListener.class, minX, minY, minZ, maxX, maxY, maxZ, enabled, collapseButton, deleteButton, landingModeButton),
                     ele -> ele.handleMouseInput(state, mousePos, button)
             );
         }
 
         public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
-            return !collapsed && ArrayListUtil.orMapAll(
-                    ArrayListUtil.getAllOfType(KeyInputListener.class, minX, minY, minZ, maxX, maxY, maxZ),
+            return !collapsed && ItrUtil.orMapAll(
+                    ItrUtil.getAllOfType(KeyInputListener.class, minX, minY, minZ, maxX, maxY, maxZ),
                     ele -> ele.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
             );
         }

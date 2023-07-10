@@ -9,7 +9,6 @@ import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +105,8 @@ public class LoadConfigPane extends Pane<MainGuiScreen> {
             this.setSize(size);
             this.configurationMap = configurationMap;
             reloadItems();
-            items = new ArrayList<>(allItems);
+            items.clear();
+            items.addAll(allItems);
         }
 
         public void reloadItems() {
@@ -122,9 +122,10 @@ public class LoadConfigPane extends Pane<MainGuiScreen> {
         }
 
         public void updateItems() {
-            items = allItems.stream()
-                    .filter(i -> i.file.toLowerCase().contains(filename.content.toLowerCase()))
-                    .collect(Collectors.toList());
+            items.clear();
+            for (ConfigFileListItem item : allItems)
+                if (item.file.toLowerCase().contains(filename.content.toLowerCase()))
+                    items.add(item);
         }
     }
 

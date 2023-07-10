@@ -9,7 +9,7 @@ import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.gui.interfaces.KeyInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseScrollListener;
-import io.github.kurrycat.mpkmod.util.ArrayListUtil;
+import io.github.kurrycat.mpkmod.util.ItrUtil;
 import io.github.kurrycat.mpkmod.util.BoundingBox2D;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -33,7 +33,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
     private Vector2D holdingSetPosOffset = null;
 
     public void postMessage(String receiverID, String content, boolean highlighted) {
-        MessageQueue q = MessageQueue.getReceiverFor(receiverID, ArrayListUtil.getAllOfType(MessageQueue.class, movableComponents));
+        MessageQueue q = MessageQueue.getReceiverFor(receiverID, ItrUtil.getAllOfType(MessageQueue.class, movableComponents));
         if (q != null)
             q.postMessage(content, highlighted);
     }
@@ -251,8 +251,8 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
     public boolean handleMouseScroll(Vector2D mousePos, int delta) {
         if (!openPanes.isEmpty())
             openPanes.get(openPanes.size() - 1).handleMouseScroll(mousePos, delta);
-        return ArrayListUtil.orMap(
-                ArrayListUtil.getAllOfType(MouseScrollListener.class, components, movableComponents),
+        return ItrUtil.orMap(
+                ItrUtil.getAllOfType(MouseScrollListener.class, components, movableComponents),
                 b -> b.handleMouseScroll(mousePos, delta)
         );
     }
@@ -327,8 +327,8 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
             topPane.handleMouseInput(state, mousePos, button);
             if (topPane.isLoaded()) return true;
         }
-        return ArrayListUtil.orMap(
-                ArrayListUtil.getAllOfType(MouseInputListener.class, components, movableComponents),
+        return ItrUtil.orMap(
+                ItrUtil.getAllOfType(MouseInputListener.class, components, movableComponents),
                 b -> b.handleMouseInput(state, mousePos, button)
         );
     }
@@ -380,8 +380,8 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
     public boolean handleKeyInput(int keyCode, int scanCode, int modifiers, boolean isCharTyped) {
         if (!openPanes.isEmpty())
             openPanes.get(openPanes.size() - 1).handleKeyInput(keyCode, scanCode, modifiers, isCharTyped);
-        return ArrayListUtil.orMap(
-                ArrayListUtil.getAllOfType(KeyInputListener.class, components, movableComponents),
+        return ItrUtil.orMap(
+                ItrUtil.getAllOfType(KeyInputListener.class, components, movableComponents),
                 b -> b.handleKeyInput(keyCode, scanCode, modifiers, isCharTyped)
         );
     }

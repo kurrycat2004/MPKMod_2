@@ -2,12 +2,11 @@ package io.github.kurrycat.mpkmod.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
-public class ArrayListUtil {
+public class ItrUtil {
     /**
      * Runs <code>elementSupplier</code> for every element of <code>list</code>, until it returns true.<br>
      * Info: Returns after the first true return of <code>elementSupplier</code>
@@ -17,13 +16,13 @@ public class ArrayListUtil {
      * @param <T>             any type
      * @return true if <code>elementSupplier</code> returned true for any element or else false
      */
-    public static <T> boolean orMap(List<T> list, ListElementSupplier<T> elementSupplier) {
+    public static <T> boolean orMap(Iterable<T> list, ListElementSupplier<T> elementSupplier) {
         for (T e : list)
             if (elementSupplier.apply(e)) return true;
         return false;
     }
 
-    public static <T> boolean orMapAll(List<T> list, ListElementSupplier<T> elementSupplier) {
+    public static <T> boolean orMapAll(Iterable<T> list, ListElementSupplier<T> elementSupplier) {
         boolean b = false;
         for (T e : list)
             if (elementSupplier.apply(e)) b = true;
@@ -46,7 +45,7 @@ public class ArrayListUtil {
 
     @SuppressWarnings("unchecked")
     public static <T> ArrayList<T> getAllOfType(Class<T> tClass, Object... list) {
-        return (ArrayList<T>) Arrays.stream(list)
+        return Arrays.stream(list)
                 .filter(Objects::nonNull)
                 .filter(tClass::isInstance)
                 .map(c -> (T) c).collect(Collectors.toCollection(ArrayList<T>::new));
@@ -56,7 +55,7 @@ public class ArrayListUtil {
      * @param tClass any class
      * @param lists  any list of lists
      * @param <T>    any type
-     * @return the result of {@link ArrayListUtil#getAllOfType getAllOfType(tClass, list)} for every list in lists combined
+     * @return the result of {@link ItrUtil#getAllOfType getAllOfType(tClass, list)} for every list in lists combined
      */
     public static <T> ArrayList<T> getAllOfType(Class<T> tClass, ArrayList<?>... lists) {
         ArrayList<T> returnList = new ArrayList<>();
