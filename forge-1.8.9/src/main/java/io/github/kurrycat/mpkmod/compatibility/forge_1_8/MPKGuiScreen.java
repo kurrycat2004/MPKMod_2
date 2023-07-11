@@ -37,8 +37,7 @@ public class MPKGuiScreen extends GuiScreen {
         repeatEventsEnabled = Keyboard.areRepeatEventsEnabled();
         Keyboard.enableRepeatEvents(true);
         super.initGui();
-        if (!eventReceiver.isInitialized() || eventReceiver.resetOnOpen())
-            eventReceiver.onInit();
+        eventReceiver.onInit();
     }
 
     @Override

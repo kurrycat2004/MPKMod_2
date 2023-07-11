@@ -27,13 +27,22 @@ public abstract class MPKGuiScreen extends ComponentHolder {
     }
 
     public final void onInit() {
-        initialized = true;
         setSize(Renderer2D.getScaledSize());
         setRoot(this);
-        onGuiInit();
+        if (!initialized || resetOnOpen())
+            onGuiInit();
+        initialized = true;
+    }
+
+    public boolean resetOnOpen() {
+        return true;
     }
 
     public void onGuiInit() {
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 
     public void onGuiClosed() {
@@ -59,7 +68,6 @@ public abstract class MPKGuiScreen extends ComponentHolder {
     public void onMouseReleased(Vector2D mouse, int mouseButton) {
     }
 
-
     /**
      * @param mousePos Mouse position when scrolled
      * @param delta    number of lines to scroll (one scroll tick = 3 per default)<br>
@@ -82,14 +90,6 @@ public abstract class MPKGuiScreen extends ComponentHolder {
 
     public boolean shouldCreateKeyBind() {
         return false;
-    }
-
-    public boolean resetOnOpen() {
-        return true;
-    }
-
-    public boolean isInitialized() {
-        return initialized;
     }
 
     public final void close() {
