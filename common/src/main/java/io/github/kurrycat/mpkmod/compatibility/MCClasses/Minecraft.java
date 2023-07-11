@@ -4,6 +4,7 @@ import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
+import io.github.kurrycat.mpkmod.ticks.TickInput;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -90,6 +91,14 @@ public class Minecraft {
         Interface.get().ifPresent(i -> i.copyToClipboard(str));
     }
 
+    public static boolean setInputs(TickInput inputs) {
+        if(!Interface.get().isPresent()) {
+            API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to set inputs, are you playing on an unsupported minecraft version?");
+            return false;
+        }
+       return Interface.get().get().setInputs(inputs);
+    }
+
     public enum WorldState {
         MENU,
         SINGLE_PLAYER,
@@ -118,5 +127,7 @@ public class Minecraft {
         String getUserName();
 
         void copyToClipboard(String content);
+
+        boolean setInputs(TickInput inputs);
     }
 }

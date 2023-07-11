@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.compatibility.forge_1_8;
 
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
+import io.github.kurrycat.mpkmod.ticks.TickInput;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -10,6 +11,7 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.ServerData;
@@ -17,9 +19,12 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
@@ -29,8 +34,8 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FunctionCompatibility implements FunctionHolder,
@@ -239,6 +244,10 @@ public class FunctionCompatibility implements FunctionHolder,
         );
     }
 
+    public Vector2D getScreenSize() {
+        return new Vector2D(Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
+    }
+
     public void enableScissor(double x, double y, double w, double h) {
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
 
@@ -254,10 +263,6 @@ public class FunctionCompatibility implements FunctionHolder,
 
     public void disableScissor() {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
-    }
-
-    public Vector2D getScreenSize() {
-        return new Vector2D(Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
     }
 
     /**
@@ -328,6 +333,48 @@ public class FunctionCompatibility implements FunctionHolder,
         StringSelection selection = new StringSelection(content);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(selection, selection);
+    }
+
+    public boolean setInputs(TickInput inputs) {
+        if (!io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.isSingleplayer()) return false;
+        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        GameSettings gs = Minecraft.getMinecraft().gameSettings;
+
+        float prevPitch = player.rotationPitch;
+        float prevYaw = player.rotationYaw;
+        player.rotationYaw = (float) ((double) player.rotationYaw + (double) inputs.getYaw());
+        player.rotationPitch = (float) ((double) player.rotationPitch - (double) inputs.getPitch());
+        player.rotationPitch = MathHelper.clamp_float(player.rotationPitch, -90.0F, 90.0F);
+        player.prevRotationPitch += player.rotationPitch - prevPitch;
+        player.prevRotationYaw += player.rotationYaw - prevYaw;
+
+        int[] keys = new int[]{
+                gs.keyBindForward.getKeyCode(),
+                gs.keyBindLeft.getKeyCode(),
+                gs.keyBindBack.getKeyCode(),
+                gs.keyBindRight.getKeyCode(),
+                gs.keyBindSprint.getKeyCode(),
+                gs.keyBindSneak.getKeyCode(),
+                gs.keyBindJump.getKeyCode()
+        };
+
+        for (int i = 0; i < keys.length; i++) {
+            KeyBinding.setKeyBindState(keys[i], inputs.get(1 << i));
+            if (inputs.get(1 << i))
+                KeyBinding.onTick(keys[i]);
+        }
+
+        KeyBinding.setKeyBindState(gs.keyBindAttack.getKeyCode(), inputs.getL() > 0);
+        if (inputs.getL() > 0)
+            for (int i = 0; i < inputs.getL(); i++)
+                KeyBinding.onTick(gs.keyBindAttack.getKeyCode());
+
+        KeyBinding.setKeyBindState(gs.keyBindUseItem.getKeyCode(), inputs.getR() > 0);
+        if (inputs.getR() > 0)
+            for (int i = 0; i < inputs.getR(); i++)
+                KeyBinding.onTick(gs.keyBindUseItem.getKeyCode());
+
+        return true;
     }
 
     /**

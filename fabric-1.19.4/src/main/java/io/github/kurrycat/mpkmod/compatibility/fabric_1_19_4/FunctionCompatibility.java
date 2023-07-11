@@ -2,7 +2,9 @@ package io.github.kurrycat.mpkmod.compatibility.fabric_1_19_4;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
+import io.github.kurrycat.mpkmod.compatibility.fabric_1_19_4.mixin.KeyBindingAccessor;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.ticks.TickInput;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -10,7 +12,10 @@ import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ServerInfo;
+import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.Window;
@@ -21,6 +26,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -323,6 +329,51 @@ public class FunctionCompatibility implements FunctionHolder,
 
     public void copyToClipboard(String content) {
         MinecraftClient.getInstance().keyboard.setClipboard(content);
+    }
+
+    public boolean setInputs(TickInput inputs) {
+        if (!io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.isSingleplayer()) return false;
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        if (player == null) return false;
+        GameOptions op = MinecraftClient.getInstance().options;
+
+        player.setPitch(player.getPitch() + inputs.getYaw());
+        player.setYaw(player.getYaw() + inputs.getPitch());
+        player.setPitch(MathHelper.clamp(player.getPitch(), -90.0f, 90.0f));
+        player.prevPitch += inputs.getYaw();
+        player.prevYaw += inputs.getPitch();
+        player.prevPitch = MathHelper.clamp(player.prevPitch, -90.0f, 90.0f);
+        if (player.getVehicle() != null) {
+            player.getVehicle().onPassengerLookAround(player);
+        }
+
+        KeyBinding[] keys = new KeyBinding[]{
+                op.forwardKey,
+                op.leftKey,
+                op.backKey,
+                op.rightKey,
+                op.sprintKey,
+                op.sneakKey,
+                op.jumpKey
+        };
+
+        for (int i = 0; i < keys.length; i++) {
+            KeyBinding.setKeyPressed(((KeyBindingAccessor) keys[i]).getBoundKey(), inputs.get(1 << i));
+            if (inputs.get(1 << i))
+                KeyBinding.onKeyPressed(((KeyBindingAccessor) keys[i]).getBoundKey());
+        }
+
+        KeyBinding.setKeyPressed(((KeyBindingAccessor) op.attackKey).getBoundKey(), inputs.getL() > 0);
+        if (inputs.getL() > 0)
+            for (int i = 0; i < inputs.getL(); i++)
+                KeyBinding.onKeyPressed(((KeyBindingAccessor) op.attackKey).getBoundKey());
+
+        KeyBinding.setKeyPressed(((KeyBindingAccessor) op.useKey).getBoundKey(), inputs.getR() > 0);
+        if (inputs.getR() > 0)
+            for (int i = 0; i < inputs.getR(); i++)
+                KeyBinding.onKeyPressed(((KeyBindingAccessor) op.useKey).getBoundKey());
+
+        return true;
     }
 
     public List<Integer> getPressedButtons() {

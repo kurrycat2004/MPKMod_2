@@ -31,6 +31,14 @@ public class MathUtil {
         }
     }
 
+    public static Float parseFloat(String value, Float defaultValue) {
+        try {
+            return Float.parseFloat(value);
+        } catch (NumberFormatException | NullPointerException e) {
+            return defaultValue;
+        }
+    }
+
     public static int constrain(int value, int min, int max) {
         if (min > max) {
             int temp = min;

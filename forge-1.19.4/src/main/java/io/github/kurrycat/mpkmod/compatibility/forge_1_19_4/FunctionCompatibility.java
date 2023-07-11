@@ -1,23 +1,29 @@
 package io.github.kurrycat.mpkmod.compatibility.forge_1_19_4;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
+import io.github.kurrycat.mpkmod.ticks.TickInput;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.Util;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -329,6 +335,52 @@ public class FunctionCompatibility implements FunctionHolder,
 
     public void copyToClipboard(String content) {
         Minecraft.getInstance().keyboardHandler.setClipboard(content);
+    }
+
+    public boolean setInputs(TickInput inputs) {
+        if (!io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.isSingleplayer()) return false;
+        LocalPlayer player = Minecraft.getInstance().player;
+        if(player == null) return false;
+        Options op = Minecraft.getInstance().options;
+
+        player.setXRot(player.getXRot() + inputs.getYaw());
+        player.setYRot(player.getYRot() + inputs.getPitch());
+        player.setXRot(Mth.clamp(player.getXRot(), -90.0F, 90.0F));
+        player.xRotO += inputs.getYaw();
+        player.yRotO += inputs.getPitch();
+        player.xRotO = Mth.clamp(player.xRotO, -90.0F, 90.0F);
+
+        if (player.getVehicle() != null) {
+            player.getVehicle().onPassengerTurned(player);
+        }
+
+        InputConstants.Key[] keys = new InputConstants.Key[]{
+                op.keyUp.getKey(),
+                op.keyLeft.getKey(),
+                op.keyDown.getKey(),
+                op.keyRight.getKey(),
+                op.keySprint.getKey(),
+                op.keyShift.getKey(),
+                op.keyJump.getKey()
+        };
+
+        for (int i = 0; i < keys.length; i++) {
+            KeyMapping.set(keys[i], inputs.get(1 << i));
+            if (inputs.get(1 << i))
+                KeyMapping.click(keys[i]);
+        }
+
+        KeyMapping.set(op.keyAttack.getKey(), inputs.getL() > 0);
+        if (inputs.getL() > 0)
+            for (int i = 0; i < inputs.getL(); i++)
+                KeyMapping.click(op.keyAttack.getKey());
+
+        KeyMapping.set(op.keyUse.getKey(), inputs.getR() > 0);
+        if (inputs.getR() > 0)
+            for (int i = 0; i < inputs.getR(); i++)
+                KeyMapping.click(op.keyUse.getKey());
+
+        return true;
     }
 
     /**
