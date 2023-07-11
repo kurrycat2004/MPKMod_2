@@ -98,6 +98,7 @@ public class Renderer2D {
         renderer.ifPresent(renderer2DInterface -> renderer2DInterface.drawLines(points, color));
     }
 
+    //TODO: fix scissor inside each other
     public static void enableScissor(double x, double y, double w, double h) {
         Optional<Interface> renderer = Interface.get();
         renderer.ifPresent(renderer2DInterface -> renderer2DInterface.enableScissor(x, y, w, h));

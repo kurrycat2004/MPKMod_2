@@ -69,8 +69,8 @@ public class Button extends Component implements MouseInputListener {
                 this.getText(),
                 getDisplayedPos()
                         .add(getDisplayedSize().div(2))
-                        .add(new Vector2D(0.5, this.getText().toLowerCase().equals(this.getText()) ? 0 : 1))
-                        .add(textOffset),
+                        .add(new Vector2D(0.5D, this.getText().toLowerCase().equals(this.getText()) ? 0 : 1))
+                        .add(textOffset).round(),
                 !enabled ? disabledTextColor :
                         isBeingPressed ? pressedTextColor :
                                 textColor,
