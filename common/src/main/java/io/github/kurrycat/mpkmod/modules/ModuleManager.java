@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.modules;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
+import io.github.kurrycat.mpkmod.events.EventAPI;
 
 import java.io.File;
 import java.util.HashMap;
@@ -38,7 +39,11 @@ public class ModuleManager {
 
         try {
             if (init) module.getModule().init();
-            else module.getModule().loaded();
+            else {
+                EventAPI.loading(module.getName());
+                module.getModule().loaded();
+                EventAPI.finishLoading();
+            }
         } catch (Exception e) {
             API.LOGGER.info("Caught exception during " +
                     (init ? "initialization" : "reloading") +
@@ -53,10 +58,12 @@ public class ModuleManager {
     public static void loadAllModules() {
         for (Map.Entry<String, MPKModuleImpl> entry : moduleMap.entrySet()) {
             try {
+                EventAPI.loading(entry.getValue().getName());
                 entry.getValue().getModule().loaded();
             } catch (Exception e) {
                 API.LOGGER.info("Caught exception during loading of module: " + entry.getValue().getName(), e);
             }
         }
+        EventAPI.finishLoading();
     }
 }

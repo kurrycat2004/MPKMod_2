@@ -65,8 +65,8 @@ public class LandingBlockGuiScreen extends ComponentScreen {
             item.landingBlock.highlight = false;
     }
 
-    public void drawScreen(Vector2D mouse, float partialTicks) {
-        super.drawScreen(mouse, partialTicks);
+    public void render(Vector2D mouse, float partialTicks) {
+        super.render(mouse, partialTicks);
     }
 
     public static class LBList extends ScrollableList<LBListItem> {

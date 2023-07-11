@@ -257,7 +257,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
         );
     }
 
-    public void drawScreen(Vector2D mouse, float partialTicks) {
+    public void render(Vector2D mouse, float partialTicks) {
         if (openPanes.isEmpty() || openPanes.get(openPanes.size() - 1) instanceof PopupMenu) drawDefaultBackground();
         Vector2D hoverMousePos = openPanes.isEmpty() ? mouse : new Vector2D(-1, -1);
 

@@ -304,7 +304,9 @@ public class FunctionCompatibility implements FunctionHolder,
      * Is called in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.Interface Minecraft.Interface}
      */
     public void displayGuiScreen(io.github.kurrycat.mpkmod.gui.MPKGuiScreen screen) {
-        Minecraft.getMinecraft().displayGuiScreen(screen == null ? null : new MPKGuiScreen(screen));
+        Minecraft.getMinecraft().addScheduledTask(() ->
+                Minecraft.getMinecraft().displayGuiScreen(
+                        screen == null ? null : new MPKGuiScreen(screen)));
     }
 
     /**

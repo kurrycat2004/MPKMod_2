@@ -3,9 +3,11 @@ package io.github.kurrycat.mpkmod.events;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Profiler;
+import io.github.kurrycat.mpkmod.util.Debug;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.function.Consumer;
 
 /**
@@ -14,6 +16,7 @@ import java.util.function.Consumer;
 @SuppressWarnings("unused")
 public class EventAPI {
     private static final EventListenerMap listeners = new EventListenerMap();
+    private static String currentModuleID = null;
 
     /**
      * Listeners should be added in {@link io.github.kurrycat.mpkmod.compatibility.API#init API.init}<br>
@@ -27,7 +30,7 @@ public class EventAPI {
      *          )
      *      )
      * }</pre>
-     *
+     * <p>
      * or more general
      * <pre>{@code
      *      EventAPI.addListener(
@@ -43,7 +46,23 @@ public class EventAPI {
      * @param listener the listener to be added
      */
     public static void addListener(EventListener<?> listener) {
-        listeners.addListener(listener);
+        if (currentModuleID == null) {
+            Debug.stacktrace("You can't add event listeners outside of MPKModule.loaded()");
+            return;
+        }
+        listeners.addListener(currentModuleID, listener);
+    }
+
+    public static void loading(String moduleID) {
+        currentModuleID = moduleID;
+        listeners.forEach((type, map) -> {
+                if(map.containsKey(currentModuleID))
+                    map.get(currentModuleID).clear();
+        });
+    }
+
+    public static void finishLoading() {
+        currentModuleID = null;
     }
 
     public static void postEvent(Event event) {
@@ -54,27 +73,33 @@ public class EventAPI {
     public static void init() {
     }
 
-    public static class EventListenerMap extends EnumMap<Event.EventType, ArrayList<EventListener<?>>> {
+    public static class EventListenerMap extends EnumMap<Event.EventType, HashMap<String, ArrayList<EventListener<?>>>> {
         public EventListenerMap() {
             super(Event.EventType.class);
             for (Event.EventType eventType : Event.EventType.values()) {
-                put(eventType, new ArrayList<>());
+                HashMap<String, ArrayList<EventListener<?>>> map = new HashMap<>();
+                put(eventType, map);
             }
         }
 
-        public void addListener(EventListener<?> listener) {
-            get(listener.getType()).add(listener);
+        public void addListener(String moduleID, EventListener<?> listener) {
+            HashMap<String, ArrayList<EventListener<?>>> map = get(listener.getType());
+            if (!map.containsKey(moduleID)) map.put(moduleID, new ArrayList<>());
+
+            map.get(moduleID).add(listener);
         }
 
         public void postEvent(Event event) {
             Profiler.startSection("mpk_event_" + event.getType().name());
-            get(event.getType()).forEach(listener -> {
-                try {
-                    listener.run(event);
-                } catch (Exception e) {
-                    API.LOGGER.info("Error during Event: " + event.getType().name(), e);
-                }
-            });
+            get(event.getType()).forEach((moduleID, listeners) ->
+                    listeners.forEach(listener -> {
+                        try {
+                            listener.run(event);
+                        } catch (Exception e) {
+                            API.LOGGER.info("Caught exception from module: " + moduleID + " during Event: " + event.getType().name(), e);
+                        }
+                    })
+            );
             Profiler.endSection();
         }
     }

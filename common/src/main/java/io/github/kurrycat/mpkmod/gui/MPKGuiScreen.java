@@ -26,14 +26,14 @@ public abstract class MPKGuiScreen extends ComponentHolder {
         return getDisplayedSize();
     }
 
-    public void onGuiInit() {
-    }
-
     public final void onInit() {
         initialized = true;
         setSize(Renderer2D.getScaledSize());
         setRoot(this);
         onGuiInit();
+    }
+
+    public void onGuiInit() {
     }
 
     public void onGuiClosed() {
@@ -69,7 +69,11 @@ public abstract class MPKGuiScreen extends ComponentHolder {
     public void onMouseScroll(Vector2D mousePos, int delta) {
     }
 
-    public void drawScreen(Vector2D mouse, float partialTicks) {
+    public final void drawScreen(Vector2D mouse, float partialTicks) {
+        render(mouse, partialTicks);
+    }
+
+    public void render(Vector2D mouse, float partialTicks) {
     }
 
     public final void drawDefaultBackground() {

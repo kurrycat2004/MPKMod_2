@@ -73,8 +73,8 @@ public class OptionsGuiScreen extends ComponentScreen {
     }
 
 
-    public void drawScreen(Vector2D mouse, float partialTicks) {
-        super.drawScreen(mouse, partialTicks);
+    public void render(Vector2D mouse, float partialTicks) {
+        super.render(mouse, partialTicks);
         optionList.renderHover(mouse);
     }
 
