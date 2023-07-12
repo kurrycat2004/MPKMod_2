@@ -6,10 +6,12 @@ import io.github.kurrycat.mpkmod.util.Vector2D;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
+import java.util.Stack;
 
 public class Renderer2D {
+    private static final Stack<ScissorBox> scissorStack = new Stack<>();
+
     /**
      * @param pos           top left corner of the rectangle
      * @param size          size of the rectangle (edge is contained within)
@@ -98,15 +100,37 @@ public class Renderer2D {
         renderer.ifPresent(renderer2DInterface -> renderer2DInterface.drawLines(points, color));
     }
 
-    //TODO: fix scissor inside each other
     public static void enableScissor(double x, double y, double w, double h) {
+        ScissorBox box;
+        if (scissorStack.isEmpty()) box = new ScissorBox(x, y, w, h);
+        else {
+            ScissorBox prev = scissorStack.peek();
+            double bx = Math.max(prev.x, x), by = Math.max(prev.y, y);
+            box = new ScissorBox(bx, by,
+                    Math.min(x + w, prev.x + prev.w) - bx,
+                    Math.min(y + h, prev.y + prev.h) - by
+            );
+        }
+        scissorStack.push(box);
+        setScissor(box);
+    }
+
+    private static void setScissor(ScissorBox box) {
         Optional<Interface> renderer = Interface.get();
-        renderer.ifPresent(renderer2DInterface -> renderer2DInterface.enableScissor(x, y, w, h));
+        if (!renderer.isPresent()) return;
+        if (box == null) renderer.get().disableScissor();
+        else renderer.get().enableScissor(box.x, box.y, box.w, box.h);
+    }
+
+    public static void endFrame() {
+        setScissor(null);
+        scissorStack.clear();
     }
 
     public static void disableScissor() {
-        Optional<Interface> renderer = Interface.get();
-        renderer.ifPresent(Interface::disableScissor);
+        if (!scissorStack.isEmpty()) scissorStack.pop();
+        if (scissorStack.isEmpty()) setScissor(null);
+        else setScissor(scissorStack.peek());
     }
 
     public interface Interface extends FunctionHolder {
@@ -125,5 +149,16 @@ public class Renderer2D {
         void enableScissor(double x, double y, double w, double h);
 
         void disableScissor();
+    }
+
+    private static class ScissorBox {
+        public double x, y, w, h;
+
+        public ScissorBox(double x, double y, double w, double h) {
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+        }
     }
 }

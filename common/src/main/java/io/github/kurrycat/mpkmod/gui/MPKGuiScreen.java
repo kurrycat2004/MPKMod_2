@@ -79,6 +79,7 @@ public abstract class MPKGuiScreen extends ComponentHolder {
 
     public final void drawScreen(Vector2D mouse, float partialTicks) {
         render(mouse, partialTicks);
+        Renderer2D.endFrame();
     }
 
     public void render(Vector2D mouse, float partialTicks) {

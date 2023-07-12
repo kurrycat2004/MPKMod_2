@@ -23,22 +23,22 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     public Div content;
 
     public ScrollableList() {
-        topCover = new Div(Vector2D.ZERO, new Vector2D(1, 0));
+        topCover = new Div(new Vector2D(0,0), new Vector2D(1, 0));
         topCover.backgroundColor = backgroundColor;
         passPositionTo(topCover, PERCENT.SIZE_X, Anchor.TOP_LEFT);
 
         titleComponent = new TextRectangle(
-                Vector2D.ZERO,
+                new Vector2D(0,0),
                 new Vector2D(1, 1),
                 "", null, Color.WHITE
         );
         topCover.addChild(titleComponent, PERCENT.SIZE);
 
-        bottomCover = new Div(Vector2D.ZERO, new Vector2D(1, 0));
+        bottomCover = new Div(new Vector2D(0,0), new Vector2D(1, 0));
         bottomCover.backgroundColor = backgroundColor;
         passPositionTo(bottomCover, PERCENT.SIZE_X, Anchor.BOTTOM_LEFT);
 
-        content = new Div(Vector2D.ZERO, Vector2D.ZERO);
+        content = new Div(new Vector2D(0,0), new Vector2D(0,0));
         stretchYBetween(content, topCover, bottomCover);
 
         scrollBar = new ScrollBar<>(this);
@@ -70,8 +70,12 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         double itemWidth = getDisplayedSize().getX() - 2;
         if (shouldRenderScrollbar()) itemWidth -= scrollBar.barWidth - 1;
 
-        Renderer2D.enableScissor(content.getDisplayedPos().getX(), content.getDisplayedPos().getY(),
-                content.getDisplayedSize().getX(), content.getDisplayedSize().getY() - 1);
+        Renderer2D.enableScissor(
+                content.getDisplayedPos().getX(),
+                content.getDisplayedPos().getY(),
+                content.getDisplayedSize().getX(),
+                content.getDisplayedSize().getY() -
+                        (bottomCover.getDisplayedSize().getY() > 0 ? 0 : 1));
 
         int i = 0;
         for (I item : getItems()) {
