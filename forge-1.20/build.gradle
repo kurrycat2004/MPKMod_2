@@ -1,5 +1,5 @@
 plugins {
-    id 'xyz.wagyourtail.unimined' version '0.4.10-SNAPSHOT'
+    id 'xyz.wagyourtail.unimined' version '0.4.10'
 }
 
 unimined {
@@ -39,6 +39,10 @@ processResources {
     inputs.property "version", project.version
 
     filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+
+    filesMatching("mcmod.info") {
         expand "version": project.version
     }
 }

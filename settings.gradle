@@ -2,7 +2,7 @@ pluginManagement {
     repositories {
         maven {
             name = 'WagYourMaven'
-            url = 'https://maven.wagyourtail.xyz/snapshots'
+            url = 'https://maven.wagyourtail.xyz/releases'
         }
         maven {
             name = 'ForgeMaven'
@@ -15,6 +15,10 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.5.0'
 }
 
 include 'common'
