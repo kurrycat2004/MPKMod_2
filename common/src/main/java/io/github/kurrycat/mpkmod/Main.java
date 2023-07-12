@@ -12,6 +12,7 @@ import io.github.kurrycat.mpkmod.gui.infovars.InfoTree;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.LabelConfiguration;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
+import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
 import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.modules.MPKModule;
@@ -29,6 +30,20 @@ public class Main implements MPKModule {
     public static List<Vector2D> mouseMovements = new ArrayList<>();
     public static MainGuiScreen mainGUI;
     public static InfoTree infoTree;
+
+    @Option.Field(
+            category = "labels",
+            displayName = "Display Overlay",
+            description = "Whether to show all the components on the overlay while playing"
+    )
+    public static boolean displayOverlay = true;
+
+    @Option.Field(
+            category = "landingblocks",
+            displayName = "Highlight Landing Blocks",
+            description = "Whether to highlight all enabled landing blocks"
+    )
+    public static boolean highlightLandingBlocks = true;
 
     @Override
     public void init() {
@@ -109,6 +124,8 @@ public class Main implements MPKModule {
         EventAPI.addListener(
                 EventAPI.EventListener.onRenderOverlay(
                         e -> {
+                            if (!displayOverlay) return;
+
                             Profiler.startSection("components");
                             if (mainGUI != null) {
                                 mainGUI.setSize(Renderer2D.getScaledSize());
@@ -126,6 +143,8 @@ public class Main implements MPKModule {
         EventAPI.addListener(
                 new EventAPI.EventListener<OnRenderWorldOverlayEvent>(
                         e -> {
+                            if (!highlightLandingBlocks) return;
+
                             Profiler.startSection("renderLBOverlays");
                             LandingBlockGuiScreen.lbs.forEach(lb -> {
                                         if (lb.enabled || lb.highlight && lb.boundingBox != null)
