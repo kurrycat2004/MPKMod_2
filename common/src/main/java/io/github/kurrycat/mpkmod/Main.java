@@ -125,6 +125,7 @@ public class Main implements MPKModule {
                 EventAPI.EventListener.onRenderOverlay(
                         e -> {
                             if (!displayOverlay) return;
+                            if(Minecraft.isF3Enabled()) return;
 
                             Profiler.startSection("components");
                             if (mainGUI != null) {

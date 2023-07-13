@@ -99,6 +99,10 @@ public class Minecraft {
        return Interface.get().get().setInputs(inputs);
     }
 
+    public static boolean isF3Enabled() {
+        return Interface.get().map(Interface::isF3Enabled).orElse(false);
+    }
+
     public enum WorldState {
         MENU,
         SINGLE_PLAYER,
@@ -129,5 +133,7 @@ public class Minecraft {
         void copyToClipboard(String content);
 
         boolean setInputs(TickInput inputs);
+
+        boolean isF3Enabled();
     }
 }

@@ -384,6 +384,10 @@ public class FunctionCompatibility implements FunctionHolder,
         return true;
     }
 
+    public boolean isF3Enabled() {
+        return MinecraftClient.getInstance().options.debugEnabled;
+    }
+
     public List<Integer> getPressedButtons() {
         return new ArrayList<>(pressedButtons);
     }

@@ -386,6 +386,10 @@ public class FunctionCompatibility implements FunctionHolder,
         return true;
     }
 
+    public boolean isF3Enabled() {
+        return Minecraft.getMinecraft().gameSettings.showDebugInfo;
+    }
+
     /**
      * Is called in {@link io.github.kurrycat.mpkmod.compatibility.MCClasses.Keyboard.Interface Keyboard.Interface}
      */
