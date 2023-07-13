@@ -11,8 +11,8 @@ import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoVar;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
 import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
-import io.github.kurrycat.mpkmod.util.ItrUtil;
 import io.github.kurrycat.mpkmod.util.Colors;
+import io.github.kurrycat.mpkmod.util.ItrUtil;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
@@ -43,7 +43,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
 
     public void render(Vector2D mouse) {
         drawDefaultSelectedBackground();
-        FontRenderer.drawString(getFormattedText(), getDisplayedPos(), color, true);
+        FontRenderer.drawString(getFormattedText(), getDisplayedPos(), color, fontSize, true);
         //CUSTOM FONT - FontManager.testArialFont.drawStringWithShadow(getFormattedText(), getDisplayedPos().getX(), getDisplayedPos().getY(), color.getRGB());
     }
 
@@ -53,12 +53,12 @@ public class InfoLabel extends Label implements TickThread.Tickable {
 
     @Override
     public Vector2D getDisplayedSize() {
-        return FontRenderer.getStringSize(getFormattedText());
+        return FontRenderer.getStringSize(getFormattedText(), fontSize);
     }
 
     @JsonIgnore
     public Vector2D getSizeForJson() {
-        return FontRenderer.getStringSize(getFormattedText());
+        return FontRenderer.getStringSize(getFormattedText(), fontSize);
     }
 
     public void tick() {
@@ -76,6 +76,13 @@ public class InfoLabel extends Label implements TickThread.Tickable {
             menu.paneHolder.openPane(editPane);
             menu.close();
         }));
+        menu.addComponent(new NumberSlider(
+                2, 30, 1, fontSize,
+                Vector2D.OFFSCREEN, new Vector2D(56, 11),
+                v -> {
+                    fontSize = v;
+                }
+        ));
         menu.addComponent(new Button("Delete", mouseButton -> {
             if (mouseButton != Mouse.Button.LEFT) return;
             menu.paneHolder.removeComponent(this);
@@ -102,8 +109,8 @@ public class InfoLabel extends Label implements TickThread.Tickable {
 
         public void updateSearchFilter(String searchString) {
             items.clear();
-            for(InfoVarListItem item : allItems) {
-                if(item.containsSearchString(searchString))
+            for (InfoVarListItem item : allItems) {
+                if (item.containsSearchString(searchString))
                     items.add(item);
             }
         }
@@ -128,13 +135,13 @@ public class InfoLabel extends Label implements TickThread.Tickable {
         }
 
         @Override
-        public int getHeight() {
-            return infoVarComponent.getHeight();
+        public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
+            infoVarComponent.render(mouse);
         }
 
         @Override
-        public void render(int index, Vector2D pos, Vector2D size, Vector2D mouse) {
-            infoVarComponent.render(mouse);
+        public int getHeight() {
+            return infoVarComponent.getHeight();
         }
 
         @Override

@@ -9,7 +9,7 @@ import java.awt.*;
 import java.util.Optional;
 
 public class FontRenderer {
-    public static final double DEFAULT_FONT_SIZE = 9;
+    public static double DEFAULT_FONT_SIZE = 9;
 
     /**
      * Draws one centered line of text to the screen
@@ -41,7 +41,7 @@ public class FontRenderer {
      * @return The size of the text when rendered using {@link #drawString(String, Vector2D, Color, boolean)} as a {@link Vector2D} containing the width and the height
      */
     public static Vector2D getStringSize(String text) {
-        return Interface.get().map(f -> f.getStringSize(text, DEFAULT_FONT_SIZE)).orElse(Vector2D.ZERO.copy());
+        return getStringSize(text, DEFAULT_FONT_SIZE);
     }
 
     /**
@@ -55,6 +55,10 @@ public class FontRenderer {
      */
     public static void drawString(String text, Vector2D pos, Color color, double fontSize, boolean shadow) {
         drawString(text, pos.getX(), pos.getY(), color, fontSize, shadow);
+    }
+
+    public static Vector2D getStringSize(String text, double fontSize) {
+        return Interface.get().map(f -> f.getStringSize(text, fontSize)).orElse(Vector2D.ZERO.copy());
     }
 
     public static void drawString(String text, double x, double y, Color color, double fontSize, boolean shadow) {

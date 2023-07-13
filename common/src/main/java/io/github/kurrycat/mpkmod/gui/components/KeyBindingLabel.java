@@ -83,13 +83,13 @@ public class KeyBindingLabel extends ResizableComponent {
             if (Mouse.Button.LEFT.equals(mouseButton)) {
                 menu.paneHolder.passPositionTo(editPane, PERCENT.SIZE, Anchor.CENTER);
                 menu.paneHolder.openPane(editPane);
-                menu.paneHolder.closePane(menu);
+                menu.close();
             }
         }));
         menu.addComponent(new Button("Delete", mouseButton -> {
             if (Mouse.Button.LEFT.equals(mouseButton)) {
                 menu.paneHolder.removeComponent(this);
-                menu.paneHolder.closePane(menu);
+                menu.close();
             }
         }));
         return menu;

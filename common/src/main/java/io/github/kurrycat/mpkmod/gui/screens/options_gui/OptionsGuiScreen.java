@@ -65,11 +65,7 @@ public class OptionsGuiScreen extends ComponentScreen {
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
-        HashMap<String, String> options = new HashMap<>();
-        for (String key : API.optionsMap.keySet()) {
-            options.put(key, API.optionsMap.get(key).getValue());
-        }
-        Serializer.serialize(JSONConfig.optionsFile, options);
+        Option.saveOptionMapToJSON();
     }
 
 
@@ -85,6 +81,8 @@ public class OptionsGuiScreen extends ComponentScreen {
             this.setTitle("Options");
             items.clear();
             for (Option option : options) {
+                if(!option.shouldShowInOptionList()) continue;
+
                 OptionListItem item;
                 switch (option.getType()) {
                     case BOOLEAN:

@@ -71,7 +71,7 @@ public class BarrierDisplayComponent extends ResizableComponent {
                 new Button("Delete", mouseButton -> {
                     if (Mouse.Button.LEFT.equals(mouseButton)) {
                         menu.paneHolder.removeComponent(this);
-                        menu.paneHolder.closePane(menu);
+                        menu.close();
                     }
                 })
         );

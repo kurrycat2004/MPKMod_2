@@ -9,8 +9,8 @@ import io.github.kurrycat.mpkmod.gui.components.*;
 import io.github.kurrycat.mpkmod.gui.interfaces.KeyInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseScrollListener;
-import io.github.kurrycat.mpkmod.util.ItrUtil;
 import io.github.kurrycat.mpkmod.util.BoundingBox2D;
+import io.github.kurrycat.mpkmod.util.ItrUtil;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
@@ -415,7 +415,7 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
 
     public final void closeAllPanes() {
         for (int i = openPanes.size() - 1; i >= 0; i--) {
-            closePane(openPanes.get(i));
+            openPanes.get(i).close();
         }
     }
 }

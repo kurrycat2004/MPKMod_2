@@ -1,7 +1,11 @@
 package io.github.kurrycat.mpkmod.gui.screens.main_gui;
 
+import io.github.kurrycat.mpkmod.Main;
 import io.github.kurrycat.mpkmod.gui.components.Button;
+import io.github.kurrycat.mpkmod.gui.components.Label;
 import io.github.kurrycat.mpkmod.gui.components.*;
+import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
+import io.github.kurrycat.mpkmod.util.ItrUtil;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.WorldToFile;
 
@@ -15,6 +19,13 @@ public class OptionsPane extends Pane<MainGuiScreen> {
         initComponents();
     }
 
+    @Override
+    public void close() {
+        Option.updateOptionMapFromFields();
+        Option.saveOptionMapToJSON();
+        super.close();
+    }
+
     private void initComponents() {
         OptionList optionList = new OptionList(
                 new Vector2D(0, 0.05),
@@ -26,24 +37,24 @@ public class OptionsPane extends Pane<MainGuiScreen> {
         pkcOption.setHeight(20);
         TextRectangle radiusText = new TextRectangle(
                 new Vector2D(0, 0),
-                new Vector2D(50, 1),
+                new Vector2D(45, 1),
                 "Radius:",
                 new Color(0, 0, 0, 0),
                 Color.WHITE
         );
         pkcOption.addChild(radiusText, PERCENT.SIZE_Y);
-        Div content = new Div(new Vector2D(0,0), new Vector2D(-2, -2));
-        pkcOption.addChild(content, PERCENT.NONE, Anchor.CENTER);
-        pkcOption.stretchXBetween(content, radiusText, null);
+        Div pkcContent = new Div(new Vector2D(0, 0), new Vector2D(-2, -2));
+        pkcOption.addChild(pkcContent, PERCENT.NONE, Anchor.CENTER);
+        pkcOption.stretchXBetween(pkcContent, radiusText, null);
         NumberSlider pkcFileRadius = new NumberSlider(
                 1, 20, 1, 5,
                 new Vector2D(0, 0),
-                new Vector2D(1 / 2D, 1),
+                new Vector2D(0.45D, 1),
                 v -> {
                 }
         );
-        content.addChild(pkcFileRadius, PERCENT.ALL);
-        content.addChild(
+        pkcContent.addChild(pkcFileRadius, PERCENT.ALL);
+        pkcContent.addChild(
                 new Button("Save as PKC File",
                         new Vector2D(1 / 2D, 0),
                         new Vector2D(1 / 2D, 1),
@@ -53,13 +64,36 @@ public class OptionsPane extends Pane<MainGuiScreen> {
 
         optionList.addItem(pkcOption);
 
+        OptionItem fontSizeOption = new OptionItem(optionList);
+        fontSizeOption.setHeight(20);
 
-        /*TestList list = new TestList();
-        list.setPos(new Vector2D(10, 0.1));
-        list.setSize(new Vector2D(0.4, 0.8));
-        for (int i = 0; i < 20; i++)
-            list.addItem(new TestItem(list));
-        addChild(list, PERCENT.POS_Y | PERCENT.SIZE, Anchor.TOP_RIGHT);*/
+        TextRectangle fontSizeText = new TextRectangle(
+                new Vector2D(0, 0),
+                new Vector2D(100, 1),
+                "Default Font Size:",
+                new Color(0, 0, 0, 0),
+                Color.WHITE
+        );
+        fontSizeOption.addChild(fontSizeText, PERCENT.SIZE_Y);
+
+        Div fontSizeContent = new Div(new Vector2D(0, 0), new Vector2D(-2, -2));
+        fontSizeOption.addChild(fontSizeContent, PERCENT.NONE, Anchor.CENTER);
+        fontSizeOption.stretchXBetween(fontSizeContent, fontSizeText, null);
+        fontSizeContent.addChild(
+                new NumberSlider(
+                        2, 30, 1, Label.DEFAULT_FONT_SIZE,
+                        new Vector2D(0, 0),
+                        new Vector2D(1, 1),
+                        v -> {
+                            for(Label l : ItrUtil.getAllOfType(Label.class, Main.mainGUI.movableComponents)) {
+                                if(l.fontSize == Label.DEFAULT_FONT_SIZE) l.fontSize = v;
+                            }
+                            Label.DEFAULT_FONT_SIZE = v;
+                        }
+                ), PERCENT.SIZE, Anchor.TOP_RIGHT
+        );
+        optionList.addItem(fontSizeOption);
+
     }
 
     @Override

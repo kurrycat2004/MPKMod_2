@@ -63,7 +63,7 @@ public abstract class Component extends ComponentHolder {
                 new Button("Delete", Vector2D.OFFSCREEN, new Vector2D(30, 11), mouseButton -> {
                     if (Mouse.Button.LEFT.equals(mouseButton)) {
                         menu.paneHolder.removeComponent(this);
-                        menu.paneHolder.closePane(menu);
+                        menu.close();
                     }
                 })
         );

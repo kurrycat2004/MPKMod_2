@@ -1,8 +1,6 @@
 package io.github.kurrycat.mpkmod.gui.screens.options_gui;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.save.Serializer;
@@ -31,13 +29,13 @@ public class Option {
     private java.lang.reflect.Field linkedField = null;
     private String displayName = null;
     private String description = null;
+    private boolean showInOptionList;
 
     public Option(String name, String value, String defaultValue) {
         this(name, value, defaultValue, ValueType.STRING);
     }
 
-    @JsonCreator
-    public Option(@JsonProperty("name") String name, @JsonProperty("value") String value, @JsonProperty("defaultValue") String defaultValue, @JsonProperty("valueType") ValueType type) {
+    public Option(String name, String value, String defaultValue, ValueType type) {
         this.name = name;
         this.value = value;
         this.defaultValue = defaultValue;
@@ -51,13 +49,6 @@ public class Option {
     public static HashMap<String, Option> createOptionMap() {
         HashMap<String, Option> optionMap = new HashMap<>();
 
-        //List<Class<?>> classes = ClassUtil.getClasses(API.packageName);
-
-        /*if (classes.size() == 0) {
-            API.LOGGER.warn(API.CONFIG_MARKER, "Error loading package while initializing option map");
-            return optionMap;
-        }*/
-
         List<Tuple<Field, java.lang.reflect.Field>> annotations = ClassUtil.getFieldAnnotations(Field.class);
         for (Tuple<Field, java.lang.reflect.Field> t : annotations) {
             Field a = t.getFirst();
@@ -65,10 +56,15 @@ public class Option {
             String id = f.getName();
             String value;
             try {
-                value = f.get(f.getDeclaringClass()).toString();
+                value = f.get(null).toString();
             } catch (IllegalAccessException e) {
                 API.LOGGER.debug(API.CONFIG_MARKER,
                         "OptionMap: IllegalAccessException while trying to access field {} from {}",
+                        id, f.getDeclaringClass().getName());
+                continue;
+            } catch (NullPointerException e) {
+                API.LOGGER.debug(API.CONFIG_MARKER,
+                        "OptionMap: Option field for Option with id: {} in the class {} is not static",
                         id, f.getDeclaringClass().getName());
                 continue;
             }
@@ -83,6 +79,7 @@ public class Option {
                     .setCategory(a.category())
                     .setDisplayName(a.displayName())
                     .setDescription(a.description())
+                    .setShowInOptionList(a.showInOptionList())
                     .link(f);
             optionMap.put(id, option);
 
@@ -118,6 +115,25 @@ public class Option {
     public Option link(java.lang.reflect.Field field) {
         this.linkedField = field;
         return this;
+    }
+
+    public Option setShowInOptionList(boolean showInOptionList) {
+        this.showInOptionList = showInOptionList;
+        return this;
+    }
+
+    public static void updateOptionMapFromFields() {
+        for (Option o : API.optionsMap.values()) {
+            o.updateFromField();
+        }
+    }
+
+    private void updateFromField() {
+        if (linkedField == null) return;
+        try {
+            value = linkedField.get(null).toString();
+        } catch (IllegalAccessException ignored) {
+        }
     }
 
     public static void updateOptionMapFromJSON(boolean suppressChangeListener) {
@@ -195,6 +211,14 @@ public class Option {
         return setValue(value, false);
     }
 
+    public static void saveOptionMapToJSON() {
+        HashMap<String, String> options = new HashMap<>();
+        for (String key : API.optionsMap.keySet()) {
+            options.put(key, API.optionsMap.get(key).getValue());
+        }
+        Serializer.serialize(JSONConfig.optionsFile, options);
+    }
+
     public String getDisplayName() {
         return displayName;
     }
@@ -230,6 +254,10 @@ public class Option {
     public Option setCategory(String category) {
         this.category = category;
         return this;
+    }
+
+    public boolean shouldShowInOptionList() {
+        return showInOptionList;
     }
 
     public OptionChangeListener getChangeListener() {
@@ -294,6 +322,8 @@ public class Option {
         String displayName() default "";
 
         String description() default "";
+
+        boolean showInOptionList() default true;
     }
 
     /**
