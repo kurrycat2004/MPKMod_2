@@ -29,6 +29,8 @@ public class Player {
     public PosAndAngle lastHit = null;
     @InfoString.Field
     public PosAndAngle lastJump = null;
+    @InfoString.Field
+    public Blip lastBlip = null;
 
     public TimingInput timingInput = new TimingInput("");
     public KeyInput keyInput = null;
@@ -41,14 +43,15 @@ public class Player {
     public boolean onGround = false;
     public Float deltaYaw = null;
     public Float deltaPitch = null;
-    public int[] deltaX = null;
-    public int[] deltaY = null;
+    public int[] deltaMouseX = null;
+    public int[] deltaMouseY = null;
     public int airtime = 0;
     public Float last45 = null;
     public boolean jumpTick = false;
     public boolean landTick = false;
     public String lastTiming = "None";
     public boolean sprinting = false;
+
 
     @InfoString.Getter
     public static LandingBlock getLatestLB() {
@@ -81,11 +84,6 @@ public class Player {
 
     public static List<TimingInput> getInputHistory() {
         return tickHistory.stream().map(p -> p.timingInput).collect(Collectors.toList());
-    }
-
-    public static Player getBeforeLatest() {
-        if (tickHistory.size() < 2) return null;
-        return tickHistory.get(tickHistory.size() - 2);
     }
 
     @InfoString.Getter
@@ -218,69 +216,87 @@ public class Player {
 
     @SuppressWarnings("UnusedReturnValue")
     public Player buildAndSave() {
+        Player prev = getLatest();
+        Player pprev = getBeforeLatest();
         Player.savePlayerState(this);
-        Player prev = getPrevious();
-        if (prev != null) {
-            if (prev.onGround) airtime = 0;
-            else airtime = prev.airtime + 1;
-            if (prev.onGround && !onGround) airtime = 1;
+        if (prev == null) {
+            Player.updateDisplayInstance();
+            return this;
+        }
+        if (prev.onGround) airtime = 0;
+        else airtime = prev.airtime + 1;
+        if (prev.onGround && !onGround) airtime = 1;
 
-            landTick = (!prev.onGround && onGround);
-            jumpTick = !onGround && prev.onGround && keyInput.jump;
+        landTick = (!prev.onGround && onGround);
+        jumpTick = !onGround && prev.onGround && keyInput.jump;
 
-            lastLanding = landTick ? new PosAndAngle(prev.pos, prev.trueYaw, prev.truePitch) : prev.lastLanding;
-            lastHit = prev.landTick ? new PosAndAngle(prev.pos, prev.trueYaw, prev.truePitch) : prev.lastHit;
-            lastJump = jumpTick ? new PosAndAngle(prev.pos, prev.trueYaw, prev.truePitch) : prev.lastJump;
+        lastLanding = landTick ? new PosAndAngle(prev.pos, prev.trueYaw, prev.truePitch) : prev.lastLanding;
+        lastHit = prev.landTick ? new PosAndAngle(prev.pos, prev.trueYaw, prev.truePitch) : prev.lastHit;
+        lastJump = jumpTick ? new PosAndAngle(prev.pos, prev.trueYaw, prev.truePitch) : prev.lastJump;
 
-            deltaYaw = trueYaw - prev.trueYaw;
-            if (deltaYaw == 0) deltaYaw = null;
-            deltaPitch = truePitch - prev.truePitch;
-            if (deltaPitch == 0) deltaPitch = null;
+        deltaYaw = trueYaw - prev.trueYaw;
+        if (deltaYaw == 0) deltaYaw = null;
+        deltaPitch = truePitch - prev.truePitch;
+        if (deltaPitch == 0) deltaPitch = null;
 
-            deltaX = new int[Main.mouseMovements.size()];
-            deltaY = new int[Main.mouseMovements.size()];
-            for (int i = 0; i < Main.mouseMovements.size(); i++) {
-                deltaX[i] = Main.mouseMovements.get(i).getXI();
-                deltaY[i] = Main.mouseMovements.get(i).getYI();
-            }
-            Main.mouseMovements.clear();
+        deltaMouseX = new int[Main.mouseMovements.size()];
+        deltaMouseY = new int[Main.mouseMovements.size()];
+        for (int i = 0; i < Main.mouseMovements.size(); i++) {
+            deltaMouseX[i] = Main.mouseMovements.get(i).getXI();
+            deltaMouseY[i] = Main.mouseMovements.get(i).getYI();
+        }
+        Main.mouseMovements.clear();
 
-            timingInput = new TimingInput(
-                    keyInput.forward,
-                    keyInput.left,
-                    keyInput.back,
-                    keyInput.right,
-                    sprinting,
-                    keyInput.sneak,
-                    jumpTick,
-                    onGround
-            );
-            if (keyMSList != null)
-                timingInput.msList.addAll(keyMSList);
+        timingInput = new TimingInput(
+                keyInput.forward,
+                keyInput.left,
+                keyInput.back,
+                keyInput.right,
+                sprinting,
+                keyInput.sneak,
+                jumpTick,
+                onGround
+        );
+        if (keyMSList != null)
+            timingInput.msList.addAll(keyMSList);
 
-            if (prev.jumpTick && !prev.keyInput.isMovingSideways() && keyInput.isMovingSideways()) {
-                last45 = prev.deltaYaw;
-            }
-
-            lastTiming = TimingStorage.match(getInputHistory());
+        if (prev.jumpTick && !prev.keyInput.isMovingSideways() && keyInput.isMovingSideways()) {
+            last45 = prev.deltaYaw;
         }
 
-        //lastTiming = InputPatternStorage.match(getInputHistory());
+        lastTiming = TimingStorage.match(getInputHistory());
+
+        if (pprev == null) {
+            Player.updateDisplayInstance();
+            return this;
+        }
+
+        lastBlip = prev.lastBlip;
+        if (onGround && !prev.onGround && pos.getY() == prev.pos.getY() && !prev.jumpTick) {
+            if (lastBlip == null) lastBlip = new Blip(1, pos);
+            else lastBlip = new Blip(lastBlip.chainedBlips + 1, pos);
+        } else if (onGround) {
+            lastBlip = null;
+        }
 
         Player.updateDisplayInstance();
         return this;
+    }
+
+    public static Player getLatest() {
+        if (tickHistory.isEmpty()) return null;
+        return tickHistory.get(tickHistory.size() - 1);
+    }
+
+    public static Player getBeforeLatest() {
+        if (tickHistory.size() < 2) return null;
+        return tickHistory.get(tickHistory.size() - 2);
     }
 
     public static void savePlayerState(Player player) {
         tickHistory.add(player);
         if (tickHistory.size() > maxSavedTicks)
             tickHistory.remove(0);
-    }
-
-    public Player getPrevious() {
-        int i = tickHistory.indexOf(this);
-        if (i <= 0) return null;
-        return tickHistory.get(i - 1);
     }
 
     public static void updateDisplayInstance() {
@@ -301,9 +317,10 @@ public class Player {
         }
     }
 
-    public static Player getLatest() {
-        if (tickHistory.isEmpty()) return null;
-        return tickHistory.get(tickHistory.size() - 1);
+    public Player getPrevious() {
+        int i = tickHistory.indexOf(this);
+        if (i <= 0) return null;
+        return tickHistory.get(i - 1);
     }
 
     public BoundingBox3D getBB() {
@@ -338,6 +355,26 @@ public class Player {
     public Player setLastPos(Vector3D lastPos) {
         this.lastPos = lastPos;
         return this;
+    }
+
+    @InfoString.DataClass
+    public static class Blip implements FormatDecimals {
+        @InfoString.Field
+        public final int chainedBlips;
+        @InfoString.Field
+        public final Vector3D pos;
+
+        public Blip(int chainedBlips, Vector3D pos) {
+            this.chainedBlips = chainedBlips;
+            this.pos = pos;
+        }
+
+        public String formatDecimals(int decimals, boolean keepZeros) {
+            return "[" +
+                    chainedBlips + ", " +
+                    pos.formatDecimals(decimals, keepZeros) +
+                    "]";
+        }
     }
 
     @InfoString.DataClass

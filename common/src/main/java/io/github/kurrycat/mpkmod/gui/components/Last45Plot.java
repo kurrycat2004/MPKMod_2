@@ -49,9 +49,9 @@ public class Last45Plot extends Plot {
     }
 
     private List<Double> fromPlayer(Player p) {
-        if (p == null || p.deltaX == null) return null;
+        if (p == null || p.deltaMouseX == null) return null;
         List<Double> x = new ArrayList<>();
-        for (int dx : p.deltaX)
+        for (int dx : p.deltaMouseX)
             x.add((double) dx);
 
         return x;

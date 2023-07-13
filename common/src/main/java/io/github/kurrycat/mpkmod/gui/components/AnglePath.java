@@ -155,7 +155,7 @@ public class AnglePath extends ResizableComponent implements MouseScrollListener
 
         if (p == null || bp == null) return;
 
-        if (bp.timingInput.isStopTick() && bp.deltaX.length == 0 && (!p.timingInput.isStopTick() || p.deltaX.length != 0)) {
+        if (bp.timingInput.isStopTick() && bp.deltaMouseX.length == 0 && (!p.timingInput.isStopTick() || p.deltaMouseX.length != 0)) {
             dataPoints.clear();
             renderPoints.clear();
             displayTime = API.tickTime - 1;
@@ -165,7 +165,7 @@ public class AnglePath extends ResizableComponent implements MouseScrollListener
                 renderPoints.addFirst(v);
         }
 
-        int movementCount = p.deltaX.length;
+        int movementCount = p.deltaMouseX.length;
         if (movementCount == 0) return;
 
         int x = dataPoints.getFirst().x[dataPoints.getFirst().x.length - 1];
@@ -177,8 +177,8 @@ public class AnglePath extends ResizableComponent implements MouseScrollListener
                 API.tickTime);
 
         for (int i = 0; i < movementCount; i++) {
-            dataPoint.x[i] = x += p.deltaX[i];
-            dataPoint.y[i] = y += p.deltaY[i];
+            dataPoint.x[i] = x += p.deltaMouseX[i];
+            dataPoint.y[i] = y += p.deltaMouseY[i];
         }
 
         if (displayTime < API.tickTime - timeWindow) {
