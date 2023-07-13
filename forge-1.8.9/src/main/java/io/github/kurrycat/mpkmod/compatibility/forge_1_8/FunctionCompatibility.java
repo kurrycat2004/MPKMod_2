@@ -268,19 +268,26 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link FontRenderer.Interface}
      */
-    public void drawString(String text, Vector2D pos, Color color, boolean shadow) {
+    public void drawString(String text, double x, double y, Color color, double fontSize, boolean shadow) {
         GlStateManager.enableBlend();
-        Minecraft.getMinecraft().fontRendererObj.drawString(text, pos.getXF(), pos.getYF(), color.getRGB(), shadow);
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, 0);
+        double scale = fontSize / (Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT * 1F);
+        GlStateManager.scale(scale, scale, 1);
+        Minecraft.getMinecraft().fontRendererObj.drawString(
+                text, 0, 0, color.getRGB(), shadow);
+        GlStateManager.popMatrix();
         GlStateManager.disableBlend();
     }
 
     /**
      * Is called in {@link FontRenderer.Interface}
      */
-    public Vector2D getStringSize(String text) {
+    public Vector2D getStringSize(String text, double fontSize) {
+        double scale = fontSize / (Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT * 1F);
         return new Vector2D(
-                Minecraft.getMinecraft().fontRendererObj.getStringWidth(text),
-                Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT
+                Minecraft.getMinecraft().fontRendererObj.getStringWidth(text) * scale,
+                fontSize
         );
     }
 

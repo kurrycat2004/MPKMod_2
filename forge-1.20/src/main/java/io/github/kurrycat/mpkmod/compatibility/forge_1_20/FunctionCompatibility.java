@@ -3,10 +3,7 @@ package io.github.kurrycat.mpkmod.compatibility.forge_1_20;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.ticks.TickInput;
@@ -274,20 +271,29 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link FontRenderer.Interface}
      */
-    public void drawString(String text, Vector2D pos, Color color, boolean shadow) {
+    public void drawString(String text, double x, double y, Color color, double fontSize, boolean shadow) {
         if (guiGraphics == null) return;
-        //0.04 because drawString SHADOW_OFFSET is 0.03
-        guiGraphics.pose().translate(0, 0, 0.04);
-        guiGraphics.drawString(Minecraft.getInstance().font, text, pos.getXF(), pos.getYF(), color.getRGB(), shadow);
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.translate(0, 0, 0.04);
+        poseStack.pushPose();
+        poseStack.translate(x, y, 0);
+        double scale = fontSize / Minecraft.getInstance().font.lineHeight;
+        poseStack.scale((float) scale, (float) scale, 1);
+        guiGraphics.drawString(
+                Minecraft.getInstance().font, text,
+                0, 0, color.getRGB(), shadow
+        );
+        poseStack.popPose();
     }
 
     /**
      * Is called in {@link FontRenderer.Interface}
      */
-    public Vector2D getStringSize(String text) {
+    public Vector2D getStringSize(String text, double fontSize) {
         return new Vector2D(
-                Minecraft.getInstance().font.width(text),
-                Minecraft.getInstance().font.lineHeight
+                Minecraft.getInstance().font.width(text) *
+                        (float) (fontSize / Minecraft.getInstance().font.lineHeight),
+                (float) fontSize
         );
     }
 

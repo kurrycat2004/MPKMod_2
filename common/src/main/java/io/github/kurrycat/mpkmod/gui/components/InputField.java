@@ -76,7 +76,7 @@ public class InputField extends Component implements KeyInputListener, MouseInpu
             );
         }
 
-        Renderer2D.drawRectWithEdge(rectPos.round(), rectSize.round(), 1, normalColor, edgeColor);
+        Renderer2D.drawRectWithEdge(rectPos, rectSize, 1, normalColor, edgeColor);
 
         cursorPos = MathUtil.constrain(cursorPos, 0, content.length());
         highlightStart = MathUtil.constrain(highlightStart, 0, content.length());

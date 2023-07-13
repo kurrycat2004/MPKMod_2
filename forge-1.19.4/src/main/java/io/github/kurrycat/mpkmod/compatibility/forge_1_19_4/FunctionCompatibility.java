@@ -268,21 +268,29 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link FontRenderer.Interface}
      */
-    public void drawString(String text, Vector2D pos, Color color, boolean shadow) {
+    public void drawString(String text, double x, double y, Color color, double fontSize, boolean shadow) {
         poseStack.translate(0, 0, 0.04);
+        poseStack.pushPose();
+        poseStack.translate(x, y, 0);
+        double scale = fontSize / Minecraft.getInstance().font.lineHeight;
+        poseStack.scale((float) scale, (float) scale, 1);
         if (shadow)
-            Minecraft.getInstance().font.drawShadow(poseStack, text, pos.getXF(), pos.getYF(), color.getRGB());
+            Minecraft.getInstance().font
+                    .drawShadow(poseStack, text, 0, 0, color.getRGB());
         else
-            Minecraft.getInstance().font.draw(poseStack, text, pos.getXF(), pos.getYF(), color.getRGB());
+            Minecraft.getInstance().font
+                    .draw(poseStack, text, 0, 0, color.getRGB());
+        poseStack.popPose();
     }
 
     /**
      * Is called in {@link FontRenderer.Interface}
      */
-    public Vector2D getStringSize(String text) {
+    public Vector2D getStringSize(String text, double fontSize) {
         return new Vector2D(
-                Minecraft.getInstance().font.width(text),
-                Minecraft.getInstance().font.lineHeight
+                Minecraft.getInstance().font.width(text) *
+                        (float) (fontSize / Minecraft.getInstance().font.lineHeight),
+                (float) fontSize
         );
     }
 
@@ -340,7 +348,7 @@ public class FunctionCompatibility implements FunctionHolder,
     public boolean setInputs(TickInput inputs) {
         if (!io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.isSingleplayer()) return false;
         LocalPlayer player = Minecraft.getInstance().player;
-        if(player == null) return false;
+        if (player == null) return false;
         Options op = Minecraft.getInstance().options;
 
         player.setXRot(player.getXRot() + inputs.getYaw());

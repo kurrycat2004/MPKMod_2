@@ -65,12 +65,13 @@ public class Button extends Component implements MouseInputListener {
                         contains(mouse) ? hoverColor : normalColor;
         Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), bg);
 
+        String text = this.getText();
         FontRenderer.drawCenteredString(
-                this.getText(),
+                text,
                 getDisplayedPos()
                         .add(getDisplayedSize().div(2))
-                        .add(new Vector2D(0.5D, this.getText().toLowerCase().equals(this.getText()) ? 0 : 1))
-                        .add(textOffset).round(),
+                        .add(new Vector2D(0.5D, text.toLowerCase().equals(text) ? 0 : 1))
+                        .add(textOffset),
                 !enabled ? disabledTextColor :
                         isBeingPressed ? pressedTextColor :
                                 textColor,

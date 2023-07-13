@@ -4,11 +4,11 @@ import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.gui.components.Button;
 import io.github.kurrycat.mpkmod.gui.components.*;
+import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.WorldToFile;
 
 import java.awt.*;
-import java.awt.color.ColorSpace;
 
 public class OptionsPane extends Pane<MainGuiScreen> {
     public OptionsPane(Vector2D pos, Vector2D size) {

@@ -20,6 +20,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.Window;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Util;
@@ -265,16 +266,27 @@ public class FunctionCompatibility implements FunctionHolder,
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 
-    public void drawString(String text, Vector2D pos, Color color, boolean shadow) {
+
+    public void drawString(String text, double x, double y, Color color, double fontSize, boolean shadow) {
         if (drawContext == null) return;
-        drawContext.getMatrices().translate(0, 0, 0.04);
-        drawContext.drawText(MinecraftClient.getInstance().textRenderer, text, pos.getXI(), pos.getYI(), color.getRGB(), shadow);
+        MatrixStack matrixStack = drawContext.getMatrices();
+        matrixStack.translate(0, 0, 0.04);
+        matrixStack.push();
+        matrixStack.translate(x, y, 0);
+        double scale = fontSize / MinecraftClient.getInstance().textRenderer.fontHeight;
+        matrixStack.scale((float) scale, (float) scale, 1);
+        drawContext.drawText(
+                MinecraftClient.getInstance().textRenderer, text,
+                0, 0, color.getRGB(), shadow
+        );
+        matrixStack.pop();
     }
 
-    public Vector2D getStringSize(String text) {
+    public Vector2D getStringSize(String text, double fontSize) {
         return new Vector2D(
-                MinecraftClient.getInstance().textRenderer.getWidth(text),
-                MinecraftClient.getInstance().textRenderer.fontHeight
+                MinecraftClient.getInstance().textRenderer.getWidth(text) *
+                        (float) (fontSize / MinecraftClient.getInstance().textRenderer.fontHeight),
+                (float) fontSize
         );
     }
 
