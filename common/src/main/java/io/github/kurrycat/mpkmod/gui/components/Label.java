@@ -10,6 +10,8 @@ import java.awt.*;
 public class Label extends Component {
     @JsonProperty
     public String text;
+    @JsonProperty("fontSize")
+    public double fontSize = FontRenderer.DEFAULT_FONT_SIZE;
     @JsonProperty
     public Color color = Color.WHITE;
     @JsonProperty

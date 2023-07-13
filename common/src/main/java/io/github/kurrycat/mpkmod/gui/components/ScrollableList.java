@@ -38,7 +38,8 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
         bottomCover.backgroundColor = backgroundColor;
         passPositionTo(bottomCover, PERCENT.SIZE_X, Anchor.BOTTOM_LEFT);
 
-        content = new Div(new Vector2D(0,0), new Vector2D(0,0));
+        content = new Div(new Vector2D(0,0), new Vector2D(1,1));
+        passPositionTo(content, PERCENT.SIZE);
         stretchYBetween(content, topCover, bottomCover);
 
         scrollBar = new ScrollBar<>(this);

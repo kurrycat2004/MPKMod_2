@@ -199,6 +199,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
             components.add(collapseButton);
 
             addButton = new Button("+", new Vector2D(1, 0), new Vector2D(11, 11));
+            addButton.textOffset = new Vector2D(0, 1);
             addButton.setButtonCallback(mouseButton -> {
                 if (mouseButton != Mouse.Button.LEFT) return;
                 inputField.typeContentAtCursor("{" + infoVar.getFullName() + "}");
@@ -212,7 +213,7 @@ public class InfoLabel extends Label implements TickThread.Tickable {
             if (collapsed == this.collapsed) return;
             this.collapsed = collapsed;
             collapseButton.setText(collapsed ? "v" : "^");
-            collapseButton.textOffset = collapsed ? Vector2D.ZERO : new Vector2D(0, 3);
+            collapseButton.textOffset = collapsed ? Vector2D.ZERO.copy() : new Vector2D(0, 3);
 
             if (parent != null) parent.updateChildPositions();
 

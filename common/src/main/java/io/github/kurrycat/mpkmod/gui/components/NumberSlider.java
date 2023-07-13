@@ -3,6 +3,7 @@ package io.github.kurrycat.mpkmod.gui.components;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.FontRenderer;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Renderer2D;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.SoundManager;
+import io.github.kurrycat.mpkmod.gui.Theme;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseInputListener;
 import io.github.kurrycat.mpkmod.gui.interfaces.MouseScrollListener;
 import io.github.kurrycat.mpkmod.util.MathUtil;
@@ -15,6 +16,7 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
     private final SliderCallback sliderCallback;
     private final double from, to, step;
     private final Button button;
+    private final TextRectangle valueTextRect;
     public Color backgroundColor = new Color(31, 31, 31, 150);
     public Color buttonColor = new Color(150, 150, 150, 150);
     public Color buttonHoverColor = new Color(190, 190, 190, 150);
@@ -39,6 +41,12 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
         this.button.hoverColor = buttonHoverColor;
         this.button.normalColor = buttonColor;
         this.button.pressedColor = buttonPressedColor;
+
+        valueTextRect = new TextRectangle(new Vector2D(0, 0), new Vector2D(1, 1),
+                MathUtil.formatDecimals(value, 5, false),
+                null, Theme.defaultText
+        );
+        passPositionTo(valueTextRect, PERCENT.SIZE, Anchor.CENTER);
     }
 
     private double getRelativeXPosFromValue() {
@@ -74,12 +82,8 @@ public class NumberSlider extends Component implements MouseInputListener, Mouse
     public void render(Vector2D mouse) {
         Renderer2D.drawRect(getDisplayedPos(), getDisplayedSize(), backgroundColor);
 
-        FontRenderer.drawCenteredString(
-                MathUtil.formatDecimals(value, 5, false),
-                getDisplayedPos().add(getDisplayedSize().div(2)).add(new Vector2D(0, 1)),
-                Color.WHITE,
-                false
-        );
+        valueTextRect.setText(MathUtil.formatDecimals(value, 5, false));
+        valueTextRect.render(mouse);
 
         this.setValue(value);
         this.button.render(mouse);

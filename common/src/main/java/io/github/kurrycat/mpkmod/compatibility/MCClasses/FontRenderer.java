@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.compatibility.MCClasses;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
+import io.github.kurrycat.mpkmod.gui.components.ComponentHolder;
 import io.github.kurrycat.mpkmod.util.Colors;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 
@@ -53,9 +54,26 @@ public class FontRenderer {
      * @param shadow   Draws the same text again underneath in {@link Color#BLACK} and a positive offset of 1px for each axis
      */
     public static void drawString(String text, Vector2D pos, Color color, double fontSize, boolean shadow) {
+        drawString(text, pos.getX(), pos.getY(), color, fontSize, shadow);
+    }
+
+    public static void drawString(String text, double x, double y, Color color, double fontSize, boolean shadow) {
         Interface.get().ifPresent(f ->
                 f.drawString(Colors.RESET.getCode() + text,
-                        pos.getX(), pos.getY(), color, fontSize, shadow));
+                        x, y, color, fontSize, shadow));
+    }
+
+    public static void drawCenteredString(String text, ComponentHolder parent, Color color, boolean shadow) {
+        drawCenteredString(text, parent, color, DEFAULT_FONT_SIZE, shadow);
+    }
+
+    public static void drawCenteredString(String text, ComponentHolder parent, Color color, double fontSize, boolean shadow) {
+        Vector2D stringSize = getStringSize(text);
+        drawString(text,
+                parent.getDisplayedPos().getX() + parent.getDisplayedSize().getX() / 2D - stringSize.getX() / 2D,
+                parent.getDisplayedPos().getY() + parent.getDisplayedSize().getY() / 2D + 1 - stringSize.getY() / 2D,
+                color, fontSize, shadow
+        );
     }
 
     /**

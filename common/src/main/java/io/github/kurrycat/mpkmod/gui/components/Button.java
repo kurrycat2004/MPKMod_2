@@ -18,7 +18,7 @@ public class Button extends Component implements MouseInputListener {
     public Color disabledColor = Theme.disabledBackground;
     public Color disabledTextColor = Theme.disabledText;
     public Color pressedTextColor = Theme.darkText;
-    public Vector2D textOffset = Vector2D.ZERO;
+    public Vector2D textOffset = Vector2D.ZERO.copy();
     public boolean enabled = true;
     private ButtonCallback buttonCallback;
     private String text;

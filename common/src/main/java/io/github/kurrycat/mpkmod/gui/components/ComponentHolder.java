@@ -74,56 +74,77 @@ public abstract class ComponentHolder {
      */
     public void updatePosAndSize() {
         if (parent != null) root = parent.root;
+        ComponentHolder p = rParent();
+        if (p == null || p == this) {
+            this.csize.set(this.size);
+            this.cpos.set(this.pos);
+
+            lastUpdated = System.nanoTime();
+            return;
+        }
+
+        double pX = p.getDisplayedPos().getX(), pY = p.getDisplayedPos().getY();
+        double pW = p.getDisplayedSize().getX(), pH = p.getDisplayedSize().getY();
+
+        double w = this.size.getX(), h = this.size.getY();
 
         //size update
-        if (rParent() == null || rParent() == this) this.csize.set(this.size);
-        else if (minX == null && maxX == null && minY == null && maxY == null) {
-            Vector2D pSize = this.rParent().getDisplayedSize();
-            this.csize.set(
-                    PERCENT.HAS_SIZE_X(percentFlag) ? pSize.getX() * this.size.getX() :
-                            (this.size.getX() >= 0 ? this.size.getX() : pSize.getX() + this.size.getX()),
-                    PERCENT.HAS_SIZE_Y(percentFlag) ? pSize.getY() * this.size.getY() :
-                            (this.size.getY() >= 0 ? this.size.getY() : pSize.getY() + this.size.getY())
-            );
-        }
+        this.csize.set(
+                PERCENT.HAS_SIZE_X(percentFlag) ? pW * w : (w >= 0 ? w : pW + w),
+                PERCENT.HAS_SIZE_Y(percentFlag) ? pH * h : (h >= 0 ? h : pH + h)
+        );
 
         //pos update
-        if (rParent() == null || rParent() == this) this.cpos.set(this.pos);
-        else if (minX == null && maxX == null && minY == null && maxY == null) {
-            this.cpos.set(
-                    parentAnchor.getOriginPos(this.rParent().getDisplayedSize())
-                            .add(this.rParent().getDisplayedPos())
-                            .add(parentAnchor.transformVec(getPosWithoutPercentage()))
-                            .sub(anchor.getOriginPos(this.csize))
-            );
+        this.cpos.set(
+                pX + parentAnchor.origin.getX() * pW
+                        + this.pos.getX() * (PERCENT.HAS_POS_X(percentFlag) ? pW : 1) * parentAnchor.multiplier.getX()
+                        - anchor.origin.getX() * this.csize.getX(),
+                pY + parentAnchor.origin.getY() * pH
+                        + this.pos.getY() * (PERCENT.HAS_POS_Y(percentFlag) ? pH : 1) * parentAnchor.multiplier.getY()
+                        - anchor.origin.getY() * this.csize.getY()
+        );
+
+        //return if no stretch limits
+        if(minX == null && maxX == null && minY == null && maxY == null) {
+            lastUpdated = System.nanoTime();
+            return;
         }
 
-        if (rParent() != null && (minX != null || maxX != null || minY != null || maxY != null)) {
-            ComponentHolder p = rParent();
-            this.cpos.set(
-                    minX == null ? p.getDisplayedPos().getX() : (minX.getDisplayedPos().getX() + minX.getDisplayedSize().getX()),
-                    minY == null ? p.getDisplayedPos().getY() : (minY.getDisplayedPos().getY() + minY.getDisplayedSize().getY())
-            );
-            this.csize.set(
-                    maxX == null ? p.getDisplayedPos().getX() + p.getDisplayedSize().getX() - cpos.getX() :
-                            maxX.getDisplayedPos().getX() - cpos.getX(),
-                    maxY == null ? p.getDisplayedPos().getY() + p.getDisplayedSize().getY() - cpos.getY() :
-                            maxY.getDisplayedPos().getY() - cpos.getY()
-            );
+        //calculate x stretch limits
+        if (minX != null || maxX != null) {
+            double oldPX = pX;
+            if (minX != null) pX = minX.getDisplayedPos().getX() + minX.getDisplayedSize().getX();
+            pW = maxX == null ? oldPX + pW - pX : maxX.getDisplayedPos().getX() - pX;
         }
+
+        //calculate y stretch limits
+        if (minY != null || maxY != null) {
+            double oldPY = pY;
+            if (minY != null) pY = minY.getDisplayedPos().getY() + minY.getDisplayedSize().getY();
+            pH = maxY == null ? oldPY + pH - pY : maxY.getDisplayedPos().getY() - pY;
+        }
+
+        //update size again with new stretch limits
+        this.csize.set(
+                PERCENT.HAS_SIZE_X(percentFlag) ? pW * w : (w >= 0 ? w : pW + w),
+                PERCENT.HAS_SIZE_Y(percentFlag) ? pH * h : (h >= 0 ? h : pH + h)
+        );
+
+        //update pos again with new stretch limits
+        this.cpos.set(
+                pX + parentAnchor.origin.getX() * pW
+                        + this.pos.getX() * (PERCENT.HAS_POS_X(percentFlag) ? pW : 1) * parentAnchor.multiplier.getX()
+                        - anchor.origin.getX() * this.csize.getX(),
+                pY + parentAnchor.origin.getY() * pH
+                        + this.pos.getY() * (PERCENT.HAS_POS_Y(percentFlag) ? pH : 1) * parentAnchor.multiplier.getY()
+                        - anchor.origin.getY() * this.csize.getY()
+        );
 
         lastUpdated = System.nanoTime();
     }
 
     protected ComponentHolder rParent() {
         return absolute ? root : parent;
-    }
-
-    private Vector2D getPosWithoutPercentage() {
-        return new Vector2D(
-                PERCENT.HAS_POS_X(percentFlag) ? this.rParent().getDisplayedSize().getX() * this.pos.getX() : this.pos.getX(),
-                PERCENT.HAS_POS_Y(percentFlag) ? this.rParent().getDisplayedSize().getY() * this.pos.getY() : this.pos.getY()
-        );
     }
 
     public Vector2D getDisplayedSize() {

@@ -35,13 +35,7 @@ public class TextRectangle extends Component {
                     textColor,
                     false
             );
-        else
-            FontRenderer.drawCenteredString(
-                    text,
-                    getDisplayedPos().add(getDisplayedSize().div(2)).add(new Vector2D(0, 1)),
-                    textColor,
-                    false
-            );
+        else FontRenderer.drawCenteredString(text, this, textColor, false);
     }
 
     public void setText(String text) {
