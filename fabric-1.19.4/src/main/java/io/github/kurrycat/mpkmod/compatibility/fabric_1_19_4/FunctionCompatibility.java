@@ -66,11 +66,11 @@ public class FunctionCompatibility implements FunctionHolder,
         return boundingBoxes;
     }
 
-    public Vector3D getLookingAt() {
+    public Vector3D getLookingAt(double distance) {
         if (MinecraftClient.getInstance().getCameraEntity() == null)
             return null;
 
-        HitResult hitResult = MinecraftClient.getInstance().getCameraEntity().raycast(20, 0, false);
+        HitResult hitResult = MinecraftClient.getInstance().getCameraEntity().raycast(distance, 0, false);
         if (hitResult instanceof BlockHitResult) {
             BlockPos blockPos = ((BlockHitResult) hitResult).getBlockPos();
             return new Vector3D(blockPos.getX(), blockPos.getY(), blockPos.getZ());

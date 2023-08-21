@@ -71,8 +71,8 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link WorldInteraction.Interface}
      */
-    public Vector3D getLookingAt() {
-        BlockPos blockPos = Minecraft.getMinecraft().thePlayer.rayTrace(20, 0).getBlockPos();
+    public Vector3D getLookingAt(double distance) {
+        BlockPos blockPos = Minecraft.getMinecraft().thePlayer.rayTrace(distance, 0).getBlockPos();
         if (blockPos == null) return null;
         return new Vector3D(blockPos.getX(), blockPos.getY(), blockPos.getZ());
     }
@@ -82,14 +82,12 @@ public class FunctionCompatibility implements FunctionHolder,
      */
     public String getBlockName(Vector3D blockPos) {
         String blockName = "";
-        //if (Minecraft.getMinecraft().objectMouseOver != null && Minecraft.getMinecraft().objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && Minecraft.getMinecraft().objectMouseOver.getBlockPos() != null && !(Minecraft.getMinecraft().thePlayer.hasReducedDebug() || Minecraft.getMinecraft().gameSettings.reducedDebugInfo)) {
         BlockPos blockpos = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         IBlockState iblockstate = Minecraft.getMinecraft().theWorld.getBlockState(blockpos);
         if (Minecraft.getMinecraft().theWorld.getWorldType() != WorldType.DEBUG_WORLD) {
             iblockstate = iblockstate.getBlock().getActualState(iblockstate, Minecraft.getMinecraft().theWorld, blockpos);
         }
         blockName = String.valueOf(Block.blockRegistry.getNameForObject(iblockstate.getBlock()));
-        //}
         return blockName;
     }
 
