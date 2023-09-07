@@ -16,7 +16,7 @@
     "format": {
       "a==1": "Max ",
       "default": "c4.5",
-      "a!=1&&a!=4": " {a}t",
+      "a!=1&&a!=5": " {a}t",
       "a_ms": " ({a_ms}ms)",
       "r!=1": " Run {r}t"
     },
@@ -56,7 +56,7 @@
     "format": {
       "a==1": "Max ",
       "default": "Pane FMM",
-      "a!=1&&a!=4": " {a}t",
+      "a!=1&&a!=5": " {a}t",
       "r!=1": " Run {r}t"
     },
     "timingEntries": [
