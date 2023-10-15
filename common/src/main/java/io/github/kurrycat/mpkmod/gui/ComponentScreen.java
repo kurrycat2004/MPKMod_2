@@ -176,6 +176,14 @@ public abstract class ComponentScreen extends MPKGuiScreen implements PaneHolder
                     addComponent(barrierDisplay);
                     menu.close();
                 }));
+                newLabelMenu.addComponent(new Button("Add InputHistory", b -> {
+                    if (b != Mouse.Button.LEFT) return;
+                    InputHistory inputHistory = new InputHistory();
+                    inputHistory.setPos(mouse);
+                    inputHistory.setSize(new Vector2D(InputHistory.preferredWidth, 120));
+                    addComponent(inputHistory);
+                    menu.close();
+                }));
                 newLabelMenu.addComponent(new Button("Add Plot (WIP)", b -> {
                     if (b != Mouse.Button.LEFT) return;
                     Plot plot = new Last45Plot();

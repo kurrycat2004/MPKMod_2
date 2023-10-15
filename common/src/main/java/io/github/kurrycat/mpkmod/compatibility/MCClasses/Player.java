@@ -453,6 +453,15 @@ public class Player {
             return "{W:" + forward + ", A:" + left + ", S:" + back + ", D:" + right + ", N:" + sneak + ", P:" + sprint + ", J:" + jump + "}";
         }
 
+        public Vector2D getMovementVector() {
+            Vector2D vector2D = Vector2D.ZERO;
+            if(this.forward) vector2D = vector2D.add(1, 0);
+            if(this.back) vector2D = vector2D.add(-1, 0);
+            if(this.left) vector2D = vector2D.add(0, -1);
+            if(this.right) vector2D = vector2D.add(0, 1);
+            return vector2D;
+        }
+
         public boolean isMovingSideways() {
             return left ^ right;
         }
