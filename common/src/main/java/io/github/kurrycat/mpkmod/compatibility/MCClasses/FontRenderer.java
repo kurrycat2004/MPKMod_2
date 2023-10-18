@@ -24,6 +24,10 @@ public class FontRenderer {
         drawString(text, pos.sub(getStringSize(text).div(2)), color, shadow);
     }
 
+    public static void drawCenteredMonospaceString(String text, Vector2D pos, Color color, boolean shadow) {
+        drawMonospaceString(text, pos.sub(getStringSize(text).div(2)), color, shadow);
+    }
+
     /**
      * Draws one line of text to the screen with the {@link FontRenderer#DEFAULT_FONT_SIZE default font size}
      *
@@ -34,6 +38,10 @@ public class FontRenderer {
      */
     public static void drawString(String text, Vector2D pos, Color color, boolean shadow) {
         drawString(text, pos, color, DEFAULT_FONT_SIZE, shadow);
+    }
+
+    public static void drawMonospaceString(String text, Vector2D pos, Color color, boolean shadow) {
+        drawMonospaceString(text, pos, color, DEFAULT_FONT_SIZE, shadow);
     }
 
     /**
@@ -57,6 +65,10 @@ public class FontRenderer {
         drawString(text, pos.getX(), pos.getY(), color, fontSize, shadow);
     }
 
+    public static void drawMonospaceString(String text, Vector2D pos, Color color, double fontSize, boolean shadow) {
+        drawMonospaceString(text, pos.getX(), pos.getY(), color, fontSize, shadow);
+    }
+
     public static Vector2D getStringSize(String text, double fontSize) {
         return Interface.get().map(f -> f.getStringSize(text, fontSize)).orElse(Vector2D.ZERO.copy());
     }
@@ -65,6 +77,17 @@ public class FontRenderer {
         Interface.get().ifPresent(f ->
                 f.drawString(Colors.RESET.getCode() + text,
                         x, y, color, fontSize, shadow));
+    }
+
+    public static void drawMonospaceString(String text, double x, double y, Color color, double fontSize, boolean shadow) {
+        for (int i = 0; i < text.length(); i++) {
+            int finalI = i;
+            Interface.get().ifPresent(f -> {
+                if (text.charAt(finalI) == ' ') return;
+                f.drawString(Colors.RESET.getCode() + text.charAt(finalI),
+                        x + finalI * fontSize * 6d / 9d, y, color, fontSize, shadow);
+            });
+        }
     }
 
     public static void drawCenteredString(String text, ComponentHolder parent, Color color, boolean shadow) {
@@ -118,6 +141,9 @@ public class FontRenderer {
      */
     public static void drawLeftCenteredString(String text, Vector2D pos, Color color, boolean shadow) {
         drawString(text, pos.sub(0, getStringSize(text).getY() / 2), color, shadow);
+    }
+    public static void drawLeftCenteredMonospaceString(String text, Vector2D pos, Color color, boolean shadow) {
+        drawMonospaceString(text, pos.sub(0, getStringSize(text).getY() / 2), color, shadow);
     }
 
     public interface Interface extends FunctionHolder {
