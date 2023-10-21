@@ -7,6 +7,7 @@ import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.TickThread;
 import io.github.kurrycat.mpkmod.gui.components.Component;
+import io.github.kurrycat.mpkmod.gui.components.InputHistory;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoTree;
 import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
@@ -125,7 +126,7 @@ public class Main implements MPKModule {
                 EventAPI.EventListener.onRenderOverlay(
                         e -> {
                             if (!displayOverlay) return;
-                            if(Minecraft.isF3Enabled()) return;
+                            if (Minecraft.isF3Enabled()) return;
 
                             Profiler.startSection("components");
                             if (mainGUI != null) {
@@ -178,6 +179,12 @@ public class Main implements MPKModule {
                                                     offset.getX() > 0 && offset.getZ() > 0
                                             );
                                     });
+                            Profiler.endSection();
+                            Profiler.startSection("tickInputHistories");
+                            for (Component component : mainGUI.movableComponents) {
+                                if (!(component instanceof InputHistory)) continue;
+                                ((InputHistory) component).onTick();
+                            }
                             Profiler.endSection();
                         }
                 )

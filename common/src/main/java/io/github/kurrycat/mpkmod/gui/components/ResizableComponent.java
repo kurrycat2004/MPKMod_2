@@ -12,6 +12,8 @@ import java.util.List;
 public abstract class ResizableComponent extends Component implements MouseInputListener {
     private Vector2D minSize = new Vector2D(5, 5);
     private BoundingBox2D.Edge[] areBeingResized = null;
+    private boolean xResizeLocked = false;
+    private boolean yResizeLocked = false;
 
     public Vector2D getMinSize() {
         return minSize;
@@ -63,7 +65,7 @@ public abstract class ResizableComponent extends Component implements MouseInput
         Boolean yResizing = beingResized.contains(BoundingBox2D.Edge.TOP) ? Boolean.FALSE :
                 (beingResized.contains(BoundingBox2D.Edge.BOTTOM) ? Boolean.TRUE : null);
 
-        if (xResizing != null) {
+        if (xResizing != null && !xResizeLocked) {
             double mouseX = mousePos.getX();
             double edgePos = xResizing ? bb.maxX() : bb.minX();
             double oppositeEdgePos = xResizing ? bb.minX() : bb.maxX();
@@ -79,7 +81,7 @@ public abstract class ResizableComponent extends Component implements MouseInput
                 addPos(new Vector2D(mouseX - edgePos, 0));
             }
         }
-        if (yResizing != null) {
+        if (yResizing != null && !yResizeLocked) {
             double mouseY = mousePos.getY();
             double edgePos = yResizing ? bb.maxY() : bb.minY();
             double oppositeEdgePos = yResizing ? bb.minY() : bb.maxY();
@@ -103,8 +105,18 @@ public abstract class ResizableComponent extends Component implements MouseInput
         if (areBeingResized != null) edges = areBeingResized;
         for (BoundingBox2D.Edge e : edges) {
             Line2D l = e.getLine(bb);
+            if(l.p1.getXI() == l.p2.getXI() && xResizeLocked) continue;
+            if(l.p1.getYI() == l.p2.getYI() && yResizeLocked) continue;
             BoundingBox2D lineExpandedBB = new BoundingBox2D(l.p1.sub(1), l.p2.add(1));
             Renderer2D.drawRect(lineExpandedBB.getMin(), lineExpandedBB.getSize(), Color.RED);
         }
+    }
+
+    public void setXResizeLocked(boolean xResizeLocked) {
+        this.xResizeLocked = xResizeLocked;
+    }
+
+    public void setYResizeLocked(boolean yResizeLocked) {
+        this.yResizeLocked = yResizeLocked;
     }
 }
