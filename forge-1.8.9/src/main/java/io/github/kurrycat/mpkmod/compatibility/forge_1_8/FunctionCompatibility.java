@@ -1,7 +1,6 @@
 package io.github.kurrycat.mpkmod.compatibility.forge_1_8;
 
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
-import io.github.kurrycat.mpkmod.ticks.TickInput;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -344,18 +343,27 @@ public class FunctionCompatibility implements FunctionHolder,
         clipboard.setContents(selection, selection);
     }
 
-    public boolean setInputs(TickInput inputs) {
+    public boolean isF3Enabled() {
+        return Minecraft.getMinecraft().gameSettings.showDebugInfo;
+    }
+
+    public boolean setInputs(Float yaw, boolean relYaw, Float pitch, boolean relPitch, int pressedInputs, int releasedInputs, int L, int R) {
         if (!io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.isSingleplayer()) return false;
         EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
         GameSettings gs = Minecraft.getMinecraft().gameSettings;
 
         float prevPitch = player.rotationPitch;
         float prevYaw = player.rotationYaw;
-        player.rotationYaw = (float) ((double) player.rotationYaw + (double) inputs.getYaw());
-        player.rotationPitch = (float) ((double) player.rotationPitch - (double) inputs.getPitch());
-        player.rotationPitch = MathHelper.clamp_float(player.rotationPitch, -90.0F, 90.0F);
-        player.prevRotationPitch += player.rotationPitch - prevPitch;
-        player.prevRotationYaw += player.rotationYaw - prevYaw;
+
+        if (yaw != null) {
+            player.rotationYaw = relYaw ? (float) ((double) player.rotationYaw + (double) yaw) : yaw;
+            player.prevRotationYaw += player.rotationYaw - prevYaw;
+        }
+        if (pitch != null) {
+            player.rotationPitch = relPitch ? (float) ((double) player.rotationPitch - (double) pitch) : pitch;
+            player.rotationPitch = MathHelper.clamp_float(player.rotationPitch, -90.0F, 90.0F);
+            player.prevRotationPitch += player.rotationPitch - prevPitch;
+        }
 
         int[] keys = new int[]{
                 gs.keyBindForward.getKeyCode(),
@@ -368,26 +376,24 @@ public class FunctionCompatibility implements FunctionHolder,
         };
 
         for (int i = 0; i < keys.length; i++) {
-            KeyBinding.setKeyBindState(keys[i], inputs.get(1 << i));
-            if (inputs.get(1 << i))
+            if ((releasedInputs & 1 << i) != 0) {
+                KeyBinding.setKeyBindState(keys[i], false);
+            }
+            if ((pressedInputs & 1 << i) != 0) {
+                KeyBinding.setKeyBindState(keys[i], true);
                 KeyBinding.onTick(keys[i]);
+            }
         }
 
-        KeyBinding.setKeyBindState(gs.keyBindAttack.getKeyCode(), inputs.getL() > 0);
-        if (inputs.getL() > 0)
-            for (int i = 0; i < inputs.getL(); i++)
-                KeyBinding.onTick(gs.keyBindAttack.getKeyCode());
+        KeyBinding.setKeyBindState(gs.keyBindAttack.getKeyCode(), L > 0);
+        for (int i = 0; i < L; i++)
+            KeyBinding.onTick(gs.keyBindAttack.getKeyCode());
 
-        KeyBinding.setKeyBindState(gs.keyBindUseItem.getKeyCode(), inputs.getR() > 0);
-        if (inputs.getR() > 0)
-            for (int i = 0; i < inputs.getR(); i++)
-                KeyBinding.onTick(gs.keyBindUseItem.getKeyCode());
+        KeyBinding.setKeyBindState(gs.keyBindUseItem.getKeyCode(), R > 0);
+        for (int i = 0; i < R; i++)
+            KeyBinding.onTick(gs.keyBindUseItem.getKeyCode());
 
         return true;
-    }
-
-    public boolean isF3Enabled() {
-        return Minecraft.getMinecraft().gameSettings.showDebugInfo;
     }
 
     /**

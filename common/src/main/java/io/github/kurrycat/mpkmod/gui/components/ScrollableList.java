@@ -23,22 +23,22 @@ public class ScrollableList<I extends ScrollableListItem<I>> extends Component i
     public Div content;
 
     public ScrollableList() {
-        topCover = new Div(new Vector2D(0,0), new Vector2D(1, 0));
+        topCover = new Div(new Vector2D(0, 0), new Vector2D(1, 0));
         topCover.backgroundColor = backgroundColor;
         passPositionTo(topCover, PERCENT.SIZE_X, Anchor.TOP_LEFT);
 
         titleComponent = new TextRectangle(
-                new Vector2D(0,0),
+                new Vector2D(0, 0),
                 new Vector2D(1, 1),
                 "", null, Color.WHITE
         );
         topCover.addChild(titleComponent, PERCENT.SIZE);
 
-        bottomCover = new Div(new Vector2D(0,0), new Vector2D(1, 0));
+        bottomCover = new Div(new Vector2D(0, 0), new Vector2D(1, 0));
         bottomCover.backgroundColor = backgroundColor;
         passPositionTo(bottomCover, PERCENT.SIZE_X, Anchor.BOTTOM_LEFT);
 
-        content = new Div(new Vector2D(0,0), new Vector2D(1,1));
+        content = new Div(new Vector2D(0, 0), new Vector2D(1, 1));
         passPositionTo(content, PERCENT.SIZE);
         stretchYBetween(content, topCover, bottomCover);
 

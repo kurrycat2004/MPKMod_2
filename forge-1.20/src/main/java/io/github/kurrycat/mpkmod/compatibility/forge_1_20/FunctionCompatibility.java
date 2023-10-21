@@ -6,7 +6,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
-import io.github.kurrycat.mpkmod.ticks.TickInput;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.Vector2D;
@@ -33,8 +32,6 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.util.List;
 import java.util.*;
 
@@ -348,24 +345,32 @@ public class FunctionCompatibility implements FunctionHolder,
         Minecraft.getInstance().keyboardHandler.setClipboard(content);
     }
 
-    public boolean setInputs(TickInput inputs) {
+    public boolean setInputs(Float yaw, boolean relYaw, Float pitch, boolean relPitch, int pressedInputs, int releasedInputs, int L, int R) {
         if (!io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.isSingleplayer()) return false;
         LocalPlayer player = Minecraft.getInstance().player;
-        if(player == null) return false;
+        if (player == null) return false;
         Options op = Minecraft.getInstance().options;
 
-        player.setXRot(player.getXRot() + inputs.getYaw());
-        player.setYRot(player.getYRot() + inputs.getPitch());
-        player.setXRot(Mth.clamp(player.getXRot(), -90.0F, 90.0F));
-        player.xRotO += inputs.getYaw();
-        player.yRotO += inputs.getPitch();
-        player.xRotO = Mth.clamp(player.xRotO, -90.0F, 90.0F);
+        float prevYaw = player.getXRot();
+        float prevPitch = player.getYRot();
+
+        if (yaw != null) {
+            player.setXRot(relYaw ? (player.getXRot() + yaw) : yaw);
+            player.xRotO += player.getXRot() - prevYaw;
+        }
+        if (pitch != null) {
+            player.setYRot(relPitch ? (player.getYRot() + pitch) : pitch);
+            player.setYRot(Mth.clamp(player.getYRot(), -90.0F, 90.0F));
+
+            player.yRotO += player.getYRot() - prevPitch;
+            player.yRotO = Mth.clamp(player.yRotO, -90.0F, 90.0F);
+        }
 
         if (player.getVehicle() != null) {
             player.getVehicle().onPassengerTurned(player);
         }
 
-        com.mojang.blaze3d.platform.InputConstants.Key[] keys = new InputConstants.Key[]{
+        InputConstants.Key[] keys = new InputConstants.Key[]{
                 op.keyUp.getKey(),
                 op.keyLeft.getKey(),
                 op.keyDown.getKey(),
@@ -376,20 +381,22 @@ public class FunctionCompatibility implements FunctionHolder,
         };
 
         for (int i = 0; i < keys.length; i++) {
-            KeyMapping.set(keys[i], inputs.get(1 << i));
-            if (inputs.get(1 << i))
+            if ((releasedInputs & 1 << i) != 0) {
+                KeyMapping.set(keys[i], false);
+            }
+            if ((pressedInputs & 1 << i) != 0) {
+                KeyMapping.set(keys[i], true);
                 KeyMapping.click(keys[i]);
+            }
         }
 
-        KeyMapping.set(op.keyAttack.getKey(), inputs.getL() > 0);
-        if (inputs.getL() > 0)
-            for (int i = 0; i < inputs.getL(); i++)
-                KeyMapping.click(op.keyAttack.getKey());
+        KeyMapping.set(op.keyAttack.getKey(), L > 0);
+        for (int i = 0; i < L; i++)
+            KeyMapping.click(op.keyAttack.getKey());
 
-        KeyMapping.set(op.keyUse.getKey(), inputs.getR() > 0);
-        if (inputs.getR() > 0)
-            for (int i = 0; i < inputs.getR(); i++)
-                KeyMapping.click(op.keyUse.getKey());
+        KeyMapping.set(op.keyUse.getKey(), R > 0);
+        for (int i = 0; i < R; i++)
+            KeyMapping.click(op.keyUse.getKey());
 
         return true;
     }

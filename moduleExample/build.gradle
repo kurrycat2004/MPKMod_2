@@ -54,9 +54,11 @@ tasks.register("buildAndMove") {
         if (!project.hasProperty("dir")) {
             println "Argument -Pdir missing, please provide Minecraft mods folder path"
         } else {
-            copy {
-                from "${buildDir}/libs"
-                into file(dir)
+            for(String s : project.property("dir").split(";")) {
+                copy {
+                    from "${buildDir}/libs"
+                    into file(s)
+                }
             }
         }
     }

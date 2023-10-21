@@ -6,9 +6,6 @@ import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 import io.github.kurrycat.mpkmod.ticks.TickInput;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Optional;
@@ -30,6 +27,11 @@ public class Minecraft {
     }
 
     @InfoString.Getter
+    public static boolean isSingleplayer() {
+        return worldState == WorldState.SINGLE_PLAYER;
+    }
+
+    @InfoString.Getter
     public static String getFps() {
         return Interface.get().map(Interface::getFPS).orElseGet(() -> {
             API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get FPS, are you playing on an unsupported minecraft version?");
@@ -44,7 +46,7 @@ public class Minecraft {
 
     @InfoString.Getter
     public static String getUsername() {
-        if(!Interface.get().isPresent()) {
+        if (!Interface.get().isPresent()) {
             API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get username, are you playing on an unsupported minecraft version?");
             return "Error";
         } else {
@@ -53,7 +55,7 @@ public class Minecraft {
     }
 
     public static String getCurrentGuiScreen() {
-        if(!Interface.get().isPresent()) {
+        if (!Interface.get().isPresent()) {
             API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to get current screen name, are you playing on an unsupported minecraft version?");
             return "Error";
         } else {
@@ -69,11 +71,6 @@ public class Minecraft {
     @InfoString.Getter
     public static String getDate() {
         return new SimpleDateFormat("dd/MM/yy").format(Calendar.getInstance().getTime());
-    }
-
-    @InfoString.Getter
-    public static boolean isSingleplayer() {
-        return worldState == WorldState.SINGLE_PLAYER;
     }
 
     public static void updateWorldState(Event.EventType type, boolean isLocal) {
@@ -92,11 +89,19 @@ public class Minecraft {
     }
 
     public static boolean setInputs(TickInput inputs) {
-        if(!Interface.get().isPresent()) {
+        return setInputs(inputs.getYaw(), true,
+                inputs.getPitch(), true,
+                inputs.getKeyInputs(), ~inputs.getKeyInputs(),
+                inputs.getL(), inputs.getR());
+    }
+
+    public static boolean setInputs(Float yaw, boolean relYaw, Float pitch, boolean relPitch, int pressedInputs, int releasedInputs, int L, int R) {
+        if (!io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft.isSingleplayer()) return false;
+        if (!Interface.get().isPresent()) {
             API.LOGGER.info(API.COMPATIBILITY_MARKER, "Failed to set inputs, are you playing on an unsupported minecraft version?");
             return false;
         }
-       return Interface.get().get().setInputs(inputs);
+        return Interface.get().get().setInputs(yaw, relYaw, pitch, relPitch, pressedInputs, releasedInputs, L, R);
     }
 
     public static boolean isF3Enabled() {
@@ -132,7 +137,7 @@ public class Minecraft {
 
         void copyToClipboard(String content);
 
-        boolean setInputs(TickInput inputs);
+        boolean setInputs(Float yaw, boolean relYaw, Float pitch, boolean relPitch, int pressedInputs, int releasedInputs, int L, int R);
 
         boolean isF3Enabled();
     }
