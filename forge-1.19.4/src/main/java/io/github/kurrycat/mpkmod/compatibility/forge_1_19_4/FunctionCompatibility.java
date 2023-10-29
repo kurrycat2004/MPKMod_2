@@ -75,9 +75,9 @@ public class FunctionCompatibility implements FunctionHolder,
     /**
      * Is called in {@link WorldInteraction.Interface}
      */
-    public Vector3D getLookingAt() {
+    public Vector3D getLookingAt(double distance) {
         if (Minecraft.getInstance().getCameraEntity() == null) return null;
-        HitResult hitResult = Minecraft.getInstance().getCameraEntity().pick(20, 0, false);
+        HitResult hitResult = Minecraft.getInstance().getCameraEntity().pick(distance, 0, false);
         if (hitResult instanceof BlockHitResult) {
             BlockPos blockPos = ((BlockHitResult) hitResult).getBlockPos();
             return new Vector3D(blockPos.getX(), blockPos.getY(), blockPos.getZ());
