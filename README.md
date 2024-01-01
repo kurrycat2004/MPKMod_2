@@ -29,13 +29,13 @@ If you think that mpkmod should have a specific feature, encounter any bugs or i
 
 ### Supported versions
 
-* [Forge](https://files.minecraftforge.net)
+* [Forge](https://files.minecraftforge.net/)
     - 1.8.9
     - 1.19.4
     - 1.20
 * [Fabric](https://fabricmc.net/)
     - 1.19.4
-    - 1.20
+    - 1.20.4
 
 ---
 
@@ -80,6 +80,8 @@ The landing mode is `Land` by default, which will compare the specified bounding
 
 ### Snapshots
 
-**IMPORTANT: GitHub only displays artifacts if you are logged in** <br>
+> [!IMPORTANT]  
+> GitHub only displays artifacts if you are logged in.
+
 Go to [actions](https://github.com/kurrycat2004/MPKMod_2/actions/workflows/gradle.yml?query=is%3Asuccess+branch%3Amaster), click the build you want to download (first=newest) and scroll down to Artifacts.
 The zip file (`mpkmod-build.DATE-TIME.zip`) will contain the mod jar for every supported version.
