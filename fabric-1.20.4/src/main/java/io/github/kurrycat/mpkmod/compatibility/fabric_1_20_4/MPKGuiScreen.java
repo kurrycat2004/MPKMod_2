@@ -1,4 +1,4 @@
-package io.github.kurrycat.mpkmod.compatibility.fabric_1_20;
+package io.github.kurrycat.mpkmod.compatibility.fabric_1_20_4;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Profiler;
@@ -76,11 +76,11 @@ public class MPKGuiScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         eventReceiver.onMouseScroll(
                 new Vector2D(mouseX, mouseY),
-                (int) (MathUtil.constrain(delta, -1, 1) * 7)
+                (int) (MathUtil.constrain(verticalAmount, -1, 1) * 7)
         );
-        return super.mouseScrolled(mouseX, mouseY, delta);
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 }
