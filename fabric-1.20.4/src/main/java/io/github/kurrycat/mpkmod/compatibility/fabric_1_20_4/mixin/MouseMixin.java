@@ -1,4 +1,4 @@
-package io.github.kurrycat.mpkmod.compatibility.fabric_1_20.mixin;
+package io.github.kurrycat.mpkmod.compatibility.fabric_1_20_4.mixin;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
 import net.minecraft.client.Mouse;

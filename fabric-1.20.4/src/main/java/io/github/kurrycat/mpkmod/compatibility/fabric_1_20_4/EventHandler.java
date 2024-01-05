@@ -1,9 +1,9 @@
-package io.github.kurrycat.mpkmod.compatibility.fabric_1_20;
+package io.github.kurrycat.mpkmod.compatibility.fabric_1_20_4;
 
 
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
-import io.github.kurrycat.mpkmod.compatibility.fabric_1_20.mixin.KeyBindingAccessor;
+import io.github.kurrycat.mpkmod.compatibility.fabric_1_20_4.mixin.KeyBindingAccessor;
 import io.github.kurrycat.mpkmod.ticks.ButtonMS;
 import io.github.kurrycat.mpkmod.ticks.ButtonMSList;
 import io.github.kurrycat.mpkmod.util.Vector3D;
