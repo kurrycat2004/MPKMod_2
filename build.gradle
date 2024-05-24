@@ -19,7 +19,6 @@ configure(
 
         library 'com.fasterxml.jackson.core:jackson-core:2.8.8'
         library 'com.fasterxml.jackson.core:jackson-annotations:2.8.8'
-        //if changed to newer version gives IllegalArgumentException (no error message) idfk why
         library 'com.fasterxml.jackson.core:jackson-databind:2.8.8'
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
@@ -84,7 +83,7 @@ configure(
     }
 
 
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         int jdkVersion = project.properties.getOrDefault("jdkVersion", 17) as int
 
         sourceCompatibility = jdkVersion
@@ -98,7 +97,7 @@ configure(
 
     if (project.name != "common") {
         project.afterEvaluate {
-            tasks.withType(JavaExec) {
+            tasks.withType(JavaExec).configureEach {
                 javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
             }
 
@@ -109,8 +108,7 @@ configure(
                 archiveFileName = project.jar.archiveFileName
             }
 
-
-            //fix unimined runs bug
+            // Fix unimined runs bug
             afterEvaluate {
                 runClient.doFirst {
                     var classPathFile = null

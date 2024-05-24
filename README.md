@@ -31,11 +31,10 @@ If you think that mpkmod should have a specific feature, encounter any bugs or i
 
 * [Forge](https://files.minecraftforge.net/)
     - 1.8.9
-    - 1.19.4
-    - 1.20
 * [Fabric](https://fabricmc.net/)
     - 1.19.4
     - 1.20.4
+    - 1.20.6
 
 ---
 
@@ -73,8 +72,8 @@ The landing mode is `Land` by default, which will compare the specified bounding
 `Z Neo` will use the hitbox of the tick before the landing tick. You will probably want this when trying to land a Z facing neo (or trying to pass a blockage in the direction with less velocity for 1.14+). See the [MCPK Wiki article](https://www.mcpk.wiki/wiki/Collisions#Horizontal_Collisions_(X/Z)) for the reason this is neeeded.<br>
 `Enter` will compare the player hitbox at every tick the player is close to the bounding box. You will probably want this when trying to catch a climbable block like ladders or vines.<br>
 <br>
-<br>
-**The Options GUI is where you can set general settings for mpkmod**
+> [!NOTE]  
+> The Options GUI is where you can set general settings for MPK!
 
 ---
 
@@ -83,5 +82,6 @@ The landing mode is `Land` by default, which will compare the specified bounding
 > [!IMPORTANT]  
 > GitHub only displays artifacts if you are logged in.
 
-Go to [actions](https://github.com/kurrycat2004/MPKMod_2/actions/workflows/gradle.yml?query=is%3Asuccess+branch%3Amaster), click the build you want to download (first=newest) and scroll down to Artifacts.
-The zip file (`mpkmod-build.DATE-TIME.zip`) will contain the mod jar for every supported version.
+Go to [Actions](https://github.com/kurrycat2004/MPKMod_2/actions/workflows/gradle.yml?query=is%3Asuccess+branch%3Amaster),
+click the build you want to download (first is newest) and scroll down to Artifacts.<br>
+The zip file (`mpkmod.DATE-TIME.zip`) will contain the mod jar for every supported version.

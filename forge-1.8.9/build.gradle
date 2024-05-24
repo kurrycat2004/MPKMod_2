@@ -1,40 +1,28 @@
 plugins {
-    id 'xyz.wagyourtail.unimined' version '0.4.10'
+    id 'xyz.wagyourtail.unimined' version '1.2.6'
 }
 
-unimined {
-    // debug, puts some things in build/unimined instead of ~/.gradle/caches/unimined
-    // I reccomend you leave this on until unimined is stable
-    useGlobalCache = false
-}
+unimined.useGlobalCache = false
 
-minecraft {
-    clientWorkingDirectory = project.file('../runs/run_1_8_9')
+unimined.minecraft {
+    version '1.8.9'
 
-    forge {
-        mcpVersion = '22-1.8.9'
-        mcpChannel = 'stable'
+    mappings {
+        searge()
+        mcp('stable', '22-1.8.9')
     }
 
-    mcRemapper.tinyRemapperConf = {
-        ignoreFieldDesc(true)
+    minecraftForge {
+        loader project.forge_version
+        mixinConfig "mpkmod.mixins.json"
+    }
+
+    minecraftRemapper.config {
         ignoreConflicts(true)
     }
 }
 
-sourceSets {
-    // enable the client configuration when not using combined (or mc <= 1.2.5)
-    client
-
-    //doesnt work because of IDE
-    /*main.resources {
-        srcDirs += [project(":common").sourceSets.main.resources]
-    }*/
-}
-
 dependencies {
-    minecraft 'net.minecraft:minecraft:1.8.9'
-    forge 'net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9'
 }
 
 processResources {
