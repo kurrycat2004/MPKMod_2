@@ -71,8 +71,8 @@ public class LandingBlock {
     public boolean isTryingToLandOn() {
         if (Player.getLatest() == null) return false;
 
-        BoundingBox3D playerBB = Player.getLatest().getBB();
-        BoundingBox3D lastPlayerBB = Player.getLatest().getLastBB();
+        BoundingBox3D playerBB = Player.getLatest().getBoundingBox();
+        BoundingBox3D lastPlayerBB = Player.getLatest().getLastBoundingBox();
 
         if (landingMode != LandingMode.ENTER)
             return playerBB.minY() <= boundingBox.maxY() && lastPlayerBB.minY() > boundingBox.maxY();
@@ -123,13 +123,13 @@ public class LandingBlock {
             switch (this) {
                 case Z_NEO:
                     if (Player.getBeforeLatest() == null) return null;
-                    return Player.getBeforeLatest().getLastBB();
+                    return Player.getBeforeLatest().getLastBoundingBox();
                 case HIT:
                 case ENTER:
-                    return Player.getLatest().getBB();
+                    return Player.getLatest().getBoundingBox();
                 case LAND:
                 default:
-                    return Player.getLatest().getLastBB();
+                    return Player.getLatest().getLastBoundingBox();
             }
         }
 
