@@ -5,12 +5,14 @@ import io.github.kurrycat.mpkmod.compatibility.MCClasses.InputConstants;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
 import io.github.kurrycat.mpkmod.ticks.ButtonMS;
 import io.github.kurrycat.mpkmod.ticks.ButtonMSList;
+import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiOverlayDebug;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -90,6 +92,7 @@ public class EventListener {
         if (e.side != Side.CLIENT) return;
 
         if (mcPlayer != null && e.phase == TickEvent.Phase.START) {
+            AxisAlignedBB playerBB = mcPlayer.getEntityBoundingBox();
             new Player()
                     .setPos(new Vector3D(mcPlayer.posX, mcPlayer.posY, mcPlayer.posZ))
                     .setLastPos(new Vector3D(mcPlayer.lastTickPosX, mcPlayer.lastTickPosY, mcPlayer.lastTickPosZ))
@@ -97,6 +100,10 @@ public class EventListener {
                     .setRotation(mcPlayer.rotationYaw, mcPlayer.rotationPitch)
                     .setOnGround(mcPlayer.onGround)
                     .setSprinting(mcPlayer.isSprinting())
+                    .setBoundingBox(new BoundingBox3D(
+                        new Vector3D(playerBB.minX, playerBB.minY, playerBB.minZ),
+                        new Vector3D(playerBB.maxX, playerBB.maxY, playerBB.maxZ)
+                    ))
                     .constructKeyInput()
                     .setKeyMSList(timeQueue.copy())
                     .buildAndSave();

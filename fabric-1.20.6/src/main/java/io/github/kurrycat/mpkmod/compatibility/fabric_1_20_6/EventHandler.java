@@ -4,8 +4,10 @@ package io.github.kurrycat.mpkmod.compatibility.fabric_1_20_6;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
 import io.github.kurrycat.mpkmod.compatibility.fabric_1_20_6.mixin.KeyBindingAccessor;
+import io.github.kurrycat.mpkmod.compatibility.fabric_1_20_6.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.ticks.ButtonMS;
 import io.github.kurrycat.mpkmod.ticks.ButtonMSList;
+import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
@@ -17,6 +19,7 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Box;
 
 public class EventHandler {
     private static final ButtonMSList timeQueue = new ButtonMSList();
@@ -94,6 +97,7 @@ public class EventHandler {
         ClientPlayerEntity mcPlayer = mc.player;
 
         if (mcPlayer != null) {
+            Box playerBB = mcPlayer.getBoundingBox();
             new Player()
                     .setPos(new Vector3D(mcPlayer.getX(), mcPlayer.getY(), mcPlayer.getZ()))
                     .setLastPos(new Vector3D(mcPlayer.prevX, mcPlayer.prevY, mcPlayer.prevZ))
@@ -101,6 +105,10 @@ public class EventHandler {
                     .setRotation(mcPlayer.getRotationClient().y, mcPlayer.getRotationClient().x)
                     .setOnGround(mcPlayer.isOnGround())
                     .setSprinting(mcPlayer.isSprinting())
+                    .setBoundingBox(new BoundingBox3D(
+                        new Vector3D(playerBB.minX, playerBB.minY, playerBB.minZ),
+                        new Vector3D(playerBB.maxX, playerBB.maxY, playerBB.maxZ)
+                    ))
                     .constructKeyInput()
                     .setKeyMSList(timeQueue)
                     .buildAndSave();

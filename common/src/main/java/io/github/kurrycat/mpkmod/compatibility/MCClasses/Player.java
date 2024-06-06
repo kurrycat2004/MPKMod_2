@@ -51,6 +51,7 @@ public class Player {
     public boolean landTick = false;
     public String lastTiming = "None";
     public boolean sprinting = false;
+    public BoundingBox3D boundingBox = null;
 
 
     @InfoString.Getter
@@ -323,11 +324,18 @@ public class Player {
         return tickHistory.get(i - 1);
     }
 
-    public BoundingBox3D getBB() {
-        return new BoundingBox3D(
-                getPos().add(-0.6F / 2D, 0D, -0.6F / 2D), //TODO: use dynamic player size
-                getPos().add(0.6F / 2D, 1.8F, 0.6F / 2D)
-        );
+    public BoundingBox3D getBoundingBox() {
+        return boundingBox;
+    }
+
+    @InfoString.Getter
+    public Vector3D getBoundingBoxSize() {
+        return boundingBox.getSize();
+    }
+
+    public Player setBoundingBox(BoundingBox3D boundingBox) {
+        this.boundingBox = boundingBox;
+        return this;
     }
 
     @InfoString.Getter
@@ -340,11 +348,12 @@ public class Player {
         return this;
     }
 
-    public BoundingBox3D getLastBB() {
-        return new BoundingBox3D(
-                getLastPos().add(-0.6F / 2D, 0D, -0.6F / 2D), //TODO: use dynamic player size
-                getLastPos().add(0.6F / 2D, 1.8F, 0.6F / 2D)
-        );
+    public BoundingBox3D getLastBoundingBox() {
+        return getPrevious().getBoundingBox();
+    }
+
+    public Vector3D getLastBoundingBoxSize() {
+        return getLastBoundingBox().getSize();
     }
 
     @InfoString.Getter
