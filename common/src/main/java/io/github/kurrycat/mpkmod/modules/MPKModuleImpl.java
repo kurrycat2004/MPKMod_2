@@ -5,7 +5,7 @@ import java.io.IOException;
 public class MPKModuleImpl {
     private final String name;
     private final MPKModule module;
-    private final ModuleFinder.CustomClassLoader loader;
+    private ModuleFinder.CustomClassLoader loader;
 
     public MPKModuleImpl(String name, MPKModule module, ModuleFinder.CustomClassLoader loader) {
         this.name = name;
@@ -18,6 +18,8 @@ public class MPKModuleImpl {
         try {
             loader.close();
         } catch (IOException ignored) {
+        } finally {
+            loader = null;
         }
     }
 

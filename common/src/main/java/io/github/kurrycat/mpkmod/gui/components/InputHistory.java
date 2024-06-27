@@ -31,18 +31,18 @@ public class InputHistory extends ResizableComponent {
     public boolean transparentBackground = false;
     public static int preferredWidth = 86;
     public int maxStoredMessages = 30;
-    private static final HashMap<Vector2D, Character> movementCharacters = new HashMap<>();
+    private static final HashMap<Vector2D, String> movementCharacters = new HashMap<>();
 
     static {
-        movementCharacters.put(new Vector2D(0, 0), ' ');
-        movementCharacters.put(new Vector2D(-1, 0), '⬇');
-        movementCharacters.put(new Vector2D(1, 0), '⬆');
-        movementCharacters.put(new Vector2D(0, -1), '⬅');
-        movementCharacters.put(new Vector2D(0, 1), '➡');
-        movementCharacters.put(new Vector2D(1, 1), '⬈');
-        movementCharacters.put(new Vector2D(1, -1), '⬉');
-        movementCharacters.put(new Vector2D(-1, 1), '⬊');
-        movementCharacters.put(new Vector2D(-1, -1), '⬋');
+        movementCharacters.put(new Vector2D(0, 0), " ");
+        movementCharacters.put(new Vector2D(-1, 0), "⬇");
+        movementCharacters.put(new Vector2D(1, 0), "⬆");
+        movementCharacters.put(new Vector2D(0, -1), "⬅");
+        movementCharacters.put(new Vector2D(0, 1), "➡");
+        movementCharacters.put(new Vector2D(1, 1), "⬈");
+        movementCharacters.put(new Vector2D(1, -1), "⬉");
+        movementCharacters.put(new Vector2D(-1, 1), "⬊");
+        movementCharacters.put(new Vector2D(-1, -1), "⬋");
     }
 
     @JsonCreator
@@ -70,7 +70,7 @@ public class InputHistory extends ResizableComponent {
         Player.KeyInput keyInput = Player.getLatest() == null ? null : Player.getLatest().keyInput;
         if (keyInput == null) return;
         StringBuilder keysPressed = new StringBuilder();
-        keysPressed.append(movementCharacters.getOrDefault(keyInput.getMovementVector(), ' '));
+        keysPressed.append(movementCharacters.getOrDefault(keyInput.getMovementVector(), " "));
         keysPressed.append(' ');
         keysPressed.append(keyInput.jump ? 'J' : ' ');
         keysPressed.append(' ');

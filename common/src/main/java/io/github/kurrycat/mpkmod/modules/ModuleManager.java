@@ -66,4 +66,14 @@ public class ModuleManager {
         }
         EventAPI.finishLoading();
     }
+
+    public static void closeAllModules() {
+        for (Map.Entry<String, MPKModuleImpl> entry : moduleMap.entrySet()) {
+            try {
+                entry.getValue().closeLoader();
+            } catch (Exception e) {
+                API.LOGGER.info("Caught exception during closing of module: " + entry.getValue().getName(), e);
+            }
+        }
+    }
 }

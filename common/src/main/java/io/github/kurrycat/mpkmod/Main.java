@@ -92,8 +92,14 @@ public class Main implements MPKModule {
                 new EventAPI.EventListener<OnKeyInputEvent>(event -> {
                     if (Keyboard.getPressedButtons().contains(InputConstants.KEY_F3)) {
                         if (event.keyCode == InputConstants.KEY_M) {
-                            API.LOGGER.info("Reloading mpkmodules...");
-                            ModuleManager.reloadAllModules();
+                            System.out.println(Keyboard.getPressedButtons());
+                            if (Keyboard.getPressedButtons().contains(InputConstants.KEY_LSHIFT)) {
+                                API.LOGGER.info("Closing all mpkmodules...");
+                                ModuleManager.closeAllModules();
+                            } else {
+                                API.LOGGER.info("Reloading mpkmodules...");
+                                ModuleManager.reloadAllModules();
+                            }
                         } else if (event.keyCode == InputConstants.KEY_C) {
                             if (Player.getLatest() == null) return;
                             Player p = Player.getLatest();
