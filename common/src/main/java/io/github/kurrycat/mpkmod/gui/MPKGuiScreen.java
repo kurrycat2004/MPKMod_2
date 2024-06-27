@@ -93,6 +93,10 @@ public abstract class MPKGuiScreen extends ComponentHolder {
         return false;
     }
 
+    public void onKeybindPressed() {
+        Minecraft.displayGuiScreen(this);
+    }
+
     public final void close() {
         Minecraft.displayGuiScreen(null);
     }

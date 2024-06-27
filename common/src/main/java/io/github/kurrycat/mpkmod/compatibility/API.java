@@ -3,23 +3,19 @@ package io.github.kurrycat.mpkmod.compatibility;
 import io.github.kurrycat.mpkmod.Main;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.FunctionHolder;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Minecraft;
-import io.github.kurrycat.mpkmod.compatibility.MCClasses.WorldInteraction;
 import io.github.kurrycat.mpkmod.discord.DiscordRPC;
 import io.github.kurrycat.mpkmod.events.*;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
-import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
-import io.github.kurrycat.mpkmod.gui.screens.LandingBlockGuiScreen;
-import io.github.kurrycat.mpkmod.gui.screens.main_gui.MainGuiScreen;
 import io.github.kurrycat.mpkmod.gui.screens.options_gui.Option;
-import io.github.kurrycat.mpkmod.gui.screens.options_gui.OptionsGuiScreen;
-import io.github.kurrycat.mpkmod.landingblock.LandingBlock;
 import io.github.kurrycat.mpkmod.modules.MPKModule;
 import io.github.kurrycat.mpkmod.modules.MPKModuleImpl;
 import io.github.kurrycat.mpkmod.modules.ModuleFinder;
 import io.github.kurrycat.mpkmod.modules.ModuleManager;
 import io.github.kurrycat.mpkmod.save.Serializer;
-import io.github.kurrycat.mpkmod.ticks.TimingStorage;
-import io.github.kurrycat.mpkmod.util.*;
+import io.github.kurrycat.mpkmod.util.ClassUtil;
+import io.github.kurrycat.mpkmod.util.JSONConfig;
+import io.github.kurrycat.mpkmod.util.Mouse;
+import io.github.kurrycat.mpkmod.util.Procedure;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -27,7 +23,6 @@ import org.apache.logging.log4j.MarkerManager;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -174,6 +169,16 @@ public class API {
 
         public static void onMouseInput(Mouse.Button button, Mouse.State state, int x, int y, int dx, int dy, int dwheel, long nanos) {
             EventAPI.postEvent(new OnMouseInputEvent(button, state, x, y, dx, dy, dwheel, nanos));
+        }
+
+        public static void onKeybind(String id) {
+            MPKGuiScreen guiScreen = guiScreenMap.get(id);
+            if (guiScreen != null) guiScreen.onKeybindPressed();
+
+            Procedure keyBinding = keyBindingMap.get(id);
+            if (keyBinding != null) keyBinding.run();
+
+            EventAPI.postEvent(new OnKeybindEvent(id));
         }
     }
 }

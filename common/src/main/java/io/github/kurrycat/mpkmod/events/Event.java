@@ -19,7 +19,8 @@ public abstract class Event {
         SERVER_CONNECT(OnServerConnect.class),
         SERVER_DISCONNECT(OnServerDisconnect.class),
         KEY_INPUT(OnKeyInputEvent.class),
-        MOUSE_INPUT(OnMouseInputEvent.class);
+        MOUSE_INPUT(OnMouseInputEvent.class),
+        KEYBIND(OnKeybindEvent.class);
 
         public final Class<? extends Event> eventClass;
 

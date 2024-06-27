@@ -60,15 +60,8 @@ public class EventHandler {
         API.Events.onKeyInput(key, inputKey.getLocalizedText().getString(), action == 1);
 
         MPKMod.keyBindingMap.forEach((id, keyBinding) -> {
-            boolean keyBindingPressed = keyBinding.isPressed();
-            if (keyBindingPressed && API.guiScreenMap.containsKey(id)) {
-                MinecraftClient.getInstance().setScreen(
-                        new MPKGuiScreen(API.guiScreenMap.get(id))
-                );
-            }
-
-            if (keyBindingPressed && API.keyBindingMap.containsKey(id)) {
-                API.keyBindingMap.get(id).run();
+            if (keyBinding.isPressed()) {
+                API.Events.onKeybind(id);
             }
         });
     }
