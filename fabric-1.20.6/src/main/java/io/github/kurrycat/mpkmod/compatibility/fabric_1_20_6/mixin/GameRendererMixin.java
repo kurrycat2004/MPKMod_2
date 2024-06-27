@@ -1,8 +1,11 @@
 package io.github.kurrycat.mpkmod.compatibility.fabric_1_20_6.mixin;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.kurrycat.mpkmod.compatibility.fabric_1_20_6.MPKMod;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import org.joml.Matrix4fStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,6 +18,14 @@ public class GameRendererMixin {
             args = "ldc=hand"),
             method = "renderWorld")
     public void render(float tickDelta, long limitTime, CallbackInfo ci) {
+        GameRenderer gameRenderer = (GameRenderer) (Object) this;
+        Camera camera = gameRenderer.getCamera();
+        Matrix4fStack matrixStack = RenderSystem.getModelViewStack();
+        matrixStack.pushMatrix();
+        matrixStack.rotateXYZ(camera.getPitch() * ((float) Math.PI / 180), camera.getYaw() * ((float) Math.PI / 180) + (float) Math.PI, 0.0f);
+
         MPKMod.INSTANCE.eventHandler.onRenderWorldOverlay(new MatrixStack(), tickDelta);
+
+        matrixStack.popMatrix();
     }
 }
