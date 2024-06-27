@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Keyboard.class)
 public class KeyboardMixin {
-    @Inject(method = "onKey", at = @At(value = "TAIL"))
+    @Inject(method = "onKey", at = @At(value = "RETURN"))
     private void onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
         if(key != -1) {
             MPKMod.INSTANCE.eventHandler.onKey(key, scancode, action);
