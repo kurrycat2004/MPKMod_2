@@ -92,7 +92,6 @@ public class Main implements MPKModule {
                 new EventAPI.EventListener<OnKeyInputEvent>(event -> {
                     if (Keyboard.getPressedButtons().contains(InputConstants.KEY_F3)) {
                         if (event.keyCode == InputConstants.KEY_M) {
-                            System.out.println(Keyboard.getPressedButtons());
                             if (Keyboard.getPressedButtons().contains(InputConstants.KEY_LSHIFT)) {
                                 API.LOGGER.info("Closing all mpkmodules...");
                                 ModuleManager.closeAllModules();
