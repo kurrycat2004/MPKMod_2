@@ -23,7 +23,7 @@ public class BarrierDisplayComponent extends ResizableComponent {
     @Override
     public void render(Vector2D mouse) {
         String lookingAtBlock = WorldInteraction.getLookingAtBlock();
-        boolean lookingAtBarrier = lookingAtBlock != null && lookingAtBlock.equals("minecraft:barrier");
+        boolean lookingAtBarrier = lookingAtBlock != null && lookingAtBlock.contains("minecraft:barrier");
 
         Color color = lookingAtBarrier ? Theme.warnText : Theme.defaultText;
         if (selected) color = selectedColor;

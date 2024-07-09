@@ -87,7 +87,7 @@ public class FunctionCompatibility implements FunctionHolder,
 
         return Registries.BLOCK.getKey(
                 MinecraftClient.getInstance().world.getBlockState(blockpos).getBlock()
-        ).toString();
+        ).get().getValue().toString();
     }
 
     @Override
@@ -115,7 +115,7 @@ public class FunctionCompatibility implements FunctionHolder,
         if (hitResult.getType() == HitResult.Type.BLOCK && MinecraftClient.getInstance().world != null) {
             return Registries.BLOCK.getKey(
                     MinecraftClient.getInstance().world.getBlockState(((BlockHitResult) hitResult).getBlockPos()).getBlock()
-            ).toString();
+            ).get().getValue().toTranslationKey();
         }
         return null;
     }
