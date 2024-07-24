@@ -11,8 +11,8 @@
 
 MPK Mod is a minecraft mod that adds some features for [minecraft parkour](https://www.mcpk.wiki/wiki/Main_Page) to your client. It's a client side only mod, that means it can be used on any server.
 
-**MPK Mod 2 is a complete rewrite of version 1, so don't expect it to work the same way.** <br>
-Most of the original features do exist in version 2, but version 2 does not have commands for example. <br>
+MPK Mod 2 is a complete rewrite of version 1, so don't expect it to work the same way. <br>
+Most of the original features do exist in version 2, but ***version 2 does NOT have commands*** for example. <br>
 An explanation for how to use the mod can be found below in the [Using the mod](#using-the-mod) section. <br>
 If you think that mpkmod should have a specific feature, encounter any bugs or if you need any support regarding the mod, don't hesitate to join the discord server with the invite at the top
 
