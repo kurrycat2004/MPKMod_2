@@ -1,0 +1,8 @@
+{
+  "mpkmod.key.main_gui.desc": "Open MPK Mod GUI",
+  "mpkmod.key.lb_gui.desc": "Open Landing Block GUI",
+  "mpkmod.key.lb_set.desc": "Set Landing Block",
+  "mpkmod.key.options_gui.desc": "Open Options GUI",
+  "mpkmod.main_gui.title": "MPK Mod GUI",
+  "mpkmod.lb_gui.title": "Landing Block GUI"
+}
