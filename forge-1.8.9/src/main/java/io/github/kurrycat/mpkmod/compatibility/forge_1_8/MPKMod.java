@@ -1,6 +1,7 @@
 package io.github.kurrycat.mpkmod.compatibility.forge_1_8;
 
 import io.github.kurrycat.mpkmod.compatibility.API;
+import io.github.kurrycat.mpkmod.compatibility.forge_1_8.network.MPKForgeNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
@@ -11,6 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -31,6 +33,12 @@ public class MPKMod {
     //public static final String GUI_FACTORY = "io.github.kurrycat.mpkmod.config.GuiFactory";
 
     public static Map<String, KeyBinding> keyBindingMap = new HashMap<>();
+    public static final MPKForgeNetworking FORGE_NETWORKING = new MPKForgeNetworking();
+
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        FORGE_NETWORKING.init();
+    }
 
     @EventHandler
     public void init(FMLInitializationEvent event) {

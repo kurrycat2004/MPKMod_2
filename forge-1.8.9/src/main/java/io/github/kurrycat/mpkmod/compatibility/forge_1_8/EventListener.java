@@ -10,7 +10,6 @@ import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Vector3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.GuiOverlayDebug;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.client.event.MouseEvent;
@@ -25,8 +24,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
-import java.util.ArrayList;
-
+@SuppressWarnings("unused")
 public class EventListener {
     private static final ButtonMSList timeQueue = new ButtonMSList();
 

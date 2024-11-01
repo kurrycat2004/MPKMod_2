@@ -5,6 +5,7 @@ import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
+import io.github.kurrycat.mpknetapi.common.network.packet.MPKPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -345,6 +346,10 @@ public class FunctionCompatibility implements FunctionHolder,
 
     public boolean isF3Enabled() {
         return Minecraft.getMinecraft().gameSettings.showDebugInfo;
+    }
+
+    public void sendPacket(MPKPacket packet) {
+        MPKMod.FORGE_NETWORKING.sendPacket(packet);
     }
 
     public boolean setInputs(Float yaw, boolean relYaw, Float pitch, boolean relPitch, int pressedInputs, int releasedInputs, int L, int R) {
