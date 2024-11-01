@@ -22,6 +22,7 @@ plugins {
 }
 
 include("common")
+include("network-api:common")
 
 if (System.getenv("JITPACK") == null) {
     include("forge-1.8.9")

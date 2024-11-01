@@ -1,0 +1,3 @@
+[submodule "network-api"]
+	path = network-api
+	url = https://github.com/kurrycat2004/MPKNetworkAPI
