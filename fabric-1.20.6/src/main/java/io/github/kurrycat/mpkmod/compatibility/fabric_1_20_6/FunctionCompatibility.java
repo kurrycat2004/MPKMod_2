@@ -3,11 +3,14 @@ package io.github.kurrycat.mpkmod.compatibility.fabric_1_20_6;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.*;
 import io.github.kurrycat.mpkmod.compatibility.fabric_1_20_6.mixin.KeyBindingAccessor;
+import io.github.kurrycat.mpkmod.compatibility.fabric_1_20_6.network.DataCustomPayload;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.util.BoundingBox3D;
 import io.github.kurrycat.mpkmod.util.Debug;
 import io.github.kurrycat.mpkmod.util.Vector2D;
 import io.github.kurrycat.mpkmod.util.Vector3D;
+import io.github.kurrycat.mpknetapi.common.network.packet.MPKPacket;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -398,6 +401,10 @@ public class FunctionCompatibility implements FunctionHolder,
 
     public boolean isF3Enabled() {
         return MinecraftClient.getInstance().getDebugHud().shouldShowDebugHud();
+    }
+
+    public void sendPacket(MPKPacket packet) {
+        ClientPlayNetworking.send(new DataCustomPayload(packet.getData()));
     }
 
     public List<Integer> getPressedButtons() {
