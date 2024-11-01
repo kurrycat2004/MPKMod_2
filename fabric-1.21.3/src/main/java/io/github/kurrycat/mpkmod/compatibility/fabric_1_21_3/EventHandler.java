@@ -1,6 +1,5 @@
 package io.github.kurrycat.mpkmod.compatibility.fabric_1_21_3;
 
-
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.compatibility.MCClasses.Player;
 import io.github.kurrycat.mpkmod.compatibility.fabric_1_21_3.mixin.KeyBindingAccessor;
