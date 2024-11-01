@@ -1,5 +1,6 @@
 package io.github.kurrycat.mpkmod.modules;
 
+import io.github.kurrycat.mpkmod.Main;
 import io.github.kurrycat.mpkmod.compatibility.API;
 import io.github.kurrycat.mpkmod.events.EventAPI;
 
@@ -49,6 +50,15 @@ public class ModuleManager {
                     (init ? "initialization" : "reloading") +
                     " of module: " + module.getName(), e);
         }
+    }
+
+    public static void unloadModule(MPKModuleImpl module) {
+        if (module.getModule() instanceof Main) return;
+
+        module.getModule().unloaded();
+        EventAPI.unload(module.getName());
+        module.closeLoader();
+        moduleMap.remove(module.getName());
     }
 
     public static void initAllModules() {

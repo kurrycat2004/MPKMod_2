@@ -208,4 +208,9 @@ public class Main implements MPKModule {
                 )
         );*/
     }
+
+    @Override
+    public void unloaded() {
+        throw new UnsupportedOperationException();
+    }
 }
