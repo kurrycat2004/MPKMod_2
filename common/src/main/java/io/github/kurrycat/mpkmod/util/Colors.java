@@ -30,7 +30,7 @@ public enum Colors {
 	UNDERLINE("underline", "n", null),
 	ITALIC("italic", "o", null);
 
-	public static final String PREFIX = "\u00a7";
+	public static final String PREFIX = "§";
 
 	private final String name;
 	private final String code;

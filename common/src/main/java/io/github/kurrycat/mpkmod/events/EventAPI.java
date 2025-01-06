@@ -56,13 +56,22 @@ public class EventAPI {
     public static void loading(String moduleID) {
         currentModuleID = moduleID;
         listeners.forEach((type, map) -> {
-                if(map.containsKey(currentModuleID))
-                    map.get(currentModuleID).clear();
+            if (map.containsKey(currentModuleID)) {
+                map.get(currentModuleID).clear();
+            }
         });
     }
 
     public static void finishLoading() {
         currentModuleID = null;
+    }
+
+    public static void unload(String moduleID) {
+        listeners.forEach((type, map) -> {
+            if (map.containsKey(moduleID)) {
+                map.get(moduleID).clear();
+            }
+        });
     }
 
     public static void postEvent(Event event) {

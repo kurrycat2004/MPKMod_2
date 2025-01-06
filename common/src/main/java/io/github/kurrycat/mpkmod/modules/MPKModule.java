@@ -14,4 +14,12 @@ public interface MPKModule {
      * Reloading will call this again. <br>
      */
     void loaded();
+
+    /**
+     * Gets called in {@link io.github.kurrycat.mpkmod.modules.ModuleManager#unloadModule(MPKModuleImpl) ModuleManager.unregisterModule}.<br>
+     * This is done when the player joins a server which doesn't allow this module.<br>
+     * The module does not need to unregister any {@link io.github.kurrycat.mpkmod.events.EventAPI EventAPI} hooks it's made.
+     */
+    default void unloaded() {
+    }
 }

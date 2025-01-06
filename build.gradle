@@ -59,7 +59,7 @@ configure(
             ])
         }
 
-        if (project.name != "common") {
+        if (project.name != "common" && project.name != "network-api") {
             //destinationDirectory = rootProject.buildDir
             doFirst {
                 archiveClassifier = project.name
@@ -67,8 +67,11 @@ configure(
         }
 
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        from {
-            configurations.library.collect { it.isDirectory() ? it : zipTree(it) }
+        with copySpec {
+            from {
+                configurations.library.collect { it.isDirectory() ? it : zipTree(it) }
+            }
+            exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
         }
         from {
             "../LICENSE"
@@ -95,7 +98,7 @@ configure(
         options.encoding = 'UTF-8'
     }
 
-    if (project.name != "common") {
+    if (project.name != "common" && project.name != "network-api") {
         project.afterEvaluate {
             tasks.withType(JavaExec).configureEach {
                 javaLauncher.set(javaToolchains.launcherFor(java.toolchain))

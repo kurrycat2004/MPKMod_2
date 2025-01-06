@@ -5,6 +5,7 @@ import io.github.kurrycat.mpkmod.events.Event;
 import io.github.kurrycat.mpkmod.gui.MPKGuiScreen;
 import io.github.kurrycat.mpkmod.gui.infovars.InfoString;
 import io.github.kurrycat.mpkmod.ticks.TickInput;
+import io.github.kurrycat.mpknetapi.common.network.packet.MPKPacket;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -140,5 +141,7 @@ public class Minecraft {
         boolean setInputs(Float yaw, boolean relYaw, Float pitch, boolean relPitch, int pressedInputs, int releasedInputs, int L, int R);
 
         boolean isF3Enabled();
+
+        void sendPacket(MPKPacket packet);
     }
 }

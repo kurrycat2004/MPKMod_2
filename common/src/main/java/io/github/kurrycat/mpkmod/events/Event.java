@@ -20,7 +20,9 @@ public abstract class Event {
         SERVER_DISCONNECT(OnServerDisconnect.class),
         KEY_INPUT(OnKeyInputEvent.class),
         MOUSE_INPUT(OnMouseInputEvent.class),
-        KEYBIND(OnKeybindEvent.class);
+        KEYBIND(OnKeybindEvent.class),
+        PLUGIN_MESSAGE(OnPluginMessageEvent.class),
+        MODULE_MESSAGE(OnModuleMessageEvent.class);
 
         public final Class<? extends Event> eventClass;
 

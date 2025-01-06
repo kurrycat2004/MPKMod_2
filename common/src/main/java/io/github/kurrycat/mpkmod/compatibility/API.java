@@ -11,20 +11,22 @@ import io.github.kurrycat.mpkmod.modules.MPKModule;
 import io.github.kurrycat.mpkmod.modules.MPKModuleImpl;
 import io.github.kurrycat.mpkmod.modules.ModuleFinder;
 import io.github.kurrycat.mpkmod.modules.ModuleManager;
+import io.github.kurrycat.mpkmod.network.impl.MPKPacketListenerClientImpl;
 import io.github.kurrycat.mpkmod.save.Serializer;
 import io.github.kurrycat.mpkmod.util.ClassUtil;
 import io.github.kurrycat.mpkmod.util.JSONConfig;
 import io.github.kurrycat.mpkmod.util.Mouse;
 import io.github.kurrycat.mpkmod.util.Procedure;
+import io.github.kurrycat.mpknetapi.common.network.packet.MPKPacket;
+import io.github.kurrycat.mpknetapi.common.network.packet.impl.clientbound.MPKPacketListenerClient;
+import io.github.kurrycat.mpknetapi.common.network.packet.impl.serverbound.MPKPacketRegister;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class API {
     public static final String MODID = "mpkmod";
@@ -33,6 +35,7 @@ public class API {
     public static final Marker DISCORD_RPC_MARKER = MarkerManager.getMarker("DISCORD_RPC");
     public static final Marker COMPATIBILITY_MARKER = MarkerManager.getMarker("COMPATIBILITY");
     public static final Marker CONFIG_MARKER = MarkerManager.getMarker("CONFIG");
+    public static final MPKPacketListenerClient PACKET_LISTENER_CLIENT = new MPKPacketListenerClientImpl();
 
     public static final String NAME = "MPK Mod";
     public static final String VERSION = "2.0";
@@ -154,6 +157,9 @@ public class API {
         }
 
         public static void onServerConnect(boolean isLocal) {
+            List<String> modules = new ArrayList<>();
+            ModuleManager.moduleMap.forEach((id, module) -> modules.add(id));
+            Minecraft.Interface.get().ifPresent(i -> i.sendPacket(new MPKPacketRegister(API.VERSION, modules)));
             Minecraft.updateWorldState(Event.EventType.SERVER_CONNECT, isLocal);
             if (Main.discordRpcInitialized) DiscordRPC.updateWorldAndPlayState();
         }
@@ -179,6 +185,11 @@ public class API {
             if (keyBinding != null) keyBinding.run();
 
             EventAPI.postEvent(new OnKeybindEvent(id));
+        }
+
+        public static void onPluginMessage(MPKPacket packet) {
+            packet.process(PACKET_LISTENER_CLIENT);
+            EventAPI.postEvent(new OnPluginMessageEvent(packet));
         }
     }
 }
