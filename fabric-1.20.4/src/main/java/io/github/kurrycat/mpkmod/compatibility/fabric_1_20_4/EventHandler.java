@@ -81,10 +81,12 @@ public class EventHandler {
     }
 
     public void onClientTickStart(MinecraftClient mc) {
+        if (mc.isPaused() || mc.world == null) return;
         API.Events.onTickStart();
     }
 
     public void onClientTickEnd(MinecraftClient mc) {
+        if (mc.isPaused() || mc.world == null) return;
         ClientPlayerEntity mcPlayer = mc.player;
 
         if (mcPlayer != null) {

@@ -77,6 +77,7 @@ public class EventListener {
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent e) {
         Minecraft mc = Minecraft.getMinecraft();
+        if (mc.isGamePaused() || mc.theWorld == null) return;
         EntityPlayerSP mcPlayer = mc.thePlayer;
 
         if (e.type != TickEvent.Type.CLIENT) return;
