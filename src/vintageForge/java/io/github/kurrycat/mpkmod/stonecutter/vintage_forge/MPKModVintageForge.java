@@ -56,7 +56,7 @@ public class MPKModVintageForge {
         //? if <=1.8.9 {
         /*return Minecraft.getMinecraft().mcProfiler;
         *///?} else
-        return Minecraft.getMinecraft().profiler
+        return Minecraft.getMinecraft().profiler;
     }
 
     @SubscribeEvent
