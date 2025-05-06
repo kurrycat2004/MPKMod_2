@@ -1,0 +1,33 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+issueTrackerURL = "${modIssueTracker}"
+#
+[[mods]]
+modId = "${modId}"
+version = "${modVersion}"
+displayName = "${modName}"
+# A URL to query for updates for this mod. See the JSON update specification https://docs.neoforged.net/docs/misc/updatechecker/
+#updateJSONURL="https://change.me.example.invalid/updates.json" #optional
+displayURL = "${modUrl}"
+logoFile = "mpkmod_logo.png"
+credits = ""
+authors = "${modAuthors}"
+description = '''
+${modDescription}
+'''
+# A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
+
+#[[dependencies.mpkmod]] #optional
+#modId="forge"
+#mandatory=true
+#versionRange="[11,)"
+#ordering="NONE"
+#side="BOTH"
+
+#[[dependencies.mpkmod]]
+#modId="minecraft"
+#mandatory=true
+#versionRange="[1.8.9,)"
+#ordering="NONE"
+#side="BOTH"

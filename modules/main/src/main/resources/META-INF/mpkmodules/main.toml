@@ -1,0 +1,13 @@
+format_version = 1
+id = "main"
+version = "1.0.0"
+entrypoint = "io.github.kurrycat.mpkmod.modules.main.MainModule"
+name = "Main"
+description = "Main Module"
+authors = ["kurrycat"]
+# source = "https://github.com/example/example-mod"
+license = "MIT"
+# icon = "assets/modules/main/icon.png"
+
+[dependencies]
+# core = ">=1.0.0"

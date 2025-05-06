@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "${modId}",
+  "version": "${modVersion}",
+  "name": "${modName}",
+  "description": "${modDescription}",
+  "authors": ["${modAuthors}"],
+  "contact": {
+    "sources": "${modUrl}"
+  },
+  "license": "MIT",
+  "icon": "assets/mpkmod/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "io.github.kurrycat.mpkmod.stonecutter.fabric.MPKModFabric"
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=${loaderVersion}",
+    "minecraft": "~${mcVersion}",
+    "java": ">=${minJavaVersion}"
+  },
+  "suggests": {}
+}
