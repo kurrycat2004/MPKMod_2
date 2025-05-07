@@ -84,6 +84,10 @@ sourceSets {
     }
 }
 
+var runsDir = rootProject.layout.projectDirectory.dir("runs")
+runsDir = runsDir.dir(if (eval("<=1.12.2")) "run_legacy" else "run")
+val runtimeModsDir = runsDir.dir("runtimeMods")
+
 val modRuntimeOnly = configurations.create("modRuntimeOnly")
 
 unimined.minecraft(sourceSets["shared"]) {
@@ -120,39 +124,41 @@ unimined.minecraft(sourceSets["shared"]) {
         }
 
         runs.config("client") {
-            var runsDir = rootProject.layout.projectDirectory.dir("runs")
-            if (eval("<=1.12.2")) {
-                workingDir(runsDir.dir("run_legacy"))
-            } else {
-                workingDir(runsDir.dir("run"))
-            }
+            workingDir(runsDir.asFile)
             if (project.hasProperty("mcArgs")) {
                 jvmArguments.addAll((project.property("mcArgs") as String).split("\\s+"))
+            }
+            if (project.hasProperty("debugClassLoading")) {
+                jvmArguments.add("-Dlegacy.debugClassLoading=true")
+                jvmArguments.add("-Dlegacy.debugClassLoadingFiner=true")
+                jvmArguments.add("-Dlegacy.debugClassLoadingSave=true")
             }
         }
     }
 
     mods {
         remap(modRuntimeOnly)
+        afterEvaluate {
+            copy {
+                from(configurations.named("modRuntimeOnly").map { it.files })
+                into(runtimeModsDir.asFile)
+            }
+        }
     }
 
     defaultRemapJar = false
-
-    runs.preLaunch("client") {
-        dependsOn(tasks.named<Jar>("shadowCommonShadowJar"))
-    }
 
     runs.config("client") {
         val minecraftConfig = configurations["minecraft".withSourceSet(sourceSet)]
         val minecraftLibrariesConfig = configurations["minecraftLibraries".withSourceSet(sourceSet)]
         val mod = tasks.named<Jar>("shadowCommonShadowJar").flatMap { it.archiveFile }.get()
+        dependsOn(tasks.named<Jar>("shadowCommonShadowJar"))
 
-        classpath = minecraftConfig + minecraftLibrariesConfig + modRuntimeOnly + files(mod)
-        println("runClient classpath:")
-        classpath.forEach {
-            println(it)
-        }
+        classpath = minecraftConfig + minecraftLibrariesConfig + files(mod)
         environment["MOD_CLASSES"] = ""
+        args("--mods", runtimeModsDir.asFileTree.files.map {
+            it.relativeTo(runsDir.asFile)
+        }.joinToString(","))
     }
 
     tasks.matching { it.name.endsWith("enIntellijRuns") }
@@ -178,9 +184,11 @@ activeLoaders.forEach { (loader, loaderVersion) ->
 }
 
 dependencies {
-    if (eval("1.12.2")) {
+    /*if (eval("1.12.2")) {
+        modRuntimeOnly("curse.maven:configanytime-870276:5212709")
+        modRuntimeOnly("curse.maven:mixin-booter-419286:6344449")
         modRuntimeOnly("curse.maven:flare-692142:6344429")
-    }
+    }*/
 }
 
 configList.forEach { config ->
@@ -242,7 +250,7 @@ fun Project.registerJarPipeline(
             val downgradeJarTask = tasks.named<DowngradeJar>("downgrade${sourceSet.name.capitalized()}Jar")
             if (remap) {
                 val remapDowngradedTask = tasks.register(
-                    "remapDowngraded${sourceSet.name}${pascalFlavor}Jar",
+                    "remapDowngraded${sourceSet.name.capitalized()}${pascalFlavor}Jar",
                     RemapJarTaskImpl::class.java,
                     mc
                 )
