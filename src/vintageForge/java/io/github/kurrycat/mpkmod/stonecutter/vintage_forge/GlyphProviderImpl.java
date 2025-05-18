@@ -41,7 +41,7 @@ public class GlyphProviderImpl implements GlyphProvider {
     static {
         Arrays.fill(MC_ASCII_CODEPOINTS, (short) -1);
         int i = 0;
-        while(i < MC_ASCII_FONT_CHARS.length()) {
+        while (i < MC_ASCII_FONT_CHARS.length()) {
             int codepoint = Character.codePointAt(MC_ASCII_FONT_CHARS, i);
             int charCount = Character.charCount(codepoint);
 
@@ -72,14 +72,7 @@ public class GlyphProviderImpl implements GlyphProvider {
                         .orElseThrow();
         int[] mcCharWidth = charWidthHandle.get(fr);
         charWidth = Arrays.copyOf(mcCharWidth, mcCharWidth.length);
-        charWidth[getCodepointIdx(' ')] = 4;
-
-        for (int i = 0; i < MC_ASCII_FONT_CHARS.length(); i++) {
-            char c = MC_ASCII_FONT_CHARS.charAt(i);
-            int width = c < charWidth.length ? charWidth[c] : -100;
-            ModPlatformImpl.LOGGER.info("Character: {}, Codepoint: {}, Width: {}",
-                    String.format("U+%04X", (int) c), (int) c, width);
-        }
+        charWidth[getAsciiIndex(' ')] = 4;
 
         ReflectionHelper.FieldAccessor<FontRenderer, byte[]> glyphWidthHandle =
                 rh.lookupField(FontRenderer.class, byte[].class, "glyphWidth", "field_78287_e")
@@ -100,7 +93,7 @@ public class GlyphProviderImpl implements GlyphProvider {
         return Minecraft.getMinecraft().fontRenderer;
     }
 
-    private static int getCodepointIdx(int codepoint) {
+    private static int getAsciiIndex(int codepoint) {
         if (codepoint < MC_ASCII_CODEPOINTS.length) {
             return MC_ASCII_CODEPOINTS[codepoint];
         } else if (codepoint <= Character.MAX_VALUE) {
@@ -110,18 +103,15 @@ public class GlyphProviderImpl implements GlyphProvider {
     }
 
     private static int getCharWidth(int codepoint) {
-        if (codepoint < charWidth.length) {
-            final int idx = getCodepointIdx(codepoint);
-            return idx < 0 ? 0 : charWidth[idx];
-        } else {
-            final int w = glyphWidth[codepoint] & 255;
-            return (((w & 15) + 1) - (w >>> 4)) / 2 + 1;
-        }
+        final int idx = getAsciiIndex(codepoint);
+        if (idx != -1) return charWidth[idx];
+        final int w = glyphWidth[codepoint] & 255;
+        return (((w & 15) + 1) - (w >>> 4)) / 2 + 1;
     }
 
     @Override
     public boolean getGlyph(int codepoint, @OutArg GlyphData out) {
-        int idx = getCodepointIdx(codepoint);
+        int idx = getAsciiIndex(codepoint);
 
         if (idx != -1) {
             out.texture = ASCII_TEXTURE;
@@ -136,15 +126,14 @@ public class GlyphProviderImpl implements GlyphProvider {
             out.xOffset = 0;
             out.yOffset = 0;
 
-            boolean isSpace = codepoint == ' ' || codepoint == '\u00a0' || codepoint == '\u202f';
-            out.isSpace = isSpace;
-            out.xAdvance = isSpace ? 4 : width;
+            out.isEmpty = codepoint == ' ' || codepoint == '\u00a0' || codepoint == '\u202f';
+            out.xAdvance = width;
             out.isAscii = true;
             out.xShadowOffset = 1;
             out.yShadowOffset = 1;
         } else {
             if (codepoint > glyphWidth.length) return false;
-            int w = glyphWidth[codepoint];
+            int w = glyphWidth[codepoint] & 255;
 
             final int page = codepoint / 256;
             if (page >= UNICODE_TEXTURES.length) return false;
@@ -165,7 +154,7 @@ public class GlyphProviderImpl implements GlyphProvider {
             out.yOffset = 0;
 
             out.xAdvance = (endColumn - startColumn) / 2.0F + 1.0F;
-            out.isSpace = codepoint == ' ' || codepoint == '\u00a0' || codepoint == '\u202f';
+            out.isEmpty = codepoint == ' ' || codepoint == '\u00a0' || codepoint == '\u202f';
             out.isAscii = false;
             out.xShadowOffset = 0.5f;
             out.yShadowOffset = 0.5f;

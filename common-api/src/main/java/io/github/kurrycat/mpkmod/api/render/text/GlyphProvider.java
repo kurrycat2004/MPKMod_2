@@ -17,7 +17,7 @@ public interface GlyphProvider {
         public float xOffset, yOffset;
         public float xAdvance;
 
-        public boolean isSpace;
+        public boolean isEmpty;
         public boolean isAscii;
 
         public float xShadowOffset;
@@ -27,7 +27,7 @@ public interface GlyphProvider {
             texture = null;
             u0 = v0 = u1 = v1 = 0;
             width = height = xOffset = yOffset = xAdvance = 0;
-            isSpace = isAscii = false;
+            isEmpty = isAscii = false;
             xShadowOffset = yShadowOffset = 0;
         }
     }

@@ -84,20 +84,9 @@ public class MPKModVintageForge {
             }
         }*/
         profiler.endStartSection("mpkmod:text");
-        //runAllTextRendererTests();
+        runAllTextRendererTests();
         profiler.endStartSection("mpkmod:flush");
         profiler.endSection();
-
-        float w = TextRenderer.INSTANCE.drawFormattedString(
-                10, 10, 0xFFFFFFFF, false,
-                "§kt");
-        int mcW = Minecraft.getMinecraft().fontRenderer.drawString(
-                "§kt",
-                10, 85, 0xFFFFFFFF);
-
-        if (w != mcW) {
-            System.out.println("TextRenderer drawFormattedString() width: " + w + ", Minecraft width: " + mcW);
-        }
 
         CommandReceiver.INSTANCE.flushDrawCommands();
     }

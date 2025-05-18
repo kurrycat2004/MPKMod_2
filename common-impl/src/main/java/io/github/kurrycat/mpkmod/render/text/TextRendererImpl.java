@@ -42,17 +42,18 @@ public class TextRendererImpl implements TextRenderer {
             if (!getGlyph(glyphProvider, codepoint, buffer)) {
                 continue;
             }
-
-            if (buffer.xAdvance == 0 || buffer.isSpace) {
-                penX += buffer.xAdvance;
-                continue;
-            }
+            if (buffer.xAdvance == 0) continue;
 
             if (buffer.isAscii && (style & Style.OBFUSCATED) != 0) {
                 codepoint = glyphProvider.randomAsciiWithWidth(ThreadLocalRandom.current(), codepoint);
                 if (!getGlyph(glyphProvider, codepoint, buffer)) {
                     continue;
                 }
+            }
+
+            if (buffer.isEmpty) {
+                penX += buffer.xAdvance;
+                continue;
             }
 
             float x0 = penX + buffer.xOffset;
