@@ -30,7 +30,7 @@ public final class ModuleDiscoverer {
             modules.add(DiscoveredModule.fromError(source, e));
         } catch (Exception e) {
             modules.add(DiscoveredModule.fromError(source,
-                    new ModuleLoadException("Unexpected exception trying to read module at " + source, e)
+                    new ModuleLoadException("Unexpected error trying to read module at " + source, e)
             ));
         }
     }

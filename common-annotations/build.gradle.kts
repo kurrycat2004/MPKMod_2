@@ -2,7 +2,10 @@ plugins {
     `java-library`
 }
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+java {
+    withSourcesJar()
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
 
 sourceSets {
     main {

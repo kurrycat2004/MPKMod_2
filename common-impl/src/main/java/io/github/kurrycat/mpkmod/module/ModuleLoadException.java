@@ -1,5 +1,7 @@
 package io.github.kurrycat.mpkmod.module;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,22 +42,32 @@ public class ModuleLoadException extends Exception {
 
     @Override
     public String getMessage() {
-        StringBuilder builder = new StringBuilder();
+        StringWriter builder = new StringWriter();
         builder.append(mainMessage);
         if (!errors.isEmpty()) {
             builder.append(" (")
-                    .append(errors.size())
+                    .append(String.valueOf(errors.size()))
                     .append(" error")
                     .append(errors.size() > 1 ? "s" : "")
                     .append("):\n");
             for (ErrorDetail detail : errors) {
-                builder.append(" - ").append(detail.message());
-                if (detail.cause() != null) {
-                    builder.append(" (caused by ")
-                            .append(detail.cause().getClass().getSimpleName())
-                            .append(": ")
-                            .append(detail.cause().getMessage())
-                            .append(")");
+                if (detail.message() != null) {
+                    builder.append(detail.message());
+                    if (detail.error() != null) builder.append(": ");
+                }
+                if (detail.error() == null) {
+                    builder.append("\n");
+                    continue;
+                }
+                if (!ENABLE_STACKTRACE) {
+                    builder.append(detail.error().toString());
+                } else {
+                    try (PrintWriter pw = new PrintWriter(builder)) {
+                        detail.error().printStackTrace(pw);
+                    } catch (Exception e) {
+                        builder.append(detail.error().toString()).append("\n");
+                        builder.append("\t(failed to print stack trace: ").append(e.toString()).append(")");
+                    }
                 }
                 builder.append("\n");
             }
@@ -63,11 +75,7 @@ public class ModuleLoadException extends Exception {
         return builder.toString();
     }
 
-    public record ErrorDetail(String message, Throwable cause) {
-        public ErrorDetail {
-            Objects.requireNonNull(message, "Error message cannot be null");
-        }
-    }
+    public record ErrorDetail(String message, Throwable error) {}
 
     public static class Builder {
         private final String mainMessage;
@@ -82,16 +90,13 @@ public class ModuleLoadException extends Exception {
             return this;
         }
 
-        public Builder addError(String message, Throwable cause) {
-            errors.add(new ErrorDetail(message, cause));
+        public Builder addError(String message, Throwable error) {
+            errors.add(new ErrorDetail(message, error));
             return this;
         }
 
-        public Builder addError(Throwable cause) {
-            String exceptionName = cause.getClass().getName();
-            String causeMsg = cause.getMessage();
-            String msg = (causeMsg != null) ? (exceptionName + ": " + causeMsg) : exceptionName;
-            errors.add(new ErrorDetail(msg, cause.getCause()));
+        public Builder addError(Throwable error) {
+            errors.add(new ErrorDetail(null, error));
             return this;
         }
 

@@ -13,7 +13,7 @@ public interface CommandReceiver {
 
     void pushIdx(int idx);
 
-    void pushDrawCmd(int startIdx, int count, RenderMode mode, IResourceLocation texture);
+    void pushDrawCmd(int startIdx, int count, RenderMode mode, ITexture texture);
 
     void flushDrawCommands();
 }

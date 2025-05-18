@@ -1,18 +1,36 @@
 package io.github.kurrycat.mpkmod.processor;
 
+import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.annotation.Option;
+import io.github.kurrycat.mpkmod.processor.util.AnnotationUtil;
 
-import javax.annotation.processing.*;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.*;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+@AutoService(Processor.class)
 public class OptionAnnotationProcessor extends AbstractProcessor {
     private final Map<String, String> fieldEntries = new HashMap<>();
     private final List<String> listenerEntries = new ArrayList<>();
@@ -22,10 +40,10 @@ public class OptionAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        return new HashSet<>() {{
-            add(Option.Field.class.getCanonicalName());
-            add(Option.ChangeListener.class.getCanonicalName());
-        }};
+        return Set.of(
+                Option.Field.class.getCanonicalName(),
+                Option.ChangeListener.class.getCanonicalName()
+        );
     }
 
     @Override
@@ -42,6 +60,7 @@ public class OptionAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        messager.printMessage(Diagnostic.Kind.ERROR, "Processing Option annotations...");
         if (roundEnv.processingOver()) {
             if (!written) {
                 List<String> fieldEntries = new ArrayList<>(this.fieldEntries.values());
@@ -92,33 +111,14 @@ public class OptionAnnotationProcessor extends AbstractProcessor {
             String methodName = method.getSimpleName().toString();
             String fieldRef = ann.field();
             if (fieldRef.isEmpty() || !fieldEntries.containsKey(fieldRef)) {
-                AnnotationMirror mirror = getAnnotationMirror(method, Option.ChangeListener.class);
-                messager.printMessage(
-                        Diagnostic.Kind.ERROR,
-                        Objects.toString(mirror)
-                );
-                if (mirror == null) {
-                    error(method, "@ChangeListener '%s' must reference a valid field", method.getSimpleName());
-                    continue;
-                }
-                AnnotationValue value = getAnnotationValue(mirror, "field");
-                if (value == null) {
-                    messager.printMessage(
-                            Diagnostic.Kind.ERROR,
-                            String.format("@ChangeListener '%s' must reference a valid field", method.getSimpleName()),
-                            method,
-                            mirror
-                    );
-                    continue;
-                }
-                messager.printMessage(
+                AnnotationUtil.printMessage(
+                        messager,
                         Diagnostic.Kind.ERROR,
                         String.format("@ChangeListener '%s' must reference a valid field", method.getSimpleName()),
                         method,
-                        mirror,
-                        value
+                        Option.ChangeListener.class,
+                        "field"
                 );
-                error(method, "@ChangeListener '%s' must reference a valid field", method.getSimpleName());
             }
             listenerEntries.add(className + "|" + methodName);
         }
@@ -153,26 +153,5 @@ public class OptionAnnotationProcessor extends AbstractProcessor {
                 String.format(msg, args),
                 e
         );
-    }
-
-    private AnnotationMirror getAnnotationMirror(Element el, Class<?> annotationClass) {
-        String annotationName = annotationClass.getName().replaceAll("\\$", ".");
-        for (AnnotationMirror mirror : el.getAnnotationMirrors()) {
-            String fqName = ((TypeElement) mirror.getAnnotationType().asElement())
-                    .getQualifiedName().toString();
-            if (fqName.equals(annotationName)) {
-                return mirror;
-            }
-        }
-        return null;
-    }
-
-    private AnnotationValue getAnnotationValue(AnnotationMirror mirror, String name) {
-        for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : mirror.getElementValues().entrySet()) {
-            if (entry.getKey().getSimpleName().contentEquals(name)) {
-                return entry.getValue();
-            }
-        }
-        return null;
     }
 }

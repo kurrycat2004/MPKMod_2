@@ -222,9 +222,9 @@ public class ModuleRegistryImpl implements ModuleRegistry {
             ILogger logger = LogManager.INSTANCE.getLogger(Tags.MOD_ID + "/" + cachedModule.entry().id());
             try {
                 moduleInstance.onLoad(cachedModule.entry(), logger);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 throw new ModuleLoadException.Builder("Invalid entrypoint class for module " + cachedModule.entry().id())
-                        .addError("onLoad() threw an exception: ", e)
+                        .addError("onLoad() threw an error", e)
                         .build();
             }
 
@@ -236,7 +236,7 @@ public class ModuleRegistryImpl implements ModuleRegistry {
                     moduleInstance
             );
         } catch (Exception e) {
-            throw new ModuleLoadException.Builder("Unexpected exception while trying to load module: " + cachedModule.entry().id())
+            throw new ModuleLoadException.Builder("Unexpected error while trying to load module: " + cachedModule.entry().id())
                     .addError(e)
                     .build();
         }

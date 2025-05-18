@@ -12,8 +12,15 @@ sourceSets {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     implementation(project(":common-annotations"))
+
+    annotationProcessor("com.google.auto.service:auto-service:${property("autoServiceVersion")}")
+    compileOnly("com.google.auto.service:auto-service-annotations:${property("autoServiceVersion")}")
 }
 
 tasks.named<Copy>("processResources") {

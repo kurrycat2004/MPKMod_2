@@ -1,20 +1,46 @@
 plugins {
     `java-library`
+    id("buildlogic.split-jars")
 }
 
 java {
-    withSourcesJar()
     toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
-version = property("modVersion") as String
-
-tasks.named<Jar>("jar") {
+splitJars {
     archiveBaseName.set("${project.property("modId")}")
+    archiveVersion.set("${project.property("modVersion")}")
+}
+
+val modGroup = property("modGroup") as String
+
+localRelocate {
+    relocate("it.unimi.dsi.fastutil", "$modGroup.lib.fastutil")
+}
+
+tasks.combinedJar {
     archiveClassifier.set("common-api")
+
+    from(rootProject.files("LICENSE")) {
+        into("META-INF")
+    }
 }
 
-tasks.named<Jar>("sourcesJar") {
-    archiveBaseName.set("${project.property("modId")}")
+tasks.sourcesJar {
     archiveClassifier.set("common-api-sources")
+
+    from(rootProject.files("LICENSE")) {
+        into("META-INF")
+    }
 }
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    embedApi(project(":common-annotations"))
+    embedRelocateLib("it.unimi.dsi:fastutil:${property("fastutilVersion")}")
+    compileOnlyApi("org.jetbrains:annotations:${property("annotationsVersion")}")
+}
+

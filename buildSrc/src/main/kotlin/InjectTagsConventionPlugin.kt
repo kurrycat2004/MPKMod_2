@@ -13,11 +13,9 @@ import org.gradle.kotlin.dsl.create
 import javax.inject.Inject
 
 open class InjectTagsExtension @Inject constructor(objects: ObjectFactory) {
-    /** fully‑qualified class name to generate, e.g. "com.example.Tags" */
     val outputClassName: Property<String> = objects.property(String::class.java)
         .convention("com.example.Tags")
 
-    /** map of identifier → literal (Int, Boolean or String) */
     val tags: MapProperty<String, Any> = objects.mapProperty(String::class.java, Any::class.java)
         .convention(emptyMap())
 
@@ -96,10 +94,10 @@ class InjectTagsConventionPlugin : Plugin<Project> {
 
         val generatedSources = project.files(generatedDir).builtBy(injectTags)
 
-        project.afterEvaluate {
-            project.extensions.configure<JavaPluginExtension> {
-                ext.sourceSet.get().java.srcDir(generatedSources)
-            }
+        project.extensions.configure<JavaPluginExtension> {
+            ext.sourceSet.get().java.srcDir(generatedSources)
         }
+        /* project.afterEvaluate {
+         }*/
     }
 }

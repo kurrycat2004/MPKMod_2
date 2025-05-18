@@ -1,5 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import xyz.wagyourtail.jvmdg.gradle.task.DowngradeJar
+import xyz.wagyourtail.jvmdg.gradle.task.ShadeJar
 import xyz.wagyourtail.unimined.internal.minecraft.task.RemapJarTaskImpl
 import xyz.wagyourtail.unimined.util.capitalized
 import xyz.wagyourtail.unimined.util.decapitalized
@@ -8,11 +9,12 @@ import xyz.wagyourtail.unimined.util.withSourceSet
 
 plugins {
     `java-library`
-    id("com.gradleup.shadow")
+    id("buildlogic.split-jars")
     id("xyz.wagyourtail.unimined")
     id("xyz.wagyourtail.jvmdowngrader")
 }
 
+val modGroup = project.property("modGroup") as String
 val modId: String = property("modId") as String
 val modVersion: String = property("modVersion") as String
 
@@ -22,8 +24,13 @@ val activeLoaders = Loader.values().associateWith {
     project.findProperty("$mcVersion-${it.id}") as String? ?: project.findProperty(it.id) as String?
 }.nonNullValues()
 
+val moduleProjects = listOf(
+    ":modules:main",
+)
+
+//evaluationDependsOn(":common-api")
 evaluationDependsOn(":common-impl")
-evaluationDependsOn(":modules:main")
+moduleProjects.forEach { evaluationDependsOn(it) }
 
 repositories {
     mavenCentral()
@@ -50,7 +57,18 @@ val allCompileOnly = configurations.create("allCompileOnly")
 val allRuntimeOnly = configurations.create("allRuntimeOnly")
 val allAnnotationProcessor = configurations.create("allAnnotationProcessor")
 
+val commonApi = project(":common-api")
+//val commonApiDepJar = commonApi.tasks.named<Jar>("shadowRelocateDepJar")
+
+val compileTimeExclude = listOf(
+    "it.unimi.dsi:fastutil",
+)
+
 dependencies {
+    /*allCompileOnly(
+        files(commonApiDepJar.flatMap { it.archiveFile })
+            .builtBy(commonApiDepJar)
+    )*/
     allCompileOnly(project(":common-api"))
     allCompileOnly(project(":inject-tags"))
 
@@ -150,11 +168,11 @@ unimined.minecraft(sourceSets["shared"]) {
 
     runs.config("client") {
         val minecraftConfig = configurations["minecraft".withSourceSet(sourceSet)]
-        val minecraftLibrariesConfig = configurations["minecraftLibraries".withSourceSet(sourceSet)]
-        val mod = tasks.named<Jar>("shadowCommonShadowJar").flatMap { it.archiveFile }.get()
-        dependsOn(tasks.named<Jar>("shadowCommonShadowJar"))
-
-        classpath = minecraftConfig + minecraftLibrariesConfig + files(mod)
+        //val minecraftLibrariesConfig = configurations["minecraftLibraries".withSourceSet(sourceSet)]
+        val jarTask = tasks.named<Jar>("devShadowJar")
+        val mod = jarTask.flatMap { it.archiveFile }.get()
+        dependsOn(jarTask)
+        classpath = minecraftConfig + mcLibraryMap[sourceSet]!! + files(mod)
         environment["MOD_CLASSES"] = ""
         args("--mods", runtimeModsDir.asFileTree.files.map {
             it.relativeTo(runsDir.asFile)
@@ -183,6 +201,23 @@ activeLoaders.forEach { (loader, loaderVersion) ->
     }
 }
 
+val mcLibraryMap = activeLoaders.keys.map { sourceSets.named(it.camelId).get() }.associateWith { sourceSet ->
+    configurations.detachedConfiguration(
+        *configurations.getByName("minecraftLibraries".withSourceSet(sourceSet))
+            .dependencies.toTypedArray()
+    ).apply {
+        isTransitive = true
+    }
+}
+activeLoaders.keys.map { sourceSets.named(it.camelId).get() }.forEach { sourceSet ->
+    configurations.named("minecraftLibraries".withSourceSet(sourceSet)) {
+        compileTimeExclude.forEach {
+            val (group, module) = it.split(":")
+            exclude(group = group, module = module)
+        }
+    }
+}
+
 dependencies {
     /*if (eval("1.12.2")) {
         modRuntimeOnly("curse.maven:configanytime-870276:5212709")
@@ -206,35 +241,76 @@ configList.forEach { config ->
     }
 }
 
-val common = project(":common-impl");
+val common = project(":common-impl")
 
-val downgradeCommonJar = tasks.register("downgradeCommonJar", DowngradeJar::class) {
-    group = "build"
-    description = "Downgrade common jar to target Java version"
-    inputFile = common.tasks.named("jar").map { it.outputs.files.singleFile }
-    archiveClassifier.set("downgrade-common")
-    classpath = sourceSets.main.get().compileClasspath + common.tasks.named("shadowJar").map { it.outputs.files }.get()
+fun downgradeRelocate(
+    input: TaskProvider<out Jar>,
+    classpathCollection: FileCollection,
+    action: ShadowJar.() -> Unit
+): Pair<TaskProvider<out Jar>, TaskProvider<out Jar>> {
+    val downgradeJar = tasks.register<DowngradeJar>("downgrade${input.name.capitalized()}") {
+        convention(jvmdg)
+        group = "internal"
+        inputFile = input.flatMap { it.archiveFile }
+        archiveClassifier.set("downgrade".chain(input.name))
+        classpath = classpathCollection
+    }
+    return Pair(
+        downgradeJar,
+        tasks.register<ShadeJar>("relocateDowngrade${input.name.capitalized()}") {
+            convention(jvmdg)
+            group = "internal"
+            archiveClassifier.set("relocate".chain(input.name))
+            inputFile = downgradeJar.flatMap { it.archiveFile }
+            /*configurations = listOf()
+            from(downgradeJar.flatMap { it.archiveFile }.map { zipTree(it) })
+            action()*/
+        }
+    )
 }
 
-val downgradeCommonShadowJar = tasks.register("downgradeCommonShadowJar", DowngradeJar::class) {
-    group = "build"
-    description = "Downgrade common shadow jar to target Java version"
-    inputFile = common.tasks.named("shadowJar").map { it.outputs.files.singleFile }
-    archiveClassifier.set("downgrade-common-shadow")
-    classpath = sourceSets.main.get().compileClasspath
+val (downgradeLibJar, relocateLibJar) = downgradeRelocate(common.tasks.libJar, files()) {
+    val dep = "xyz.wagyourtail.jvmdg"
+    relocate(dep, "$modGroup.shaded.$dep") {
+        exclude("$modGroup.**")
+    }
 }
+
+val (downgradeNonLibJar, relocateNonLibJar) = downgradeRelocate(
+    common.tasks.nonLibJar,
+    sourceSets.main.get().compileClasspath +
+            common.tasks.combinedJar.map { it.outputs.files }.get()
+) {
+    dependsOn(common.tasks.combinedJar)
+    val dep = "xyz.wagyourtail.jvmdg"
+    relocate(dep, "$modGroup.shaded.$dep") {
+        exclude("$modGroup.**")
+    }
+}
+
+//TODO: preshadow
+/*val (downgradePreshadowJar, relocatePreshadowJar) = downgradeRelocate(
+    common.tasks.preshadowJar,
+    sourceSets.main.get().compileClasspath +
+            common.tasks.combinedJar.map { it.outputs.files }.get()
+) {
+    dependsOn(common.tasks.combinedJar)
+    val dep = "xyz.wagyourtail.jvmdg"
+    relocate(dep, "$modGroup.shaded.$dep") {
+        exclude("$modGroup.**")
+    }
+}*/
 
 unimined.minecrafts
     .map { (sourceSet, _) ->
-        val jarTask = tasks.register("${sourceSet.name}Jar", Jar::class) {
-            group = "build"
-            description = "Assembles a jar containing all classes for $sourceSet"
+        val jarTask = tasks.register<Jar>("${sourceSet.name}Jar") {
+            group = "internal"
             archiveClassifier.set(sourceSet.name)
             from(sourceSet.output, project.sourceSets["shared"].output)
         }
-        tasks.register("downgrade${sourceSet.name.capitalized()}Jar", DowngradeJar::class) {
-            group = "build"
-            description = "Downgrade ${sourceSet.name} jar to target Java version"
+        tasks.register<DowngradeJar>("downgrade${sourceSet.name.capitalized()}Jar") {
+            convention(jvmdg)
+            group = "internal"
             inputFile = jarTask.flatMap { it.archiveFile }
             archiveClassifier.set("downgrade-${sourceSet.name}")
             classpath = sourceSet.compileClasspath
@@ -249,15 +325,14 @@ fun Project.registerJarPipeline(
         .map { (sourceSet, mc) ->
             val downgradeJarTask = tasks.named<DowngradeJar>("downgrade${sourceSet.name.capitalized()}Jar")
             if (remap) {
-                val remapDowngradedTask = tasks.register(
+                val remapDowngradedTask = tasks.register<RemapJarTaskImpl>(
                     "remapDowngraded${sourceSet.name.capitalized()}${pascalFlavor}Jar",
-                    RemapJarTaskImpl::class.java,
                     mc
                 )
                 remapDowngradedTask.configure {
                     dependsOn(downgradeJarTask)
                     inputFile.set(downgradeJarTask.flatMap { it.archiveFile })
-                    archiveAppendix.set("remap-${sourceSet.name}")
+                    archiveAppendix.set("remap".chain(sourceSet.name))
                     archiveClassifier.set(flavor)
                     @Suppress("UnstableApiUsage")
                     mc.mcPatcher.configureRemapJar(this)
@@ -268,82 +343,81 @@ fun Project.registerJarPipeline(
             }
         }
 
-    val combine = tasks.register("combine${pascalFlavor}Jars", ShadowJar::class) {
-        group = "build".chain(flavor, "_")
+    val combine = tasks.register<ShadowJar>("combine${pascalFlavor}Jars") {
+        group = "internal"
         description = "Combine $flavor main + loader jars into one artifact"
         archiveAppendix.set("combined")
         archiveClassifier.set(flavor)
 
         downgradeJars.forEach { jarTask ->
-            from(jarTask.flatMap { it.archiveFile }.map { zipTree(it.asFile) })
+            from(jarTask.map { zipTree(it.archiveFile) })
         }
+
+        /*val dep = "xyz.wagyourtail.jvmdg"
+        relocate(dep, "$modGroup.shaded.$dep") {
+            exclude("$modGroup.**")
+        }*/
 
         mergeServiceFiles()
     }
 
-    fun outJar(name: String, combineWith: TaskProvider<out Jar>, action: ShadowJar.() -> Unit) =
-        tasks.register("shadow${name.capitalized()}${pascalFlavor}Jar", ShadowJar::class) {
-            configurations = listOf()
-            listOf(combineWith, combine).forEach { jarTask ->
-                from(jarTask.flatMap { it.archiveFile }.map { zipTree(it.asFile) })
+    fun outJar(name: String, classifier: String, vararg combineWith: TaskProvider<out Jar>): TaskProvider<out Jar> {
+        val combinedJar = tasks.register<Jar>("preJvmDgShade${flavor}${name.capitalized()}Jar") {
+            combineWith.forEach { jarTask ->
+                from(jarTask.flatMap { it.archiveFile }.map { zipTree(it) })
             }
-            from(project(":modules:main").tasks.jar.map {
-                it.archiveFile
-            }) {
-                into("mpkmodules")
+            from(combine.flatMap { it.archiveFile }.map { zipTree(it) })
+            moduleProjects.forEach { module ->
+                from(project(module).tasks.jar.map { it.archiveFile }) {
+                    into("mpkmodules")
+                }
             }
-            action()
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         }
-
-    return Pair(outJar("common", downgradeCommonJar) {
-        group = "build".chain(flavor, "_")
-        description = "Shade dependencies into combined pre-shadow $flavor jar"
-        archiveAppendix.set("final")
-        archiveClassifier.set("preshadow".chain(flavor))
-    }, outJar("commonShadow", downgradeCommonShadowJar) {
-        group = "build".chain(flavor, "_")
-        description = "Shade dependencies into combined shadow $flavor jar"
-        archiveAppendix.set("final")
-        archiveClassifier.set(flavor)
-
-        val modGroup = project.property("modGroup") as String
-        val dep = "xyz.wagyourtail.jvmdg"
-        relocate(dep, "$modGroup.shaded.$dep") {
-            exclude("$modGroup.**")
+        return tasks.register<ShadeJar>("${flavor}${name.capitalized()}Jar") {
+            convention(jvmdg)
+            group = "build".chain(flavor, "_")
+            archiveAppendix.set("final")
+            archiveClassifier.set(classifier)
+            inputFile = combinedJar.flatMap { it.archiveFile }
         }
-    })
+    }
+
+    return Pair(
+        outJar(
+            "preshadow", "preshadow${pascalFlavor}",
+            /*downgradePreshadowJar*/
+        ),
+        outJar(
+            "shadow", flavor,
+            relocateNonLibJar,
+            downgradeLibJar,//relocateLibJar
+        )
+    )
 }
 
-val (obfJarTask, obfShadowJarTask) = registerJarPipeline(flavor = "", remap = true)
+val (obfJarTask, obfShadowJarTask) = registerJarPipeline(flavor = "prod", remap = true)
 val (deobfJarTask, deobfShadowJarTask) = registerJarPipeline(flavor = "dev", remap = false)
 
-val sourcesJar by tasks.registering(Jar::class) {
-    group = "build_deobf"
-    description = "Assembles a JAR containing all source files (main + loaders + common)"
-    archiveClassifier.set("sources")
-
+tasks.sourcesJar {
     from(sourceSets["shared"].allSource)
 
     activeLoaders.keys.forEach { loader ->
         from(sourceSets.getByName(loader.camelId).allSource)
     }
-
-    from(common.tasks.named("sourcesJar").map {
-        zipTree(it.outputs.files.singleFile).asFileTree
-    })
 }
 
 tasks.jar {
     archiveClassifier.set("common")
 }
 
-val publishFinalJars = tasks.register("publishFinalJars", Copy::class) {
+val publishFinalJars = tasks.register<Copy>("publishFinalJars") {
     group = "build"
     description = "Publish deobf/obf/sources jars to rootProject/libs"
 
     into(rootProject.layout.buildDirectory.dir("libs/$mcVersion"))
 
-    listOf(obfJarTask, obfShadowJarTask, deobfJarTask, deobfShadowJarTask, sourcesJar).forEach { jarTask ->
+    listOf(obfJarTask, obfShadowJarTask, deobfJarTask, deobfShadowJarTask, tasks.sourcesJar).forEach { jarTask ->
         dependsOn(jarTask)
 
         val classifier = jarTask.flatMap { it.archiveClassifier }
@@ -373,9 +447,7 @@ val props = arrayOf(
     "modUrl",
     "modVersion",
 )
-val propMap = props.associateWith {
-    project.property(it) as String
-}.toMutableMap()
+val propMap = props.associateWith { project.property(it) as String }.toMutableMap()
 propMap.putAll(
     mapOf(
         "mcVersion" to mcVersion,

@@ -9,6 +9,8 @@ import java.util.ServiceLoader;
 public interface RenderBackend {
     RenderBackend INSTANCE = ServiceLoader.load(RenderBackend.class).findFirst().orElseThrow();
 
+    ITexture texture(String domain, String path);
+
     void reallocVertexBuffers(int posSize, int colorSize, int uvSize);
 
     void reallocIndexBuffer(int size);

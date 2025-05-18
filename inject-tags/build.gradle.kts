@@ -3,6 +3,11 @@ plugins {
     id("buildlogic.inject-tags-convention")
 }
 
+java {
+    withSourcesJar()
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+
 injectTags {
     outputClassName = "${property("modGroup")}.Tags"
     tags.set(

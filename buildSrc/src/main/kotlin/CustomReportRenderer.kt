@@ -69,22 +69,26 @@ class CustomReportRenderer(
             }
         }
 
+        val now = LocalDate.now()
+
         val noticeFile = File(outputDir, noticeFileName)
         noticeFile.bufferedWriter().use { w ->
             w.appendLine("THIRD‑PARTY DEPENDENCY LICENSES")
-            w.appendLine("Generated on ${LocalDate.now()}")
             w.appendLine()
 
             licenseToModules.toSortedMap().forEach { (spdxId, modules) ->
                 w.appendLine("=== $spdxId ===")
-                w.appendLine("Used by:")
                 modules
                     .distinctBy { "${it.group}:${it.name}:${it.version}" }
                     .sortedBy { "${it.group}:${it.name}:${it.version}" }
                     .forEach { module ->
-                        w.appendLine("  - ${module.group}:${module.name}:${module.version}")
-                        embeddedMap[module]?.forEach { embedName ->
-                            w.appendLine("      Embedded notice: notices/$embedName")
+                        w.appendLine("  - ${module.group}:${module.name}:${module.version} (last checked: $now)")
+                        val embedded = embeddedMap[module]
+                        if (embedded != null && embedded.isNotEmpty()) {
+                            w.appendLine("    Embedded notice(s):")
+                            embedded.forEach { embedName ->
+                                w.appendLine("        - notices/$embedName")
+                            }
                         }
                     }
                 w.appendLine()

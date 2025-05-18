@@ -2,8 +2,13 @@ package io.github.kurrycat.mpkmod.stonecutter.vintage_forge;
 
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.render.IDrawCommand;
+import io.github.kurrycat.mpkmod.api.render.ITexture;
 import io.github.kurrycat.mpkmod.api.render.RenderBackend;
 import io.github.kurrycat.mpkmod.api.render.RenderMode;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
@@ -12,6 +17,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
+import java.util.Objects;
 
 @AutoService(RenderBackend.class)
 public class RenderBackendImpl implements RenderBackend {
@@ -35,6 +41,17 @@ public class RenderBackendImpl implements RenderBackend {
         vboUV = GL15.glGenBuffers();
         vboCol = GL15.glGenBuffers();
         ebo = GL15.glGenBuffers();
+    }
+
+    private record Texture(String domain, String path, ResourceLocation loc) implements ITexture {
+        public static Texture of(String domain, String path) {
+            return new Texture(domain, path, new ResourceLocation(domain, path));
+        }
+    }
+
+    @Override
+    public ITexture texture(String domain, String path) {
+        return Texture.of(domain, path);
     }
 
     private static ByteBuffer allocateDirect(int size) {
@@ -106,6 +123,21 @@ public class RenderBackendImpl implements RenderBackend {
         vertexColors.flip();
         indices.flip();
 
+        final boolean isTexEnabled = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
+        GlStateManager.disableTexture2D();
+        ITexture lastTex = null;
+
+        GlStateManager.disableAlpha();
+        GlStateManager.enableBlend();
+        GlStateManager.disableDepth();
+        GlStateManager.tryBlendFuncSeparate(
+                GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
+                GL11.GL_ONE, GL11.GL_ZERO
+        );
+        GlStateManager.shadeModel(GL11.GL_FLAT);
+
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboPos);
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexPositions, GL15.GL_DYNAMIC_DRAW);
 
@@ -130,14 +162,20 @@ public class RenderBackendImpl implements RenderBackend {
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboUV);
         GL11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, 0);
 
-        //TextureManager texMgr = Minecraft.getMinecraft().getTextureManager();
+        TextureManager texMgr = Minecraft.getMinecraft().getTextureManager();
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
 
         for (IDrawCommand cmd : commands) {
-            //TODO: textures
-            //IResourceLocation loc = cmd.texture();
-            // assume IResourceLocation is a net.minecraft.util.ResourceLocation
-            //texMgr.bindTexture((ResourceLocation) loc);
+            Texture tex = (Texture) cmd.texture();
+            if (!Objects.equals(tex, lastTex)) {
+                if (tex != null) {
+                    GlStateManager.enableTexture2D();
+                    texMgr.bindTexture(tex.loc);
+                } else {
+                    GlStateManager.disableTexture2D();
+                }
+                lastTex = tex;
+            }
 
             GL11.glDrawElements(
                     RENDER_MODES[cmd.mode().ordinal()],
@@ -153,6 +191,12 @@ public class RenderBackendImpl implements RenderBackend {
 
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        if (isTexEnabled) {
+            GlStateManager.enableTexture2D();
+        } else {
+            GlStateManager.disableTexture2D();
+        }
 
         vertexPositions.clear();
         vertexUVs.clear();
