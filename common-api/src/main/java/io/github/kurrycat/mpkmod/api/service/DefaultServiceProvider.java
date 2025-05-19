@@ -1,0 +1,23 @@
+package io.github.kurrycat.mpkmod.api.service;
+
+import java.util.function.Supplier;
+
+public abstract class DefaultServiceProvider<T> implements TypedServiceProvider<T> {
+    private final Supplier<T> provider;
+    private final Class<T> type;
+
+    protected DefaultServiceProvider(Supplier<T> provider, Class<T> type) {
+        this.provider = provider;
+        this.type = type;
+    }
+
+    @Override
+    public T provide() {
+        return provider.get();
+    }
+
+    @Override
+    public Class<T> type() {
+        return type;
+    }
+}

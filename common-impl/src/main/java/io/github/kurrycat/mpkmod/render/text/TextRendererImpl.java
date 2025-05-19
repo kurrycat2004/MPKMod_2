@@ -5,12 +5,20 @@ import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
 import io.github.kurrycat.mpkmod.api.render.RenderMode;
 import io.github.kurrycat.mpkmod.api.render.text.GlyphProvider;
 import io.github.kurrycat.mpkmod.api.render.text.TextRenderer;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.util.MathUtil;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-@AutoService(TextRenderer.class)
-public class TextRendererImpl implements TextRenderer {
+public final class TextRendererImpl implements TextRenderer {
+    @AutoService(ServiceProvider.class)
+    public static final class Provider extends DefaultServiceProvider<TextRenderer> {
+        public Provider() {
+            super(TextRendererImpl::new, TextRenderer.class);
+        }
+    }
+
     private static final int MISSING_CODEPOINT = 63; // '?'
     @SuppressWarnings("UnnecessaryUnicodeEscape")
     private static final char FORMAT_CODE = '\u00A7'; // '§'

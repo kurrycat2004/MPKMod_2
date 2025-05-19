@@ -2,9 +2,10 @@ package io.github.kurrycat.mpkmod.stonecutter.vintage_forge;
 
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.annotation.OutArg;
-import io.github.kurrycat.mpkmod.api.render.ITexture;
-import io.github.kurrycat.mpkmod.api.render.RenderBackend;
 import io.github.kurrycat.mpkmod.api.render.text.GlyphProvider;
+import io.github.kurrycat.mpkmod.api.resource.IResource;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.api.util.ReflectionHelper;
 import io.github.kurrycat.mpkmod.lib.fastutil.chars.Char2ShortMap;
 import io.github.kurrycat.mpkmod.lib.fastutil.chars.Char2ShortOpenHashMap;
@@ -14,8 +15,14 @@ import net.minecraft.client.gui.FontRenderer;
 import java.util.Arrays;
 import java.util.Random;
 
-@AutoService(GlyphProvider.class)
-public class GlyphProviderImpl implements GlyphProvider {
+public final class GlyphProviderImpl implements GlyphProvider {
+    @AutoService(ServiceProvider.class)
+    public static final class Provider extends DefaultServiceProvider<GlyphProvider> {
+        public Provider() {
+            super(GlyphProviderImpl::new, GlyphProvider.class);
+        }
+    }
+
     @SuppressWarnings("UnnecessaryUnicodeEscape")
     private static final String MC_ASCII_FONT_CHARS =
             "\u00c0\u00c1\u00c2\u00c8\u00ca\u00cb\u00cd\u00d3\u00d4\u00d5\u00da\u00df\u00e3\u00f5\u011f\u0130" +
@@ -55,9 +62,8 @@ public class GlyphProviderImpl implements GlyphProvider {
         }
     }
 
-    private static final RenderBackend RENDER_BACKEND = RenderBackend.INSTANCE;
-    private static final ITexture ASCII_TEXTURE = RENDER_BACKEND.texture("minecraft", "textures/font/ascii.png");
-    private static final ITexture[] UNICODE_TEXTURES = new ITexture[256];
+    private static final IResource ASCII_TEXTURE = IResource.ofMc("textures/font/ascii.png");
+    private static final IResource[] UNICODE_TEXTURES = new IResource[256];
 
     ///  {@link #MC_ASCII_FONT_CHARS} index to char width
     private static final int[] charWidth;
@@ -80,11 +86,10 @@ public class GlyphProviderImpl implements GlyphProvider {
         glyphWidth = glyphWidthHandle.get(fr);
     }
 
-    private static ITexture getUnicodePage(int page) {
-        final ITexture texture = UNICODE_TEXTURES[page];
+    private static IResource getUnicodePage(int page) {
+        final IResource texture = UNICODE_TEXTURES[page];
         if (texture != null) return texture;
-        return UNICODE_TEXTURES[page] = RENDER_BACKEND.texture(
-                "minecraft",
+        return UNICODE_TEXTURES[page] = IResource.ofMc(
                 String.format("textures/font/unicode_page_%02x.png", page)
         );
     }

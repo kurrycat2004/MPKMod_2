@@ -1,9 +1,9 @@
 package io.github.kurrycat.mpkmod.api.log;
 
-import java.util.ServiceLoader;
+import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
 
 public interface LogManager {
-    LogManager INSTANCE = ServiceLoader.load(LogManager.class).findFirst().orElseThrow();
+    LogManager INSTANCE = TypedServiceProvider.loadOrThrow(LogManager.class);
 
     ILogger getLogger(String name);
 }

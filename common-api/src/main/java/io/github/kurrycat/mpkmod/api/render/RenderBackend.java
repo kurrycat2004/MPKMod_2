@@ -1,15 +1,14 @@
 package io.github.kurrycat.mpkmod.api.render;
 
+import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
+
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
-import java.util.ServiceLoader;
 
 public interface RenderBackend {
-    RenderBackend INSTANCE = ServiceLoader.load(RenderBackend.class).findFirst().orElseThrow();
-
-    ITexture texture(String domain, String path);
+    RenderBackend INSTANCE = TypedServiceProvider.loadOrThrow(RenderBackend.class);
 
     void reallocVertexBuffers(int posSize, int colorSize, int uvSize);
 

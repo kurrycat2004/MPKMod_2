@@ -1,11 +1,12 @@
 package io.github.kurrycat.mpkmod.api.util;
 
+import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
+
 import java.lang.invoke.MethodHandle;
 import java.util.Optional;
-import java.util.ServiceLoader;
 
 public interface ReflectionHelper {
-    ReflectionHelper INSTANCE = ServiceLoader.load(ReflectionHelper.class).findFirst().orElseThrow();
+    ReflectionHelper INSTANCE = TypedServiceProvider.loadOrThrow(ReflectionHelper.class);
 
     interface FieldAccessor<T, V> {
         V get(T obj);

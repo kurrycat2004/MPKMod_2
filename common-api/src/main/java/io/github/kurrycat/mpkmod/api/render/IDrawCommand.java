@@ -1,5 +1,7 @@
 package io.github.kurrycat.mpkmod.api.render;
 
+import io.github.kurrycat.mpkmod.api.resource.IResource;
+
 public interface IDrawCommand {
     int startIdx();
 
@@ -7,5 +9,5 @@ public interface IDrawCommand {
 
     RenderMode mode();
 
-    ITexture texture();
+    IResource texture();
 }

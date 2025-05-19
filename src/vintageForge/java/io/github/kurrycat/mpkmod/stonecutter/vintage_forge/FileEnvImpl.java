@@ -5,7 +5,7 @@ import io.github.kurrycat.mpkmod.api.minecraft.IFileEnv;
 import java.nio.file.Path;
 import java.util.List;
 
-public class FileEnvImpl implements IFileEnv {
+public final class FileEnvImpl implements IFileEnv {
     public static final FileEnvImpl INSTANCE = new FileEnvImpl();
 
     private FileEnvImpl() {

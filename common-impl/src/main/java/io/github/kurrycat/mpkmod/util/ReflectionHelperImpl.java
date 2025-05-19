@@ -1,6 +1,8 @@
 package io.github.kurrycat.mpkmod.util;
 
 import com.google.auto.service.AutoService;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.api.util.ReflectionHelper;
 
 import java.lang.invoke.MethodHandle;
@@ -10,8 +12,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
-@AutoService(ReflectionHelper.class)
 public final class ReflectionHelperImpl implements ReflectionHelper {
+    @AutoService(ServiceProvider.class)
+    public static final class Provider extends DefaultServiceProvider<ReflectionHelper> {
+        public Provider() {
+            super(ReflectionHelperImpl::new, ReflectionHelper.class);
+        }
+    }
+
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 
     @Override

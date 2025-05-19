@@ -8,6 +8,8 @@ import io.github.kurrycat.mpkmod.api.log.LogManager;
 import io.github.kurrycat.mpkmod.api.module.IModule;
 import io.github.kurrycat.mpkmod.api.module.IVersionConstraint;
 import io.github.kurrycat.mpkmod.api.module.ModuleRegistry;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.util.FileUtilImpl;
 import io.github.kurrycat.mpkmod.util.MultiParentClassLoader;
 import io.github.kurrycat.mpkmod.util.StringUtil;
@@ -26,8 +28,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@AutoService(ModuleRegistry.class)
-public class ModuleRegistryImpl implements ModuleRegistry {
+public final class ModuleRegistryImpl implements ModuleRegistry {
+    @AutoService(ServiceProvider.class)
+    public static final class Provider extends DefaultServiceProvider<ModuleRegistry> {
+        public Provider() {
+            super(ModuleRegistryImpl::new, ModuleRegistry.class);
+        }
+    }
+
     private final Set<String> disabledModuleIds = new HashSet<>();
     private final Map<Path, DiscoveredModule> errorModules = new HashMap<>();
     private final Map<String, DiscoveredModule> disabledModules = new HashMap<>();

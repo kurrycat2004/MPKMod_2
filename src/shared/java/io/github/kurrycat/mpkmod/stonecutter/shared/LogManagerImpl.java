@@ -3,9 +3,17 @@ package io.github.kurrycat.mpkmod.stonecutter.shared;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.log.ILogger;
 import io.github.kurrycat.mpkmod.api.log.LogManager;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 
-@AutoService(LogManager.class)
 public class LogManagerImpl implements LogManager {
+    @AutoService(ServiceProvider.class)
+    public static final class Provider extends DefaultServiceProvider<LogManager> {
+        public Provider() {
+            super(LogManagerImpl::new, LogManager.class);
+        }
+    }
+
     @Override
     public ILogger getLogger(String s) {
         return new Log4JLogger(org.apache.logging.log4j.LogManager.getLogger(s));

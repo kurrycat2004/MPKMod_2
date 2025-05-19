@@ -1,9 +1,9 @@
 package io.github.kurrycat.mpkmod.api.render;
 
-import java.util.ServiceLoader;
+import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
 
 public interface Render2D {
-    Render2D INSTANCE = ServiceLoader.load(Render2D.class).findFirst().orElseThrow();
+    Render2D INSTANCE = TypedServiceProvider.loadOrThrow(Render2D.class);
 
     void pushRect(float x, float y, float w, float h, int argb);
 }

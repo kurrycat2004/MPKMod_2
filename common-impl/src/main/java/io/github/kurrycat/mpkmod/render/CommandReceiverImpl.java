@@ -3,9 +3,11 @@ package io.github.kurrycat.mpkmod.render;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
 import io.github.kurrycat.mpkmod.api.render.IDrawCommand;
-import io.github.kurrycat.mpkmod.api.render.ITexture;
 import io.github.kurrycat.mpkmod.api.render.RenderBackend;
 import io.github.kurrycat.mpkmod.api.render.RenderMode;
+import io.github.kurrycat.mpkmod.api.resource.IResource;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
@@ -15,8 +17,14 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 
-@AutoService(CommandReceiver.class)
-public class CommandReceiverImpl implements CommandReceiver {
+public final class CommandReceiverImpl implements CommandReceiver {
+    @AutoService(ServiceProvider.class)
+    public static final class Provider extends DefaultServiceProvider<CommandReceiver> {
+        public Provider() {
+            super(CommandReceiverImpl::new, CommandReceiver.class);
+        }
+    }
+
     private static final int COMMAND_POOL_BATCH_SIZE = 64;
     private static final int INITIAL_VERTEX_SIZE = 256;
     private static final int INITIAL_INDEX_SIZE = 256;
@@ -24,8 +32,8 @@ public class CommandReceiverImpl implements CommandReceiver {
     public static final Comparator<IDrawCommand> DRAW_COMMAND_COMPARATOR = Comparator.comparing(
             IDrawCommand::texture,
             Comparator.nullsLast(
-                    Comparator.comparing(ITexture::domain)
-                            .thenComparing(ITexture::path))
+                    Comparator.comparing(IResource::domain)
+                            .thenComparing(IResource::path))
     ).thenComparing(IDrawCommand::startIdx);
 
     private final RenderBackend backend = RenderBackend.INSTANCE;
@@ -80,7 +88,7 @@ public class CommandReceiverImpl implements CommandReceiver {
         backend.indices().put(idx);
     }
 
-    private boolean tryMergeCommand(int startIdx, int count, RenderMode mode, ITexture texture) {
+    private boolean tryMergeCommand(int startIdx, int count, RenderMode mode, IResource texture) {
         if (commands.isEmpty()) return false;
         DrawCommand lastCommand = (DrawCommand) commands.getLast();
         if (lastCommand.startIdx + lastCommand.count != startIdx) return false;
@@ -99,7 +107,7 @@ public class CommandReceiverImpl implements CommandReceiver {
     }
 
     @Override
-    public void pushDrawCmd(int startIdx, int count, RenderMode mode, ITexture texture) {
+    public void pushDrawCmd(int startIdx, int count, RenderMode mode, IResource texture) {
         if (tryMergeCommand(startIdx, count, mode, texture)) return;
         ensureCommandPoolNonEmpty();
         DrawCommand command = (DrawCommand) commandPool.pop();

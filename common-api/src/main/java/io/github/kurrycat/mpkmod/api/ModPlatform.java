@@ -3,18 +3,12 @@ package io.github.kurrycat.mpkmod.api;
 import io.github.kurrycat.mpkmod.api.log.ILogger;
 import io.github.kurrycat.mpkmod.api.log.LogManager;
 import io.github.kurrycat.mpkmod.api.minecraft.IFileEnv;
-import io.github.kurrycat.mpkmod.api.minecraft.IGraphics;
 import io.github.kurrycat.mpkmod.api.minecraft.IModInfo;
 import io.github.kurrycat.mpkmod.api.module.ModuleRegistry;
-
-import java.util.ServiceLoader;
+import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
 
 public interface ModPlatform {
-    ModPlatform INSTANCE = ServiceLoader.load(ModPlatform.class).stream()
-            .map(ServiceLoader.Provider::get)
-            .filter(ModPlatform::isActive)
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("No active ModPlatform found"));
+    ModPlatform INSTANCE = TypedServiceProvider.loadOrThrow(ModPlatform.class);
     ILogger LOGGER = LogManager.INSTANCE.getLogger(INSTANCE.modInfo().modId());
 
     static void init() {
@@ -23,11 +17,7 @@ public interface ModPlatform {
         ModuleRegistry.INSTANCE.loadAllModules();
     }
 
-    boolean isActive();
-
     IModInfo modInfo();
-
-    IGraphics graphics();
 
     IFileEnv fileEnv();
 }

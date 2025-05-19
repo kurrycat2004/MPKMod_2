@@ -1,7 +1,8 @@
 package io.github.kurrycat.mpkmod.util;
 
 import com.google.auto.service.AutoService;
-import io.github.kurrycat.mpkmod.api.ModPlatform;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.api.util.FileUtil;
 
 import java.io.IOException;
@@ -22,8 +23,14 @@ import java.util.List;
 import java.util.stream.Stream;
 import java.util.zip.ZipError;
 
-@AutoService(FileUtil.class)
 public final class FileUtilImpl implements FileUtil {
+    @AutoService(ServiceProvider.class)
+    public static final class Provider extends DefaultServiceProvider<FileUtil> {
+        public Provider() {
+            super(FileUtilImpl::new, FileUtil.class);
+        }
+    }
+
     public static String getFileNameWithoutExtension(Path path) {
         String filename = path.getFileName().toString();
         int dotIndex = filename.lastIndexOf('.');

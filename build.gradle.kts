@@ -144,7 +144,7 @@ unimined.minecraft(sourceSets["shared"]) {
         runs.config("client") {
             workingDir(runsDir.asFile)
             if (project.hasProperty("mcArgs")) {
-                jvmArguments.addAll((project.property("mcArgs") as String).split("\\s+"))
+                jvmArguments.addAll((project.property("mcArgs") as String).split("\\s+".toRegex()))
             }
             if (project.hasProperty("debugClassLoading")) {
                 jvmArguments.add("-Dlegacy.debugClassLoading=true")
@@ -303,10 +303,12 @@ val (downgradeNonLibJar, relocateNonLibJar) = downgradeRelocate(
 
 unimined.minecrafts
     .map { (sourceSet, _) ->
-        val jarTask = tasks.register<Jar>("${sourceSet.name}Jar") {
+        val jarTask = tasks.register<ShadowJar>("${sourceSet.name}Jar") {
             group = "internal"
             archiveClassifier.set(sourceSet.name)
+            configurations = emptyList()
             from(sourceSet.output, project.sourceSets["shared"].output)
+            mergeServiceFiles()
         }
         tasks.register<DowngradeJar>("downgrade${sourceSet.name.capitalized()}Jar") {
             convention(jvmdg)
@@ -362,7 +364,8 @@ fun Project.registerJarPipeline(
     }
 
     fun outJar(name: String, classifier: String, vararg combineWith: TaskProvider<out Jar>): TaskProvider<out Jar> {
-        val combinedJar = tasks.register<Jar>("preJvmDgShade${flavor}${name.capitalized()}Jar") {
+        val combinedJar = tasks.register<ShadowJar>("preJvmDgShade${flavor}${name.capitalized()}Jar") {
+            configurations = emptyList()
             combineWith.forEach { jarTask ->
                 from(jarTask.flatMap { it.archiveFile }.map { zipTree(it) })
             }
@@ -372,7 +375,7 @@ fun Project.registerJarPipeline(
                     into("mpkmodules")
                 }
             }
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            mergeServiceFiles()
         }
         return tasks.register<ShadeJar>("${flavor}${name.capitalized()}Jar") {
             convention(jvmdg)

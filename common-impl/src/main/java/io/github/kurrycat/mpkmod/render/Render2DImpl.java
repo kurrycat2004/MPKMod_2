@@ -4,9 +4,17 @@ import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
 import io.github.kurrycat.mpkmod.api.render.Render2D;
 import io.github.kurrycat.mpkmod.api.render.RenderMode;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 
-@AutoService(Render2D.class)
-public class Render2DImpl implements Render2D {
+public final class Render2DImpl implements Render2D {
+    @AutoService(ServiceProvider.class)
+    public static final class Provider extends DefaultServiceProvider<Render2D> {
+        public Provider() {
+            super(Render2DImpl::new, Render2D.class);
+        }
+    }
+
     private final CommandReceiver cmd = CommandReceiver.INSTANCE;
 
     @Override

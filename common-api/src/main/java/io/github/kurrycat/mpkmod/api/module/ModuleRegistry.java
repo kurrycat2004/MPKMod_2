@@ -1,9 +1,9 @@
 package io.github.kurrycat.mpkmod.api.module;
 
-import java.util.ServiceLoader;
+import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
 
 public interface ModuleRegistry {
-    ModuleRegistry INSTANCE = ServiceLoader.load(ModuleRegistry.class).findFirst().orElseThrow();
+    ModuleRegistry INSTANCE = TypedServiceProvider.loadOrThrow(ModuleRegistry.class);
 
     boolean isModuleLoaded(String moduleId);
 

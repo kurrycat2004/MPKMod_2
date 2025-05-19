@@ -1,16 +1,16 @@
 package io.github.kurrycat.mpkmod.api.render.text;
 
 import io.github.kurrycat.mpkmod.annotation.OutArg;
-import io.github.kurrycat.mpkmod.api.render.ITexture;
+import io.github.kurrycat.mpkmod.api.resource.IResource;
+import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
 
 import java.util.Random;
-import java.util.ServiceLoader;
 
 public interface GlyphProvider {
-    GlyphProvider INSTANCE = ServiceLoader.load(GlyphProvider.class).findFirst().orElseThrow();
+    GlyphProvider INSTANCE = TypedServiceProvider.loadOrThrow(GlyphProvider.class);
 
     final class GlyphData {
-        public ITexture texture;
+        public IResource texture;
         public float u0, v0, u1, v1;
 
         public float width, height;

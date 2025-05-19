@@ -3,19 +3,32 @@ package io.github.kurrycat.mpkmod.stonecutter.vintage_forge;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.ModPlatform;
 import io.github.kurrycat.mpkmod.api.minecraft.IFileEnv;
-import io.github.kurrycat.mpkmod.api.minecraft.IGraphics;
 import io.github.kurrycat.mpkmod.api.minecraft.IModInfo;
-import io.github.kurrycat.mpkmod.stonecutter.shared.AbstractModPlatform;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.stonecutter.shared.ModInfoImpl;
+import io.github.kurrycat.mpkmod.stonecutter.shared.util.ClassUtil;
 import net.minecraftforge.common.ForgeVersion;
 
-@AutoService(ModPlatform.class)
-public class ModPlatformImpl extends AbstractModPlatform {
-    private ModInfoImpl modInfo = null;
+import java.util.Optional;
 
-    public ModPlatformImpl() {
-        super("net.minecraftforge.fml.common.Loader");
+public final class ModPlatformImpl implements ModPlatform {
+    @AutoService(ServiceProvider.class)
+    public static final class Provider extends DefaultServiceProvider<ModPlatform> {
+        public Provider() {
+            super(ModPlatformImpl::new, ModPlatform.class);
+        }
+
+        @Override
+        public Optional<String> invalidReason() {
+            if (!ClassUtil.isClassLoaded("net.minecraftforge.fml.common.Loader")) {
+                return Optional.of("Forge is not loaded");
+            }
+            return Optional.empty();
+        }
     }
+
+    private ModInfoImpl modInfo = null;
 
     @Override
     public IModInfo modInfo() {
@@ -23,11 +36,6 @@ public class ModPlatformImpl extends AbstractModPlatform {
             modInfo = new ModInfoImpl(ForgeVersion.mcVersion, "forge");
         }
         return modInfo;
-    }
-
-    @Override
-    public IGraphics graphics() {
-        return GraphicsImpl.INSTANCE;
     }
 
     @Override

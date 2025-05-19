@@ -62,6 +62,9 @@ tasks.shallowLibJar {
     from(shadowJavaApiJar.map(Jar::getArchiveFile)) {
         into("META-INF/lib")
     }
+    from(zipTree(shadowJavaApiJar.map(Jar::getArchiveFile))) {
+        include("META-INF/coverage/**")
+    }
 }
 
 dependencies {
