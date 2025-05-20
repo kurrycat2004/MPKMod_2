@@ -19,11 +19,14 @@ repositories {
 dependencies {
     implementation(
         "com.github.jk1.dependency-license-report:com.github.jk1.dependency-license-report.gradle.plugin:${
-            rootProps.getProperty(
-                "licenseReportVersion"
-            )
+            rootProps.getProperty("licenseReportVersion")
         }"
     )
     implementation("com.gradleup.shadow:shadow-gradle-plugin:${rootProps.getProperty("shadowVersion")}")
     implementation("org.apache.ant:ant:${rootProps.getProperty("shadowAntVersion")}")
+
+    implementation("org.ow2.asm:asm:${rootProps.getProperty("asmVersion")}")
+    implementation("org.ow2.asm:asm-tree:${rootProps.getProperty("asmVersion")}")
+    implementation("com.squareup:javapoet:${rootProps.getProperty("javapoetVersion")}")
+    implementation("org.apache.commons:commons-compress:${rootProps.getProperty("apacheCommonsCompressVersion")}")
 }

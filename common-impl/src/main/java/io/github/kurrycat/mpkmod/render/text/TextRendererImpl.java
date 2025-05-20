@@ -5,8 +5,8 @@ import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
 import io.github.kurrycat.mpkmod.api.render.RenderMode;
 import io.github.kurrycat.mpkmod.api.render.text.GlyphProvider;
 import io.github.kurrycat.mpkmod.api.render.text.TextRenderer;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.util.MathUtil;
 
 import java.util.concurrent.ThreadLocalRandom;

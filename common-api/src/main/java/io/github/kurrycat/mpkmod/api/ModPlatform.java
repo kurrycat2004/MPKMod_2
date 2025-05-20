@@ -5,7 +5,7 @@ import io.github.kurrycat.mpkmod.api.log.LogManager;
 import io.github.kurrycat.mpkmod.api.minecraft.IFileEnv;
 import io.github.kurrycat.mpkmod.api.minecraft.IModInfo;
 import io.github.kurrycat.mpkmod.api.module.ModuleRegistry;
-import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.service.TypedServiceProvider;
 
 public interface ModPlatform {
     ModPlatform INSTANCE = TypedServiceProvider.loadOrThrow(ModPlatform.class);

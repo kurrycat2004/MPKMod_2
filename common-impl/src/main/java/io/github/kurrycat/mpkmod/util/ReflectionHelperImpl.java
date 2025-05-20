@@ -1,9 +1,9 @@
 package io.github.kurrycat.mpkmod.util;
 
 import com.google.auto.service.AutoService;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.api.util.ReflectionHelper;
+import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.service.ServiceProvider;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;

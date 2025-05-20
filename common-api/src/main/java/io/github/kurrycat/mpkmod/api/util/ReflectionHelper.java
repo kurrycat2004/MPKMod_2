@@ -1,6 +1,6 @@
 package io.github.kurrycat.mpkmod.api.util;
 
-import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.service.TypedServiceProvider;
 
 import java.lang.invoke.MethodHandle;
 import java.util.Optional;

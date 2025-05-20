@@ -1,4 +1,4 @@
-package io.github.kurrycat.mpkmod.api.service;
+package io.github.kurrycat.mpkmod.service;
 
 import java.util.function.Supplier;
 
@@ -19,5 +19,14 @@ public abstract class DefaultServiceProvider<T> implements TypedServiceProvider<
     @Override
     public Class<T> type() {
         return type;
+    }
+
+    protected final boolean isClassLoaded(String className) {
+        try {
+            Class.forName(className, false, getClass().getClassLoader());
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 }

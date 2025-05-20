@@ -4,8 +4,8 @@ import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
 import io.github.kurrycat.mpkmod.api.render.Render2D;
 import io.github.kurrycat.mpkmod.api.render.RenderMode;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.service.ServiceProvider;
 
 public final class Render2DImpl implements Render2D {
     @AutoService(ServiceProvider.class)

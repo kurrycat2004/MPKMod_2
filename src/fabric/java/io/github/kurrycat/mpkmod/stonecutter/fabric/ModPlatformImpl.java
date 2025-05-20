@@ -4,10 +4,9 @@ import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.ModPlatform;
 import io.github.kurrycat.mpkmod.api.minecraft.IFileEnv;
 import io.github.kurrycat.mpkmod.api.minecraft.IModInfo;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.stonecutter.shared.ModInfoImpl;
-import io.github.kurrycat.mpkmod.stonecutter.shared.util.ClassUtil;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.util.Optional;
@@ -21,7 +20,7 @@ public class ModPlatformImpl implements ModPlatform {
 
         @Override
         public Optional<String> invalidReason() {
-            if (!ClassUtil.isClassLoaded("net.fabricmc.loader.api.FabricLoader")) {
+            if (!isClassLoaded("net.fabricmc.loader.api.FabricLoader")) {
                 return Optional.of("FabricLoader not found");
             }
             return super.invalidReason();

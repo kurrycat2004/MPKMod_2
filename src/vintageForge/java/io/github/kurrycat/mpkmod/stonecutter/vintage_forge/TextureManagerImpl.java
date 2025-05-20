@@ -3,8 +3,8 @@ package io.github.kurrycat.mpkmod.stonecutter.vintage_forge;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.render.texture.TextureManager;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.service.ServiceProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 

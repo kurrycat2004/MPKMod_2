@@ -1,4 +1,4 @@
-package io.github.kurrycat.mpkmod.api.service;
+package io.github.kurrycat.mpkmod.service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,6 +23,7 @@ public interface ServiceProvider {
     }
 
     ServiceProviderCache CACHE = new ServiceProviderCache();
+    boolean LOG_PROVIDERS = Boolean.getBoolean("mpkmod.service.logProviders");
 
     class ServiceProviderCache {
         private boolean initialized = false;
@@ -50,12 +51,41 @@ public interface ServiceProvider {
         Object rawLoadOrThrow(Class<?> providerClass) {
             Map<ServiceProvider, String> reasons = new IdentityHashMap<>();
             List<ServiceProvider> providers = get(providerClass);
+            if (LOG_PROVIDERS) {
+                System.out.print("Loading service provider for " + providerClass.getName() + "\n");
+                System.out.print("Found " + providers.size() + " potential provider(s):\n");
+                for (ServiceProvider provider : providers) {
+                    System.out.print("\t" + provider.getClass().getName() +
+                                     " with priority " +
+                                     provider.priority() + "\n");
+                }
+            }
             for (ServiceProvider provider : providers) {
-                Optional<String> reason = provider.invalidReason();
+                Optional<String> reason;
+                try {
+                    reason = provider.invalidReason();
+                } catch (Exception e) {
+                    reason = Optional.of("Exception while checking invalid reason: " + e);
+                }
                 if (reason.isEmpty()) {
+                    if (LOG_PROVIDERS) {
+                        System.out.print("Service provider " +
+                                         provider.getClass().getName() +
+                                         " with priority " +
+                                         provider.priority() +
+                                         " is valid\n");
+                    }
                     return provider.provide();
                 }
                 reasons.put(provider, reason.get());
+                if (LOG_PROVIDERS) {
+                    System.out.print("Service provider " +
+                                     provider.getClass().getName() +
+                                     " with priority " +
+                                     provider.priority() +
+                                     " is invalid: " +
+                                     reason.get() + "\n");
+                }
             }
             StringBuilder sb = new StringBuilder("No valid provider found for ");
             sb.append(providerClass.getName()).append(": ");

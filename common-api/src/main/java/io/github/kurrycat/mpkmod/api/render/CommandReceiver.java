@@ -1,7 +1,7 @@
 package io.github.kurrycat.mpkmod.api.render;
 
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.service.TypedServiceProvider;
 
 public interface CommandReceiver {
     CommandReceiver INSTANCE = TypedServiceProvider.loadOrThrow(CommandReceiver.class);

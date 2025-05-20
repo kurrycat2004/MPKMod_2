@@ -1,7 +1,7 @@
 package io.github.kurrycat.mpkmod.api.resource;
 
 import io.github.kurrycat.mpkmod.api.ModPlatform;
-import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.service.TypedServiceProvider;
 
 public interface ResourceManager {
     ResourceManager INSTANCE = TypedServiceProvider.loadOrThrow(ResourceManager.class);

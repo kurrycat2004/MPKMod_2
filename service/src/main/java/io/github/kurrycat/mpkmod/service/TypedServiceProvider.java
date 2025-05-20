@@ -1,4 +1,4 @@
-package io.github.kurrycat.mpkmod.api.service;
+package io.github.kurrycat.mpkmod.service;
 
 public interface TypedServiceProvider<T> extends ServiceProvider {
     T provide();

@@ -4,10 +4,9 @@ import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.ModPlatform;
 import io.github.kurrycat.mpkmod.api.minecraft.IFileEnv;
 import io.github.kurrycat.mpkmod.api.minecraft.IModInfo;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.stonecutter.shared.ModInfoImpl;
-import io.github.kurrycat.mpkmod.stonecutter.shared.util.ClassUtil;
 import net.neoforged.fml.ModList;
 
 import java.util.Optional;
@@ -21,7 +20,7 @@ public class ModPlatformImpl implements ModPlatform {
 
         @Override
         public Optional<String> invalidReason() {
-            if (!ClassUtil.isClassLoaded("net.neoforged.fml.ModLoader")) {
+            if (!isClassLoaded("net.neoforged.fml.ModLoader")) {
                 return Optional.of("NeoForge not found");
             }
             return super.invalidReason();

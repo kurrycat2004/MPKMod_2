@@ -221,11 +221,14 @@ class SplitJarsPlugin : Plugin<Project> {
             }
         }
 
-        val nonLibJar = project.tasks.register<Jar>("nonLibJar") {
+        val nonLibJar = project.tasks.register<ShadowJar>("nonLibJar") {
             group = "build"
             archiveBaseName.set(ext.archiveBaseName)
             archiveVersion.set(ext.archiveVersion)
             archiveClassifier.set(name)
+            configurations.set(listOf())
+
+            mergeServiceFiles()
 
             val depTasks = project.provider {
                 embed.incoming.artifactView {}.artifacts.artifactFiles.buildDependencies.getDependencies(null)

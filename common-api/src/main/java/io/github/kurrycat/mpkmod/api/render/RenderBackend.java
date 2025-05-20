@@ -1,6 +1,6 @@
 package io.github.kurrycat.mpkmod.api.render;
 
-import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.service.TypedServiceProvider;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;

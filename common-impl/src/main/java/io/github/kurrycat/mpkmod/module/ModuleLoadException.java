@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ModuleLoadException extends Exception {
-    public static final boolean ENABLE_STACKTRACE = Boolean.getBoolean("enableModuleLoadStacktrace");
+    public static final boolean ENABLE_STACKTRACE = Boolean.getBoolean("mpkmod.module.enableModuleLoadStacktrace");
 
     private final String mainMessage;
     private final List<ErrorDetail> errors;

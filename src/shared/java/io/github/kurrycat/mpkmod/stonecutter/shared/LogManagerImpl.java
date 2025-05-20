@@ -3,8 +3,8 @@ package io.github.kurrycat.mpkmod.stonecutter.shared;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.log.ILogger;
 import io.github.kurrycat.mpkmod.api.log.LogManager;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.service.ServiceProvider;
 
 public class LogManagerImpl implements LogManager {
     @AutoService(ServiceProvider.class)

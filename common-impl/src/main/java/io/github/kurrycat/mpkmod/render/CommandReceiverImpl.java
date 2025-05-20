@@ -6,8 +6,8 @@ import io.github.kurrycat.mpkmod.api.render.IDrawCommand;
 import io.github.kurrycat.mpkmod.api.render.RenderBackend;
 import io.github.kurrycat.mpkmod.api.render.RenderMode;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.service.ServiceProvider;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayDeque;

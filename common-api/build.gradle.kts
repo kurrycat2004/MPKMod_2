@@ -39,6 +39,7 @@ repositories {
 }
 
 dependencies {
+    embedApi(project(":service"))
     embedApi(project(":common-annotations"))
     embedRelocateLib("it.unimi.dsi:fastutil:${property("fastutilVersion")}")
     compileOnlyApi("org.jetbrains:annotations:${property("annotationsVersion")}")

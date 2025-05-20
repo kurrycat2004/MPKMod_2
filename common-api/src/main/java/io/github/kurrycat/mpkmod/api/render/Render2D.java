@@ -1,6 +1,6 @@
 package io.github.kurrycat.mpkmod.api.render;
 
-import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.service.TypedServiceProvider;
 
 public interface Render2D {
     Render2D INSTANCE = TypedServiceProvider.loadOrThrow(Render2D.class);

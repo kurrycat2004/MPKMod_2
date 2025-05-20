@@ -28,7 +28,6 @@ val moduleProjects = listOf(
     ":modules:main",
 )
 
-//evaluationDependsOn(":common-api")
 evaluationDependsOn(":common-impl")
 moduleProjects.forEach { evaluationDependsOn(it) }
 
@@ -38,9 +37,8 @@ repositories {
     unimined.curseMaven(false)
     unimined.minecraftForgeMaven()
     unimined.neoForgedMaven()
-    if (eval("<1.14.4")) {
-        unimined.legacyFabricMaven()
-    } else {
+    unimined.legacyFabricMaven()
+    if (eval(">=1.14.4")) {
         unimined.fabricMaven()
     }
     unimined.wagYourMaven("releases")
@@ -52,28 +50,24 @@ val configList = listOf(
     "runtimeOnly",
     "annotationProcessor",
 )
-val allImplementation = configurations.create("allImplementation")
-val allCompileOnly = configurations.create("allCompileOnly")
-val allRuntimeOnly = configurations.create("allRuntimeOnly")
-val allAnnotationProcessor = configurations.create("allAnnotationProcessor")
+configList.forEach { configurations.create("all${it.capitalized()}") }
+val allCompileOnly: Configuration = configurations["allCompileOnly"]
 
-val commonApi = project(":common-api")
-//val commonApiDepJar = commonApi.tasks.named<Jar>("shadowRelocateDepJar")
-
+// excluded minecraft libraries for compile time
 val compileTimeExclude = listOf(
     "it.unimi.dsi:fastutil",
 )
 
 dependencies {
-    /*allCompileOnly(
-        files(commonApiDepJar.flatMap { it.archiveFile })
-            .builtBy(commonApiDepJar)
-    )*/
     allCompileOnly(project(":common-api"))
     allCompileOnly(project(":inject-tags"))
 
-    allAnnotationProcessor("com.google.auto.service:auto-service:${property("autoServiceVersion")}")
-    allCompileOnly("com.google.auto.service:auto-service-annotations:${property("autoServiceVersion")}")
+    sourceSets.all {
+        fun compileOnly(dep: Any) = add(compileOnlyConfigurationName, dep)
+        fun annotationProcessor(dep: Any) = add(annotationProcessorConfigurationName, dep)
+        annotationProcessor("com.google.auto.service:auto-service:${property("autoServiceVersion")}")
+        compileOnly("com.google.auto.service:auto-service-annotations:${property("autoServiceVersion")}")
+    }
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -90,17 +84,18 @@ val minJavaVersion = if (eval("<1.17")) {
 }
 
 sourceSets {
-    val shared = create("shared") {
-        java {
-            srcDir("src/common/java")
-        }
-    }
+    val shared = create("shared")
     Loader.values().forEach {
         create(it.camelId) {
             compileClasspath += shared.output
         }
     }
 }
+val sharedLoaderSourceSet: SourceSet = sourceSets["shared"]
+fun DependencyHandlerScope.sourceSetImpl(sourceSet: SourceSet, dep: Any) = add(
+    "implementation".withSourceSet(sourceSet),
+    dep
+)
 
 var runsDir = rootProject.layout.projectDirectory.dir("runs")
 runsDir = runsDir.dir(if (eval("<=1.12.2")) "run_legacy" else "run")
@@ -108,38 +103,23 @@ val runtimeModsDir = runsDir.dir("runtimeMods")
 
 val modRuntimeOnly = configurations.create("modRuntimeOnly")
 
-unimined.minecraft(sourceSets["shared"]) {
+unimined.minecraft(sharedLoaderSourceSet) {
     version = mcVersion
     mappings {
         val mapProp = property("${mcVersion}-mappings") as String
         val mapArgs = mapProp.split(",")
         val mappingType = mapArgs[0]
         when (mappingType) {
-            "yarn" -> {
-                intermediary()
-                yarn(mapArgs[1])
-            }
-
-            "mcp" -> {
-                searge()
-                mcp(mapArgs[1], mapArgs[2])
-            }
-
-            "moj" -> {
-                intermediary()
-                mojmap()
-                devFallbackNamespace("official")
-            }
-
+            "yarn" -> let { intermediary(); yarn(mapArgs[1]) }
+            "mcp" -> let { searge(); mcp(mapArgs[1], mapArgs[2]) }
+            "moj" -> let { intermediary(); mojmap(); devFallbackNamespace("official") }
             else -> error("Unknown mapping type: $mappingType")
         }
         //FIXME:
         minecraftRemapper.replaceJSRWithJetbrains = false
 
         @Suppress("UnstableApiUsage")
-        minecraftRemapper.config {
-            ignoreConflicts(true)
-        }
+        minecraftRemapper.config { ignoreConflicts(true) }
 
         runs.config("client") {
             workingDir(runsDir.asFile)
@@ -185,7 +165,7 @@ unimined.minecraft(sourceSets["shared"]) {
 
 activeLoaders.forEach { (loader, loaderVersion) ->
     unimined.minecraft(sourceSets[loader.camelId]) {
-        from(sourceSets["shared"])
+        from(sharedLoaderSourceSet)
 
         when (loader) {
             Loader.VINTAGE_FORGE, Loader.LEX_FORGE -> minecraftForge { loader(loaderVersion) }
@@ -236,7 +216,7 @@ configList.forEach { config ->
     configurations.named(config) {
         extendsFrom(configuration)
     }
-    configurations.named("shared${config.capitalized()}") {
+    configurations.named(config.withSourceSet(sharedLoaderSourceSet)) {
         extendsFrom(configuration)
     }
 }
@@ -307,7 +287,7 @@ unimined.minecrafts
             group = "internal"
             archiveClassifier.set(sourceSet.name)
             configurations = emptyList()
-            from(sourceSet.output, project.sourceSets["shared"].output)
+            from(sourceSet.output, sharedLoaderSourceSet.output)
             mergeServiceFiles()
         }
         tasks.register<DowngradeJar>("downgrade${sourceSet.name.capitalized()}Jar") {
@@ -403,7 +383,7 @@ val (obfJarTask, obfShadowJarTask) = registerJarPipeline(flavor = "prod", remap 
 val (deobfJarTask, deobfShadowJarTask) = registerJarPipeline(flavor = "dev", remap = false)
 
 tasks.sourcesJar {
-    from(sourceSets["shared"].allSource)
+    from(sharedLoaderSourceSet.allSource)
 
     activeLoaders.keys.forEach { loader ->
         from(sourceSets.getByName(loader.camelId).allSource)
