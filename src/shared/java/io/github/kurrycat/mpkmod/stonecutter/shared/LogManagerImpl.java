@@ -3,8 +3,10 @@ package io.github.kurrycat.mpkmod.stonecutter.shared;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.log.ILogger;
 import io.github.kurrycat.mpkmod.api.log.LogManager;
-import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+
+import java.util.Optional;
 
 public class LogManagerImpl implements LogManager {
     @AutoService(ServiceProvider.class)
@@ -12,10 +14,18 @@ public class LogManagerImpl implements LogManager {
         public Provider() {
             super(LogManagerImpl::new, LogManager.class);
         }
+
+        @Override
+        public Optional<String> invalidReason() {
+            if (!isClassLoaded("org.apache.logging.log4j.LogManager")) {
+                return Optional.of("Log4J2 is not available");
+            }
+            return Optional.empty();
+        }
     }
 
     @Override
-    public ILogger getLogger(String s) {
+    public ILogger createLogger(String s) {
         return new Log4JLogger(org.apache.logging.log4j.LogManager.getLogger(s));
     }
 
@@ -27,6 +37,11 @@ public class LogManagerImpl implements LogManager {
                 org.apache.logging.log4j.Level.WARN,
                 org.apache.logging.log4j.Level.ERROR
         };
+
+        @Override
+        public String name() {
+            return logger.getName();
+        }
 
         @Override
         public void log(Level level, String formatString) {

@@ -1,6 +1,6 @@
 package io.github.kurrycat.mpkmod.api.render.text;
 
-import io.github.kurrycat.mpkmod.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
 import org.intellij.lang.annotations.MagicConstant;
 
 public interface TextRenderer {

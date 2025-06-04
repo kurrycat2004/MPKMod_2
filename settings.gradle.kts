@@ -31,7 +31,6 @@ plugins {
 }
 
 include("inject-tags")
-include("service")
 include("common-api")
 include("common-impl")
 include("common-processor")

@@ -2,18 +2,18 @@ package io.github.kurrycat.mpkmod.render;
 
 import io.github.kurrycat.mpkmod.api.render.IDrawCommand;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.api.render.RenderMode;
+import io.github.kurrycat.mpkmod.api.render.DrawMode;
 
 public final class DrawCommand implements IDrawCommand {
     public int startIdx;
     public int count;
-    public RenderMode mode;
+    public DrawMode mode;
     public IResource texture;
 
     public DrawCommand(
             int startIdx,
             int count,
-            RenderMode mode,
+            DrawMode mode,
             IResource texture
     ) {
         this.startIdx = startIdx;
@@ -29,7 +29,7 @@ public final class DrawCommand implements IDrawCommand {
     public int count() {return count;}
 
     @Override
-    public RenderMode mode() {return mode;}
+    public DrawMode mode() {return mode;}
 
     @Override
     public IResource texture() {return texture;}

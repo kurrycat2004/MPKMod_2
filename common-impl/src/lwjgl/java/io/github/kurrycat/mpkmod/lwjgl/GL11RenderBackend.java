@@ -3,13 +3,13 @@ package io.github.kurrycat.mpkmod.lwjgl;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.lwjgl.IGLCaps;
 import io.github.kurrycat.mpkmod.api.lwjgl.LwjglBackend;
+import io.github.kurrycat.mpkmod.api.render.DrawMode;
 import io.github.kurrycat.mpkmod.api.render.IDrawCommand;
 import io.github.kurrycat.mpkmod.api.render.RenderBackend;
-import io.github.kurrycat.mpkmod.api.render.RenderMode;
 import io.github.kurrycat.mpkmod.api.render.texture.TextureManager;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
@@ -51,7 +51,7 @@ public final class GL11RenderBackend implements RenderBackend {
     };
 
     static {
-        assert RENDER_MODES.length == RenderMode.VALUES.length;
+        assert RENDER_MODES.length == DrawMode.VALUES.length;
     }
 
     private final int vboPos, vboUV, vboCol, ebo;
@@ -181,7 +181,7 @@ public final class GL11RenderBackend implements RenderBackend {
         indices.clear();
     }
 
-    private final static class GlStateSnapshot {
+    private static final class GlStateSnapshot {
         private boolean texture2D, blend, alphaTest, depthTest;
         private int blendSrc, blendDst;
         private int shadeModel;

@@ -18,7 +18,7 @@ public final class ModuleCache {
     public static void extractInternalModules() {
         Path internalModDir = ModPlatform.INSTANCE.fileEnv().findPath(MODULES_DIR);
         if (internalModDir == null) {
-            ModPlatform.LOGGER.info("No internal modules found, skipping extraction");
+            ModuleRegistryImpl.LOGGER.info("No internal modules found, skipping extraction");
             return;
         }
         Path internalModuleDir = getInternalModuleDir();

@@ -1,9 +1,9 @@
 package io.github.kurrycat.mpkmod.api.render;
 
-public enum RenderMode {
+public enum DrawMode {
     TRIANGLES,
     LINES,
     ;
 
-    public static final RenderMode[] VALUES = values();
+    public static final DrawMode[] VALUES = values();
 }

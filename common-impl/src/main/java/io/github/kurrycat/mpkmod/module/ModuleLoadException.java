@@ -1,5 +1,7 @@
 package io.github.kurrycat.mpkmod.module;
 
+import io.github.kurrycat.mpkmod.util.PrefixedPrintWriter;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -62,7 +64,7 @@ public class ModuleLoadException extends Exception {
                 if (!ENABLE_STACKTRACE) {
                     builder.append(detail.error().toString());
                 } else {
-                    try (PrintWriter pw = new PrintWriter(builder)) {
+                    try (PrintWriter pw = new PrefixedPrintWriter("\t", builder)) {
                         detail.error().printStackTrace(pw);
                     } catch (Exception e) {
                         builder.append(detail.error().toString()).append("\n");

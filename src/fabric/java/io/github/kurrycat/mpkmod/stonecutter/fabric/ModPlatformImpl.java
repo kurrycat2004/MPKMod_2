@@ -4,8 +4,8 @@ import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.ModPlatform;
 import io.github.kurrycat.mpkmod.api.minecraft.IFileEnv;
 import io.github.kurrycat.mpkmod.api.minecraft.IModInfo;
-import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.stonecutter.shared.ModInfoImpl;
 import net.fabricmc.loader.api.FabricLoader;
 

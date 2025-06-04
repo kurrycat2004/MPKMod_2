@@ -2,7 +2,7 @@ package io.github.kurrycat.mpkmod.api.render.text;
 
 import io.github.kurrycat.mpkmod.annotation.OutArg;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
 
 import java.util.Random;
 

@@ -2,11 +2,11 @@ package io.github.kurrycat.mpkmod.render.text;
 
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
-import io.github.kurrycat.mpkmod.api.render.RenderMode;
+import io.github.kurrycat.mpkmod.api.render.DrawMode;
 import io.github.kurrycat.mpkmod.api.render.text.GlyphProvider;
 import io.github.kurrycat.mpkmod.api.render.text.TextRenderer;
-import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.util.MathUtil;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -119,7 +119,7 @@ public final class TextRendererImpl implements TextRenderer {
 
             int count = cmd.currIdx() - firstIdx;
             if (count > 0) {
-                cmd.pushDrawCmd(firstIdx, count, RenderMode.TRIANGLES, buffer.texture);
+                cmd.pushDrawCmd(firstIdx, count, DrawMode.TRIANGLES, buffer.texture);
             }
 
             penX += buffer.xAdvance + (doBold ? 1f : 0f);
@@ -164,7 +164,7 @@ public final class TextRendererImpl implements TextRenderer {
 
         int i0 = cmd.currIdx();
         pushRectIdx(cmd, v0);
-        cmd.pushDrawCmd(i0, 6, RenderMode.TRIANGLES, null);
+        cmd.pushDrawCmd(i0, 6, DrawMode.TRIANGLES, null);
     }
 
     @Override

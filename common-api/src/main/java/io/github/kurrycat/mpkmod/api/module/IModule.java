@@ -9,7 +9,7 @@ public interface IModule {
      * Initialization logic should go here. <br>
      *
      * @param entry  Your module entry in the modules.toml, prefer grabbing values from here instead of hardcoding them.
-     * @param logger The logger for this module, use this to log messages.
+     * @param logger The parentLogger for this module, use this to log messages.
      */
     void onLoad(IModuleEntry entry, ILogger logger);
 

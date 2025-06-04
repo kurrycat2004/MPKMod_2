@@ -2,12 +2,12 @@ package io.github.kurrycat.mpkmod.render;
 
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
+import io.github.kurrycat.mpkmod.api.render.DrawMode;
 import io.github.kurrycat.mpkmod.api.render.IDrawCommand;
 import io.github.kurrycat.mpkmod.api.render.RenderBackend;
-import io.github.kurrycat.mpkmod.api.render.RenderMode;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
@@ -88,7 +88,7 @@ public final class CommandReceiverImpl implements CommandReceiver {
         backend.indices().put(idx);
     }
 
-    private boolean tryMergeCommand(int startIdx, int count, RenderMode mode, IResource texture) {
+    private boolean tryMergeCommand(int startIdx, int count, DrawMode mode, IResource texture) {
         if (commands.isEmpty()) return false;
         DrawCommand lastCommand = (DrawCommand) commands.getLast();
         if (lastCommand.startIdx + lastCommand.count != startIdx) return false;
@@ -101,13 +101,13 @@ public final class CommandReceiverImpl implements CommandReceiver {
     private void ensureCommandPoolNonEmpty() {
         if (commandPool.isEmpty()) {
             for (int i = 0; i < COMMAND_POOL_BATCH_SIZE; i++) {
-                commandPool.push(new DrawCommand(0, 0, RenderMode.TRIANGLES, null));
+                commandPool.push(new DrawCommand(0, 0, DrawMode.TRIANGLES, null));
             }
         }
     }
 
     @Override
-    public void pushDrawCmd(int startIdx, int count, RenderMode mode, IResource texture) {
+    public void pushDrawCmd(int startIdx, int count, DrawMode mode, IResource texture) {
         if (tryMergeCommand(startIdx, count, mode, texture)) return;
         ensureCommandPoolNonEmpty();
         DrawCommand command = (DrawCommand) commandPool.pop();

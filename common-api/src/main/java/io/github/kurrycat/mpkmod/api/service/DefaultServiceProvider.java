@@ -1,4 +1,4 @@
-package io.github.kurrycat.mpkmod.service;
+package io.github.kurrycat.mpkmod.api.service;
 
 import java.util.function.Supplier;
 

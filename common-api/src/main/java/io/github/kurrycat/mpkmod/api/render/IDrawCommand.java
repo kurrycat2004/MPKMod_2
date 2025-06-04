@@ -7,7 +7,7 @@ public interface IDrawCommand {
 
     int count();
 
-    RenderMode mode();
+    DrawMode mode();
 
     IResource texture();
 }

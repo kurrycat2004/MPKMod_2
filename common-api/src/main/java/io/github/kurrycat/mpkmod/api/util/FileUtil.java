@@ -1,6 +1,6 @@
 package io.github.kurrycat.mpkmod.api.util;
 
-import io.github.kurrycat.mpkmod.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;

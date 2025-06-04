@@ -1,9 +1,9 @@
 package io.github.kurrycat.mpkmod.util;
 
 import com.google.auto.service.AutoService;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.api.util.FileUtil;
-import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.service.ServiceProvider;
 
 import java.io.IOException;
 import java.io.InputStream;

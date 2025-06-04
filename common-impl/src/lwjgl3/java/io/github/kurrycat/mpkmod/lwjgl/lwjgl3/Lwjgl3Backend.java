@@ -1,16 +1,19 @@
 package io.github.kurrycat.mpkmod.lwjgl.lwjgl3;
 
 import com.google.auto.service.AutoService;
+import io.github.kurrycat.mpkmod.api.lwjgl.IGL20;
 import io.github.kurrycat.mpkmod.api.lwjgl.IGLCaps;
 import io.github.kurrycat.mpkmod.api.lwjgl.LwjglBackend;
-import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLCapabilities;
 
+import java.nio.FloatBuffer;
 import java.util.Optional;
 
-public class Lwjgl3Backend implements LwjglBackend {
+public final class Lwjgl3Backend implements LwjglBackend {
     @AutoService(ServiceProvider.class)
     public static final class Provider extends DefaultServiceProvider<LwjglBackend> {
         public Provider() {
@@ -27,6 +30,12 @@ public class Lwjgl3Backend implements LwjglBackend {
     }
 
     private final IGLCaps caps;
+    private final IGL20 gl20;
+
+    public Lwjgl3Backend() {
+        this.caps = new GLCaps(GL.getCapabilities());
+        this.gl20 = new GL20Impl();
+    }
 
     private record GLCaps(GLCapabilities caps) implements IGLCaps {
         @Override
@@ -42,12 +51,20 @@ public class Lwjgl3Backend implements LwjglBackend {
         public boolean GL_ARB_vertex_buffer_object() {return caps.GL_ARB_vertex_buffer_object;}
     }
 
-    public Lwjgl3Backend() {
-        this.caps = new GLCaps(GL.getCapabilities());
+    private static final class GL20Impl implements IGL20 {
+        @Override
+        public void glUniformMatrix4fv(int location, boolean transpose, FloatBuffer value) {
+            GL20.glUniformMatrix4fv(location, transpose, value);
+        }
     }
 
     @Override
     public IGLCaps capabilities() {
         return caps;
+    }
+
+    @Override
+    public IGL20 gl20() {
+        return gl20;
     }
 }

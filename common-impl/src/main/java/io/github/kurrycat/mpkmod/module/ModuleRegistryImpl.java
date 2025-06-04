@@ -1,15 +1,13 @@
 package io.github.kurrycat.mpkmod.module;
 
 import com.google.auto.service.AutoService;
-import io.github.kurrycat.mpkmod.Tags;
 import io.github.kurrycat.mpkmod.api.ModPlatform;
 import io.github.kurrycat.mpkmod.api.log.ILogger;
-import io.github.kurrycat.mpkmod.api.log.LogManager;
 import io.github.kurrycat.mpkmod.api.module.IModule;
 import io.github.kurrycat.mpkmod.api.module.IVersionConstraint;
 import io.github.kurrycat.mpkmod.api.module.ModuleRegistry;
-import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.util.FileUtilImpl;
 import io.github.kurrycat.mpkmod.util.MultiParentClassLoader;
 import io.github.kurrycat.mpkmod.util.StringUtil;
@@ -35,6 +33,8 @@ public final class ModuleRegistryImpl implements ModuleRegistry {
             super(ModuleRegistryImpl::new, ModuleRegistry.class);
         }
     }
+
+    final static ILogger LOGGER = ModPlatform.LOGGER.createSubLogger("module");
 
     private final Set<String> disabledModuleIds = new HashSet<>();
     private final Map<Path, DiscoveredModule> errorModules = new HashMap<>();
@@ -65,7 +65,7 @@ public final class ModuleRegistryImpl implements ModuleRegistry {
             try {
                 cl.close();
             } catch (Exception e) {
-                ModPlatform.LOGGER.warn("Failed to close classloader for module {}", moduleId, e);
+                LOGGER.warn("Failed to close classloader for module {}", moduleId, e);
             }
         }
     }
@@ -227,7 +227,7 @@ public final class ModuleRegistryImpl implements ModuleRegistry {
                         .build();
             }
 
-            ILogger logger = LogManager.INSTANCE.getLogger(Tags.MOD_ID + "/" + cachedModule.entry().id());
+            ILogger logger = LOGGER.createSubLogger(cachedModule.entry().id());
             try {
                 moduleInstance.onLoad(cachedModule.entry(), logger);
             } catch (Throwable e) {
@@ -264,12 +264,12 @@ public final class ModuleRegistryImpl implements ModuleRegistry {
     @Override
     public void loadAllModules() {
         loadModules();
-        ModPlatform.LOGGER.info("enable stacktrace: {}", ModuleLoadException.ENABLE_STACKTRACE);
-        ModPlatform.LOGGER.info("Loaded modules: {}", loadedModules.keySet());
-        ModPlatform.LOGGER.info("Disabled modules: {}", disabledModules.keySet());
-        ModPlatform.LOGGER.info("Errored modules:");
+        LOGGER.info("enable stacktrace: {}", ModuleLoadException.ENABLE_STACKTRACE);
+        LOGGER.info("Loaded modules: {}", loadedModules.keySet());
+        LOGGER.info("Disabled modules: {}", disabledModules.keySet());
+        LOGGER.info("Errored modules:");
         for (var e : errorModules.values()) {
-            ModPlatform.LOGGER.info("", e.error());
+            LOGGER.info("", e.error());
         }
     }
 }

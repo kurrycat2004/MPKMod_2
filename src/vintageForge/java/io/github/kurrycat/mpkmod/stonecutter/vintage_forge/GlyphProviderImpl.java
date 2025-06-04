@@ -7,8 +7,8 @@ import io.github.kurrycat.mpkmod.api.resource.IResource;
 import io.github.kurrycat.mpkmod.api.util.ReflectionHelper;
 import io.github.kurrycat.mpkmod.lib.fastutil.chars.Char2ShortMap;
 import io.github.kurrycat.mpkmod.lib.fastutil.chars.Char2ShortOpenHashMap;
-import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 

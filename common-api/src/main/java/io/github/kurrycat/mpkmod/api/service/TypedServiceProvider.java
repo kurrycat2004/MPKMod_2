@@ -1,4 +1,4 @@
-package io.github.kurrycat.mpkmod.service;
+package io.github.kurrycat.mpkmod.api.service;
 
 public interface TypedServiceProvider<T> extends ServiceProvider {
     T provide();
@@ -7,6 +7,6 @@ public interface TypedServiceProvider<T> extends ServiceProvider {
 
     @SuppressWarnings("unchecked")
     static <T> T loadOrThrow(Class<T> providerClass) {
-        return (T) CACHE.rawLoadOrThrow(providerClass);
+        return (T) CacheHolder.CACHE.rawLoadOrThrow(providerClass);
     }
 }

@@ -85,16 +85,22 @@ public class MPKModVintageForge {
         }*/
         profiler.endStartSection("mpkmod:text");
         runAllTextRendererTests();
+        profiler.endStartSection("mpkmod:fps");
+        // draw FPS
+        TextRenderer.INSTANCE.drawFormattedString(
+                10, 10,
+                0xFFFFFFFF, false,
+                "FPS: " + Minecraft.getDebugFPS()
+        );
         profiler.endStartSection("mpkmod:flush");
-        profiler.endSection();
-
         CommandReceiver.INSTANCE.flushDrawCommands();
+        profiler.endSection();
     }
 
     public static void runAllTextRendererTests() {
         TextRenderer tr = TextRenderer.INSTANCE;
         GlyphProvider.GlyphData buf = new GlyphProvider.GlyphData();
-        float x = 10, y = 10;
+        float x = 10, y = 30;
         int white = 0xFFFFFFFF;
 
         tr.drawFormattedString(buf, x, y, white, false,
@@ -112,7 +118,7 @@ public class MPKModVintageForge {
         tr.drawFormattedString(buf, x, y, white, false,
                 "§kObfuscated text§r back to normal");
 
-        y += 50;
+        y += 20;
         tr.drawFormattedString(buf, x, y, white, true,
                 "A: \u03b1\u03b2\u0393\u03c0\u03a3\u03c3\u03bc\u03c4\u03a6\u0398\u03a9\u03b4\u221e\u2205\u2208\u2229");
         y += 20;

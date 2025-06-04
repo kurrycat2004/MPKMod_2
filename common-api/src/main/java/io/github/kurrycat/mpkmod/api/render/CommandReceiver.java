@@ -1,7 +1,7 @@
 package io.github.kurrycat.mpkmod.api.render;
 
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
 
 public interface CommandReceiver {
     CommandReceiver INSTANCE = TypedServiceProvider.loadOrThrow(CommandReceiver.class);
@@ -14,7 +14,7 @@ public interface CommandReceiver {
 
     void pushIdx(int idx);
 
-    void pushDrawCmd(int startIdx, int count, RenderMode mode, IResource texture);
+    void pushDrawCmd(int startIdx, int count, DrawMode mode, IResource texture);
 
     void flushDrawCommands();
 }

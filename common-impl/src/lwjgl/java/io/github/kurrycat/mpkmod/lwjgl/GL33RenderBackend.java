@@ -3,19 +3,21 @@ package io.github.kurrycat.mpkmod.lwjgl;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.lwjgl.IGLCaps;
 import io.github.kurrycat.mpkmod.api.lwjgl.LwjglBackend;
+import io.github.kurrycat.mpkmod.api.render.DrawMode;
 import io.github.kurrycat.mpkmod.api.render.IDrawCommand;
 import io.github.kurrycat.mpkmod.api.render.RenderBackend;
-import io.github.kurrycat.mpkmod.api.render.RenderMode;
+import io.github.kurrycat.mpkmod.api.render.RenderState;
 import io.github.kurrycat.mpkmod.api.render.texture.TextureManager;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.lib.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import java.nio.Buffer;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -37,10 +39,6 @@ public final class GL33RenderBackend implements RenderBackend {
 
         @Override
         public Optional<String> invalidReason() {
-            if (true) {
-                //TODO: implement
-                return Optional.of("Not yet implemented");
-            }
             IGLCaps caps = LwjglBackend.INSTANCE.capabilities();
             if (!caps.OpenGL33()) {
                 return Optional.of("OpenGL 3.3 not supported");
@@ -55,7 +53,7 @@ public final class GL33RenderBackend implements RenderBackend {
     };
 
     static {
-        assert RENDER_MODES.length == RenderMode.VALUES.length;
+        assert RENDER_MODES.length == DrawMode.VALUES.length;
     }
 
     private final int vao;
@@ -65,7 +63,14 @@ public final class GL33RenderBackend implements RenderBackend {
     private FloatBuffer vertexUVs;
     private IntBuffer indices;
 
-    //private final ShaderProgram shader;
+    private final int shaderProgram;
+    private final int uProjectionLoc;
+    private final int uTexturedLoc;
+
+    private final Matrix4f projectionMatrix = new Matrix4f();
+    private final FloatBuffer projectionBuffer = BufferUtil.allocDirectFloat(16);
+
+    private final GlStateSnapshot snapshot;
 
     public GL33RenderBackend() {
         vao = GL30.glGenVertexArrays();
@@ -73,8 +78,25 @@ public final class GL33RenderBackend implements RenderBackend {
         vboUV = GL15.glGenBuffers();
         vboCol = GL15.glGenBuffers();
         ebo = GL15.glGenBuffers();
+        snapshot = new GlStateSnapshot();
 
-        //shader = ShaderManager.load("modern_render"); // you implement this
+        GL30.glBindVertexArray(vao);
+        bindAttrib(vboPos, 0, 3, GL11.GL_FLOAT, false);
+        bindAttrib(vboCol, 1, 4, GL11.GL_UNSIGNED_BYTE, true);
+        bindAttrib(vboUV, 2, 2, GL11.GL_FLOAT, false);
+        GL30.glBindVertexArray(0);
+
+        try {
+            shaderProgram = ShaderUtil.createProgram(
+                    IResource.ofSelf("shaders/gl33.vert"),
+                    IResource.ofSelf("shaders/gl33.frag")
+            );
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load shaders", e);
+        }
+
+        uProjectionLoc = GL20.glGetUniformLocation(shaderProgram, "uProjection");
+        uTexturedLoc = GL20.glGetUniformLocation(shaderProgram, "uTextured");
     }
 
     @Override
@@ -108,15 +130,30 @@ public final class GL33RenderBackend implements RenderBackend {
         vertexColors.flip();
         indices.flip();
 
+        snapshot.capture();
+
+        GL20.glUseProgram(shaderProgram);
+
+        RenderState.INSTANCE.projectionMatrix(projectionMatrix);
+        projectionMatrix.get(projectionBuffer);
+        LwjglBackend.INSTANCE.gl20().glUniformMatrix4fv(uProjectionLoc, false, projectionBuffer);
+
         GL30.glBindVertexArray(vao);
 
-        upload(GL15.GL_ARRAY_BUFFER, vboPos, vertexPositions);
-        upload(GL15.GL_ARRAY_BUFFER, vboUV, vertexUVs);
-        upload(GL15.GL_ARRAY_BUFFER, vboCol, vertexColors);
-        upload(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo, indices);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboPos);
+        GL20.glEnableVertexAttribArray(0);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexPositions, GL15.GL_DYNAMIC_DRAW);
 
-        //shader.bind();
-        setupAttribs();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboCol);
+        GL20.glEnableVertexAttribArray(1);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexColors, GL15.GL_DYNAMIC_DRAW);
+
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboUV);
+        GL20.glEnableVertexAttribArray(2);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexUVs, GL15.GL_DYNAMIC_DRAW);
+
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
+        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_DYNAMIC_DRAW);
 
         TextureManager textureManager = TextureManager.INSTANCE;
         IResource lastTex = null;
@@ -124,8 +161,12 @@ public final class GL33RenderBackend implements RenderBackend {
         for (IDrawCommand cmd : commands) {
             IResource tex = cmd.texture();
             if (!Objects.equals(tex, lastTex)) {
-                textureManager.bindTexture(tex);
-                //shader.setUniform("uTextured", tex != null);
+                if (tex != null) {
+                    GL20.glUniform1i(uTexturedLoc, 1);
+                    textureManager.bindTexture(tex);
+                } else {
+                    GL20.glUniform1i(uTexturedLoc, 0);
+                }
                 lastTex = tex;
             }
 
@@ -137,8 +178,11 @@ public final class GL33RenderBackend implements RenderBackend {
             );
         }
 
-        GL30.glBindVertexArray(0);
-        //shader.unbind();
+        GL20.glDisableVertexAttribArray(0);
+        GL20.glDisableVertexAttribArray(1);
+        GL20.glDisableVertexAttribArray(2);
+
+        snapshot.restore();
 
         vertexPositions.clear();
         vertexUVs.clear();
@@ -146,26 +190,32 @@ public final class GL33RenderBackend implements RenderBackend {
         indices.clear();
     }
 
-    private void upload(int target, int buffer, Buffer data) {
-        GL15.glBindBuffer(target, buffer);
-        if (data instanceof FloatBuffer fb) {
-            GL15.glBufferData(target, fb, GL15.GL_DYNAMIC_DRAW);
-        } else if (data instanceof ByteBuffer bb) {
-            GL15.glBufferData(target, bb, GL15.GL_DYNAMIC_DRAW);
-        } else if (data instanceof IntBuffer ib) {
-            GL15.glBufferData(target, ib, GL15.GL_DYNAMIC_DRAW);
-        }
-    }
-
-    private void setupAttribs() {
-        bindAttrib(vboPos, 0, 3, GL11.GL_FLOAT, false);
-        bindAttrib(vboCol, 1, 4, GL11.GL_UNSIGNED_BYTE, true);
-        bindAttrib(vboUV, 2, 2, GL11.GL_FLOAT, false);
-    }
-
-    private void bindAttrib(int buffer, int index, int size, int type, boolean normalized) {
+    private static void bindAttrib(int buffer, int index, int size, int type, boolean normalized) {
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, buffer);
         GL20.glEnableVertexAttribArray(index);
         GL20.glVertexAttribPointer(index, size, type, normalized, 0, 0L);
+        GL20.glDisableVertexAttribArray(index);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+    }
+
+    private static final class GlStateSnapshot {
+        private int shaderProgram;
+        private int vao;
+        private int arrayBuffer;
+        private int elementBuffer;
+
+        void capture() {
+            shaderProgram = GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM);
+            vao = GL11.glGetInteger(GL30.GL_VERTEX_ARRAY_BINDING);
+            arrayBuffer = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+            elementBuffer = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
+        }
+
+        void restore() {
+            GL20.glUseProgram(shaderProgram);
+            GL30.glBindVertexArray(vao);
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, arrayBuffer);
+            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+        }
     }
 }

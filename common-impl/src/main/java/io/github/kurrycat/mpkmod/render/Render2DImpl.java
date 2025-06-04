@@ -3,9 +3,9 @@ package io.github.kurrycat.mpkmod.render;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
 import io.github.kurrycat.mpkmod.api.render.Render2D;
-import io.github.kurrycat.mpkmod.api.render.RenderMode;
-import io.github.kurrycat.mpkmod.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.render.DrawMode;
+import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 
 public final class Render2DImpl implements Render2D {
     @AutoService(ServiceProvider.class)
@@ -31,6 +31,6 @@ public final class Render2DImpl implements Render2D {
         cmd.pushIdx(startVtx + 2);
         cmd.pushIdx(startVtx + 1);
         cmd.pushIdx(startVtx + 3);
-        cmd.pushDrawCmd(startIdx, 6, RenderMode.TRIANGLES, null);
+        cmd.pushDrawCmd(startIdx, 6, DrawMode.TRIANGLES, null);
     }
 }

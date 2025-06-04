@@ -9,6 +9,34 @@ public interface ILogger {
         ERROR
     }
 
+    record FixedLevel(ILogger parentLogger, Level level) {
+        public void log(String formatString) {
+            parentLogger.log(level, formatString);
+        }
+
+        public void log(String formatString, Object var1) {
+            parentLogger.log(level, formatString, var1);
+        }
+
+        public void log(String formatString, Object var1, Object var2) {
+            parentLogger.log(level, formatString, var1, var2);
+        }
+
+        public void log(String formatString, Object... vars) {
+            parentLogger.log(level, formatString, vars);
+        }
+    }
+
+    default FixedLevel createFixed(Level level) {
+        return new FixedLevel(this, level);
+    }
+
+    String name();
+
+    default ILogger createSubLogger(String name) {
+        return LogManager.INSTANCE.createLogger(this.name() + "/" + name);
+    }
+
     void log(Level level, String formatString);
 
     void log(Level level, String formatString, Object var1);

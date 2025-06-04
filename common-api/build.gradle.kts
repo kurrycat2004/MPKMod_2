@@ -16,6 +16,7 @@ val modGroup = property("modGroup") as String
 
 localRelocate {
     relocate("it.unimi.dsi.fastutil", "$modGroup.lib.fastutil")
+    relocate("org.joml", "$modGroup.lib.joml")
 }
 
 tasks.combinedJar {
@@ -39,9 +40,8 @@ repositories {
 }
 
 dependencies {
-    embedApi(project(":service"))
     embedApi(project(":common-annotations"))
     embedRelocateLib("it.unimi.dsi:fastutil:${property("fastutilVersion")}")
+    embedRelocateLib("org.joml:joml:${property("jomlVersion")}")
     compileOnlyApi("org.jetbrains:annotations:${property("annotationsVersion")}")
 }
-
