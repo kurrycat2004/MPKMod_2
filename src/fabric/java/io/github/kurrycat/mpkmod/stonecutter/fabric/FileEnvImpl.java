@@ -17,17 +17,17 @@ public class FileEnvImpl implements IFileEnv {
     private ModContainer modContainer;
 
     @Override
-    public Path getGamePath() {
+    public Path gamePath() {
         return FabricLoader.getInstance().getGameDir();
     }
 
     @Override
-    public Path getGameConfigPath() {
+    public Path gameConfigPath() {
         return FabricLoader.getInstance().getConfigDir();
     }
 
     @Override
-    public List<Path> getRootPaths() {
+    public List<Path> rootPaths() {
         if (modContainer == null) {
             modContainer = FabricLoader.getInstance().getModContainer(Tags.MOD_ID)
                     .orElseThrow(() -> new IllegalStateException("Mod not found: " + Tags.MOD_ID));

@@ -1,9 +1,11 @@
 package io.github.kurrycat.mpkmod.api.lwjgl;
 
-import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceManager;
 
 public interface LwjglBackend {
-    LwjglBackend INSTANCE = TypedServiceProvider.loadOrThrow(LwjglBackend.class);
+    static LwjglBackend instance() {
+        return ServiceManager.instance().get(LwjglBackend.class);
+    }
 
     IGLCaps capabilities();
 

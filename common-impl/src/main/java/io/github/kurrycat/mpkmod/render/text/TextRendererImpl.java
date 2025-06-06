@@ -5,15 +5,15 @@ import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
 import io.github.kurrycat.mpkmod.api.render.DrawMode;
 import io.github.kurrycat.mpkmod.api.render.text.GlyphProvider;
 import io.github.kurrycat.mpkmod.api.render.text.TextRenderer;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.util.MathUtil;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class TextRendererImpl implements TextRenderer {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<TextRenderer> {
+    public static final class Provider extends StandardServiceProvider<TextRenderer> {
         public Provider() {
             super(TextRendererImpl::new, TextRenderer.class);
         }
@@ -31,14 +31,20 @@ public final class TextRendererImpl implements TextRenderer {
         textLength = MathUtil.clamp(textLength, 0, len - textOffset);
         if (textLength <= 0) return x;
 
-        final GlyphProvider glyphProvider = GlyphProvider.INSTANCE;
-        final CommandReceiver cmd = CommandReceiver.INSTANCE;
+        final GlyphProvider glyphProvider = GlyphProvider.instance();
+        final CommandReceiver cmd = CommandReceiver.instance();
 
         float penX = x;
         buffer.reset();
 
         final boolean doShadow = (style & Style.SHADOW) != 0;
         final boolean doBold = (style & Style.BOLD) != 0;
+
+        int shadowColor =
+                (color & 0xFF000000) |
+                ((((color >> 16) & 0xFF) >> 2) << 16) |
+                ((((color >> 8) & 0xFF) >> 2) << 8) |
+                ((color & 0xFF) >> 2);
 
         final int end = textOffset + textLength;
         int i = textOffset;
@@ -71,50 +77,30 @@ public final class TextRendererImpl implements TextRenderer {
 
             float skew = ((style & Style.ITALIC) != 0) ? 0.125f * buffer.height : 0f;
 
+            float u0 = buffer.u0, u1 = buffer.u1;
+            float v0 = buffer.v0, v1 = buffer.v1;
+
             int firstIdx = cmd.currIdx();
 
             if (doShadow) {
                 float dx = buffer.xShadowOffset;
                 float dy = buffer.xShadowOffset;
-                int shadowColor =
-                        (color & 0xFF000000) |
-                        ((((color >> 16) & 0xFF) >> 2) << 16) |
-                        ((((color >> 8) & 0xFF) >> 2) << 8) |
-                        ((color & 0xFF) >> 2);
 
-                int sv0 = cmd.currVtxIdx();
-                cmd.pushVtx(x0 + skew + dx, y0 + dy, 0f, shadowColor, buffer.u0, buffer.v0);
-                cmd.pushVtx(x0 - skew + dx, y1 + dy, 0f, shadowColor, buffer.u0, buffer.v1);
-                cmd.pushVtx(x1 + skew + dx, y0 + dy, 0f, shadowColor, buffer.u1, buffer.v0);
-                cmd.pushVtx(x1 - skew + dx, y1 + dy, 0f, shadowColor, buffer.u1, buffer.v1);
-                pushRectIdx(cmd, sv0);
+                pushGlyph(cmd, x0 + dx, x1 + dx, y0 + dy, y1 + dy,
+                        skew, shadowColor, u0, u1, v0, v1);
 
                 if (doBold) {
-                    int bsv0 = cmd.currVtxIdx();
-                    cmd.pushVtx(x0 + skew + 2 * dx, y0 + dy, 0f, shadowColor, buffer.u0, buffer.v0);
-                    cmd.pushVtx(x0 - skew + 2 * dx, y1 + dy, 0f, shadowColor, buffer.u0, buffer.v1);
-                    cmd.pushVtx(x1 + skew + 2 * dx, y0 + dy, 0f, shadowColor, buffer.u1, buffer.v0);
-                    cmd.pushVtx(x1 - skew + 2 * dx, y1 + dy, 0f, shadowColor, buffer.u1, buffer.v1);
-                    pushRectIdx(cmd, bsv0);
+                    pushGlyph(cmd, x0 + 2 * dx, x1 + 2 * dx, y0 + dy, y1 + dy,
+                            skew, shadowColor, u0, u1, v0, v1);
                 }
             }
 
-            int mv0 = cmd.currVtxIdx();
-            cmd.pushVtx(x0 + skew, y0, 0f, color, buffer.u0, buffer.v0);
-            cmd.pushVtx(x0 - skew, y1, 0f, color, buffer.u0, buffer.v1);
-            cmd.pushVtx(x1 + skew, y0, 0f, color, buffer.u1, buffer.v0);
-            cmd.pushVtx(x1 - skew, y1, 0f, color, buffer.u1, buffer.v1);
-            pushRectIdx(cmd, mv0);
+            pushGlyph(cmd, x0, x1, y0, y1,
+                    skew, color, u0, u1, v0, v1);
 
             if (doBold) {
-                float bx0 = x0 + 1f;
-                float bx1 = x1 + 1f;
-                int bv0 = cmd.currVtxIdx();
-                cmd.pushVtx(bx0 + skew, y0, 0f, color, buffer.u0, buffer.v0);
-                cmd.pushVtx(bx0 - skew, y1, 0f, color, buffer.u0, buffer.v1);
-                cmd.pushVtx(bx1 + skew, y0, 0f, color, buffer.u1, buffer.v0);
-                cmd.pushVtx(bx1 - skew, y1, 0f, color, buffer.u1, buffer.v1);
-                pushRectIdx(cmd, bv0);
+                pushGlyph(cmd, x0 + 1f, x1 + 1f, y0, y1,
+                        skew, color, u0, u1, v0, v1);
             }
 
             int count = cmd.currIdx() - firstIdx;
@@ -144,6 +130,16 @@ public final class TextRendererImpl implements TextRenderer {
     private static boolean getGlyph(GlyphProvider provider, int codepoint, GlyphProvider.GlyphData buffer) {
         if (provider.getGlyph(codepoint, buffer)) return true;
         return provider.getGlyph(MISSING_CODEPOINT, buffer);
+    }
+
+    private static void pushGlyph(CommandReceiver cmd, float x0, float x1, float y0, float y1,
+                                  float skew, int color, float u0, float u1, float v0, float v1) {
+        int startIdx = cmd.currVtxIdx();
+        cmd.pushVtx(x0 + skew, y0, 0f, color, u0, v0);
+        cmd.pushVtx(x0 - skew, y1, 0f, color, u0, v1);
+        cmd.pushVtx(x1 + skew, y0, 0f, color, u1, v0);
+        cmd.pushVtx(x1 - skew, y1, 0f, color, u1, v1);
+        pushRectIdx(cmd, startIdx);
     }
 
     private static void pushRectIdx(CommandReceiver cmd, int idx) {

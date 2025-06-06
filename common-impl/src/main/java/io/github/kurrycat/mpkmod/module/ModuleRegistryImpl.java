@@ -6,7 +6,7 @@ import io.github.kurrycat.mpkmod.api.log.ILogger;
 import io.github.kurrycat.mpkmod.api.module.IModule;
 import io.github.kurrycat.mpkmod.api.module.IVersionConstraint;
 import io.github.kurrycat.mpkmod.api.module.ModuleRegistry;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.util.FileUtilImpl;
 import io.github.kurrycat.mpkmod.util.MultiParentClassLoader;
@@ -28,7 +28,7 @@ import java.util.Set;
 
 public final class ModuleRegistryImpl implements ModuleRegistry {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<ModuleRegistry> {
+    public static final class Provider extends StandardServiceProvider<ModuleRegistry> {
         public Provider() {
             super(ModuleRegistryImpl::new, ModuleRegistry.class);
         }

@@ -153,6 +153,8 @@ unimined.minecraft(sharedLoaderSourceSet) {
         val mod = jarTask.flatMap { it.archiveFile }.get()
         dependsOn(jarTask)
         classpath = minecraftConfig + mcLibraryMap[sourceSet]!! + files(mod)
+        println("Classpath for client run: ")
+        classpath.files.forEach { println("$it") }
         environment["MOD_CLASSES"] = ""
         args("--mods", runtimeModsDir.asFileTree.files.map {
             it.relativeTo(runsDir.asFile)

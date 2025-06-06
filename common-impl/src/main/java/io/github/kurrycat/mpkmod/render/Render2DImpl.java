@@ -2,23 +2,22 @@ package io.github.kurrycat.mpkmod.render;
 
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
-import io.github.kurrycat.mpkmod.api.render.Render2D;
 import io.github.kurrycat.mpkmod.api.render.DrawMode;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.render.Render2D;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 
 public final class Render2DImpl implements Render2D {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<Render2D> {
+    public static final class Provider extends StandardServiceProvider<Render2D> {
         public Provider() {
             super(Render2DImpl::new, Render2D.class);
         }
     }
 
-    private final CommandReceiver cmd = CommandReceiver.INSTANCE;
-
     @Override
     public void pushRect(float x, float y, float w, float h, int argb) {
+        final CommandReceiver cmd = CommandReceiver.instance();
         int startVtx = cmd.currVtxIdx();
         cmd.pushVtx(x, y, 0.0f, argb, 0, 0);
         cmd.pushVtx(x, y + h, 0.0f, argb, 0, 0);

@@ -2,23 +2,34 @@ package io.github.kurrycat.mpkmod.stonecutter.vintage_forge;
 
 import io.github.kurrycat.mpkmod.Tags;
 import io.github.kurrycat.mpkmod.api.ModPlatform;
+import io.github.kurrycat.mpkmod.api.log.ILogger;
+import io.github.kurrycat.mpkmod.api.log.LogManager;
+import io.github.kurrycat.mpkmod.api.minecraft.IFileEnv;
 import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
+import io.github.kurrycat.mpkmod.api.render.RenderBackend;
 import io.github.kurrycat.mpkmod.api.render.text.GlyphProvider;
 import io.github.kurrycat.mpkmod.api.render.text.TextRenderer;
+import io.github.kurrycat.mpkmod.api.service.ServiceManager;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.api.util.FileUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.profiler.Profiler;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.lwjgl.input.Keyboard;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.List;
 
 @Mod(
         modid = Tags.MOD_ID,
@@ -27,6 +38,14 @@ import java.util.Collections;
         acceptedMinecraftVersions = "*"
 )
 public class MPKModVintageForge {
+    public static FileEnvImpl FILE_ENV;
+
+    public record FileEnvImpl(
+            Path gamePath,
+            Path gameConfigPath,
+            List<Path> rootPaths
+    ) implements IFileEnv {}
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         File configDir;
@@ -35,22 +54,49 @@ public class MPKModVintageForge {
         } catch (IOException e) {
             throw new RuntimeException("Failed to get canonical file for mod configuration directory", e);
         }
-        FileEnvImpl.INSTANCE.setGamePath(configDir.getParentFile().toPath());
-        FileEnvImpl.INSTANCE.setGameConfigPath(configDir.toPath());
+
         Path sourcePath = event.getSourceFile().toPath();
         Path rootPath;
         try {
-            rootPath = FileUtil.INSTANCE.getRootPath(sourcePath);
+            rootPath = FileUtil.instance().getRootPath(sourcePath);
         } catch (IOException e) {
             throw new RuntimeException("Failed to get root path for source file", e);
         }
-        FileEnvImpl.INSTANCE.setRootPaths(Collections.singletonList(rootPath));
+        FILE_ENV = new FileEnvImpl(
+                configDir.getParentFile().toPath(),
+                configDir.toPath(),
+                Collections.singletonList(rootPath)
+        );
     }
+
+    private static final KeyBinding TEST_KEY = new KeyBinding(
+            "test",
+            Keyboard.KEY_K,
+            Tags.MOD_NAME
+    );
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         ModPlatform.init();
         MinecraftForge.EVENT_BUS.register(this);
+
+        if (event.getSide().isClient()) {
+            ClientRegistry.registerKeyBinding(TEST_KEY);
+        }
+    }
+
+    int renderBackendId = 0;
+    @SubscribeEvent
+    public void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || Minecraft.getMinecraft().currentScreen != null) return;
+
+        if (TEST_KEY.isPressed()) {
+            List<ServiceProvider> backends = ServiceManager.instance().getProviders(RenderBackend.class);
+            ServiceProvider backend = backends.get(renderBackendId);
+            ModPlatform.LOGGER.info("Switching to render backend: {}", backend.name());
+            ServiceManager.instance().switchToService(backend);
+            renderBackendId = (renderBackendId + 1) % backends.size();
+        }
     }
 
     private Profiler getProfiler() {
@@ -87,18 +133,18 @@ public class MPKModVintageForge {
         runAllTextRendererTests();
         profiler.endStartSection("mpkmod:fps");
         // draw FPS
-        TextRenderer.INSTANCE.drawFormattedString(
+        TextRenderer.instance().drawFormattedString(
                 10, 10,
                 0xFFFFFFFF, false,
                 "FPS: " + Minecraft.getDebugFPS()
         );
         profiler.endStartSection("mpkmod:flush");
-        CommandReceiver.INSTANCE.flushDrawCommands();
+        CommandReceiver.instance().flushDrawCommands();
         profiler.endSection();
     }
 
     public static void runAllTextRendererTests() {
-        TextRenderer tr = TextRenderer.INSTANCE;
+        TextRenderer tr = TextRenderer.instance();
         GlyphProvider.GlyphData buf = new GlyphProvider.GlyphData();
         float x = 10, y = 30;
         int white = 0xFFFFFFFF;

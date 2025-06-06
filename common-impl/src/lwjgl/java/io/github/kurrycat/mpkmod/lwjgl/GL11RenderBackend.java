@@ -3,13 +3,15 @@ package io.github.kurrycat.mpkmod.lwjgl;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.lwjgl.IGLCaps;
 import io.github.kurrycat.mpkmod.api.lwjgl.LwjglBackend;
+import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
 import io.github.kurrycat.mpkmod.api.render.DrawMode;
 import io.github.kurrycat.mpkmod.api.render.IDrawCommand;
 import io.github.kurrycat.mpkmod.api.render.RenderBackend;
 import io.github.kurrycat.mpkmod.api.render.texture.TextureManager;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceManager;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
@@ -22,7 +24,7 @@ import java.util.Optional;
 
 public final class GL11RenderBackend implements RenderBackend {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<RenderBackend> {
+    public static final class Provider extends StandardServiceProvider<RenderBackend> {
         public Provider() {
             super(GL11RenderBackend::new, RenderBackend.class);
         }
@@ -34,7 +36,7 @@ public final class GL11RenderBackend implements RenderBackend {
 
         @Override
         public Optional<String> invalidReason() {
-            IGLCaps caps = LwjglBackend.INSTANCE.capabilities();
+            IGLCaps caps = LwjglBackend.instance().capabilities();
             if (!caps.OpenGL11()) {
                 return Optional.of("Missing OpenGL 1.1 support");
             }
@@ -42,6 +44,11 @@ public final class GL11RenderBackend implements RenderBackend {
                 return Optional.of("Missing VBO support (OpenGL 1.5 or ARB_vbo)");
             }
             return Optional.empty();
+        }
+
+        @Override
+        public boolean deferSwitch() {
+            return true;
         }
     }
 
@@ -68,6 +75,13 @@ public final class GL11RenderBackend implements RenderBackend {
         vboCol = GL15.glGenBuffers();
         ebo = GL15.glGenBuffers();
         snapshot = new GlStateSnapshot();
+
+        reallocVertexBuffers(
+                CommandReceiver.INITIAL_VERTEX_BUFFER_SIZE * 3,
+                CommandReceiver.INITIAL_VERTEX_BUFFER_SIZE * 4,
+                CommandReceiver.INITIAL_VERTEX_BUFFER_SIZE * 2
+        );
+        reallocIndexBuffer(CommandReceiver.INITIAL_INDEX_BUFFER_SIZE);
     }
 
     @Override
@@ -148,7 +162,7 @@ public final class GL11RenderBackend implements RenderBackend {
 
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
 
-        TextureManager textureManager = TextureManager.INSTANCE;
+        TextureManager textureManager = TextureManager.instance();
         for (IDrawCommand cmd : commands) {
             IResource tex = cmd.texture();
             if (!Objects.equals(tex, lastTex)) {
@@ -179,6 +193,8 @@ public final class GL11RenderBackend implements RenderBackend {
         vertexUVs.clear();
         vertexColors.clear();
         indices.clear();
+
+        ServiceManager.instance().readyForSwitch(RenderBackend.class);
     }
 
     private static final class GlStateSnapshot {

@@ -21,24 +21,24 @@ public class FileEnvImpl implements IFileEnv {
     private Path filePath;
 
     @Override
-    public Path getGamePath() {
+    public Path gamePath() {
         return FMLPaths.GAMEDIR.get();
     }
 
     @Override
-    public Path getGameConfigPath() {
+    public Path gameConfigPath() {
         return FMLPaths.CONFIGDIR.get();
     }
 
     @Override
-    public List<Path> getRootPaths() {
+    public List<Path> rootPaths() {
         if (filePath == null) {
             IModFile modFile = ModList.get().getModFileById(Tags.MOD_ID).getFile();
             filePath = modFile.getFilePath();
         }
         Path rootPath;
         try {
-            rootPath = FileUtil.INSTANCE.getRootPath(filePath);
+            rootPath = FileUtil.instance().getRootPath(filePath);
         } catch (IOException e) {
             throw new RuntimeException("Failed to get root path for source file", e);
         }

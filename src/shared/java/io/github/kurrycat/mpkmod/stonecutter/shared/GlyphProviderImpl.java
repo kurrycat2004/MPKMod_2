@@ -1,14 +1,14 @@
-package io.github.kurrycat.mpkmod.stonecutter.vintage_forge;
+package io.github.kurrycat.mpkmod.stonecutter.shared;
 
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.annotation.OutArg;
 import io.github.kurrycat.mpkmod.api.render.text.GlyphProvider;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.api.util.ReflectionHelper;
 import io.github.kurrycat.mpkmod.lib.fastutil.chars.Char2ShortMap;
 import io.github.kurrycat.mpkmod.lib.fastutil.chars.Char2ShortOpenHashMap;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
-import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 
@@ -17,7 +17,7 @@ import java.util.Random;
 
 public final class GlyphProviderImpl implements GlyphProvider {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<GlyphProvider> {
+    public static final class Provider extends StandardServiceProvider<GlyphProvider> {
         public Provider() {
             super(GlyphProviderImpl::new, GlyphProvider.class);
         }
@@ -72,7 +72,7 @@ public final class GlyphProviderImpl implements GlyphProvider {
 
     static {
         FontRenderer fr = fontRenderer();
-        ReflectionHelper rh = ReflectionHelper.INSTANCE;
+        ReflectionHelper rh = ReflectionHelper.instance();
         ReflectionHelper.FieldAccessor<FontRenderer, int[]> charWidthHandle =
                 rh.lookupField(FontRenderer.class, int[].class, "charWidth", "field_78286_d")
                         .orElseThrow();

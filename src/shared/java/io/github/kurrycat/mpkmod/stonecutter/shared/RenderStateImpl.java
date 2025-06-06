@@ -3,15 +3,15 @@ package io.github.kurrycat.mpkmod.stonecutter.shared;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.render.RenderLayer;
 import io.github.kurrycat.mpkmod.api.render.RenderState;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.lib.joml.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 
 public final class RenderStateImpl implements RenderState {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<RenderState> {
+    public static final class Provider extends StandardServiceProvider<RenderState> {
         public Provider() {
             super(RenderStateImpl::new, RenderState.class);
         }

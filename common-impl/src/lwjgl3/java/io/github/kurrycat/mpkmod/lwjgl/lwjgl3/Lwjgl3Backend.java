@@ -4,7 +4,7 @@ import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.lwjgl.IGL20;
 import io.github.kurrycat.mpkmod.api.lwjgl.IGLCaps;
 import io.github.kurrycat.mpkmod.api.lwjgl.LwjglBackend;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL20;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public final class Lwjgl3Backend implements LwjglBackend {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<LwjglBackend> {
+    public static final class Provider extends StandardServiceProvider<LwjglBackend> {
         public Provider() {
             super(Lwjgl3Backend::new, LwjglBackend.class);
         }

@@ -2,7 +2,7 @@ package io.github.kurrycat.mpkmod.util;
 
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.util.ReflectionHelper;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 
 import java.lang.invoke.MethodHandle;
@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public final class ReflectionHelperImpl implements ReflectionHelper {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<ReflectionHelper> {
+    public static final class Provider extends StandardServiceProvider<ReflectionHelper> {
         public Provider() {
             super(ReflectionHelperImpl::new, ReflectionHelper.class);
         }

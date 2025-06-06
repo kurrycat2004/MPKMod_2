@@ -34,7 +34,7 @@ public interface ILogger {
     String name();
 
     default ILogger createSubLogger(String name) {
-        return LogManager.INSTANCE.createLogger(this.name() + "/" + name);
+        return LogManager.instance().createLogger(this.name() + "/" + name);
     }
 
     void log(Level level, String formatString);

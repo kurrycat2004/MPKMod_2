@@ -1,10 +1,12 @@
 package io.github.kurrycat.mpkmod.api.render.text;
 
-import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceManager;
 import org.intellij.lang.annotations.MagicConstant;
 
 public interface TextRenderer {
-    TextRenderer INSTANCE = TypedServiceProvider.loadOrThrow(TextRenderer.class);
+    static TextRenderer instance() {
+        return ServiceManager.instance().get(TextRenderer.class);
+    }
 
     @SuppressWarnings("PointlessBitwiseExpression")
     final class Style {

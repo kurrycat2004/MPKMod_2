@@ -16,7 +16,7 @@ public final class ModuleCache {
     private static final String MODULES_DIR = "mpkmodules";
 
     public static void extractInternalModules() {
-        Path internalModDir = ModPlatform.INSTANCE.fileEnv().findPath(MODULES_DIR);
+        Path internalModDir = ModPlatform.instance().fileEnv().findPath(MODULES_DIR);
         if (internalModDir == null) {
             ModuleRegistryImpl.LOGGER.info("No internal modules found, skipping extraction");
             return;
@@ -67,7 +67,7 @@ public final class ModuleCache {
     }
 
     public static Path getModulesDir() {
-        Path gamePath = ModPlatform.INSTANCE.fileEnv().getGamePath();
+        Path gamePath = ModPlatform.instance().fileEnv().gamePath();
         return FileUtilImpl.resolve(gamePath, MODULES_DIR);
     }
 

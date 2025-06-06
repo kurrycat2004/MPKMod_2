@@ -1,9 +1,9 @@
-package io.github.kurrycat.mpkmod.stonecutter.vintage_forge;
+package io.github.kurrycat.mpkmod.stonecutter.shared;
 
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
 import io.github.kurrycat.mpkmod.api.resource.ResourceManager;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
@@ -13,7 +13,7 @@ import java.io.InputStream;
 
 public final class ResourceManagerImpl implements ResourceManager {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<ResourceManager> {
+    public static final class Provider extends StandardServiceProvider<ResourceManager> {
         public Provider() {
             super(ResourceManagerImpl::new, ResourceManager.class);
         }

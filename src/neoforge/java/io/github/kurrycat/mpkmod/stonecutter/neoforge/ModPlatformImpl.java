@@ -4,7 +4,7 @@ import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.ModPlatform;
 import io.github.kurrycat.mpkmod.api.minecraft.IFileEnv;
 import io.github.kurrycat.mpkmod.api.minecraft.IModInfo;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.stonecutter.shared.ModInfoImpl;
 import net.neoforged.fml.ModList;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class ModPlatformImpl implements ModPlatform {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<ModPlatform> {
+    public static final class Provider extends StandardServiceProvider<ModPlatform> {
         public Provider() {
             super(ModPlatformImpl::new, ModPlatform.class);
         }

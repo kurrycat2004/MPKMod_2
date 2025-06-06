@@ -12,7 +12,7 @@ public interface IFileEnv {
      *
      * @return the path to the game directory
      */
-    Path getGamePath();
+    Path gamePath();
 
     /**
      * Get the path to the suggested mod's config directory.
@@ -20,8 +20,8 @@ public interface IFileEnv {
      *
      * @return the path to the mod's config directory
      */
-    default Path getModConfigPath() {
-        return getGameConfigPath().resolve(ModPlatform.INSTANCE.modInfo().modId() + ".cfg");
+    default Path modConfigPath() {
+        return gameConfigPath().resolve(ModPlatform.instance().modInfo().modId() + ".cfg");
     }
 
     /**
@@ -29,7 +29,7 @@ public interface IFileEnv {
      *
      * @return the path to the game's config directory
      */
-    Path getGameConfigPath();
+    Path gameConfigPath();
 
     /**
      * Find a file in the mod's root paths.
@@ -39,7 +39,7 @@ public interface IFileEnv {
      * @return the path to the file, or null if not found
      */
     default Path findPath(String file) {
-        for (Path root : getRootPaths()) {
+        for (Path root : rootPaths()) {
             Path path = root.resolve(file.replace("/", root.getFileSystem().getSeparator()));
             if (Files.exists(path)) {
                 return path;
@@ -55,5 +55,5 @@ public interface IFileEnv {
      * @return the root path of the mod
      * @see io.github.kurrycat.mpkmod.api.util.FileUtil#getRootPath(Path) FileUtil.getRootPath(Path)
      */
-    List<Path> getRootPaths();
+    List<Path> rootPaths();
 }

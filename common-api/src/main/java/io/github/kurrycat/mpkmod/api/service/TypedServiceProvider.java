@@ -4,9 +4,4 @@ public interface TypedServiceProvider<T> extends ServiceProvider {
     T provide();
 
     Class<T> type();
-
-    @SuppressWarnings("unchecked")
-    static <T> T loadOrThrow(Class<T> providerClass) {
-        return (T) CacheHolder.CACHE.rawLoadOrThrow(providerClass);
-    }
 }

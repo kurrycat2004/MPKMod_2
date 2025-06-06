@@ -2,12 +2,14 @@ package io.github.kurrycat.mpkmod.api.render.text;
 
 import io.github.kurrycat.mpkmod.annotation.OutArg;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.api.service.TypedServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceManager;
 
 import java.util.Random;
 
 public interface GlyphProvider {
-    GlyphProvider INSTANCE = TypedServiceProvider.loadOrThrow(GlyphProvider.class);
+    static GlyphProvider instance() {
+        return ServiceManager.instance().get(GlyphProvider.class);
+    }
 
     final class GlyphData {
         public IResource texture;
@@ -20,8 +22,7 @@ public interface GlyphProvider {
         public boolean isEmpty;
         public boolean isAscii;
 
-        public float xShadowOffset;
-        public float yShadowOffset;
+        public float xShadowOffset, yShadowOffset;
 
         public void reset() {
             texture = null;

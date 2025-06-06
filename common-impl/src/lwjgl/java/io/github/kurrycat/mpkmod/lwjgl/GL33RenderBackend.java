@@ -3,14 +3,16 @@ package io.github.kurrycat.mpkmod.lwjgl;
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.api.lwjgl.IGLCaps;
 import io.github.kurrycat.mpkmod.api.lwjgl.LwjglBackend;
+import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
 import io.github.kurrycat.mpkmod.api.render.DrawMode;
 import io.github.kurrycat.mpkmod.api.render.IDrawCommand;
 import io.github.kurrycat.mpkmod.api.render.RenderBackend;
 import io.github.kurrycat.mpkmod.api.render.RenderState;
 import io.github.kurrycat.mpkmod.api.render.texture.TextureManager;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.ServiceManager;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.lib.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -27,7 +29,7 @@ import java.util.Optional;
 
 public final class GL33RenderBackend implements RenderBackend {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<RenderBackend> {
+    public static final class Provider extends StandardServiceProvider<RenderBackend> {
         public Provider() {
             super(GL33RenderBackend::new, RenderBackend.class);
         }
@@ -39,11 +41,16 @@ public final class GL33RenderBackend implements RenderBackend {
 
         @Override
         public Optional<String> invalidReason() {
-            IGLCaps caps = LwjglBackend.INSTANCE.capabilities();
+            IGLCaps caps = LwjglBackend.instance().capabilities();
             if (!caps.OpenGL33()) {
                 return Optional.of("OpenGL 3.3 not supported");
             }
             return Optional.empty();
+        }
+
+        @Override
+        public boolean deferSwitch() {
+            return true;
         }
     }
 
@@ -97,6 +104,13 @@ public final class GL33RenderBackend implements RenderBackend {
 
         uProjectionLoc = GL20.glGetUniformLocation(shaderProgram, "uProjection");
         uTexturedLoc = GL20.glGetUniformLocation(shaderProgram, "uTextured");
+
+        reallocVertexBuffers(
+                CommandReceiver.INITIAL_VERTEX_BUFFER_SIZE * 3,
+                CommandReceiver.INITIAL_VERTEX_BUFFER_SIZE * 4,
+                CommandReceiver.INITIAL_VERTEX_BUFFER_SIZE * 2
+        );
+        reallocIndexBuffer(CommandReceiver.INITIAL_INDEX_BUFFER_SIZE);
     }
 
     @Override
@@ -134,9 +148,9 @@ public final class GL33RenderBackend implements RenderBackend {
 
         GL20.glUseProgram(shaderProgram);
 
-        RenderState.INSTANCE.projectionMatrix(projectionMatrix);
+        RenderState.instance().projectionMatrix(projectionMatrix);
         projectionMatrix.get(projectionBuffer);
-        LwjglBackend.INSTANCE.gl20().glUniformMatrix4fv(uProjectionLoc, false, projectionBuffer);
+        LwjglBackend.instance().gl20().glUniformMatrix4fv(uProjectionLoc, false, projectionBuffer);
 
         GL30.glBindVertexArray(vao);
 
@@ -155,7 +169,7 @@ public final class GL33RenderBackend implements RenderBackend {
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_DYNAMIC_DRAW);
 
-        TextureManager textureManager = TextureManager.INSTANCE;
+        TextureManager textureManager = TextureManager.instance();
         IResource lastTex = null;
 
         for (IDrawCommand cmd : commands) {
@@ -188,6 +202,8 @@ public final class GL33RenderBackend implements RenderBackend {
         vertexUVs.clear();
         vertexColors.clear();
         indices.clear();
+
+        ServiceManager.instance().readyForSwitch(RenderBackend.class);
     }
 
     private static void bindAttrib(int buffer, int index, int size, int type, boolean normalized) {

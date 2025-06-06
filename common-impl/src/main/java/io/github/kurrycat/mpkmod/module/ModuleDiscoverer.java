@@ -21,7 +21,7 @@ public final class ModuleDiscoverer {
 
     public static void discoverModules(Path source, List<DiscoveredModule> modules) {
         try {
-            Path root = FileUtil.INSTANCE.getRootPath(source);
+            Path root = FileUtil.instance().getRootPath(source);
             List<ModuleEntry> entries = ModuleConfig.load(root);
             for (ModuleEntry entry : entries) {
                 modules.add(DiscoveredModule.fromEntry(source, entry));

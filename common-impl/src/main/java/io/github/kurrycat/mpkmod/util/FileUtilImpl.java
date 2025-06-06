@@ -1,7 +1,7 @@
 package io.github.kurrycat.mpkmod.util;
 
 import com.google.auto.service.AutoService;
-import io.github.kurrycat.mpkmod.api.service.DefaultServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.api.util.FileUtil;
 
@@ -25,7 +25,7 @@ import java.util.zip.ZipError;
 
 public final class FileUtilImpl implements FileUtil {
     @AutoService(ServiceProvider.class)
-    public static final class Provider extends DefaultServiceProvider<FileUtil> {
+    public static final class Provider extends StandardServiceProvider<FileUtil> {
         public Provider() {
             super(FileUtilImpl::new, FileUtil.class);
         }
