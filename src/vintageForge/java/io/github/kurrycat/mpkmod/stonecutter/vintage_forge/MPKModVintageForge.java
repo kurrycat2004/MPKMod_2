@@ -152,37 +152,49 @@ public class MPKModVintageForge {
         tr.drawFormattedString(buf, x, y, white, false,
                 "The quick brown fox jumps over the lazy dog");
 
-        y += 20;
+        y += 15;
         tr.drawFormattedString(buf, x, y, white, false,
                 "§1Blue §2Green §3Aqua §4Red §5Purple §6Gold §rNormal");
 
-        y += 20;
+        y += 15;
         tr.drawFormattedString(buf, x, y, white, false,
                 "§lBold §oItalic §nUnderlined §mStruck §rNormal");
 
-        y += 20;
+        y += 13;
         tr.drawFormattedString(buf, x, y, white, false,
                 "§kObfuscated text§r back to normal");
 
-        y += 20;
+        y += 13;
         tr.drawFormattedString(buf, x, y, white, true,
                 "A: \u03b1\u03b2\u0393\u03c0\u03a3\u03c3\u03bc\u03c4\u03a6\u0398\u03a9\u03b4\u221e\u2205\u2208\u2229");
-        y += 20;
+        y += 13;
+        tr.drawFormattedString(buf, x, y, white, true,
+                "ＡＢＣ１２３ ａｂｃ 日本語 漢字 테스트");
+        y += 13;
+        tr.drawFormattedString(buf, x, y, white, true,
+                "§lＡＢＣ１２３ ａｂｃ 日本語 漢字 테스트");
+        y += 13;
+        tr.drawFormattedString(buf, x, y, white, true,
+                "§oＡＢＣ１２３ ａｂｃ 日本語 漢字 테스트");
+        y += 13;
+        tr.drawFormattedString(buf, x, y, white, true,
+                "§l§oＡＢＣ１２３ ａｂｃ 日本語 漢字 테스트");
+        y += 13;
         tr.drawFormattedString(buf, x, y, white, true,
                 "Shadow enabled");
-        y += 20;
+        y += 13;
         tr.drawFormattedString(buf, x, y, white, false,
                 "No shadow");
 
-        y += 20;
+        y += 13;
         tr.drawFormattedString(buf, x, y, white, true,
                 "§cRed §lBold §nUnderlined §oItalic §kCrazy§r§6 Done!");
 
-        y += 20;
+        y += 13;
         tr.drawFormattedString(buf, x, y, white, false,
                 "Unicode: Ω Σ π α β ╔═══╗ ╚═══╝ ░▒▓");
 
-        y += 20;
+        y += 13;
         tr.drawFormattedString(buf, x, y, white, false,
                 "Emoji: 😀 😁 😂 🤣 😃 😄 😅");
     }

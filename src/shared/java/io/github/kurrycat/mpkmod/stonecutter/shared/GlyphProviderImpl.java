@@ -4,8 +4,8 @@ import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.annotation.OutArg;
 import io.github.kurrycat.mpkmod.api.render.text.GlyphProvider;
 import io.github.kurrycat.mpkmod.api.resource.IResource;
-import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
+import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
 import io.github.kurrycat.mpkmod.api.util.ReflectionHelper;
 import io.github.kurrycat.mpkmod.lib.fastutil.chars.Char2ShortMap;
 import io.github.kurrycat.mpkmod.lib.fastutil.chars.Char2ShortOpenHashMap;
@@ -65,8 +65,8 @@ public final class GlyphProviderImpl implements GlyphProvider {
     private static final IResource ASCII_TEXTURE = IResource.ofMc("textures/font/ascii.png");
     private static final IResource[] UNICODE_TEXTURES = new IResource[256];
 
-    ///  {@link #MC_ASCII_FONT_CHARS} index to char width
-    private static final int[] charWidth;
+    ///  {@link #MC_ASCII_FONT_CHARS} index to char xAdvance
+    private static final int[] charXAdvance;
     /// codepoint to glyph width
     private static final byte[] glyphWidth;
 
@@ -77,8 +77,8 @@ public final class GlyphProviderImpl implements GlyphProvider {
                 rh.lookupField(FontRenderer.class, int[].class, "charWidth", "field_78286_d")
                         .orElseThrow();
         int[] mcCharWidth = charWidthHandle.get(fr);
-        charWidth = Arrays.copyOf(mcCharWidth, mcCharWidth.length);
-        charWidth[getAsciiIndex(' ')] = 4;
+        charXAdvance = Arrays.copyOf(mcCharWidth, mcCharWidth.length);
+        charXAdvance[getAsciiIndex(' ')] = 4;
 
         ReflectionHelper.FieldAccessor<FontRenderer, byte[]> glyphWidthHandle =
                 rh.lookupField(FontRenderer.class, byte[].class, "glyphWidth", "field_78287_e")
@@ -109,7 +109,7 @@ public final class GlyphProviderImpl implements GlyphProvider {
 
     private static int getCharWidth(int codepoint) {
         final int idx = getAsciiIndex(codepoint);
-        if (idx != -1) return charWidth[idx];
+        if (idx != -1) return charXAdvance[idx];
         final int w = glyphWidth[codepoint] & 255;
         return (((w & 15) + 1) - (w >>> 4)) / 2 + 1;
     }
@@ -122,20 +122,19 @@ public final class GlyphProviderImpl implements GlyphProvider {
             out.texture = ASCII_TEXTURE;
             out.u0 = (float) ((idx % 16) * 8) / 128f;
             out.v0 = (float) ((idx / 16) * 8) / 128f;
-            int width = charWidth[idx];
-            out.width = width - 1.01f;
-            out.height = 7.99f; // ascii font is 8 high
-            out.u1 = out.u0 + out.width / 128f;
-            out.v1 = out.v0 + out.height / 128f;
+            out.sizeX = charXAdvance[idx] - 1;
+            out.sizeY = 8; // ascii font is 8 high
+            out.renderWidth = out.sizeX;
+            out.renderHeight = out.sizeY;
+            out.u1 = out.u0 + out.renderWidth / 128f;
+            out.v1 = out.v0 + out.renderHeight / 128f;
 
             out.xOffset = 0;
             out.yOffset = 0;
 
             out.isEmpty = codepoint == ' ' || codepoint == '\u00a0' || codepoint == '\u202f';
-            out.xAdvance = width;
+            out.xAdvance = out.renderWidth + 1.0f;
             out.isAscii = true;
-            out.xShadowOffset = 1;
-            out.yShadowOffset = 1;
         } else {
             if (codepoint > glyphWidth.length) return false;
             int w = glyphWidth[codepoint] & 255;
@@ -144,37 +143,35 @@ public final class GlyphProviderImpl implements GlyphProvider {
             if (page >= UNICODE_TEXTURES.length) return false;
             out.texture = getUnicodePage(page);
 
-            float startColumn = (float) (w >>> 4);
-            float endColumn = (float) ((w & 15) + 1);
+            int startColumn = (w >>> 4);
+            int endColumn = ((w & 15) + 1);
             out.u0 = ((float) (codepoint % 16 * 16) + startColumn) / 256.0f;
             out.v0 = ((float) ((codepoint & 255) / 16 * 16)) / 256.0f;
-            float charWidth = endColumn - startColumn - 0.02F;
-            float charHeight = 15.98f; // Unicode font is 16 high
-            out.width = charWidth / 2.0f;
-            out.height = charHeight / 2.0f;
-            out.u1 = out.u0 + charWidth / 256.0f;
-            out.v1 = out.v0 + charHeight / 256.0f;
+            out.sizeX = endColumn - startColumn;
+            out.sizeY = 16; // Unicode font is 16 high
+            out.renderWidth = out.sizeX / 2.0f;
+            out.renderHeight = out.sizeY / 2.0f;
+            out.u1 = out.u0 + out.sizeX / 256.0f;
+            out.v1 = out.v0 + out.sizeY / 256.0f;
 
             out.xOffset = 0;
             out.yOffset = 0;
 
-            out.xAdvance = (endColumn - startColumn) / 2.0F + 1.0F;
+            out.xAdvance = out.renderWidth + 1.0f;
             out.isEmpty = codepoint == ' ' || codepoint == '\u00a0' || codepoint == '\u202f';
             out.isAscii = false;
-            out.xShadowOffset = 0.5f;
-            out.yShadowOffset = 0.5f;
         }
 
         return true;
     }
 
     @Override
-    public int randomAsciiWithWidth(Random random, int codepoint) {
-        final int width = getCharWidth(codepoint);
+    public int randomGlyphWithXAdvance(Random random, float xAdvance) {
+        final int width = (int) xAdvance;
         int newIdx;
         int newCodepoint;
         do {
-            newIdx = random.nextInt(charWidth.length);
+            newIdx = random.nextInt(charXAdvance.length);
             newCodepoint = Character.codePointAt(MC_ASCII_FONT_CHARS, newIdx);
         } while (getCharWidth(newCodepoint) != width);
         return newCodepoint;

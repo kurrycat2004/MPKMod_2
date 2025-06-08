@@ -59,23 +59,26 @@ public final class TextRendererImpl implements TextRenderer {
             if (buffer.xAdvance == 0) continue;
 
             if (buffer.isAscii && (style & Style.OBFUSCATED) != 0) {
-                codepoint = glyphProvider.randomAsciiWithWidth(ThreadLocalRandom.current(), codepoint);
+                codepoint = glyphProvider.randomGlyphWithXAdvance(ThreadLocalRandom.current(), buffer.xAdvance);
                 if (!getGlyph(glyphProvider, codepoint, buffer)) {
                     continue;
                 }
             }
 
+            float pixelsPerUnit = buffer.renderHeight / buffer.sizeY;
+            float advance = buffer.xAdvance + (doBold ? pixelsPerUnit : 0f);
+
             if (buffer.isEmpty) {
-                penX += buffer.xAdvance;
+                penX += advance;
                 continue;
             }
 
             float x0 = penX + buffer.xOffset;
             float y0 = y + buffer.yOffset;
-            float x1 = x0 + buffer.width;
-            float y1 = y0 + buffer.height;
+            float x1 = x0 + buffer.renderWidth;
+            float y1 = y0 + buffer.renderHeight;
 
-            float skew = ((style & Style.ITALIC) != 0) ? 0.125f * buffer.height : 0f;
+            float skew = ((style & Style.ITALIC) != 0) ? 0.125f * buffer.renderHeight : 0f;
 
             float u0 = buffer.u0, u1 = buffer.u1;
             float v0 = buffer.v0, v1 = buffer.v1;
@@ -83,14 +86,13 @@ public final class TextRendererImpl implements TextRenderer {
             int firstIdx = cmd.currIdx();
 
             if (doShadow) {
-                float dx = buffer.xShadowOffset;
-                float dy = buffer.xShadowOffset;
-
-                pushGlyph(cmd, x0 + dx, x1 + dx, y0 + dy, y1 + dy,
+                pushGlyph(cmd, x0 + pixelsPerUnit, x1 + pixelsPerUnit,
+                        y0 + pixelsPerUnit, y1 + pixelsPerUnit,
                         skew, shadowColor, u0, u1, v0, v1);
 
                 if (doBold) {
-                    pushGlyph(cmd, x0 + 2 * dx, x1 + 2 * dx, y0 + dy, y1 + dy,
+                    pushGlyph(cmd, x0 + 2 * pixelsPerUnit, x1 + 2 * pixelsPerUnit,
+                            y0 + pixelsPerUnit, y1 + pixelsPerUnit,
                             skew, shadowColor, u0, u1, v0, v1);
                 }
             }
@@ -99,7 +101,7 @@ public final class TextRendererImpl implements TextRenderer {
                     skew, color, u0, u1, v0, v1);
 
             if (doBold) {
-                pushGlyph(cmd, x0 + 1f, x1 + 1f, y0, y1,
+                pushGlyph(cmd, x0 + pixelsPerUnit, x1 + pixelsPerUnit, y0, y1,
                         skew, color, u0, u1, v0, v1);
             }
 
@@ -108,7 +110,7 @@ public final class TextRendererImpl implements TextRenderer {
                 cmd.pushDrawCmd(firstIdx, count, DrawMode.TRIANGLES, buffer.texture);
             }
 
-            penX += buffer.xAdvance + (doBold ? 1f : 0f);
+            penX += advance;
         }
 
         float runWidth = penX - x;
