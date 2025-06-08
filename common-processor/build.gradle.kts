@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    id("buildlogic.auto-service")
 }
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
@@ -18,9 +19,6 @@ repositories {
 
 dependencies {
     implementation(project(":common-annotations"))
-
-    annotationProcessor("com.google.auto.service:auto-service:${property("autoServiceVersion")}")
-    compileOnly("com.google.auto.service:auto-service-annotations:${property("autoServiceVersion")}")
 }
 
 tasks.named<Copy>("processResources") {

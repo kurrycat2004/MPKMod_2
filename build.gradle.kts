@@ -1,3 +1,4 @@
+import buildlogic.mergeServiceFiles
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import xyz.wagyourtail.jvmdg.gradle.task.DowngradeJar
 import xyz.wagyourtail.jvmdg.gradle.task.ShadeJar
@@ -10,6 +11,8 @@ import xyz.wagyourtail.unimined.util.withSourceSet
 plugins {
     `java-library`
     id("buildlogic.split-jars")
+    id("buildlogic.auto-service")
+    id("buildlogic.merge-service-files")
     id("xyz.wagyourtail.unimined")
     id("xyz.wagyourtail.jvmdowngrader")
 }
@@ -61,13 +64,6 @@ val compileTimeExclude = listOf(
 dependencies {
     allCompileOnly(project(":common-api"))
     allCompileOnly(project(":inject-tags"))
-
-    sourceSets.all {
-        fun compileOnly(dep: Any) = add(compileOnlyConfigurationName, dep)
-        fun annotationProcessor(dep: Any) = add(annotationProcessorConfigurationName, dep)
-        annotationProcessor("com.google.auto.service:auto-service:${property("autoServiceVersion")}")
-        compileOnly("com.google.auto.service:auto-service-annotations:${property("autoServiceVersion")}")
-    }
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -92,10 +88,6 @@ sourceSets {
     }
 }
 val sharedLoaderSourceSet: SourceSet = sourceSets["shared"]
-fun DependencyHandlerScope.sourceSetImpl(sourceSet: SourceSet, dep: Any) = add(
-    "implementation".withSourceSet(sourceSet),
-    dep
-)
 
 var runsDir = rootProject.layout.projectDirectory.dir("runs")
 runsDir = runsDir.dir(if (eval("<=1.12.2")) "run_legacy" else "run")
@@ -285,10 +277,9 @@ val (downgradeNonLibJar, relocateNonLibJar) = downgradeRelocate(
 
 unimined.minecrafts
     .map { (sourceSet, _) ->
-        val jarTask = tasks.register<ShadowJar>("${sourceSet.name}Jar") {
+        val jarTask = tasks.register<Jar>("${sourceSet.name}Jar") {
             group = "internal"
             archiveClassifier.set(sourceSet.name)
-            configurations = emptyList()
             from(sourceSet.output, sharedLoaderSourceSet.output)
             mergeServiceFiles()
         }
@@ -346,8 +337,7 @@ fun Project.registerJarPipeline(
     }
 
     fun outJar(name: String, classifier: String, vararg combineWith: TaskProvider<out Jar>): TaskProvider<out Jar> {
-        val combinedJar = tasks.register<ShadowJar>("preJvmDgShade${flavor}${name.capitalized()}Jar") {
-            configurations = emptyList()
+        val combinedJar = tasks.register<Jar>("preJvmDgShade${flavor}${name.capitalized()}Jar") {
             combineWith.forEach { jarTask ->
                 from(jarTask.flatMap { it.archiveFile }.map { zipTree(it) })
             }

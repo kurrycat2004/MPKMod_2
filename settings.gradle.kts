@@ -32,6 +32,7 @@ plugins {
 
 include("inject-tags")
 include("common-api")
+include("common-dep-impl:lwjgl")
 include("common-impl")
 include("common-processor")
 include("common-annotations")
