@@ -11,7 +11,6 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
@@ -301,11 +300,17 @@ class SplitJarsPlugin : Plugin<Project> {
             archiveBaseName.set(ext.archiveBaseName)
             archiveVersion.set(ext.archiveVersion)
             archiveClassifier.set("sources")
-            embed.allDependencies.filterIsInstance<ProjectDependency>().forEach { dep ->
-                val depProject = project.project(dep.path)
-                from(depProject.tasks.named<Jar>(name).map { it.archiveFile })
+            embed.incoming.artifactView {
+                componentFilter { it is ProjectComponentIdentifier }
+            }.artifacts.map { artifact ->
+                val id = artifact.id.componentIdentifier as ProjectComponentIdentifier
+                val depProj = project.rootProject.findProject(id.projectPath)!!
+                val depSourcesJarTask = depProj.tasks.named<Jar>("sourcesJar")
+                val depSourcesJar = depSourcesJarTask.map { it.archiveFile }
+                dependsOn(depSourcesJarTask)
+                inputs.file(depSourcesJar)
+                from(project.zipTree(depSourcesJar))
             }
-            from({ project.files(embed).map { project.zipTree(it) } })
         }
 
         project.tasks.shadowJar.configure { enabled = false }

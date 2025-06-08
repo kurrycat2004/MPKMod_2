@@ -22,7 +22,7 @@ open class InjectTagsExtension @Inject constructor(objects: ObjectFactory) {
     val sourceSet: Property<SourceSet> = objects.property(SourceSet::class.java)
 }
 
-class InjectTagsConventionPlugin : Plugin<Project> {
+class InjectTagsPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val ext = project.extensions.create<InjectTagsExtension>("injectTags")
         val sourceSets = project.extensions.getByType(JavaPluginExtension::class.java).sourceSets
@@ -41,7 +41,7 @@ class InjectTagsConventionPlugin : Plugin<Project> {
             inputs.property("outputClassName", outputClassName)
             inputs.property("tags", tags)
 
-            outputs.dir(generatedDir)
+            outputs.dir(generatedDir.get().asFile)
 
             doLast {
                 val outClass = outputClassName.takeIf { it.isNotBlank() }
@@ -61,30 +61,27 @@ class InjectTagsConventionPlugin : Plugin<Project> {
 
                 val sb = StringBuilder()
                 outPackage?.let { sb.append("package ").append(it).append(";\n\n") }
-                sb.append("/** Auto-generated tags */\n")
-                sb.append("public class ").append(outSimple).append(" {\n")
+                sb.append("/** Auto-generated tags class - DO NOT MODIFY */\n")
+                sb.append("public final class ").append(outSimple).append(" {\n")
                 sb.append("    private ").append(outSimple).append("() {}\n\n")
 
                 for ((name, value) in tags) {
                     if (!name.matches(Regex("[A-Za-z_][A-Za-z0-9_]*"))) {
                         throw GradleException("Invalid Java identifier: $name")
                     }
-                    println("Injecting tag: $name = $value")
                     val (type, literal) = when (value) {
                         is Int -> "int" to value.toString()
                         is Boolean -> "boolean" to value.toString()
                         else -> "String" to "\"${value.toString().replace("\\", "\\\\").replace("\"", "\\\"")}\""
                     }
-                    sb.append("    /** Auto-generated tag */\n")
                     sb.append("    public static final ")
                         .append(type).append(' ')
                         .append(name).append(" = ")
-                        .append(literal).append(";\n\n")
+                        .append(literal).append(";\n")
                 }
 
                 sb.append("}\n")
                 outFile.writeText(sb.toString(), Charsets.UTF_8)
-                println(">> Generated tags class at: ${outFile.absolutePath}")
             }
         }
 
@@ -97,7 +94,5 @@ class InjectTagsConventionPlugin : Plugin<Project> {
         project.extensions.configure<JavaPluginExtension> {
             ext.sourceSet.get().java.srcDir(generatedSources)
         }
-        /* project.afterEvaluate {
-         }*/
     }
 }

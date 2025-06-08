@@ -76,6 +76,7 @@ dependencies {
     embedApi(project(":inject-tags"))
 
     embed(project(":common-dep-impl:lwjgl"))
+    embed(project(":common-dep-impl:log"))
 
     javaApiJar("xyz.wagyourtail.jvmdowngrader:jvmdowngrader-java-api:${property("jvmDowngraderVersion")}:downgraded-8")
 

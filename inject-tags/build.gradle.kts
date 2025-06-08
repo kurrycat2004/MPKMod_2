@@ -1,6 +1,6 @@
 plugins {
     `java-library`
-    id("buildlogic.inject-tags-convention")
+    id("buildlogic.inject-tags")
 }
 
 java {

@@ -31,11 +31,14 @@ plugins {
 }
 
 include("inject-tags")
-include("common-api")
-include("common-dep-impl:lwjgl")
-include("common-impl")
-include("common-processor")
 include("common-annotations")
+include("common-processor")
+include("common-api")
+
+include("common-dep-impl:lwjgl")
+include("common-dep-impl:log")
+include("common-impl")
+
 include("modules:main")
 
 stonecutter {
