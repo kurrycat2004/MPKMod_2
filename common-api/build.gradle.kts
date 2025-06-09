@@ -21,7 +21,9 @@ localRelocate {
 
 tasks.combinedJar {
     archiveClassifier.set("common-api")
+}
 
+tasks.nonLibJar {
     from(rootProject.files("LICENSE")) {
         into("META-INF")
     }

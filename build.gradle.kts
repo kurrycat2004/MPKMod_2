@@ -1,7 +1,5 @@
 import buildlogic.mergeServiceFiles
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import xyz.wagyourtail.jvmdg.gradle.task.DowngradeJar
-import xyz.wagyourtail.jvmdg.gradle.task.ShadeJar
 import xyz.wagyourtail.unimined.internal.minecraft.task.RemapJarTaskImpl
 import xyz.wagyourtail.unimined.util.capitalized
 import xyz.wagyourtail.unimined.util.decapitalized
@@ -17,7 +15,6 @@ plugins {
     id("xyz.wagyourtail.jvmdowngrader")
 }
 
-val modGroup = project.property("modGroup") as String
 val modId: String = property("modId") as String
 val modVersion: String = property("modVersion") as String
 
@@ -56,9 +53,9 @@ val configList = listOf(
 configList.forEach { configurations.create("all${it.capitalized()}") }
 val allCompileOnly: Configuration = configurations["allCompileOnly"]
 
-// excluded minecraft libraries for compile time
+// excluded minecraft libraries from IDE suggestions
 val compileTimeExclude = listOf(
-    "it.unimi.dsi:fastutil",
+    "it.unimi.dsi:fastutil", // use fastutil from common-api instead
 )
 
 dependencies {
@@ -78,6 +75,7 @@ val minJavaVersion = if (eval("<1.17")) {
     jvmdg.downgradeTo = JavaVersion.VERSION_21
     "21"
 }
+//jvmdg.shadePath = { "io/github/kurrycat/mpkmod/shaded" }
 
 sourceSets {
     val shared = create("shared")
@@ -140,11 +138,11 @@ unimined.minecraft(sharedLoaderSourceSet) {
 
     runs.config("client") {
         val minecraftConfig = configurations["minecraft".withSourceSet(sourceSet)]
-        //val minecraftLibrariesConfig = configurations["minecraftLibraries".withSourceSet(sourceSet)]
+        val minecraftLibrariesConfig = configurations["minecraftLibraries".withSourceSet(sourceSet)]
         val jarTask = tasks.named<Jar>("devShadowJar")
         val mod = jarTask.flatMap { it.archiveFile }.get()
         dependsOn(jarTask)
-        classpath = minecraftConfig + mcLibraryMap[sourceSet]!! + files(mod)
+        classpath = minecraftConfig + minecraftLibrariesConfig + files(mod)
         println("Classpath for client run: ")
         classpath.files.forEach { println("$it") }
         environment["MOD_CLASSES"] = ""
@@ -175,21 +173,15 @@ activeLoaders.forEach { (loader, loaderVersion) ->
     }
 }
 
-val mcLibraryMap = activeLoaders.keys.map { sourceSets.named(it.camelId).get() }.associateWith { sourceSet ->
-    configurations.detachedConfiguration(
-        *configurations.getByName("minecraftLibraries".withSourceSet(sourceSet))
-            .dependencies.toTypedArray()
-    ).apply {
-        isTransitive = true
-    }
-}
-activeLoaders.keys.map { sourceSets.named(it.camelId).get() }.forEach { sourceSet ->
-    configurations.named("minecraftLibraries".withSourceSet(sourceSet)) {
-        compileTimeExclude.forEach {
-            val (group, module) = it.split(":")
-            exclude(group = group, module = module)
+val compTimeExclude = compileTimeExclude.map { it.replace(':', '/') }
+sourceSets.all {
+    val original = compileClasspath
+    compileClasspath = project.files(
+        original.filter {
+            val path = it.path.replace('\\', '/')
+            !compTimeExclude.any { exclude -> path.contains(exclude) }
         }
-    }
+    )
 }
 
 dependencies {
@@ -217,49 +209,29 @@ configList.forEach { config ->
 
 val common = project(":common-impl")
 
-fun downgradeRelocate(
+fun downgradeJar(
     input: TaskProvider<out Jar>,
     classpathCollection: FileCollection,
-    action: ShadowJar.() -> Unit
-): Pair<TaskProvider<out Jar>, TaskProvider<out Jar>> {
-    val downgradeJar = tasks.register<DowngradeJar>("downgrade${input.name.capitalized()}") {
+    action: DowngradeJar.() -> Unit = {}
+): TaskProvider<out Jar> {
+    return tasks.register<DowngradeJar>("downgrade${input.name.capitalized()}") {
         convention(jvmdg)
         group = "internal"
         inputFile = input.flatMap { it.archiveFile }
         archiveClassifier.set("downgrade".chain(input.name))
         classpath = classpathCollection
-    }
-    return Pair(
-        downgradeJar,
-        tasks.register<ShadeJar>("relocateDowngrade${input.name.capitalized()}") {
-            convention(jvmdg)
-            group = "internal"
-            archiveClassifier.set("relocate".chain(input.name))
-            inputFile = downgradeJar.flatMap { it.archiveFile }
-            /*configurations = listOf()
-            from(downgradeJar.flatMap { it.archiveFile }.map { zipTree(it) })
-            action()*/
-        }
-    )
-}
-
-val (downgradeLibJar, relocateLibJar) = downgradeRelocate(common.tasks.libJar, files()) {
-    val dep = "xyz.wagyourtail.jvmdg"
-    relocate(dep, "$modGroup.shaded.$dep") {
-        exclude("$modGroup.**")
+        action(this)
     }
 }
 
-val (downgradeNonLibJar, relocateNonLibJar) = downgradeRelocate(
+val downgradeLibJar = downgradeJar(common.tasks.libJar, files())
+
+val downgradeNonLibJar = downgradeJar(
     common.tasks.nonLibJar,
     sourceSets.main.get().compileClasspath +
             common.tasks.combinedJar.map { it.outputs.files }.get()
 ) {
     dependsOn(common.tasks.combinedJar)
-    val dep = "xyz.wagyourtail.jvmdg"
-    relocate(dep, "$modGroup.shaded.$dep") {
-        exclude("$modGroup.**")
-    }
 }
 
 //TODO: preshadow
@@ -280,7 +252,7 @@ unimined.minecrafts
         val jarTask = tasks.register<Jar>("${sourceSet.name}Jar") {
             group = "internal"
             archiveClassifier.set(sourceSet.name)
-            from(sourceSet.output, sharedLoaderSourceSet.output)
+            from(sourceSet.output)
             mergeServiceFiles()
         }
         tasks.register<DowngradeJar>("downgrade${sourceSet.name.capitalized()}Jar") {
@@ -318,55 +290,41 @@ fun Project.registerJarPipeline(
             }
         }
 
-    val combine = tasks.register<ShadowJar>("combine${pascalFlavor}Jars") {
+    val combine = tasks.register<Jar>("combine${pascalFlavor}Jars") {
         group = "internal"
         description = "Combine $flavor main + loader jars into one artifact"
         archiveAppendix.set("combined")
         archiveClassifier.set(flavor)
 
-        downgradeJars.forEach { jarTask ->
-            from(jarTask.map { zipTree(it.archiveFile) })
-        }
-
-        /*val dep = "xyz.wagyourtail.jvmdg"
-        relocate(dep, "$modGroup.shaded.$dep") {
-            exclude("$modGroup.**")
-        }*/
-
+        downgradeJars.forEach { fromUnzipJar(it) }
         mergeServiceFiles()
     }
 
-    fun outJar(name: String, classifier: String, vararg combineWith: TaskProvider<out Jar>): TaskProvider<out Jar> {
-        val combinedJar = tasks.register<Jar>("preJvmDgShade${flavor}${name.capitalized()}Jar") {
-            combineWith.forEach { jarTask ->
-                from(jarTask.flatMap { it.archiveFile }.map { zipTree(it) })
-            }
-            from(combine.flatMap { it.archiveFile }.map { zipTree(it) })
+    fun outJar(name: String, vararg combineWith: TaskProvider<out Jar>): TaskProvider<out Jar> {
+        return tasks.register<Jar>("${flavor}${name.capitalized()}Jar") {
+            group = "build".chain(flavor, "_")
+            archiveClassifier = "final".chain(name).chain(flavor)
+            combineWith.forEach { fromUnzipJar(it) }
+            fromUnzipJar(combine)
             moduleProjects.forEach { module ->
-                from(project(module).tasks.jar.map { it.archiveFile }) {
+                fromJar(project(module).tasks.jar) {
                     into("mpkmodules")
                 }
             }
             mergeServiceFiles()
         }
-        return tasks.register<ShadeJar>("${flavor}${name.capitalized()}Jar") {
-            convention(jvmdg)
-            group = "build".chain(flavor, "_")
-            archiveAppendix.set("final")
-            archiveClassifier.set(classifier)
-            inputFile = combinedJar.flatMap { it.archiveFile }
-        }
     }
 
     return Pair(
         outJar(
-            "preshadow", "preshadow${pascalFlavor}",
+            "preshadow",
+            //TODO: preshadowJar
             /*downgradePreshadowJar*/
         ),
         outJar(
-            "shadow", flavor,
-            relocateNonLibJar,
-            downgradeLibJar,//relocateLibJar
+            "shadow",
+            downgradeNonLibJar,
+            downgradeLibJar,
         )
     )
 }
@@ -396,7 +354,7 @@ val publishFinalJars = tasks.register<Copy>("publishFinalJars") {
         dependsOn(jarTask)
 
         val classifier = jarTask.flatMap { it.archiveClassifier }
-        from(jarTask.flatMap { it.archiveFile }) {
+        fromJar(jarTask) {
             rename { "${"$modId-$modVersion-$mcVersion".chain(classifier.get())}.jar" }
         }
     }
@@ -484,4 +442,22 @@ enum class Loader(val id: String, val camelId: String) {
 
 fun String.chain(suffix: String?, separator: String = "-"): String =
     if (!suffix.isNullOrEmpty()) "$this$separator$suffix" else this
+
+fun AbstractCopyTask.fromJar(jar: Provider<out Jar>, configAction: Action<CopySpec>? = null) {
+    val source = jar.flatMap { it.archiveFile }
+    if (configAction != null) {
+        from(source, configAction)
+    } else {
+        from(source)
+    }
+}
+
+fun AbstractCopyTask.fromUnzipJar(jar: Provider<out Jar>, configAction: Action<CopySpec>? = null) {
+    val source = jar.flatMap { it.archiveFile }.map { zipTree(it) }
+    if (configAction != null) {
+        from(source, configAction)
+    } else {
+        from(source)
+    }
+}
 // ---------- UTIL END ----------

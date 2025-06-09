@@ -1,4 +1,4 @@
-package io.github.kurrycat.mpkmod.stonecutter.shared;
+package io.github.kurrycat.mpkmod.stonecutter.vintage_forge;
 
 import com.google.auto.service.AutoService;
 import io.github.kurrycat.mpkmod.annotation.OutArg;
