@@ -5,6 +5,7 @@ import io.github.kurrycat.mpkmod.api.log.ILogger;
 import io.github.kurrycat.mpkmod.api.log.LogManager;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
+import io.github.kurrycat.mpkmod.log.LoggerWrapper;
 
 import java.util.Optional;
 
@@ -26,7 +27,9 @@ public final class Log4JLogManager implements LogManager {
 
     @Override
     public ILogger createLogger(String s) {
-        return new Log4JLogger(org.apache.logging.log4j.LogManager.getLogger(s));
+        return LoggerWrapper.wrap(
+                new Log4JLogger(org.apache.logging.log4j.LogManager.getLogger(s))
+        );
     }
 
     private record Log4JLogger(org.apache.logging.log4j.Logger logger) implements ILogger {

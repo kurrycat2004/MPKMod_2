@@ -5,6 +5,7 @@ import io.github.kurrycat.mpkmod.api.log.ILogger;
 import io.github.kurrycat.mpkmod.api.log.LogManager;
 import io.github.kurrycat.mpkmod.api.service.ServiceProvider;
 import io.github.kurrycat.mpkmod.api.service.StandardServiceProvider;
+import io.github.kurrycat.mpkmod.log.LoggerWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,9 @@ public final class SLF4JLogManager implements LogManager {
 
     @Override
     public ILogger createLogger(String name) {
-        return new SLF4JLogger(LoggerFactory.getLogger(name));
+        return LoggerWrapper.wrap(
+                new SLF4JLogger(LoggerFactory.getLogger(name))
+        );
     }
 
     private record SLF4JLogger(Logger logger) implements ILogger {

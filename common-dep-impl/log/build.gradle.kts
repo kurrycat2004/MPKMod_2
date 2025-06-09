@@ -15,11 +15,18 @@ repositories {
     mavenCentral()
 }
 
-val log4j: SourceSet by sourceSets.creating
-val slf4j: SourceSet by sourceSets.creating
+val shared: SourceSet by sourceSets.creating
+val log4j: SourceSet by sourceSets.creating {
+    compileClasspath += shared.output
+}
+val slf4j: SourceSet by sourceSets.creating {
+    compileClasspath += shared.output
+}
 
 dependencies {
     val commonApi = project(":common-api")
+    val shared = configurations["sharedCompileOnly"]
+    shared(commonApi)
     val log4j = configurations["log4jCompileOnly"]
     log4j("org.apache.logging.log4j:log4j-api:2.0-beta9")
     log4j(commonApi)
@@ -29,12 +36,14 @@ dependencies {
 }
 
 tasks.jar {
+    from(shared.output)
     from(log4j.output)
     from(slf4j.output)
     mergeServiceFiles()
 }
 
 tasks.named<Jar>("sourcesJar") {
+    from(shared.allSource)
     from(log4j.allSource)
     from(slf4j.allSource)
 }
