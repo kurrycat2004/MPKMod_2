@@ -1,4 +1,4 @@
-package buildlogic
+package buildlogic.lwjgl
 
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
@@ -34,31 +34,31 @@ import javax.lang.model.element.Modifier
 open class LwjglStubExtension(objects: ObjectFactory) {
     val lwjgl2Dep = objects.property<String>()
     val lwjgl3Dep = objects.property<String>()
-    val stubSourceSet: Property<SourceSet> = objects.property<SourceSet>()
+    val stubsSourceSet: Property<SourceSet> = objects.property<SourceSet>()
 }
 
 class GLCommonStubsPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val ext = project.extensions.create<LwjglStubExtension>("lwjglStub", project.objects)
+        val ext = project.extensions.create<LwjglStubExtension>("lwjglStubs", project.objects)
         val sourceSets = project.extensions.getByType<JavaPluginExtension>().sourceSets
-        ext.stubSourceSet.convention(sourceSets.maybeCreate("lwjglStub"))
+        ext.stubsSourceSet.convention(sourceSets.maybeCreate("lwjglStubs"))
 
-        val outputDir = project.layout.buildDirectory.dir("generated/sources/lwjgl-stub-sources")
+        val outputDir = project.layout.buildDirectory.dir("generated/sources/lwjgl-stubs-sources")
 
-        val generate = project.tasks.register<GenerateStubSourcesTask>("generateLwjglStubSources") {
+        val generate = project.tasks.register<GenerateStubsSourcesTask>("generateLwjglStubsSources") {
             this.outputDir.set(outputDir)
             lwjgl2Dep.set(ext.lwjgl2Dep)
             lwjgl3Dep.set(ext.lwjgl3Dep)
         }
 
-        ext.stubSourceSet.get().java.srcDir(generate.flatMap { it.outputDir })
-        project.tasks.named("compileLwjglStubJava") {
+        ext.stubsSourceSet.get().java.srcDir(generate.flatMap { it.outputDir })
+        project.tasks.named("compileLwjglStubsJava") {
             dependsOn(generate)
         }
     }
 }
 
-abstract class GenerateStubSourcesTask : DefaultTask() {
+abstract class GenerateStubsSourcesTask : DefaultTask() {
     @Input
     val lwjgl2Dep: Property<String> = project.objects.property(String::class.java)
 
@@ -80,8 +80,8 @@ abstract class GenerateStubSourcesTask : DefaultTask() {
         val lwjgl2Jar = config2.resolve().single()
         val lwjgl3Jar = config3.resolve().single()
 
-        val lwjgl2Map = extractStubFromJar(lwjgl2Jar)
-        val lwjgl3Map = extractStubFromJar(lwjgl3Jar)
+        val lwjgl2Map = extractStubsFromJar(lwjgl2Jar)
+        val lwjgl3Map = extractStubsFromJar(lwjgl3Jar)
 
         val javaRoot = outputDir.get().asFile
         javaRoot.mkdirs()
@@ -132,7 +132,7 @@ abstract class GenerateStubSourcesTask : DefaultTask() {
 
     data class ConstantField(val name: String, val value: Int)
 
-    private fun extractStubFromJar(jar: File): Map<String, ClassStub> {
+    private fun extractStubsFromJar(jar: File): Map<String, ClassStub> {
         val zip = ZipFile.builder()
             .setFile(jar)
             .setUseUnicodeExtraFields(true)

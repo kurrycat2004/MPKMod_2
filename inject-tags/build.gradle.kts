@@ -14,6 +14,7 @@ injectTags {
         mapOf(
             "MOD_ID" to property("modId"),
             "MOD_NAME" to property("modName"),
+            "MOD_GROUP" to property("modGroup"),
             "MOD_VERSION" to property("modVersion"),
         )
     )

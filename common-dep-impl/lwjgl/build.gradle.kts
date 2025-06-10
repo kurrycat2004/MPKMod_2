@@ -1,10 +1,10 @@
-import buildlogic.mergeServiceFiles
+import buildlogic.mergeMergableFiles
 
 plugins {
     `java-library`
     id("buildlogic.gl-common-stubs")
     id("buildlogic.auto-service")
-    id("buildlogic.merge-service-files")
+    id("buildlogic.merge-util")
 }
 
 java {
@@ -18,34 +18,32 @@ repositories {
     maven("https://maven.legacyfabric.net")
 }
 
-lwjglStub {
+lwjglStubs {
     lwjgl2Dep.set("org.lwjgl.lwjgl:lwjgl:2.9.4+legacyfabric.8")
     lwjgl3Dep.set("org.lwjgl:lwjgl-opengl:3.3.3")
 }
 
 val lwjgl2: SourceSet by sourceSets.creating
+val lwjgl2CompOnly: Configuration = configurations[lwjgl2.compileOnlyConfigurationName]
+
 val lwjgl3: SourceSet by sourceSets.creating
+val lwjgl3CompOnly: Configuration = configurations[lwjgl3.compileOnlyConfigurationName]
 
 dependencies {
-    val commonApi = project(":common-api")
-    val lwjgl2 = configurations["lwjgl2CompileOnly"]
-    lwjgl2(lwjglStub.lwjgl2Dep)
-    lwjgl2(commonApi)
-    val lwjgl3 = configurations["lwjgl3CompileOnly"]
-    lwjgl3(lwjglStub.lwjgl3Dep)
-    lwjgl3(commonApi)
-    compileOnly(lwjglStub.stubSourceSet.get().output)
-    compileOnly(commonApi)
+    sourceSets.forEach { add(it.compileOnlyConfigurationName, project(":common-api")) }
+
+    lwjgl2CompOnly(lwjglStubs.lwjgl2Dep)
+    lwjgl3CompOnly(lwjglStubs.lwjgl3Dep)
+    compileOnly(lwjglStubs.stubsSourceSet.get().output)
 }
 
 tasks.jar {
-    from(lwjgl2.output)
-    from(lwjgl3.output)
-    mergeServiceFiles()
+    sourceSets.filter { !it.name.endsWith("stubs", true) }
+        .forEach { from(it.output) }
+    mergeMergableFiles()
 }
 
 tasks.named<Jar>("sourcesJar") {
-    from(lwjgl2.allSource)
-    from(lwjgl3.allSource)
+    sourceSets.forEach { from(it.allSource) }
 }
 

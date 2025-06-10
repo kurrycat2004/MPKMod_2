@@ -1,9 +1,9 @@
-import buildlogic.mergeServiceFiles
+import buildlogic.mergeMergableFiles
 
 plugins {
     `java-library`
     id("buildlogic.auto-service")
-    id("buildlogic.merge-service-files")
+    id("buildlogic.merge-util")
 }
 
 java {
@@ -16,35 +16,25 @@ repositories {
 }
 
 val shared: SourceSet by sourceSets.creating
-val log4j: SourceSet by sourceSets.creating {
-    compileClasspath += shared.output
-}
-val slf4j: SourceSet by sourceSets.creating {
-    compileClasspath += shared.output
-}
+
+val log4j: SourceSet by sourceSets.creating { compileClasspath += shared.output }
+val log4jCompOnly: Configuration = configurations[log4j.compileOnlyConfigurationName]
+
+val slf4j: SourceSet by sourceSets.creating { compileClasspath += shared.output }
+val slf4jCompOnly: Configuration = configurations[slf4j.compileOnlyConfigurationName]
 
 dependencies {
-    val commonApi = project(":common-api")
-    val shared = configurations["sharedCompileOnly"]
-    shared(commonApi)
-    val log4j = configurations["log4jCompileOnly"]
-    log4j("org.apache.logging.log4j:log4j-api:2.0-beta9")
-    log4j(commonApi)
-    val slf4j = configurations["slf4jCompileOnly"]
-    slf4j("org.slf4j:slf4j-api:1.8.0-beta4")
-    slf4j(commonApi)
+    sourceSets.forEach { add(it.compileOnlyConfigurationName, project(":common-api")) }
+
+    log4jCompOnly("org.apache.logging.log4j:log4j-api:2.0-beta9")
+    slf4jCompOnly("org.slf4j:slf4j-api:1.8.0-beta4")
 }
 
 tasks.jar {
-    from(shared.output)
-    from(log4j.output)
-    from(slf4j.output)
-    mergeServiceFiles()
+    sourceSets.forEach { from(it.output) }
+    mergeMergableFiles()
 }
 
 tasks.named<Jar>("sourcesJar") {
-    from(shared.allSource)
-    from(log4j.allSource)
-    from(slf4j.allSource)
+    sourceSets.forEach { from(it.allSource) }
 }
-

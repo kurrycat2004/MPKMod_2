@@ -1,0 +1,2 @@
+FMLCorePlugin: io.github.kurrycat.mpkmod.core.fml.CoreLoadingPlugin
+FMLCorePluginContainsFMLMod: true

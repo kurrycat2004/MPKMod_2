@@ -1,4 +1,4 @@
-import buildlogic.mergeServiceFiles
+import buildlogic.mergeMergableFiles
 import xyz.wagyourtail.jvmdg.gradle.task.DowngradeJar
 import xyz.wagyourtail.unimined.internal.minecraft.task.RemapJarTaskImpl
 import xyz.wagyourtail.unimined.util.capitalized
@@ -10,7 +10,7 @@ plugins {
     `java-library`
     id("buildlogic.split-jars")
     id("buildlogic.auto-service")
-    id("buildlogic.merge-service-files")
+    id("buildlogic.merge-util")
     id("xyz.wagyourtail.unimined")
     id("xyz.wagyourtail.jvmdowngrader")
 }
@@ -102,7 +102,7 @@ unimined.minecraft(sharedLoaderSourceSet) {
         when (mappingType) {
             "yarn" -> let { intermediary(); yarn(mapArgs[1]) }
             "mcp" -> let { searge(); mcp(mapArgs[1], mapArgs[2]) }
-            "moj" -> let { intermediary(); mojmap(); devFallbackNamespace("official") }
+            "moj" -> let { intermediary(); mojmap(); }
             else -> error("Unknown mapping type: $mappingType")
         }
         //FIXME:
@@ -146,9 +146,17 @@ unimined.minecraft(sharedLoaderSourceSet) {
         println("Classpath for client run: ")
         classpath.files.forEach { println("$it") }
         environment["MOD_CLASSES"] = ""
-        args("--mods", runtimeModsDir.asFileTree.files.map {
-            it.relativeTo(runsDir.asFile)
-        }.joinToString(","))
+        val modDir = runtimeModsDir.dir("actualMod")
+        modDir.asFile.deleteRecursively()
+        modDir.asFile.mkdirs()
+        copy {
+            from(mod)
+            into(modDir)
+        }
+
+        val mods = runtimeModsDir.asFileTree.files.map { it.relativeTo(runsDir.asFile) }.toMutableList()
+        mods += modDir.asFileTree.files.map { it.relativeTo(runsDir.asFile) }
+        args("--mods", mods.joinToString(","))
     }
 
     tasks.matching { it.name.endsWith("enIntellijRuns") }
@@ -253,7 +261,7 @@ unimined.minecrafts
             group = "internal"
             archiveClassifier.set(sourceSet.name)
             from(sourceSet.output)
-            mergeServiceFiles()
+            mergeMergableFiles()
         }
         tasks.register<DowngradeJar>("downgrade${sourceSet.name.capitalized()}Jar") {
             convention(jvmdg)
@@ -297,7 +305,7 @@ fun Project.registerJarPipeline(
         archiveClassifier.set(flavor)
 
         downgradeJars.forEach { fromUnzipJar(it) }
-        mergeServiceFiles()
+        mergeMergableFiles()
     }
 
     fun outJar(name: String, vararg combineWith: TaskProvider<out Jar>): TaskProvider<out Jar> {
@@ -311,7 +319,7 @@ fun Project.registerJarPipeline(
                     into("mpkmodules")
                 }
             }
-            mergeServiceFiles()
+            mergeMergableFiles()
         }
     }
 

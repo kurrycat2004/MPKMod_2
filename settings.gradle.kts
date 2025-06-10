@@ -35,8 +35,10 @@ include("common-annotations")
 include("common-processor")
 include("common-api")
 
-include("common-dep-impl:lwjgl")
+include("common-dep-impl:core")
 include("common-dep-impl:log")
+include("common-dep-impl:lwjgl")
+
 include("common-impl")
 
 include("modules:main")

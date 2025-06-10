@@ -32,6 +32,7 @@ val shadedDeps = listOf(
     "com.github.JnCrMx:discord-game-sdk4j:${property("discordGameSdkVersion")}",
     "org.tomlj:tomlj:${property("tomljVersion")}",
     "xyz.wagyourtail.jvmdowngrader:jvmdowngrader:${property("jvmDowngraderVersion")}",
+    "xyz.wagyourtail.jvmdowngrader:jvmdowngrader-java-api:${property("jvmDowngraderVersion")}",
 )
 
 splitJars {
@@ -75,8 +76,8 @@ dependencies {
     embedApi(project(":common-api"))
     embedApi(project(":inject-tags"))
 
-    embed(project(":common-dep-impl:lwjgl"))
-    embed(project(":common-dep-impl:log"))
+    rootProject.subprojects.filter { it.path.startsWith(":common-dep-impl:") }
+        .forEach { embed(project(it.path)) }
 
     javaApiJar("xyz.wagyourtail.jvmdowngrader:jvmdowngrader-java-api:${property("jvmDowngraderVersion")}:downgraded-8")
 

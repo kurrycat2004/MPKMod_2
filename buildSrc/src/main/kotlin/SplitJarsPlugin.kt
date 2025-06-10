@@ -204,7 +204,7 @@ class SplitJarsPlugin : Plugin<Project> {
 
             from(licenseSources) { into("META-INF") }
             transform<NoticeMergingTransformer>()
-            mergeServiceFiles()
+            mergeMergableFiles()
         }
 
         val relocateJar = project.tasks.register<ShadowJar>("relocateJar") {
@@ -220,14 +220,13 @@ class SplitJarsPlugin : Plugin<Project> {
             }
         }
 
-        val nonLibJar = project.tasks.register<ShadowJar>("nonLibJar") {
+        val nonLibJar = project.tasks.register<Jar>("nonLibJar") {
             group = "build"
             archiveBaseName.set(ext.archiveBaseName)
             archiveVersion.set(ext.archiveVersion)
             archiveClassifier.set(name)
-            configurations.set(listOf())
 
-            mergeServiceFiles()
+            mergeMergableFiles()
 
             val depTasks = project.provider {
                 embed.incoming.artifactView {}.artifacts.artifactFiles.buildDependencies.getDependencies(null)
