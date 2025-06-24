@@ -96,7 +96,7 @@ val modRuntimeOnly = configurations.create("modRuntimeOnly")
 unimined.minecraft(sharedLoaderSourceSet) {
     version = mcVersion
     mappings {
-        val mapProp = property("${mcVersion}-mappings") as String
+        val mapProp = project.property("${mcVersion}-mappings") as String
         val mapArgs = mapProp.split(",")
         val mappingType = mapArgs[0]
         when (mappingType) {
@@ -146,16 +146,8 @@ unimined.minecraft(sharedLoaderSourceSet) {
         println("Classpath for client run: ")
         classpath.files.forEach { println("$it") }
         environment["MOD_CLASSES"] = ""
-        val modDir = runtimeModsDir.dir("actualMod")
-        modDir.asFile.deleteRecursively()
-        modDir.asFile.mkdirs()
-        copy {
-            from(mod)
-            into(modDir)
-        }
 
         val mods = runtimeModsDir.asFileTree.files.map { it.relativeTo(runsDir.asFile) }.toMutableList()
-        mods += modDir.asFileTree.files.map { it.relativeTo(runsDir.asFile) }
         args("--mods", mods.joinToString(","))
     }
 
@@ -181,15 +173,13 @@ activeLoaders.forEach { (loader, loaderVersion) ->
     }
 }
 
-val compTimeExclude = compileTimeExclude.map { it.replace(':', '/') }
 sourceSets.all {
+    val compTimeExclude = compileTimeExclude.map { it.replace(':', '/') }
     val original = compileClasspath
-    compileClasspath = project.files(
-        original.filter {
-            val path = it.path.replace('\\', '/')
-            !compTimeExclude.any { exclude -> path.contains(exclude) }
-        }
-    )
+    compileClasspath = original.filter {
+        val path = it.path.replace('\\', '/')
+        !compTimeExclude.any { exclude -> path.contains(exclude) }
+    }
 }
 
 dependencies {
@@ -223,8 +213,8 @@ fun downgradeJar(
     action: DowngradeJar.() -> Unit = {}
 ): TaskProvider<out Jar> {
     return tasks.register<DowngradeJar>("downgrade${input.name.capitalized()}") {
-        convention(jvmdg)
         group = "internal"
+        dependsOn(input)
         inputFile = input.flatMap { it.archiveFile }
         archiveClassifier.set("downgrade".chain(input.name))
         classpath = classpathCollection
@@ -235,11 +225,11 @@ fun downgradeJar(
 val downgradeLibJar = downgradeJar(common.tasks.libJar, files())
 
 val downgradeNonLibJar = downgradeJar(
-    common.tasks.nonLibJar,
+    common.tasks.relocatePreshadowJar,
     sourceSets.main.get().compileClasspath +
-            common.tasks.combinedJar.map { it.outputs.files }.get()
+            common.tasks.libJar.map { it.outputs.files }.get()
 ) {
-    dependsOn(common.tasks.combinedJar)
+    dependsOn(common.tasks.libJar)
 }
 
 //TODO: preshadow
@@ -264,7 +254,6 @@ unimined.minecrafts
             mergeMergableFiles()
         }
         tasks.register<DowngradeJar>("downgrade${sourceSet.name.capitalized()}Jar") {
-            convention(jvmdg)
             group = "internal"
             inputFile = jarTask.flatMap { it.archiveFile }
             archiveClassifier.set("downgrade-${sourceSet.name}")
@@ -278,7 +267,10 @@ fun Project.registerJarPipeline(
     val pascalFlavor = flavor.capitalized()
     val downgradeJars = unimined.minecrafts
         .map { (sourceSet, mc) ->
-            val downgradeJarTask = tasks.named<DowngradeJar>("downgrade${sourceSet.name.capitalized()}Jar")
+            val downgradeJarTask = tasks.named<DowngradeJar>("downgrade${sourceSet.name.capitalized()}Jar") {
+                inputs.files(sourceSet.compileClasspath)
+                classpath = sourceSet.compileClasspath
+            }
             if (remap) {
                 val remapDowngradedTask = tasks.register<RemapJarTaskImpl>(
                     "remapDowngraded${sourceSet.name.capitalized()}${pascalFlavor}Jar",
@@ -292,7 +284,7 @@ fun Project.registerJarPipeline(
                     @Suppress("UnstableApiUsage")
                     mc.mcPatcher.configureRemapJar(this)
                 }
-                remapDowngradedTask.map { it.asJar }
+                remapDowngradedTask
             } else {
                 downgradeJarTask
             }
@@ -460,8 +452,14 @@ fun AbstractCopyTask.fromJar(jar: Provider<out Jar>, configAction: Action<CopySp
     }
 }
 
-fun AbstractCopyTask.fromUnzipJar(jar: Provider<out Jar>, configAction: Action<CopySpec>? = null) {
-    val source = jar.flatMap { it.archiveFile }.map { zipTree(it) }
+interface Ops {
+    @get:Inject
+    val archive: ArchiveOperations
+}
+
+fun AbstractCopyTask.fromUnzipJar(jar: Provider<out org.gradle.jvm.tasks.Jar>, configAction: Action<CopySpec>? = null) {
+    val ops = project.objects.newInstance<Ops>()
+    val source = jar.flatMap { it.archiveFile }.map { ops.archive.zipTree(it) }
     if (configAction != null) {
         from(source, configAction)
     } else {

@@ -4,13 +4,12 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin.Companion.sha
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.relocation.SimpleRelocator
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import com.github.jk1.license.LicenseReportExtension
-import com.github.jk1.license.LicenseReportPlugin
-import com.github.jk1.license.render.ReportRenderer
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ExternalModuleDependency
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
@@ -18,15 +17,12 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.internal.component.local.model.OpaqueComponentArtifactIdentifier
 import org.gradle.internal.extensions.stdlib.capitalized
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.hasPlugin
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.property
@@ -46,15 +42,6 @@ open class SplitJarsExtension @Inject constructor(objects: ObjectFactory) {
                 "**/module-info.class"
             )
         )
-}
-
-data class Relocation(
-    val pattern: String,
-    val destination: String,
-    val relocator: Action<SimpleRelocator>? = null
-)
-
-open class Relocations @Inject constructor(objects: ObjectFactory) {
     private val relocations: ListProperty<Relocation> =
         objects.listProperty<Relocation>().convention(emptyList())
 
@@ -65,260 +52,166 @@ open class Relocations @Inject constructor(objects: ObjectFactory) {
     }
 }
 
+data class Relocation(
+    val pattern: String,
+    val destination: String,
+    val relocator: Action<SimpleRelocator>? = null
+)
+
+fun Project.embedRelocate(
+    dep: Any,
+    pattern: String,
+    destination: String,
+    vararg configurations: String,
+    isTransitive: Boolean = true,
+    relocator: Action<SimpleRelocator>? = null,
+) {
+    val dependency = dependencies.add("embedPreRelocated", dep)
+    if (dependency is ExternalModuleDependency) dependency.isTransitive = isTransitive
+
+    val name = "relocate_${dep.toString().replace(':', '_').replace('.', '_')}"
+    val config = project.configurations.detachedConfiguration(dependency).apply {
+        this.isTransitive = false
+    }
+    val shadowTask = project.tasks.register<ShadowJar>(name) {
+        destinationDirectory.set(temporaryDir)
+        archiveFileName.set("$name.${archiveExtension.get()}")
+        this.configurations.set(listOf(config))
+        relocate(pattern, destination, relocator)
+    }
+    val configs = configurations.toMutableSet()
+    configs.forEach { configName ->
+        dependencies.add(configName, project.files(shadowTask.flatMap { it.archiveFile }).apply {
+            builtBy(shadowTask)
+        })
+    }
+    project.configurations.getByName("embed").outgoing.artifact(shadowTask) {
+        builtBy(shadowTask)
+    }
+}
+
 class SplitJarsPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val ext = project.extensions.create<SplitJarsExtension>("splitJars")
-        val localRelocate = project.extensions.create<Relocations>("localRelocate")
-        val libRelocate = project.extensions.create<Relocations>("libRelocate")
 
         project.pluginManager.apply(JavaPlugin::class)
-        project.pluginManager.apply(LicenseReportPlugin::class)
         project.pluginManager.apply(ShadowPlugin::class)
 
-        val sourceSets = project.extensions.getByType<SourceSetContainer>()
+        val embedPreRelocated: Configuration = project.configurations.create("embedPreRelocated")
+        val embed: Configuration = project.configurations.create("embed")
 
-        val embedRelocateLib: Configuration = project.configurations.create("embedRelocateLib") {
-            isTransitive = false
-        }
-        val embedLib: Configuration = project.configurations.create("embedLib")
-        val embed: Configuration = project.configurations.create("embed") {
-            isTransitive = false
-        }
-        val scopes = listOf("compileOnly", "implementation", "api")
-        scopes.forEach { config ->
-            listOf("embed", "embedLib").forEach { name ->
-                val cfg = project.configurations.create("$name${config.capitalized()}")
-                project.configurations[config].extendsFrom(cfg)
-                project.configurations[name].extendsFrom(cfg)
-            }
-        }
-
-        val reportTask = project.tasks.named("generateLicenseReport")
-        val licenseDir = project.layout.buildDirectory.dir("generated/dependency-licenses")
-        val licenseSources = licenseDir.map { project.files(it).builtBy(reportTask) }
-
-        project.extensions.configure<LicenseReportExtension>("licenseReport") {
-            excludes = project.rootProject.subprojects.map { "${it.group}:${it.name}" }.toTypedArray()
-            configurations = arrayOf("embedLib", "embedRelocateLib")
-            renderers = arrayOf<ReportRenderer>(CustomReportRenderer())
+        val reportTask = project.tasks.register<CopyLicensesTask>("generateLicenseReport") {
+            fromConfigurations(listOf(embed.name, embedPreRelocated.name))
         }
 
         project.extensions.configure<JavaPluginExtension> {
             withSourcesJar()
         }
 
+        fun Jar.inheritArchiveName() {
+            archiveBaseName.set(ext.archiveBaseName)
+            archiveVersion.set(ext.archiveVersion)
+            archiveClassifier.set(name)
+        }
+
         project.tasks.named<Jar>("jar") {
-            archiveBaseName.set(ext.archiveBaseName)
-            archiveVersion.set(ext.archiveVersion)
-            archiveClassifier.set(name)
+            inheritArchiveName()
+            mergeMergableFiles()
         }
 
-        val embedSplitJars = project.provider {
-            embed.incoming.artifactView {
-                componentFilter { id ->
-                    if (id !is ProjectComponentIdentifier) return@componentFilter false
-                    val depProj = project.rootProject.findProject(id.projectPath)
-                    if (depProj == null) return@componentFilter false
-                    return@componentFilter depProj.plugins.hasPlugin(SplitJarsPlugin::class)
-                }
+        val preshadowJar = project.tasks.register<Jar>("preshadowJar") {
+            group = "build"
+            inheritArchiveName()
+            mergeMergableFiles()
+            embed.incoming.artifacts.forEach { artifact ->
+                val id = artifact.id.componentIdentifier
+                if (id !is ProjectComponentIdentifier) return@forEach
+                val depProj = project.rootProject.project(id.projectPath)
+                val jarTask = depProj.tasks.named<Jar>("jar")
+                dependsOn(jarTask)
+                from(project.zipTree(jarTask.get().archiveFile))
             }
-        }
-        val embedNonSplitJars = project.provider {
-            embed.incoming.artifactView {
-                componentFilter { id ->
-                    if (id !is ProjectComponentIdentifier) return@componentFilter true
-                    val depProj = project.rootProject.findProject(id.projectPath)
-                    if (depProj == null) return@componentFilter true
-                    return@componentFilter !depProj.plugins.hasPlugin(SplitJarsPlugin::class)
-                }
-            }
+            val jarTask = project.tasks.named<Jar>("jar")
+            dependsOn(jarTask)
+            from(project.zipTree(jarTask.get().archiveFile))
         }
 
-        val shallowRelocateLibJar = project.tasks.register<ShadowJar>("shallowRelocateLibJar") {
-            archiveBaseName.set(ext.archiveBaseName)
-            archiveVersion.set(ext.archiveVersion)
-            archiveClassifier.set(name)
+        val relocatePreshadowJar = project.tasks.register<ShadowJar>("relocatePreshadowJar") {
             configurations.set(listOf())
+            inheritArchiveName()
+            mergeMergableFiles()
 
-            embedRelocateLib.forEach {
-                from(project.zipTree(it)) {
-                    exclude(ext.embedLibExcludes.get())
-                }
-            }
+            dependsOn(preshadowJar)
+            from(project.zipTree(preshadowJar.map { it.archiveFile }))
 
-            localRelocate.getRelocations().get().forEach {
-                relocate(it.pattern, it.destination, it.relocator)
-            }
-        }
-
-        project.dependencies.add("api", project.files(shallowRelocateLibJar))
-        project.artifacts.add("apiElements", shallowRelocateLibJar) { builtBy(shallowRelocateLibJar) }
-        project.tasks.named("compileJava").configure {
-            dependsOn(shallowRelocateLibJar)
-        }
-
-        val shallowLibJar = project.tasks.register<ShadowJar>("shallowLibJar") {
-            archiveBaseName.set(ext.archiveBaseName)
-            archiveVersion.set(ext.archiveVersion)
-            archiveClassifier.set(name)
-            configurations.set(listOf())
-
-            embedLib.forEach {
-                from(project.zipTree(it)) {
-                    exclude(ext.embedLibExcludes.get())
-                }
-            }
-
-            libRelocate.getRelocations().get().forEach {
+            ext.getRelocations().get().forEach {
                 relocate(it.pattern, it.destination, it.relocator)
             }
         }
 
         val libJar = project.tasks.register<ShadowJar>("libJar") {
-            group = "build"
-            archiveBaseName.set(ext.archiveBaseName)
-            archiveVersion.set(ext.archiveVersion)
-            archiveClassifier.set(name)
             configurations.set(listOf())
-
-            dependsOn(shallowLibJar)
-            from(project.zipTree(shallowLibJar.map(Jar::getArchiveFile)))
-            dependsOn(shallowRelocateLibJar)
-            from(project.zipTree(shallowRelocateLibJar.map(Jar::getArchiveFile)))
-
-            val depTasks = project.provider {
-                embed.incoming.artifactView {}.artifacts.artifactFiles.buildDependencies.getDependencies(null)
-            }
-            dependsOn(depTasks)
-
-            val depTrees = embedSplitJars.map {
-                it.artifacts.map { artifact ->
-                    val id = artifact.id.componentIdentifier as ProjectComponentIdentifier
-                    val depProj = project.rootProject.findProject(id.projectPath)!!
-                    val depLibJar = depProj.tasks.named<ShadowJar>("libJar")
-                    project.zipTree(depLibJar.map(Jar::getArchiveFile))
+            group = "build"
+            inheritArchiveName()
+            mergeMergableFiles()
+            dependsOn(embed.buildDependencies)
+            val libs = embed.incoming.artifactView {
+                componentFilter {
+                    it is ModuleComponentIdentifier || it is OpaqueComponentArtifactIdentifier
                 }
             }
+            from(libs.files.map { project.zipTree(it) }) {
+                exclude(ext.embedLibExcludes.get())
+            }
 
-            from(depTrees)
-
-            from(licenseSources) { into("META-INF") }
-            transform<NoticeMergingTransformer>()
-            mergeMergableFiles()
-        }
-
-        val relocateJar = project.tasks.register<ShadowJar>("relocateJar") {
-            archiveBaseName.set(ext.archiveBaseName)
-            archiveVersion.set(ext.archiveVersion)
-            archiveClassifier.set(name)
-            configurations.set(listOf())
-
-            from(sourceSets.getByName("main").output)
-
-            libRelocate.getRelocations().get().forEach {
+            ext.getRelocations().get().forEach {
                 relocate(it.pattern, it.destination, it.relocator)
             }
+
+            dependsOn(reportTask)
+            from(reportTask.get().outputDir) {
+                into("META-INF")
+            }
         }
 
-        val nonLibJar = project.tasks.register<Jar>("nonLibJar") {
+        val combinedJar = project.tasks.register<Jar>("combinedJar") {
             group = "build"
-            archiveBaseName.set(ext.archiveBaseName)
-            archiveVersion.set(ext.archiveVersion)
-            archiveClassifier.set(name)
+            inheritArchiveName()
+            mergeMergableFiles()
+            dependsOn(libJar, relocatePreshadowJar)
+            from(project.zipTree(libJar.map { it.archiveFile }))
+            from(project.zipTree(relocatePreshadowJar.map { it.archiveFile }))
+        }
 
+        val combinedSourcesJar = project.tasks.register<Jar>("combinedSourcesJar") {
+            inheritArchiveName()
             mergeMergableFiles()
 
-            val depTasks = project.provider {
-                embed.incoming.artifactView {}.artifacts.artifactFiles.buildDependencies.getDependencies(null)
-            }
-            dependsOn(depTasks)
-
-            val nonSplitDeps = embedNonSplitJars.map {
-                it.artifacts.map { artifact -> project.zipTree(artifact.file) }
-            }
-            val splitDeps = embedSplitJars.map {
-                it.artifacts.map { artifact ->
-                    val id = artifact.id.componentIdentifier as ProjectComponentIdentifier
-                    val depProj = project.rootProject.findProject(id.projectPath)!!
-                    val depLibJar = depProj.tasks.named<Jar>(name)
-                    project.zipTree(depLibJar.map(Jar::getArchiveFile))
-                }
-            }
-
-            from(nonSplitDeps, splitDeps)
-
-            dependsOn(relocateJar)
-            from(project.zipTree(relocateJar.map { it.archiveFile }))
-        }
-
-        val preshadowJar = project.tasks.register<ShadowJar>("preshadowJar") {
-            group = "build"
-            archiveBaseName.set(ext.archiveBaseName)
-            archiveVersion.set(ext.archiveVersion)
-            archiveClassifier.set(name)
-            configurations.set(listOf())
-
-            val depTasks = project.provider {
-                embed.incoming.artifactView {}.artifacts.artifactFiles.buildDependencies.getDependencies(null)
-            }
-            dependsOn(depTasks)
-
-            val nonSplitDeps = embedNonSplitJars.map {
-                it.artifacts.map { artifact -> project.zipTree(artifact.file) }
-            }
-
-            val splitDeps = embedSplitJars.map {
-                it.artifacts.map { artifact ->
-                    val id = artifact.id.componentIdentifier as ProjectComponentIdentifier
-                    val depProj = project.rootProject.findProject(id.projectPath)!!
-                    val depLibJar = depProj.tasks.named<ShadowJar>(name)
-                    project.zipTree(depLibJar.map(Jar::getArchiveFile))
-                }
-            }
-
-            from(nonSplitDeps, splitDeps)
-
-            dependsOn(shallowRelocateLibJar)
-            from(project.zipTree(shallowRelocateLibJar.flatMap(Jar::getArchiveFile)))
-
-            from(sourceSets.getByName("main").output)
-        }
-
-        val combinedJar = project.tasks.register<ShadowJar>("combinedJar") {
-            group = "build"
-            archiveBaseName.set(ext.archiveBaseName)
-            archiveVersion.set(ext.archiveVersion)
-            archiveClassifier.set(name)
-            dependsOn(libJar, nonLibJar)
-            from(project.zipTree(libJar.map { it.archiveFile }))
-            from(project.zipTree(nonLibJar.map { it.archiveFile }))
-        }
-
-        val sourcesJar = project.tasks.named<Jar>("sourcesJar")
-        sourcesJar.configure {
-            archiveBaseName.set(ext.archiveBaseName)
-            archiveVersion.set(ext.archiveVersion)
-            archiveClassifier.set("sources")
-            embed.incoming.artifactView {
-                componentFilter { it is ProjectComponentIdentifier }
-            }.artifacts.map { artifact ->
-                val id = artifact.id.componentIdentifier as ProjectComponentIdentifier
-                val depProj = project.rootProject.findProject(id.projectPath)!!
-                val depSourcesJarTask = depProj.tasks.named<Jar>("sourcesJar")
-                val depSourcesJar = depSourcesJarTask.map { it.archiveFile }
-                dependsOn(depSourcesJarTask)
-                inputs.file(depSourcesJar)
-                from(project.zipTree(depSourcesJar))
+            embed.incoming.artifacts.forEach { artifact ->
+                val id = artifact.id.componentIdentifier
+                if (id !is ProjectComponentIdentifier) return@forEach
+                val depProj = project.rootProject.project(id.projectPath)
+                val jarTask = depProj.tasks.named<Jar>("sourcesJar")
+                dependsOn(jarTask)
+                from(jarTask.flatMap { it.archiveFile }.map { project.zipTree(it) })
             }
         }
 
-        project.tasks.shadowJar.configure { enabled = false }
+        listOf("api", "compileOnly", "implementation", "runtimeOnly").forEach {
+            val config = project.configurations.create("embed${it.capitalized()}")
+            embed.extendsFrom(config)
+            project.configurations.getByName(it).extendsFrom(config)
+        }
 
-        project.extensions.extraProperties.set("sourcesJar", sourcesJar)
+        project.tasks.shadowJar.configure {
+            group = "other"
+            enabled = false
+        }
+
+        project.extensions.extraProperties.set("combinedSourcesJar", combinedSourcesJar)
         project.extensions.extraProperties.set("libJar", libJar)
-        project.extensions.extraProperties.set("nonLibJar", nonLibJar)
-        project.extensions.extraProperties.set("shallowLibJar", shallowLibJar)
         project.extensions.extraProperties.set("preshadowJar", preshadowJar)
+        project.extensions.extraProperties.set("relocatePreshadowJar", relocatePreshadowJar)
         project.extensions.extraProperties.set("combinedJar", combinedJar)
     }
 }

@@ -16,7 +16,6 @@ pluginManagement {
     }
 
     plugins {
-        id("com.github.jk1.dependency-license-report") version prop("licenseReportVersion")
         id("com.gradleup.shadow") version prop("shadowVersion")
         id("dev.kikugie.stonecutter") version prop("stonecutterVersion")
         id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
@@ -45,9 +44,9 @@ include("modules:main")
 
 stonecutter {
     var versions = arrayOf(
-        "1.8.9",
+        /*"1.8.9",*/
         "1.12.2",
-        "1.14.4",
+        /*"1.14.4",
         "1.15.2",
         "1.16.5",
         "1.17.1",
@@ -60,7 +59,7 @@ stonecutter {
         "1.21",
         "1.21.3",
         "1.21.4",
-        "1.21.5",
+        "1.21.5",*/
     )
     kotlinController = true
     create(rootProject) {

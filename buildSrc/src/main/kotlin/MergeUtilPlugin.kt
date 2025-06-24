@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Jar
 import java.io.File
 import java.util.jar.Attributes
+import java.util.jar.Manifest
 
 class MergeUtilPlugin : Plugin<Project> {
     override fun apply(project: Project) {}
@@ -24,10 +25,9 @@ fun Jar.mergeServiceFiles() {
 
     doFirst {
         val merged = mutableMapOf<String, MutableSet<String>>()
-        val buildDir = project.layout.buildDirectory.get()
 
         inputs.files.forEach { file ->
-            val serviceDir = file.relativeToOrNull(buildDir.asFile)?.parentFile
+            val serviceDir = file.parentFile
             if (serviceDir?.name != "services") return@forEach
             val metaDir = serviceDir.parentFile
             if (metaDir?.name != "META-INF") return@forEach
@@ -49,26 +49,19 @@ fun Jar.mergeServiceFiles() {
 
 fun Jar.mergeManifestFiles() {
     doFirst {
-        val merged = java.util.jar.Manifest()
+        val merged = Manifest()
         val seenKeys = mutableMapOf<Any, MutableList<String>>()
-        val buildDir = project.layout.buildDirectory.get()
 
         inputs.files.forEach { file ->
-            val maybeManifest = file.relativeToOrNull(buildDir.asFile)?.let { rel ->
-                val path = rel.path.replace('\\', '/')
-                if (path.endsWith("META-INF/MANIFEST.MF")) file else null
-            }
-            if (maybeManifest != null) {
-                val mf = java.util.jar.Manifest(maybeManifest.inputStream())
-                val source = maybeManifest.path
+            val path = file.path.replace('\\', '/')
+            if (!path.endsWith("META-INF/MANIFEST.MF")) return@forEach
 
-                mf.mainAttributes.forEach { key, value ->
-                    if (key != null && value != null) {
-                        if (!merged.mainAttributes.containsKey(key)) {
-                            merged.mainAttributes.put(key, value)
-                        }
-                        seenKeys.getOrPut(key) { mutableListOf() } += source
+            Manifest(file.inputStream()).mainAttributes.forEach { key, value ->
+                if (key != null && value != null) {
+                    if (!merged.mainAttributes.containsKey(key)) {
+                        merged.mainAttributes.put(key, value)
                     }
+                    seenKeys.getOrPut(key) { mutableListOf() } += path
                 }
             }
         }

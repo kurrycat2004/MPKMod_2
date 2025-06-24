@@ -8,11 +8,9 @@ import org.objectweb.asm.tree.ClassNode;
 
 /// Used in {@link CoreLoadingPlugin#getASMTransformerClass()}
 public final class CoreTransformer implements IClassTransformer {
-    private static final boolean hasInitialized = TransformerManager.tryInitialize("IFMLLoadingPlugin");
-
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
-        if (!hasInitialized || basicClass == null) return basicClass;
+        if (basicClass == null) return null;
 
         if (!TransformerManager.shouldTransform(transformedName)) {
             return basicClass;

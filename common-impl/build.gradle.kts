@@ -1,3 +1,4 @@
+import buildlogic.mergeMergableFiles
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
@@ -35,13 +36,11 @@ val shadedDeps = listOf(
     "xyz.wagyourtail.jvmdowngrader:jvmdowngrader-java-api:${property("jvmDowngraderVersion")}",
 )
 
+val modGroup = property("modGroup") as String
+
 splitJars {
     archiveBaseName = "${project.property("modId")}"
     archiveVersion = "${project.property("modVersion")}"
-}
-
-val modGroup = property("modGroup") as String
-libRelocate {
     relocateDeps.forEach {
         relocate(it, "${modGroup}.shaded.$it") {
             exclude("${modGroup}.**")
@@ -60,13 +59,21 @@ val shadowJavaApiJar = tasks.register<ShadowJar>("shadowJavaApiJar") {
         )
     }
 }
-tasks.shallowLibJar {
+val extraJar = tasks.register<Jar>("extraJar") {
+    archiveClassifier.set("extra")
     dependsOn(shadowJavaApiJar)
     from(shadowJavaApiJar.map(Jar::getArchiveFile)) {
         into("META-INF/lib")
     }
     from(zipTree(shadowJavaApiJar.map(Jar::getArchiveFile))) {
         include("META-INF/coverage/**")
+    }
+    mergeMergableFiles()
+}
+
+artifacts {
+    add("embed", extraJar.flatMap { it.archiveFile }) {
+        builtBy(extraJar)
     }
 }
 
@@ -81,5 +88,5 @@ dependencies {
 
     javaApiJar("xyz.wagyourtail.jvmdowngrader:jvmdowngrader-java-api:${property("jvmDowngraderVersion")}:downgraded-8")
 
-    shadedDeps.forEach { depNotation -> embedLibApi(depNotation) }
+    shadedDeps.forEach { depNotation -> embedApi(depNotation) }
 }

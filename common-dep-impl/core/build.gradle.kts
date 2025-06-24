@@ -15,6 +15,7 @@ repositories {
     mavenCentral()
     maven("https://maven.neoforged.net/releases/")
     maven("https://files.minecraftforge.net/maven")
+    maven("https://repo.spongepowered.org/maven/")
 }
 
 val shared: SourceSet by sourceSets.creating
@@ -24,6 +25,9 @@ val fmlStubs: SourceSet by sourceSets.creating
 val fml: SourceSet by sourceSets.creating { compileClasspath += shared.output }
 val fmlCompOnly: Configuration = configurations[fml.compileOnlyConfigurationName]
 
+val mixin: SourceSet by sourceSets.creating { compileClasspath += shared.output }
+val mixinCompOnly: Configuration = configurations[mixin.compileOnlyConfigurationName]
+
 val modlauncher: SourceSet by sourceSets.creating { compileClasspath += shared.output }
 val modlauncherCompOnly: Configuration = configurations[modlauncher.compileOnlyConfigurationName]
 
@@ -32,17 +36,15 @@ dependencies {
         fun compOnly(dep: Any) = add(it.compileOnlyConfigurationName, dep)
         compOnly(project(":common-api"))
         compOnly(project(":inject-tags"))
+
+        compOnly("org.ow2.asm:asm:4.1")
+        compOnly("org.ow2.asm:asm-tree:4.1")
+        compOnly("org.ow2.asm:asm-commons:4.1")
     }
 
-    sharedCompOnly("org.ow2.asm:asm:4.1")
-    sharedCompOnly("org.ow2.asm:asm-tree:4.1")
-    sharedCompOnly("org.ow2.asm:asm-commons:4.1")
-
     fmlCompOnly(fmlStubs.output)
-    fmlCompOnly("org.ow2.asm:asm:4.1")
-    fmlCompOnly("org.ow2.asm:asm-tree:4.1")
-    fmlCompOnly("org.ow2.asm:asm-commons:4.1")
-
+    // earliest used (forge 1.15.2)
+    mixinCompOnly("org.spongepowered:mixin:0.8.4")
     modlauncherCompOnly("cpw.mods:modlauncher:2.1.5")
 }
 

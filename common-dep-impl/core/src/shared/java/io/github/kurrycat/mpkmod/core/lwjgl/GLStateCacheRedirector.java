@@ -3,7 +3,6 @@ package io.github.kurrycat.mpkmod.core.lwjgl;
 import io.github.kurrycat.mpkmod.Tags;
 import io.github.kurrycat.mpkmod.api.log.ILogger;
 import io.github.kurrycat.mpkmod.core.Transformer;
-import io.github.kurrycat.mpkmod.core.TransformerManager;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -12,7 +11,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 public class GLStateCacheRedirector implements Transformer {
     private static final boolean LOG_REDIRECTS = Boolean.getBoolean("mpkmod.core.logGLStateCacheRedirects");
-    private static final ILogger LOGGER = TransformerManager.LOGGER.createSubLogger("GLStateCacheRedirector");
+    private static final ILogger LOGGER = Transformer.LOGGER.createSubLogger("GLStateCacheRedirector");
 
     private static final String MOD_GROUP = Tags.MOD_GROUP.replace('.', '/');
     private static final String EXCLUDE = MOD_GROUP + "/lwjgl/glsc";

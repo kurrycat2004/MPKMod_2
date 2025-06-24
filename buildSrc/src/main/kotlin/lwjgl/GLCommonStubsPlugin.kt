@@ -13,11 +13,15 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.create
@@ -45,10 +49,18 @@ class GLCommonStubsPlugin : Plugin<Project> {
 
         val outputDir = project.layout.buildDirectory.dir("generated/sources/lwjgl-stubs-sources")
 
+        fun libJar(dependencyNotation: Any): File {
+            val dep = project.dependencies.create(dependencyNotation)
+            val config = project.configurations.detachedConfiguration(dep).apply {
+                isTransitive = false
+            }
+            return config.resolve().single()
+        }
+
         val generate = project.tasks.register<GenerateStubsSourcesTask>("generateLwjglStubsSources") {
             this.outputDir.set(outputDir)
-            lwjgl2Dep.set(ext.lwjgl2Dep)
-            lwjgl3Dep.set(ext.lwjgl3Dep)
+            lwjgl2Dep.set(libJar(ext.lwjgl2Dep.get()))
+            lwjgl3Dep.set(libJar(ext.lwjgl3Dep.get()))
         }
 
         ext.stubsSourceSet.get().java.srcDir(generate.flatMap { it.outputDir })
@@ -58,30 +70,23 @@ class GLCommonStubsPlugin : Plugin<Project> {
     }
 }
 
+@CacheableTask
 abstract class GenerateStubsSourcesTask : DefaultTask() {
-    @Input
-    val lwjgl2Dep: Property<String> = project.objects.property(String::class.java)
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val lwjgl2Dep: RegularFileProperty
 
-    @Input
-    val lwjgl3Dep: Property<String> = project.objects.property(String::class.java)
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val lwjgl3Dep: RegularFileProperty
 
-    @OutputDirectory
-    val outputDir: DirectoryProperty = project.objects.directoryProperty()
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
 
     @TaskAction
     fun generate() {
-        val config2 = project.configurations.detachedConfiguration(
-            project.dependencies.create(lwjgl2Dep.get())
-        ).apply { isTransitive = false }
-        val config3 = project.configurations.detachedConfiguration(
-            project.dependencies.create(lwjgl3Dep.get())
-        ).apply { isTransitive = false }
-
-        val lwjgl2Jar = config2.resolve().single()
-        val lwjgl3Jar = config3.resolve().single()
-
-        val lwjgl2Map = extractStubsFromJar(lwjgl2Jar)
-        val lwjgl3Map = extractStubsFromJar(lwjgl3Jar)
+        val lwjgl2Map = extractStubsFromJar(lwjgl2Dep.get().asFile)
+        val lwjgl3Map = extractStubsFromJar(lwjgl3Dep.get().asFile)
 
         val javaRoot = outputDir.get().asFile
         javaRoot.mkdirs()
