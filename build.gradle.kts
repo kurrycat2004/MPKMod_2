@@ -176,10 +176,10 @@ activeLoaders.forEach { (loader, loaderVersion) ->
 sourceSets.all {
     val compTimeExclude = compileTimeExclude.map { it.replace(':', '/') }
     val original = compileClasspath
-    compileClasspath = original.filter {
+    compileClasspath = project.files(original.filter {
         val path = it.path.replace('\\', '/')
         !compTimeExclude.any { exclude -> path.contains(exclude) }
-    }
+    })
 }
 
 dependencies {
