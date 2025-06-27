@@ -2,8 +2,6 @@ package io.github.kurrycat.mpkmod.stonecutter.vintage_forge;
 
 import io.github.kurrycat.mpkmod.Tags;
 import io.github.kurrycat.mpkmod.api.ModPlatform;
-import io.github.kurrycat.mpkmod.api.log.ILogger;
-import io.github.kurrycat.mpkmod.api.log.LogManager;
 import io.github.kurrycat.mpkmod.api.minecraft.IFileEnv;
 import io.github.kurrycat.mpkmod.api.render.CommandReceiver;
 import io.github.kurrycat.mpkmod.api.render.RenderBackend;
@@ -86,6 +84,7 @@ public class MPKModVintageForge {
     }
 
     int renderBackendId = 0;
+
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END || Minecraft.getMinecraft().currentScreen != null) return;

@@ -17,6 +17,7 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.internal.component.local.model.OpaqueComponentArtifactIdentifier
 import org.gradle.internal.extensions.stdlib.capitalized
@@ -58,6 +59,15 @@ data class Relocation(
     val relocator: Action<SimpleRelocator>? = null
 )
 
+fun Project.embedJarTaskResult(task: TaskProvider<out Jar>) {
+    configurations.getByName("embed").outgoing.artifact(task) {
+        builtBy(task)
+    }
+    dependencies.add("embed", project.files(task.flatMap { it.archiveFile }).apply {
+        builtBy(task)
+    })
+}
+
 fun Project.embedRelocate(
     dep: Any,
     pattern: String,
@@ -70,9 +80,7 @@ fun Project.embedRelocate(
     if (dependency is ExternalModuleDependency) dependency.isTransitive = isTransitive
 
     val name = "relocate_${dep.toString().replace(':', '_').replace('.', '_')}"
-    val config = project.configurations.detachedConfiguration(dependency).apply {
-        this.isTransitive = false
-    }
+    val config = project.configurations.detachedConfiguration(dependency)
     val shadowTask = project.tasks.register<ShadowJar>(name) {
         destinationDirectory.set(temporaryDir)
         archiveFileName.set("$name.${archiveExtension.get()}")
@@ -85,9 +93,7 @@ fun Project.embedRelocate(
             builtBy(shadowTask)
         })
     }
-    project.configurations.getByName("embed").outgoing.artifact(shadowTask) {
-        builtBy(shadowTask)
-    }
+    embedJarTaskResult(shadowTask)
 }
 
 class SplitJarsPlugin : Plugin<Project> {
@@ -155,6 +161,10 @@ class SplitJarsPlugin : Plugin<Project> {
             inheritArchiveName()
             mergeMergableFiles()
             dependsOn(embed.buildDependencies)
+            /*println("Adding artifacts from embed configuration:")
+            embed.incoming.artifacts.forEach {
+                println("Adding artifact: ${it.id.displayName}, ${it.id.componentIdentifier.javaClass.name}")
+            }*/
             val libs = embed.incoming.artifactView {
                 componentFilter {
                     it is ModuleComponentIdentifier || it is OpaqueComponentArtifactIdentifier

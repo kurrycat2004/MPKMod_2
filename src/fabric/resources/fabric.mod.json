@@ -16,7 +16,9 @@
       "io.github.kurrycat.mpkmod.stonecutter.fabric.MPKModFabric"
     ]
   },
-  "mixins": [],
+  "mixins": [
+    "mpkmod.mixins.core.json"
+  ],
   "depends": {
     "fabricloader": ">=${loaderVersion}",
     "minecraft": "~${mcVersion}",

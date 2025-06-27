@@ -12,7 +12,7 @@ public interface ServiceManager {
         private static final ServiceManager INSTANCE;
 
         static {
-            INSTANCE = ServiceLoader.load(ServiceManager.class).findFirst().orElseThrow();
+            INSTANCE = ServiceLoader.load(ServiceManager.class, ServiceManager.class.getClassLoader()).findFirst().orElseThrow();
             INSTANCE.init();
         }
     }

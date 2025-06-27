@@ -33,11 +33,22 @@ public enum TransformerManager {
         }
     }
 
+    public static boolean isInitialized() {
+        return initialized;
+    }
+
     public static boolean tryInitialize(String source) {
         if (initialized) return false;
         initialized = true;
         Transformer.LOGGER.info("Initializing transformer pipeline using: " + source);
         return true;
+    }
+
+    /// Used via reflection as {@link org.spongepowered.asm.mixin.transformer.CoreMixinCoprocessor#tryTransformHandle}
+    @SuppressWarnings("unused")
+    public static boolean tryTransform(String className, ClassNode input) {
+        if (!shouldTransform(className)) return false;
+        return transform(input);
     }
 
     public static boolean shouldTransform(String className) {

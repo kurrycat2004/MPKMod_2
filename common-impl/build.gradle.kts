@@ -1,3 +1,5 @@
+import buildlogic.embedJarTaskResult
+import buildlogic.embedRelocate
 import buildlogic.mergeMergableFiles
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
@@ -24,7 +26,7 @@ val relocateDeps = listOf(
     "de.jcm.discordgamesdk",
     "org.antlr",
     "org.checkerframework",
-    "org.objectweb.asm",
+    /*"org.objectweb.asm",*/
     "org.tomlj",
     //"xyz.wagyourtail.jvmdg",
 )
@@ -32,8 +34,8 @@ val relocateDeps = listOf(
 val shadedDeps = listOf(
     "com.github.JnCrMx:discord-game-sdk4j:${property("discordGameSdkVersion")}",
     "org.tomlj:tomlj:${property("tomljVersion")}",
-    "xyz.wagyourtail.jvmdowngrader:jvmdowngrader:${property("jvmDowngraderVersion")}",
-    "xyz.wagyourtail.jvmdowngrader:jvmdowngrader-java-api:${property("jvmDowngraderVersion")}",
+    /*"xyz.wagyourtail.jvmdowngrader:jvmdowngrader:${property("jvmDowngraderVersion")}",
+    "xyz.wagyourtail.jvmdowngrader:jvmdowngrader-java-api:${property("jvmDowngraderVersion")}",*/
 )
 
 val modGroup = property("modGroup") as String
@@ -70,12 +72,7 @@ val extraJar = tasks.register<Jar>("extraJar") {
     }
     mergeMergableFiles()
 }
-
-artifacts {
-    add("embed", extraJar.flatMap { it.archiveFile }) {
-        builtBy(extraJar)
-    }
-}
+embedJarTaskResult(extraJar)
 
 dependencies {
     compileOnly(project(":common-processor"))
@@ -88,5 +85,15 @@ dependencies {
 
     javaApiJar("xyz.wagyourtail.jvmdowngrader:jvmdowngrader-java-api:${property("jvmDowngraderVersion")}:downgraded-8")
 
+    listOf(
+        "xyz.wagyourtail.jvmdowngrader:jvmdowngrader:${property("jvmDowngraderVersion")}",
+        "xyz.wagyourtail.jvmdowngrader:jvmdowngrader-java-api:${property("jvmDowngraderVersion")}",
+    ).forEach {
+        embedRelocate(
+            it,
+            "org.objectweb.asm", "xyz.wagyourtail.jvmdg.shade.asm",
+            "api"
+        )
+    }
     shadedDeps.forEach { depNotation -> embedApi(depNotation) }
 }

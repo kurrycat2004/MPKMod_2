@@ -29,7 +29,7 @@ public class GLStateCacheRedirector implements Transformer {
 
     @Override
     public boolean transform(ClassNode cn) {
-        boolean modified = false;
+        int modified = 0;
 
         for (Object mnObj : cn.methods) {
             MethodNode mn = (MethodNode) mnObj;
@@ -52,7 +52,7 @@ public class GLStateCacheRedirector implements Transformer {
                                  "glIsEnabled(I)Z",
                                  "glGetInteger(I)I" -> {
                                 m.owner = CACHE_OWNER;
-                                modified = true;
+                                modified++;
                             }
                         }
                     }
@@ -60,7 +60,7 @@ public class GLStateCacheRedirector implements Transformer {
                         switch (key) {
                             case "glBindBuffer(II)V" -> {
                                 m.owner = CACHE_OWNER;
-                                modified = true;
+                                modified++;
                             }
                         }
                     }
@@ -68,7 +68,7 @@ public class GLStateCacheRedirector implements Transformer {
                         switch (key) {
                             case "glUseProgram(I)V" -> {
                                 m.owner = CACHE_OWNER;
-                                modified = true;
+                                modified++;
                             }
                         }
                     }
@@ -76,7 +76,7 @@ public class GLStateCacheRedirector implements Transformer {
                         switch (key) {
                             case "glBindVertexArray(I)V" -> {
                                 m.owner = CACHE_OWNER;
-                                modified = true;
+                                modified++;
                             }
                         }
                     }
@@ -84,9 +84,9 @@ public class GLStateCacheRedirector implements Transformer {
             }
         }
 
-        if (LOG_REDIRECTS && modified) {
-            LOGGER.info("Redirected GL call in: " + cn.name);
+        if (LOG_REDIRECTS && modified != 0) {
+            LOGGER.info("Redirected {} GL calls in {}", modified, cn.name);
         }
-        return modified;
+        return modified != 0;
     }
 }

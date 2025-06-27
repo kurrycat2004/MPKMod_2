@@ -39,9 +39,11 @@ public final class ServiceManagerImpl implements ServiceManager {
 
     public ServiceManagerImpl() {
         LOGGER = StdoutLogger.FALLBACK.createSubLogger("service").createFixed(LOG_LEVEL);
+        LOGGER.log("Initialized service manager using class loader: {}",
+                ServiceManagerImpl.class.getClassLoader());
 
         Map<Class<?>, List<ServiceProvider>> cache = new HashMap<>();
-        for (ServiceProvider provider : ServiceLoader.load(ServiceProvider.class)) {
+        for (ServiceProvider provider : ServiceLoader.load(ServiceProvider.class, ServiceManager.class.getClassLoader())) {
             cache.computeIfAbsent(provider.type(), k -> new ArrayList<>())
                     .add(provider);
         }
