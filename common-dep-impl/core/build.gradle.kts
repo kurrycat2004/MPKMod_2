@@ -36,16 +36,25 @@ dependencies {
         fun compOnly(dep: Any) = add(it.compileOnlyConfigurationName, dep)
         compOnly(project(":common-api"))
         compOnly(project(":inject-tags"))
-
-        compOnly("org.ow2.asm:asm:4.1")
-        compOnly("org.ow2.asm:asm-tree:4.1")
-        compOnly("org.ow2.asm:asm-commons:4.1")
     }
 
+    fun asm(configuration: Configuration, version: String) {
+        configuration("org.ow2.asm:asm:$version")
+        configuration("org.ow2.asm:asm-tree:$version")
+        configuration("org.ow2.asm:asm-commons:$version")
+    }
+
+    asm(sharedCompOnly, "4.1")
+
     fmlCompOnly(fmlStubs.output)
+    asm(fmlCompOnly, "4.1")
+
     // earliest used (forge 1.15.2)
     mixinCompOnly("org.spongepowered:mixin:0.8.4")
+    asm(mixinCompOnly, "5.0.3")
+
     modlauncherCompOnly("cpw.mods:modlauncher:2.1.5")
+    asm(modlauncherCompOnly, "4.1")
 }
 
 tasks.jar {

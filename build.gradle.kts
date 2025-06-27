@@ -102,7 +102,7 @@ unimined.minecraft(sharedLoaderSourceSet) {
         when (mappingType) {
             "yarn" -> let { intermediary(); yarn(mapArgs[1]) }
             "mcp" -> let { searge(); mcp(mapArgs[1], mapArgs[2]) }
-            "moj" -> let { intermediary(); mojmap(); }
+            "moj" -> let { intermediary(); mojmap(); devFallbackNamespace("official") }
             else -> error("Unknown mapping type: $mappingType")
         }
         //FIXME:

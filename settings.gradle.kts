@@ -44,9 +44,9 @@ include("modules:main")
 
 stonecutter {
     var versions = arrayOf(
-        /*"1.8.9",*/
+        "1.8.9",
         "1.12.2",
-        /*"1.14.4",
+        "1.14.4",
         "1.15.2",
         "1.16.5",
         "1.17.1",
@@ -59,7 +59,7 @@ stonecutter {
         "1.21",
         "1.21.3",
         "1.21.4",
-        "1.21.5",*/
+        "1.21.5",
     )
     kotlinController = true
     create(rootProject) {

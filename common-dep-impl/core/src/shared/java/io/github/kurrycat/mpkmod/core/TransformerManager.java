@@ -44,7 +44,7 @@ public enum TransformerManager {
         return true;
     }
 
-    /// Used via reflection as {@link org.spongepowered.asm.mixin.transformer.CoreMixinCoprocessor#tryTransformHandle}
+    /// Used via reflection as handle in {@link io.github.kurrycat.mpkmod.core.mixin.CoreMixinCoprocessorGenerator}
     @SuppressWarnings("unused")
     public static boolean tryTransform(String className, ClassNode input) {
         if (!shouldTransform(className)) return false;

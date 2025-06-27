@@ -29,6 +29,10 @@ authors = "${modAuthors}" #optional
 description = '''
 ${modDescription}
 '''
+
+[[mixins]]
+config = "mpkmod.mixins.core.json"
+
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 
 #[[dependencies.mpkmod]] #optional
