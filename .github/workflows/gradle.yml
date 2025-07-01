@@ -8,6 +8,7 @@
 name: Build
 
 on:
+  workflow_dispatch: 
   push:
     branches: [ "master" ]
   pull_request:
@@ -40,18 +41,16 @@ jobs:
       with:
         java-version: '21'
         distribution: 'adopt'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
-    - name: Validate Gradle wrapper
-      uses: gradle/wrapper-validation-action@ccb4328a959376b642e027874838f60f8e596de3
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@749f47bda3e44aa060e82d7b3ef7e40d953bd629
-      with:
-        arguments: build
+      run: ./gradlew build
     - name: Set current date as env variable
       run: echo "NOW=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
     - name: Upload jars artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: mpkmod.${{ env.NOW }}
         path: build/libs/*.jar
