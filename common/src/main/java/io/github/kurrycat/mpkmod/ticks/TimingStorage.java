@@ -28,7 +28,7 @@ public class TimingStorage {
     public static boolean renderLastTimingMS = false;
 
     public static void init() {
-        InputStream stratFile = FileUtil.getResource(stratFileName);
+        InputStream stratFile = FileUtil.getResource(defaultStratFileName);
         patterns = Serializer.deserializeAny(stratFile, new TypeReference<HashMap<String, Timing>>() {
         });
 
@@ -38,11 +38,8 @@ public class TimingStorage {
             FileUtil.createFile(stratFileName, "{}");
         }
 
-        //TODO: Fix null pointer issue when the file has no timings
-        //I am too tired to do this rn
-//        try {
-//            patterns.putAll(Serializer.deserializeAny(file, new TypeReference<HashMap<String, Timing>>() {}));
-//        } catch (NullPointerException ignored) {}
+        //TODO: Fix potential null pointer issue
+        patterns.putAll(Serializer.deserializeAny(file, new TypeReference<HashMap<String, Timing>>() {}));
         if (patterns == null) return;
 
         API.LOGGER.info(API.CONFIG_MARKER, "{} Timings loaded from {}", patterns.size(), stratFileName);
