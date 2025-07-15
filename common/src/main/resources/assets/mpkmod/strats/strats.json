@@ -148,5 +148,17 @@
       "s:WAP!G",
       "WP!G"
     ]
+  },
+  "mark": {
+    "format": {
+      "default": "{a}t Mark",
+      "r!=1": " Run {r}t"
+    },
+    "timingEntries": [
+      "DJ",
+      "a{1,}:D!G",
+      "b:WDP!G",
+      "r{1,}:WDPG"
+    ]
   }
 }
