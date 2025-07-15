@@ -42,6 +42,19 @@
       "WP!G"
     ]
   },
+  "bwpessi": {
+    "format": {
+      "a==1": "Max ",
+      "default": "BWPessi",
+      "a!=1": " -{a}t",
+      "a_ms": " ({a_ms}ms}"
+    },
+    "timingEntries": [
+      "a{1,1}:J",
+      "a:!G",
+      "S!G"
+    ]
+  },
   "a7hh": {
     "format": {
       "default": "A7HH"

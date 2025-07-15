@@ -28,14 +28,18 @@ public class TimingStorage {
     public static boolean renderLastTimingMS = false;
 
     public static void init() {
+        InputStream stratFile = FileUtil.getResource(stratFileName);
+        patterns = Serializer.deserializeAny(stratFile, new TypeReference<HashMap<String, Timing>>() {
+        });
+
         File file = new File(stratFileName);
         if (!file.exists()) {
-            //Make the file and copy the default strat file
-            FileUtil.copyResource(defaultStratFileName, file);
+            //Make an empty json file if it doesn't exist
+            FileUtil.createFile(stratFileName, "{}");
         }
 
-        patterns = Serializer.deserializeAny(file, new TypeReference<HashMap<String, Timing>>() {
-        });
+        //TODO: Fix null pointer possibility here (it is highly unlikely as the file is created above)
+        patterns.putAll(Serializer.deserializeAny(file, new TypeReference<HashMap<String, Timing>>() {}));
         if (patterns == null) return;
 
         API.LOGGER.info(API.CONFIG_MARKER, "{} Timings loaded from {}", patterns.size(), stratFileName);
