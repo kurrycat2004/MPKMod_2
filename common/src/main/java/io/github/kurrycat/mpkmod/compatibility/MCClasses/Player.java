@@ -277,7 +277,7 @@ public class Player {
             if (lastBlip == null) lastBlip = new Blip(1, pos);
             else lastBlip = new Blip(lastBlip.chainedBlips + 1, pos);
         } else if (onGround) {
-            lastBlip = null;
+            if (lastBlip != null) lastBlip = new Blip(0, lastBlip.lastChainedBlips, lastBlip.pos);
         }
 
         Player.updateDisplayInstance();
@@ -371,16 +371,26 @@ public class Player {
         @InfoString.Field
         public final int chainedBlips;
         @InfoString.Field
+        public final int lastChainedBlips;
+        @InfoString.Field
         public final Vector3D pos;
 
         public Blip(int chainedBlips, Vector3D pos) {
             this.chainedBlips = chainedBlips;
+            this.lastChainedBlips = chainedBlips;
+            this.pos = pos;
+        }
+
+        public Blip(int chainedBlips, int lastChainedBlips, Vector3D pos) {
+            this.chainedBlips = chainedBlips;
+            this.lastChainedBlips = lastChainedBlips;
             this.pos = pos;
         }
 
         public String formatDecimals(int decimals, boolean keepZeros) {
             return "[" +
                     chainedBlips + ", " +
+                    lastChainedBlips + ", " +
                     pos.formatDecimals(decimals, keepZeros) +
                     "]";
         }
