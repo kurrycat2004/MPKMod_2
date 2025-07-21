@@ -160,5 +160,16 @@
       "b:WDP!G",
       "r{1,}:WDPG"
     ]
+  },
+  "delayedhh": {
+    "format": {
+      "default": "Delayed HH",
+      "x!=1": " {x}t",
+      "x_ms": " ({x_ms}ms}"
+    },
+    "timingEntries": [
+      "x{1,}:W",
+      "WPJ"
+    ]
   }
 }
