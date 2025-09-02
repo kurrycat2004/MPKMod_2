@@ -1,5 +1,10 @@
 # MPK Mod
 
+> ⚠️ **Archived Repository**
+> 
+> This repository has been **archived** and is no longer maintained here.
+> It has been **moved to the [MPKMod Organization](https://github.com/MPKMod/MPKMod2)**.
+
 [![Latest Build](https://github.com/kurrycat2004/MPKMod_2/actions/workflows/gradle.yml/badge.svg)](#snapshots)
 ![](/img/banner.webp)
 
